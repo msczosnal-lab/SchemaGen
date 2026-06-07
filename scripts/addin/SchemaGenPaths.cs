@@ -10,6 +10,6 @@ public static class SchemaGenPaths
 
     public const string PowerPageDescription = "Zasilanie 400VAC";
 
-    public const double MacroInsertX = 14.0;
+    public const double MacroInsertX = 16.0;
     public const double MacroInsertY = 0.0;
 }
