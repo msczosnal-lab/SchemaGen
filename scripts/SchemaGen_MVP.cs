@@ -23,7 +23,7 @@ public static class SchemaGenConfig
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\101_02_Variant_2\Frequency_Control.ema";
 
     public const double DriveMacroInsertX = 16.0;
-    public const double DriveMacroInsertY = 8.35; // wycentrowane w ramce RY 0,2..70
+    public const double DriveMacroInsertY = 6.35; // ramka RY 0,2..70, przetestowane
 
     public static string ResolveConfigPath()
     {
@@ -166,7 +166,14 @@ public class SchemaGen_MVP
         }
 
         if (!InsertDriveMacro(projectPath, drivePageName, driveMacroPath, driveType))
+        {
             ShowError("Akcja SchemaGenInsertPowerMacro (falownik) nie powiodła się.");
+            return;
+        }
+
+        // Generuj połączenia — tworzy odnośniki między punktami przerwania potencjałów
+        new CommandLineInterpreter().Execute(
+            "generate /TYPE:CONNECTIONS /PROJECT:\"" + projectPath + "\"");
     }
 
     private static bool OpenProject(string projectPath)
