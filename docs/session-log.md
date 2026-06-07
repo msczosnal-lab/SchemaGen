@@ -4,6 +4,25 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-07 — koniec dnia (sesja 1.4+)
+**Etap:** Faza 1 — sesja 1.4 ✅ domknięta
+**Zrobione (dodatkowo):**
+- **Fix nawigatora stron:** `CreatePageAction.cs` — `Properties.Page.PAGE_NOMINATIOMN` (#11011), nie #11013 (`PAGE_SUBCOUNTER`); opisy widoczne w drzewie ✅
+- **Test EPLAN OK:** nazwy „Zasilanie 400VAC” / „Sterowanie napędem” w nawigatorze
+
+**Na sesję 1.5 (pierwszy krok):**
+- **Obniżyć oba makra o 1,5 jednostki RY** — `MacroInsertY` i `DriveMacroInsertY` w `SchemaGenPaths.cs` (obecnie **8.35** → docelowo **6.85**); makra są zbyt wysoko na stronie
+- Zweryfikować odnośniki między stronami (`generate CONNECTIONS` / interruption points)
+- Obwód Start/Stop na stronie 3
+
+**Prompt na start sesji 1.5:**
+```
+Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md @docs/eplan-api-notes.md
+Sesja 1.5: Obniż makra o 1,5 RY (MacroInsertY/DriveMacroInsertY: 8.35→6.85). Zweryfikuj odnośniki między stronami, dodaj obwód Start/Stop na stronie 3.
+```
+
+---
+
 #### 2026-06-07 — koniec dnia
 **Etap:** Faza 1 — sesja 1.4 ✅ zakończona (implementacja + test EPLAN + debug layoutu)
 **Podsumowanie dnia:** trzy iteracje sesji 1.3→1.4 — od pierwszego makra 400V, przez parser XML i makro falownika, po decyzję o **dwóch stronach**, opisy stron, strojenie pozycji makr (Y=8.35) i `generate CONNECTIONS`. Faza 1 na 4/6 sesji MVP.

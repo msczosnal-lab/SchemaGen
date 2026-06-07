@@ -27,7 +27,7 @@ Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API →
 | Parametr | Kierunek | Opis |
 |----------|----------|------|
 | `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna — fallback: aktywny projekt) |
-| `PAGEDESCRIPTION` | wejście | Opcjonalny opis strony (ustawiany po Create przez `Properties[11013]`) |
+| `PAGEDESCRIPTION` | wejście | Opcjonalny opis strony (po Create: `Properties.Page.PAGE_NOMINATIOMN` #11011) |
 | `PAGENAME` | wyjście | Nazwa utworzonej strony, np. `=SCHEMAGEN+MAIN/1` |
 
 ### SchemaGenInsertPowerMacro

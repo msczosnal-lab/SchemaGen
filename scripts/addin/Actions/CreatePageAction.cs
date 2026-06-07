@@ -32,9 +32,10 @@ public class SchemaGenCreatePageAction : IEplAction
         Page oNewPage = new Page();
         oNewPage.Create(oProject, DocumentTypeManager.DocumentType.Circuit, oPageProps);
 
-        // Opis strony musi być ustawiony po Create (PagePropertyList przyjmuje tylko elementy nazwy)
+        // Opis strony (PAGE_NOMINATIOMN #11011) — widoczny w nawigatorze stron; ustawiany po Create
+        // UWAGA: 11013 to PAGE_SUBCOUNTER, nie opis!
         if (!string.IsNullOrEmpty(pageDescription))
-            oNewPage.Properties[11013] = pageDescription; // PAGE_DESCRIPTION (brak enuma w tej wersji API)
+            oNewPage.Properties[Properties.Page.PAGE_NOMINATIOMN] = pageDescription;
 
         new CommandLineInterpreter().Execute("edit /Name:" + oNewPage.Name);
         ctx.AddParameter("PAGENAME", oNewPage.Name);

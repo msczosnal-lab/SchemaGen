@@ -9,9 +9,9 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 - Parser: klasa `SchemaGenConfig` w [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs)
 - **EPLAN S046013:** osobny plik `.cs` bez `[Start]` w `Skrypty\` → helper w tym samym pliku co `[Start]`
 - Orkiestracja: LoadConfig → CreatePage (400V) → InsertPowerMacro → CreatePage (napęd) → InsertDriveMacro → `generate /TYPE:CONNECTIONS`
-- **CreatePage + opis:** [`CreatePageAction.cs`](../scripts/addin/Actions/CreatePageAction.cs) — `PAGEDESCRIPTION`; opis **po** `Page.Create()` przez `Properties[11013]` (`PagePropertyList` przy Create przyjmuje tylko elementy nazwy strony)
+- **CreatePage + opis:** [`CreatePageAction.cs`](../scripts/addin/Actions/CreatePageAction.cs) — `PAGEDESCRIPTION`; opis **po** `Page.Create()` przez `Properties.Page.PAGE_NOMINATIOMN` (#11011). **Pułapka:** #11013 to `PAGE_SUBCOUNTER`, nie opis — stąd w nawigatorze widać tylko liczniki 1, 2
 - Makra: [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs) — `MACROX`, `MACROY`, `DRIVETYPE`
-- Pozycja Y makr: `MacroInsertY` / `DriveMacroInsertY` = **8.35** w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs) (wcześniej empirycznie 6.35)
+- Pozycja Y makr: `MacroInsertY` / `DriveMacroInsertY` = **8.35** w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs) — **do obniżenia o 1,5 RY na sesji 1.5** (→ 6.85; makra zbyt wysoko)
 - **Otwarte:** `generate /TYPE:CONNECTIONS` — punkty przerwania potencjałów w makrach są; **odnośnik między stronami nie potwierdzony** → sesja 1.5: `PotentialDistributionPoint`, interruption points
 
 ## Sesja 1.3 — 2026-06-07 ✅ przetestowane

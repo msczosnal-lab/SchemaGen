@@ -84,12 +84,13 @@ SchemaGen_MVP.cs + add-in SchemaGen.EplAddIn..dll — działające w EPLAN:
 
 ✅ Wczytuje XML konfiguracji (901_Drive_Design.xml, parser SchemaGenConfig w skrypcie)
 ✅ Otwiera projekt Hello_world.elk
-✅ Tworzy dwie strony schematu (=SCHEMAGEN+MAIN/N): zasilanie 400VAC + sterowanie napędem (opisy stron przez PAGEDESCRIPTION)
+✅ Tworzy dwie strony schematu (=SCHEMAGEN+MAIN/N): opisy w nawigatorze przez PAGE_NOMINATIOMN (#11011)
 ✅ Wstawia makro 400VAC_Power_Supply.ema (strona 1)
 ✅ Wstawia makro Frequency_Control.ema z danymi XML SE_Drive_Type (strona 2)
 ✅ Po makrach: generate /TYPE:CONNECTIONS (punkty przerwania w makrach — odnośniki między stronami do weryfikacji w 1.5)
 
 Następny krok (sesja 1.5):
+- Obniżyć oba makra o 1,5 RY: MacroInsertY/DriveMacroInsertY 8.35 → 6.85 (SchemaGenPaths.cs)
 - Zweryfikować / ustawić odnośniki potencjałów między stronami (PotentialDistributionPoint, interruption points)
 - Dodać obwód przekaźnika Start/Stop na stronie 3
 - Sesja 1.6: połączenia silnika + podmiana tagów
