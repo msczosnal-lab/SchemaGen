@@ -1,0 +1,53 @@
+---
+description: Kontekst projektu EPLAN SchemaGen — środowisko, ścieżki, konwencje C#
+alwaysApply: true
+---
+
+# EPLAN SchemaGen
+
+## Projekt
+Automatyczne generowanie schematów elektrycznych w EPLAN Electric P8 2025 na podstawie XML konfiguracji.
+
+## Środowisko
+- EPLAN Electric P8 2025 Professional + API Extension
+- Sandbox: `C:\Users\Public\EPLAN\Data\Projekty\Schemagen\Hello_world.edb`
+- Referencja: `C:\Users\Public\EPLAN\Data\Projekty\Schemagen\EPLAN_Sample_Project.edb`
+- Makra: `C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\`
+- Skrypt docelowy (runtime): `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`
+- Kod źródłowy (repo): `scripts/`
+
+## Stack
+- Język: C# (skrypt `.cs`, nie plugin DLL na start)
+- Wzorzec: istniejące skrypty EPLAN (np. `PageNavi_ContextMenu_OpenFolders.cs`)
+- Model danych wejściowych: XML `ConfigurationVariable` (jak `901_Drive_Design.xml`)
+
+## Konwencje
+- Komentarze i komunikaty dla użytkownika po polsku
+- Małe, testowalne kroki — jedna funkcja EPLAN API na raz
+- Walidacja agenta przez eksport CSV połączeń, nie PDF
+- Po każdej udanej sesji: notatka w `docs/eplan-api-notes.md`
+
+## MVP (SchemaGen_MVP.cs)
+1. Wczytaj XML konfiguracji
+2. Otwórz `Hello_world.edb`
+3. Utwórz stronę schematu
+4. Wstaw `400VAC_Power_Supply.ema` i `Frequency_Control.ema`
+5. Dodaj obwód przekaźnika podtrzymującego Start/Stop
+6. Podłącz uzwojenie silnika do falownika
+7. Podmień oznaczenia (np. `=MACHINE+CABINET-M1`)
+
+## Zakazy
+- Nie zakładaj dostępu do Visual Studio / pluginu DLL na tym etapie
+- Nie wymyślaj własnego formatu konfiguracji — używaj XML z Sample Project
+- Nie generuj safety / layout szafy w MVP
+
+## EPLAN API — baza wiedzy (lokalna, bez web)
+- **Start:** `docs/eplan-kb/INDEX.md`
+- **Ściąga MVP:** `docs/eplan-kb/schemagen-cheatsheet.md`
+- **Tematy:** `docs/eplan-kb/topics/{scripts,datamodel,heservices,actions-cli}.md`
+- **Szukaj:** `grep` w `docs/eplan-kb/` — nie używaj WebSearch dla EPLAN API
+- **Źródło:** 104 pliki HTML z `EPLAN API docs` + mirror online 2025
+- **Regeneracja:** `python scripts/extract_eplan_docs.py` → `python scripts/build_eplan_kb.py`
+
+## Kontekst
+Pełny opis: `docs/project-context.txt`
