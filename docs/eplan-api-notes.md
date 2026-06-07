@@ -2,17 +2,17 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
-## Sesja 1.4 — 2026-06-07 (implementacja gotowa, test EPLAN oczekujący)
+## Sesja 1.4 — 2026-06-07 ✅ przetestowane (debug: dwie strony)
 
-- **Zakres:** parsowanie `901_Drive_Design.xml` + wstawienie `Frequency_Control.ema` obok makra 400V
-- Parser: klasa `SchemaGenConfig` w [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — `System.Xml.XmlDocument`, `//ConfigurationVariable`
-- **EPLAN S046013:** osobny plik `.cs` bez `[Start]` w `Skrypty\` powoduje „Brak atrybutów do wczytania” — helper musi być w tym samym pliku co `[Start]`
-- Ścieżka XML: primary `Skrypty\Schemagen\config\`, fallback `EPLAN_Sample_Macros.edb\DOC\`
-- Logika wyboru makra: `SE_Drive_Control == "Frequency Converter"` → `Frequency_Control.ema`
-- Orkiestracja: [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — LoadConfig → CreatePage → InsertPowerMacro (400V) → InsertDriveMacro
-- Add-in: [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs) — nowe parametry `MACROX`, `MACROY`, `DRIVETYPE`
-- Pozycja falownika: `DriveMacroInsertY = 40.0` (strojenie w teście jeśli nachodzenie)
-- **Oczekiwany wynik testu:** dwa makra na `=SCHEMAGEN+MAIN/N`, dialog z `Typ napędu (XML): 1,5 kW`
+- **Wynik testu:** XML wczytany, makro 400V na stronie 1, `Frequency_Control.ema` na stronie 2, opisy stron ustawione
+- **Decyzja layoutu:** dwa makra **nie mieszczą się na jednej stronie** → osobne strony zasilania i napędu
+- Parser: klasa `SchemaGenConfig` w [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs)
+- **EPLAN S046013:** osobny plik `.cs` bez `[Start]` w `Skrypty\` → helper w tym samym pliku co `[Start]`
+- Orkiestracja: LoadConfig → CreatePage (400V) → InsertPowerMacro → CreatePage (napęd) → InsertDriveMacro → `generate /TYPE:CONNECTIONS`
+- **CreatePage + opis:** [`CreatePageAction.cs`](../scripts/addin/Actions/CreatePageAction.cs) — `PAGEDESCRIPTION`; opis **po** `Page.Create()` przez `Properties[11013]` (`PagePropertyList` przy Create przyjmuje tylko elementy nazwy strony)
+- Makra: [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs) — `MACROX`, `MACROY`, `DRIVETYPE`
+- Pozycja Y makr: `MacroInsertY` / `DriveMacroInsertY` = **8.35** w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs) (wcześniej empirycznie 6.35)
+- **Otwarte:** `generate /TYPE:CONNECTIONS` — punkty przerwania potencjałów w makrach są; **odnośnik między stronami nie potwierdzony** → sesja 1.5: `PotentialDistributionPoint`, interruption points
 
 ## Sesja 1.3 — 2026-06-07 ✅ przetestowane
 

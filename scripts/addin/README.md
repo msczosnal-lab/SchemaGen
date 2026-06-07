@@ -1,6 +1,6 @@
 # SchemaGen Add-in — mapa plików
 
-**Status sesji 1.4:** implementacja gotowa — parser XML w skrypcie, makro falownika przez `SchemaGenInsertPowerMacro` z `MACROPATH`/`MACROX`/`MACROY`.
+**Status sesji 1.4:** ✅ przetestowane — dwie strony, `PAGEDESCRIPTION`, makra przez `SchemaGenInsertPowerMacro`.
 
 Kompilacja: [`../build_addin.ps1`](../build_addin.ps1) → `dist/SchemaGen.EplAddIn..dll` (auto-kopia do EPLAN)
 
@@ -27,6 +27,7 @@ Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API →
 | Parametr | Kierunek | Opis |
 |----------|----------|------|
 | `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna — fallback: aktywny projekt) |
+| `PAGEDESCRIPTION` | wejście | Opcjonalny opis strony (ustawiany po Create przez `Properties[11013]`) |
 | `PAGENAME` | wyjście | Nazwa utworzonej strony, np. `=SCHEMAGEN+MAIN/1` |
 
 ### SchemaGenInsertPowerMacro

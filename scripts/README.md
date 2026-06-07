@@ -20,7 +20,7 @@ Kod źródłowy skryptów C# dla EPLAN API.
 
 | 1.3 ✅ | `addin/Actions/InsertPowerMacroAction.cs` | Makro 400V na stronie |
 
-| 1.4 | `SchemaGen_MVP.cs` (parser XML w tym pliku), `InsertPowerMacroAction.cs` | `Frequency_Control.ema` + XML (test EPLAN) |
+| 1.4 ✅ | `SchemaGen_MVP.cs`, `CreatePageAction.cs`, `InsertPowerMacroAction.cs` | Dwie strony + XML + generate CONNECTIONS |
 
 
 

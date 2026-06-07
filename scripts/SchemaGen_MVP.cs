@@ -1,7 +1,7 @@
 //#################################################################################################################################################
 // SchemaGen — SchemaGen_MVP
 //#################################################################################################################################################
-// Sesja 1.4: Wczytuje XML → otwiera Hello_world.elk → tworzy stronę → wstawia 400V + Frequency_Control.ema
+// Sesja 1.4: Wczytuje XML → dwie strony (400V + napęd) → generate CONNECTIONS
 // Orkiestracja przez CLI; logika DataModel/HEServices w add-in DLL.
 // Kod źródłowy: repo scripts/ → kopia do C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\
 // UWAGA EPLAN: tylko jeden plik .cs w Skrypty\Schemagen\ — helper SchemaGenConfig w tym samym pliku.
@@ -166,7 +166,13 @@ public class SchemaGen_MVP
         }
 
         if (!InsertDriveMacro(projectPath, drivePageName, driveMacroPath, driveType))
+        {
             ShowError("Akcja SchemaGenInsertPowerMacro (falownik) nie powiodła się.");
+            return;
+        }
+
+        // Połączenia i odnośniki między punktami przerwania potencjałów (L1/L2/L3/PE) — weryfikacja w 1.5
+        new CommandLineInterpreter().Execute("generate /TYPE:CONNECTIONS");
     }
 
     private static bool OpenProject(string projectPath)

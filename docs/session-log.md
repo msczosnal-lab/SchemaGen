@@ -4,6 +4,34 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-07 — koniec dnia
+**Etap:** Faza 1 — sesja 1.4 ✅ zakończona (implementacja + test EPLAN + debug layoutu)
+**Podsumowanie dnia:** trzy iteracje sesji 1.3→1.4 — od pierwszego makra 400V, przez parser XML i makro falownika, po decyzję o **dwóch stronach**, opisy stron, strojenie pozycji makr (Y=8.35) i `generate CONNECTIONS`. Faza 1 na 4/6 sesji MVP.
+
+#### 2026-06-07
+**Etap:** Faza 1 — sesja 1.4 debug ✅ (dwie strony, opisy, generate) — częściowy sukces
+**Zrobione:**
+- `SchemaGen_MVP.cs` — **dwie strony**: `powerPageName` (400VAC) + `drivePageName` (falownik); po makrach `generate /TYPE:CONNECTIONS`
+- `CreateSchematicPage(..., description)` — parametr `PAGEDESCRIPTION` do add-inu
+- `CreatePageAction.cs` — opis strony po `Create()` przez `Properties[11013]` (brak `Properties.Page.PAGEDESCRIPTION` w API 2025)
+- `SchemaGenPaths.cs` — `DrivePageDescription`, `MacroInsertY` / `DriveMacroInsertY` = **8.35** (wycentrowanie w ramce; wcześniej testowano 6.35)
+- **Test EPLAN OK:** dwa makra na dwóch stronach, opisy stron, dialog z `Typ napędu (XML): 1,5 kW`
+
+**Otwarte (sesja 1.5):**
+- Czy `generate /TYPE:CONNECTIONS` tworzy **odnośniki** między punktami przerwania na stronach? (punkty są, link między stronami — do weryfikacji)
+- Obwód Start/Stop na **stronie 3**
+- Docelowo: API `PotentialDistributionPoint` / interruption points — czytanie i ustawianie powiązań potencjałów między stronami
+
+**Deploy:** `build_addin.ps1` (CreatePage, Paths) + kopia `SchemaGen_MVP.cs` do `Skrypty\Schemagen\`
+
+**Prompt na start sesji 1.5:**
+```
+Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md @docs/eplan-api-notes.md
+Sesja 1.5: Zweryfikuj odnośniki między stronami (generate CONNECTIONS / interruption points), dodaj obwód Start/Stop na stronie 3.
+```
+
+---
+
 #### 2026-06-07
 **Etap:** Faza 1 — sesja 1.4 (XML + makro falownika) — implementacja ✅, test EPLAN do wykonania
 **Zrobione:**

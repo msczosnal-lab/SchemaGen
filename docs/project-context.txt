@@ -79,19 +79,24 @@ new CommandLineInterpreter().Execute("XExport /Format:CSV /Filename:connections.
 // PDF dla człowieka
 new CommandLineInterpreter().Execute("XPrintPdf /Filename:schemat.pdf");
 
-Pierwsze zadanie do wykonania (nieukończone w sesji)
-Napisać skrypt SchemaGen_MVP.cs który:
+Status MVP (Faza 1 — sesja 1.4 ✅, 2026-06-07)
+SchemaGen_MVP.cs + add-in SchemaGen.EplAddIn..dll — działające w EPLAN:
 
-Wczytuje XML konfiguracji (format jak 901_Drive_Design.xml)
-Otwiera projekt Hello_world.edb
-Tworzy nową stronę schematu
-Wstawia makro 400VAC_Power_Supply.ema
-Wstawia makro Frequency_Control.ema
-Dodaje obwód przekaźnika podtrzymującego (Start/Stop) — styk NO przycisku START, styk NC przycisku STOP, cewka przekaźnika KA, styk podtrzymujący KA
-Podłącza uzwojenie silnika do wyjść falownika
-Podmienia oznaczenia (np. =MACHINE+CABINET-M1)
+✅ Wczytuje XML konfiguracji (901_Drive_Design.xml, parser SchemaGenConfig w skrypcie)
+✅ Otwiera projekt Hello_world.elk
+✅ Tworzy dwie strony schematu (=SCHEMAGEN+MAIN/N): zasilanie 400VAC + sterowanie napędem (opisy stron przez PAGEDESCRIPTION)
+✅ Wstawia makro 400VAC_Power_Supply.ema (strona 1)
+✅ Wstawia makro Frequency_Control.ema z danymi XML SE_Drive_Type (strona 2)
+✅ Po makrach: generate /TYPE:CONNECTIONS (punkty przerwania w makrach — odnośniki między stronami do weryfikacji w 1.5)
 
-Plik docelowy: C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\SchemaGen_MVP.cs
+Następny krok (sesja 1.5):
+- Zweryfikować / ustawić odnośniki potencjałów między stronami (PotentialDistributionPoint, interruption points)
+- Dodać obwód przekaźnika Start/Stop na stronie 3
+- Sesja 1.6: połączenia silnika + podmiana tagów
+
+Pliki: repo scripts/ → kopia SchemaGen_MVP.cs do C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\
+Build add-in: powershell scripts/build_addin.ps1
+Kontekst sesji: docs/session-log.md (ostatni wpis), docs/ROADMAP.md, docs/eplan-api-notes.md
 
 Opcje frontendu (przyszłość)
 
