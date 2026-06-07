@@ -34,7 +34,7 @@ public class SchemaGenCreatePageAction : IEplAction
 
         // Opis strony musi być ustawiony po Create (PagePropertyList przyjmuje tylko elementy nazwy)
         if (!string.IsNullOrEmpty(pageDescription))
-            oNewPage.Properties[Properties.Page.PAGEDESCRIPTION] = pageDescription;
+            oNewPage.Properties[11013] = pageDescription; // PAGE_DESCRIPTION (brak enuma w tej wersji API)
 
         new CommandLineInterpreter().Execute("edit /Name:" + oNewPage.Name);
         ctx.AddParameter("PAGENAME", oNewPage.Name);
