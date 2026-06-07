@@ -2,16 +2,27 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
-## Sesja 1.3 — 2026-06-07
+## Sesja 1.4 — 2026-06-07 (implementacja gotowa, test EPLAN oczekujący)
 
-- Co zaimplementowano: wstawienie makra `400VAC_Power_Supply.ema` przez akcję `SchemaGenInsertPowerMacro`
-- Architektura: add-in rozbity na małe pliki — mapa w [`scripts/addin/README.md`](../scripts/addin/README.md)
-- Kluczowe pliki: [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs), [`ProjectResolver.cs`](../scripts/addin/ProjectResolver.cs), [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs)
-- API: `Insert.WindowMacro(path, 0, page, PointD(70,0), Relative)` — wzorzec w [`schemagen-cheatsheet.md`](eplan-kb/schemagen-cheatsheet.md)
+- **Zakres:** parsowanie `901_Drive_Design.xml` + wstawienie `Frequency_Control.ema` obok makra 400V
+- Parser: [`SchemaGenConfig.cs`](../scripts/SchemaGenConfig.cs) — `System.Xml.XmlDocument`, `//ConfigurationVariable`
+- Ścieżka XML: primary `Skrypty\Schemagen\config\`, fallback `EPLAN_Sample_Macros.edb\DOC\`
+- Logika wyboru makra: `SE_Drive_Control == "Frequency Converter"` → `Frequency_Control.ema`
+- Orkiestracja: [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — LoadConfig → CreatePage → InsertPowerMacro (400V) → InsertDriveMacro
+- Add-in: [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs) — nowe parametry `MACROX`, `MACROY`, `DRIVETYPE`
+- Pozycja falownika: `DriveMacroInsertY = 40.0` (strojenie w teście jeśli nachodzenie)
+- **Oczekiwany wynik testu:** dwa makra na `=SCHEMAGEN+MAIN/N`, dialog z `Typ napędu (XML): 1,5 kW`
+
+## Sesja 1.3 — 2026-06-07 ✅ przetestowane
+
+- **Wynik testu:** makro `400VAC_Power_Supply.ema` widoczne na stronie `=SCHEMAGEN+MAIN/N` w `Hello_world.elk`
+- Implementacja: akcja `SchemaGenInsertPowerMacro` → [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs)
+- Orkiestracja: [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — CreatePage → PAGENAME → InsertPowerMacro
+- Mapa plików add-in: [`scripts/addin/README.md`](../scripts/addin/README.md)
+- API: `Insert.WindowMacro` — wzorzec w [`schemagen-cheatsheet.md`](eplan-kb/schemagen-cheatsheet.md)
 - Ścieżka makra: [`eplan-data-paths.txt`](eplan-data-paths.txt) → `SchemaGenPaths.PowerSupply400Vac`
-- Ograniczenie: EPLAN wymaga **jednego otwartego projektu**; `ProjectResolver` używa `GetCurrentProject(false)` jako fallback
-- Kompilacja: `scripts/build_addin.ps1` — OK, `dist/SchemaGen.EplAddIn..dll`
-- Test w EPLAN: oczekiwany wynik — makro zasilania 400V na stronie `=SCHEMAGEN+MAIN/N`, komunikat z `Functions.Length > 0`
+- Ograniczenie potwierdzone: **jeden otwarty projekt** naraz; `ProjectResolver` + `GetCurrentProject(false)` działa
+- Build/deploy: `build_addin.ps1` (auto-kopia DLL) lub `watch_addin.ps1` przy debugu add-inu
 
 ## Sesja 1.2 — 2026-06-05
 

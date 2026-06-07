@@ -12,8 +12,9 @@ XML konfiguracji:
 
 Skrypty:
   Folder:  C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\
-  Wzorzec: PageNavi_ContextMenu_OpenFolders.cs
-  MVP:     SchemaGen_MVP.cs (do napisania)
+  MVP:     SchemaGen_MVP.cs + SchemaGenConfig.cs (sesje 1.1–1.4)
+  Add-in:  SchemaGen.EplAddIn..dll (kompilacja: scripts/build_addin.ps1)
+  Repo:    scripts/ → kopia do folderu Skrypty\Schemagen\
 
 Makra:
   Biblioteka: C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\

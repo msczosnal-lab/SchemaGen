@@ -5,22 +5,40 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 ---
 
 #### 2026-06-07
-**Etap:** Faza 1 — sesja 1.3 (makro zasilania 400V)
+**Etap:** Faza 1 — sesja 1.4 (XML + makro falownika) — implementacja ✅, test EPLAN do wykonania
 **Zrobione:**
-- Add-in rozbity na małe pliki w `scripts/addin/` — mapa: `scripts/addin/README.md`
-- Nowa akcja `SchemaGenInsertPowerMacro` → `Insert.WindowMacro` na stronie z `PAGENAME`
-- `SchemaGen_MVP.cs` — łańcuch: CreatePage → odczyt PAGENAME → InsertPowerMacro
-- `build_addin.ps1` — kompilacja wszystkich `addin/**/*.cs`
-- Kompilacja DLL: OK (`dist/SchemaGen.EplAddIn..dll`)
+- `scripts/SchemaGenConfig.cs` — parser `ConfigurationVariable`, resolve ścieżki XML (primary + fallback)
+- `SchemaGen_MVP.cs` — łańcuch: LoadConfig → CreatePage → 400V → Frequency_Control
+- `SchemaGenPaths.cs` — `FrequencyControl`, `DriveMacroInsertX/Y`
+- `InsertPowerMacroAction.cs` — opcjonalne `MACROX`, `MACROY`, `DRIVETYPE`
+- `build_addin.ps1` OK — DLL skopiowana do EPLAN
 
-**Następny krok:** Test w EPLAN → **Sesja 1.4** — parsuj XML + wstaw `Frequency_Control.ema`
+**Test EPLAN (kroki):**
+1. Skopiuj do `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`: `SchemaGen_MVP.cs`, `SchemaGenConfig.cs`
+2. Skopiuj `config\901_Drive_Design.xml` → `Skrypty\Schemagen\config\`
+3. Zamknij inne projekty → Narzędzia → Skrypty → `SchemaGen_MVP.cs`
+4. Oczekiwany wynik: dwa makra na stronie + dialog z `Typ napędu (XML): 1,5 kW`
 
-**Test sesji 1.3:**
-1. Zamknij inne projekty EPLAN (tylko `Hello_world.elk`)
-2. `powershell scripts/build_addin.ps1`
-3. Skopiuj `dist/SchemaGen.EplAddIn..dll` + `SchemaGen_MVP.cs` do `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`
-4. Po zmianie DLL: EPLAN → API → Zarządzaj → Wczytaj
-5. Uruchom skrypt → oczekiwane makro 400V na nowej stronie `=SCHEMAGEN+MAIN/N`
+**Następny krok:** po teście EPLAN → **Sesja 1.5** (obwód przekaźnika Start/Stop)
+
+**Prompt na start sesji 1.5:**
+```
+Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md
+Sesja 1.5: Dodaj obwód przekaźnika Start/Stop (przyciski + cewka KA + styk podtrzymujący).
+```
+
+---
+
+#### 2026-06-07
+**Etap:** Faza 1 — sesja 1.3 (makro zasilania 400V) ✅
+**Zrobione:**
+- Add-in w `scripts/addin/` — mapa plików: `scripts/addin/README.md`
+- Akcja `SchemaGenInsertPowerMacro` → makro 400V na stronie z `PAGENAME`
+- `SchemaGen_MVP.cs` — łańcuch: CreatePage → PAGENAME → InsertPowerMacro
+- `build_addin.ps1` + `watch_addin.ps1` — kompilacja, auto-kopia DLL do EPLAN
+- **Test EPLAN OK:** makro `400VAC_Power_Supply.ema` widoczne na `=SCHEMAGEN+MAIN/N`
+
+**Następny krok:** **Sesja 1.4** — parsuj XML + wstaw `Frequency_Control.ema`
 
 **Prompt na start sesji 1.4:**
 ```

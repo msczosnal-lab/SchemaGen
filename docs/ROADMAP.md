@@ -86,9 +86,9 @@ flowchart TD
 
 | Sesja | Zakres | Wynik testu w EPLAN |
 |-------|--------|------------------------|
-| **1.1** | Otwórz `Hello_world.edb` | Komunikat sukcesu, projekt otwarty |
-| **1.2** | Utwórz stronę schematu | Nowa strona widoczna w projekcie |
-| **1.3** | Wstaw `400VAC_Power_Supply.ema` | Makro zasilania na stronie |
+| **1.1** ✅ | Otwórz `Hello_world.edb` | Komunikat sukcesu, projekt otwarty |
+| **1.2** ✅ | Utwórz stronę schematu | Nowa strona widoczna w projekcie |
+| **1.3** ✅ | Wstaw `400VAC_Power_Supply.ema` | Makro zasilania widoczne na stronie |
 | **1.4** | Parsuj XML + wstaw `Frequency_Control.ema` | Dwa makra, dane z XML |
 | **1.5** | Obwód przekaźnika Start/Stop | Przyciski + cewka KA + styk podtrzymujący |
 | **1.6** | Połączenia silnika + podmiana tagów | Pełny MVP techniczny |

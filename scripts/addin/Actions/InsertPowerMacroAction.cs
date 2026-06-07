@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using Eplan.EplApi.ApplicationFramework;
 using Eplan.EplApi.Base;
@@ -51,22 +52,38 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
             return false;
         }
 
+        double macroX = SchemaGenPaths.MacroInsertX;
+        double macroY = SchemaGenPaths.MacroInsertY;
+        string macroXStr = "";
+        string macroYStr = "";
+        ctx.GetParameter("MACROX", ref macroXStr);
+        ctx.GetParameter("MACROY", ref macroYStr);
+        if (!string.IsNullOrEmpty(macroXStr))
+            double.TryParse(macroXStr, NumberStyles.Float, CultureInfo.InvariantCulture, out macroX);
+        if (!string.IsNullOrEmpty(macroYStr))
+            double.TryParse(macroYStr, NumberStyles.Float, CultureInfo.InvariantCulture, out macroY);
+
         Insert oInsert = new Insert();
         oInsert.WindowMacro(
             macroPath,
             0,
             oPage,
-            new PointD(SchemaGenPaths.MacroInsertX, SchemaGenPaths.MacroInsertY),
+            new PointD(macroX, macroY),
             Insert.MoveKind.Relative);
 
         new CommandLineInterpreter().Execute("edit /Name:" + pageName);
 
+        string driveType = "";
+        ctx.GetParameter("DRIVETYPE", ref driveType);
+
         int funcCount = oPage.Functions.Length;
-        SchemaGenUi.ShowSuccess(
-            "SchemaGen — makro",
-            "Wstawiono makro:\n" + macroPath
-                + "\nStrona: " + pageName
-                + "\nFunkcji na stronie: " + funcCount);
+        string message = "Wstawiono makro:\n" + macroPath
+            + "\nStrona: " + pageName
+            + "\nFunkcji na stronie: " + funcCount;
+        if (!string.IsNullOrEmpty(driveType))
+            message += "\nTyp napędu (XML): " + driveType;
+
+        SchemaGenUi.ShowSuccess("SchemaGen — makro", message);
         return true;
     }
 }
