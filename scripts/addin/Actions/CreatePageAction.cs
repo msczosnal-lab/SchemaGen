@@ -25,6 +25,7 @@ public class SchemaGenCreatePageAction : IEplAction
         PagePropertyList oPageProps = new PagePropertyList();
         oPageProps[Properties.Page.DESIGNATION_PLANT] = SchemaGenPaths.Plant;
         oPageProps[Properties.Page.DESIGNATION_LOCATION] = SchemaGenPaths.Location;
+        oPageProps[Properties.Page.DESCRIPTION] = SchemaGenPaths.PowerPageDescription;
 
         Page oNewPage = new Page();
         oNewPage.Create(oProject, DocumentTypeManager.DocumentType.Circuit, oPageProps);
