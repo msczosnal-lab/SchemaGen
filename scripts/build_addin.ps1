@@ -57,19 +57,15 @@ if (Test-Path $deployDir) {
     Copy-Item -Path $outPath -Destination (Join-Path $deployDir $dllName) -Force
     Write-Host "Skopiowano -> $deployDir\$dllName"
 } else {
-    Write-Warning "Folder EPLAN nie istnieje: $deployDir — pominam kopię."
+    Write-Warning "Folder EPLAN nie istnieje: $deployDir - pomijam kopie."
 }
 
-# --- Hot-reload add-in w EPLAN (jeśli EPLAN jest otwarty) ---
+# --- Hot-reload add-in w EPLAN (jesli EPLAN jest otwarty) ---
 $eplanExe = Get-Process -Name "EPLAN" -ErrorAction SilentlyContinue
 if ($eplanExe) {
-    $dllDest = Join-Path $deployDir $dllName
-    Write-Host "EPLAN jest otwarty — próba hot-reload add-in..."
-    # Użyj skryptu orkiestrującego SchemaGen_MVP.cs który sam wywołuje EplApiModuleAction,
-    # albo wpisz w EPLAN: Narzędzia -> Skrypty -> SchemaGen_MVP.cs
-    Write-Host "Aby przeładować: w EPLAN uruchom SchemaGen_MVP.cs (wczyta DLL przez EplApiModuleAction)"
+    Write-Host "EPLAN otwarty - aby przeladowac: Narzedzia -> Skrypty -> SchemaGen_MVP.cs"
 } else {
-    Write-Host "EPLAN nie jest uruchomiony — DLL gotowa do załadowania przy starcie."
+    Write-Host "EPLAN nie jest uruchomiony - DLL gotowa do zaladowania przy starcie."
 }
 
-Write-Host "Rejestracja (pierwsze uruchomienie): EPLAN -> Plik -> Dodatki -> Interfejsy -> API -> Zarządzaj -> Wczytaj"
+Write-Host "Rejestracja (1. uruchomienie): EPLAN -> Plik -> Dodatki -> Interfejsy -> API -> Zarzadzaj -> Wczytaj"

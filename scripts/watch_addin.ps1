@@ -1,4 +1,4 @@
-# Obserwuje scripts/addin/**/*.cs i odpala build_addin.ps1 przy każdej zmianie
+# Obserwuje scripts/addin/**/*.cs i odpala build_addin.ps1 przy kazdej zmianie
 param(
     [string]$EplanBin = ""
 )
@@ -6,8 +6,8 @@ param(
 $addinDir = Join-Path $PSScriptRoot "addin"
 $buildScript = Join-Path $PSScriptRoot "build_addin.ps1"
 
-Write-Host "Watcher uruchomiony. Obserwuję: $addinDir"
-Write-Host "Ctrl+C aby zatrzymać."
+Write-Host "Watcher uruchomiony. Obserwuje: $addinDir"
+Write-Host "Ctrl+C aby zatrzymac."
 Write-Host ""
 
 $watcher = New-Object System.IO.FileSystemWatcher
@@ -20,7 +20,7 @@ $action = {
     $path = $Event.SourceEventArgs.FullPath
     $changeType = $Event.SourceEventArgs.ChangeType
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $changeType : $path"
-    Write-Host "Buduję..."
+    Write-Host "Buduje..."
 
     $args = @()
     if ($Event.MessageData) { $args = @("-EplanBin", $Event.MessageData) }
@@ -40,4 +40,5 @@ try {
     $watcher.EnableRaisingEvents = $false
     $watcher.Dispose()
     Write-Host "Watcher zatrzymany."
+
 }
