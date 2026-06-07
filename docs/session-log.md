@@ -11,14 +11,14 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 - **Test EPLAN OK:** nazwy „Zasilanie 400VAC” / „Sterowanie napędem” w nawigatorze
 
 **Na sesję 1.5 (pierwszy krok):**
-- **Obniżyć oba makra o 1,5 jednostki RY** — `MacroInsertY` i `DriveMacroInsertY` w `SchemaGenPaths.cs` (obecnie **8.35** → docelowo **6.85**); makra są zbyt wysoko na stronie
+- **Obniżyć oba makra o 1,5 jednostki RY** (= **dodać** 1,5 do Y) — `MacroInsertY` i `DriveMacroInsertY` w `SchemaGenPaths.cs` (obecnie **8.35** → docelowo **9.85**); makra są zbyt wysoko na stronie
 - Zweryfikować odnośniki między stronami (`generate CONNECTIONS` / interruption points)
 - Obwód Start/Stop na stronie 3
 
 **Prompt na start sesji 1.5:**
 ```
 Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md @docs/eplan-api-notes.md
-Sesja 1.5: Obniż makra o 1,5 RY (MacroInsertY/DriveMacroInsertY: 8.35→6.85). Zweryfikuj odnośniki między stronami, dodaj obwód Start/Stop na stronie 3.
+Sesja 1.5: Obniż makra o 1,5 RY — dodaj 1,5 do Y (MacroInsertY/DriveMacroInsertY: 8.35→9.85). Zweryfikuj odnośniki między stronami, dodaj obwód Start/Stop na stronie 3.
 ```
 
 ---
