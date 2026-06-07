@@ -28,11 +28,13 @@ public class SchemaGenCreatePageAction : IEplAction
         PagePropertyList oPageProps = new PagePropertyList();
         oPageProps[Properties.Page.DESIGNATION_PLANT] = SchemaGenPaths.Plant;
         oPageProps[Properties.Page.DESIGNATION_LOCATION] = SchemaGenPaths.Location;
-        if (!string.IsNullOrEmpty(pageDescription))
-            oPageProps[Properties.Page.DESIGNATION_DESCRIPTION] = pageDescription;
 
         Page oNewPage = new Page();
         oNewPage.Create(oProject, DocumentTypeManager.DocumentType.Circuit, oPageProps);
+
+        // Opis strony musi być ustawiony po Create (PagePropertyList przyjmuje tylko elementy nazwy)
+        if (!string.IsNullOrEmpty(pageDescription))
+            oNewPage.Properties[Properties.Page.PAGEDESCRIPTION] = pageDescription;
 
         new CommandLineInterpreter().Execute("edit /Name:" + oNewPage.Name);
         ctx.AddParameter("PAGENAME", oNewPage.Name);
