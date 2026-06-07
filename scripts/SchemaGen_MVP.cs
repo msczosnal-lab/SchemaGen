@@ -143,20 +143,29 @@ public class SchemaGen_MVP
             return;
         }
 
-        string pageName = "";
-        if (!CreateSchematicPage(projectPath, ref pageName))
+        // Strona 1: zasilanie 400VAC
+        string powerPageName = "";
+        if (!CreateSchematicPage(projectPath, ref powerPageName, "Zasilanie 400VAC"))
         {
-            ShowError("Akcja SchemaGenCreatePage nie powiodła się.");
+            ShowError("Akcja SchemaGenCreatePage (zasilanie) nie powiodła się.");
             return;
         }
 
-        if (!InsertPowerMacro(projectPath, pageName))
+        if (!InsertPowerMacro(projectPath, powerPageName))
         {
             ShowError("Akcja SchemaGenInsertPowerMacro (400V) nie powiodła się.");
             return;
         }
 
-        if (!InsertDriveMacro(projectPath, pageName, driveMacroPath, driveType))
+        // Strona 2: sterowanie napędem
+        string drivePageName = "";
+        if (!CreateSchematicPage(projectPath, ref drivePageName, "Sterowanie napędem"))
+        {
+            ShowError("Akcja SchemaGenCreatePage (napęd) nie powiodła się.");
+            return;
+        }
+
+        if (!InsertDriveMacro(projectPath, drivePageName, driveMacroPath, driveType))
             ShowError("Akcja SchemaGenInsertPowerMacro (falownik) nie powiodła się.");
     }
 
@@ -182,10 +191,12 @@ public class SchemaGen_MVP
             "EplApiModuleAction /Filename:\"" + addInPath + "\"");
     }
 
-    private static bool CreateSchematicPage(string projectPath, ref string pageName)
+    private static bool CreateSchematicPage(string projectPath, ref string pageName, string description = "")
     {
         ActionCallingContext ctx = new ActionCallingContext();
         ctx.AddParameter("PROJECTPATH", projectPath);
+        if (!string.IsNullOrEmpty(description))
+            ctx.AddParameter("PAGEDESCRIPTION", description);
         if (!new CommandLineInterpreter().Execute("SchemaGenCreatePage", ctx))
             return false;
 

@@ -9,6 +9,7 @@ public static class SchemaGenPaths
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\201_Power_Supply\101_01_Variant_1\400VAC_Power_Supply.ema";
 
     public const string PowerPageDescription = "Zasilanie 400VAC";
+    public const string DrivePageDescription = "Sterowanie napędem";
 
     public const string FrequencyControl =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\101_02_Variant_2\Frequency_Control.ema";

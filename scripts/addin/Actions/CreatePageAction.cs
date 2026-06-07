@@ -22,9 +22,14 @@ public class SchemaGenCreatePageAction : IEplAction
             return false;
         }
 
+        string pageDescription = "";
+        ctx.GetParameter("PAGEDESCRIPTION", ref pageDescription);
+
         PagePropertyList oPageProps = new PagePropertyList();
         oPageProps[Properties.Page.DESIGNATION_PLANT] = SchemaGenPaths.Plant;
         oPageProps[Properties.Page.DESIGNATION_LOCATION] = SchemaGenPaths.Location;
+        if (!string.IsNullOrEmpty(pageDescription))
+            oPageProps[Properties.Page.DESIGNATION_DESCRIPTION] = pageDescription;
 
         Page oNewPage = new Page();
         oNewPage.Create(oProject, DocumentTypeManager.DocumentType.Circuit, oPageProps);
