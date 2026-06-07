@@ -1,0 +1,113 @@
+Kontekst projektu: EPLAN SchemaGen — automatyczne generowanie schematów elektrycznych
+Cel projektu
+Zbudowanie narzędzia które na podstawie prostej konfiguracji (typ napędu, moc, sterowanie) automatycznie generuje gotowy schemat elektryczny w EPLAN Electric P8 2025. Docelowo: agent AI tłumaczy opis słowny lub formularz → generuje schemat → waliduje → eksportuje PDF dla człowieka.
+
+Środowisko
+
+EPLAN Electric P8 2025 Professional — zainstalowany, licencja bezterminowa
+Licencja API: Module: EPLAN API Extension — aktywny ✅
+Projekt testowy: C:\Users\Public\EPLAN\Data\Projekty\Schemagen\Hello_world.edb — pusty, gotowy jako sandbox
+Projekt referencyjny: C:\Users\Public\EPLAN\Data\Projekty\Schemagen\EPLAN_Sample_Project.edb — gotowy przykład EPLAN do analizy
+Dane EPLAN: C:\Users\Public\EPLAN\Data\ — pełna instalacja z bibliotekami
+
+
+Architektura — decyzja: skrypt .cs zamiast pluginu DLL
+EPLAN obsługuje dwa modele kodu:
+Skrypt .csPlugin (DLL)KompilacjaEPLAN robi automatycznieWymagany Visual StudioWdrożenieSkopiuj plik do folderuRejestracja DLLAPIIdentyczneIdentyczneStartNatychmiastTydzień setupu
+Decyzja: zaczynamy od skryptu .cs. Lokalizacja: C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\. Uruchamiany przez EPLAN: menu Narzędzia → Skrypty. Gdy kod działa — migracja do pluginu to proste przepakowanie.
+Przykład istniejącego skryptu w instalacji: PageNavi_ContextMenu_OpenFolders.cs — można użyć jako wzorzec struktury.
+
+Model danych — XML konfiguracji (gotowy format)
+EPLAN Sample Project używa własnego systemu konfiguracji XML. Pliki 3_Sample_StepByStep.xml i 901_Drive_Design.xml pokazują dokładny format:
+xml<ConfigurationVariable name="OP_Power_supply_400V">true</ConfigurationVariable>
+<ConfigurationVariable name="SE_Drive_Control">Frequency Converter</ConfigurationVariable>
+<ConfigurationVariable name="SE_Drive_Type">1,5 kW</ConfigurationVariable>
+<ConfigurationVariable name="OP_Transport_1">true</ConfigurationVariable>
+<ConfigurationVariable name="SE_Transport_1_Type">0,75 kW</ConfigurationVariable>
+Kluczowy wniosek: format danych wejściowych dla agenta jest już zdefiniowany. Agent AI generuje taki XML → skrypt C# go parsuje → EPLAN API wstawia odpowiednie makra. Nie trzeba wymyślać modelu danych od zera.
+
+Biblioteka makr — gotowa do użycia
+Ścieżka bazowa: C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\
+Makra kluczowe dla MVP:
+201_Power_Supply/101_01_Variant_1/
+    400VAC_Power_Supply.ema              ← sekcja zasilania 400V AC
+
+202_Power_Supply_24V/101_01_Variant_1/
+    24VDC_Supply.ema                     ← zasilanie 24V DC
+
+203_Electrical_Engine/
+    101_01_Variant_1/
+        Reverse_Contactor_Control.ema    ← silnik DOL z rewersem (softstart)
+    101_02_Variant_2/
+        Frequency_Control.ema            ← silnik z falownikiem ✅ (core case)
+
+300_Machine_Protection/                  ← safety, wyłączniki krańcowe
+401_PLC_Control_IO_Module/              ← karty DI/DO
+902_PLC_Rack/
+    CPU.ema
+    Digital_input.ema
+    Digital_output.ema
+Biblioteki producentów (makra gotowych urządzeń):
+
+Siemens/Industrial_Controls/ — 3RT2 (styki), 3RV2 (rozruszniki), 3SB3/3SU1 (przyciski)
+SEW/ — napędy MOVIMOT
+FESTO/ — pneumatyka
+Rittal/ — szafy i akcesoria
+
+
+Pętla walidacji agenta — NIE PDF
+PDF to format wyjściowy dla człowieka, nie dla agenta. AI widzi schemat jako obraz — brak semantyki połączeń.
+Właściwe sprzężenie zwrotne:
+Skrypt generuje schemat w EPLAN
+        ↓
+EPLAN API eksportuje CSV listy połączeń
+        ↓
+Agent dostaje CSV + zestaw reguł walidacji:
+  "Czy każdy falownik ma DI Ready?"
+  "Czy safety ma dwa kanały?"
+  "Czy każdy silnik ma PE?"
+  "Czy BOM jest kompletny?"
+        ↓
+Agent zwraca: { errors: [...], warnings: [...], approved: bool }
+        ↓
+Jeśli approved == false → agent modyfikuje XML konfiguracji → iteruje
+        ↓
+Jeśli approved == true → EPLAN eksportuje PDF dla człowieka
+Eksport CSV w EPLAN API:
+csharp// Lista połączeń
+new CommandLineInterpreter().Execute("XExport /Format:CSV /Filename:connections.csv");
+// PDF dla człowieka
+new CommandLineInterpreter().Execute("XPrintPdf /Filename:schemat.pdf");
+
+Pierwsze zadanie do wykonania (nieukończone w sesji)
+Napisać skrypt SchemaGen_MVP.cs który:
+
+Wczytuje XML konfiguracji (format jak 901_Drive_Design.xml)
+Otwiera projekt Hello_world.edb
+Tworzy nową stronę schematu
+Wstawia makro 400VAC_Power_Supply.ema
+Wstawia makro Frequency_Control.ema
+Dodaje obwód przekaźnika podtrzymującego (Start/Stop) — styk NO przycisku START, styk NC przycisku STOP, cewka przekaźnika KA, styk podtrzymujący KA
+Podłącza uzwojenie silnika do wyjść falownika
+Podmienia oznaczenia (np. =MACHINE+CABINET-M1)
+
+Plik docelowy: C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\SchemaGen_MVP.cs
+
+Opcje frontendu (przyszłość)
+
+WinForms/WPF w skrypcie EPLAN — dialog bezpośrednio w EPLAN, zero zewnętrznych zależności, najszybszy start
+Electron/Tauri — desktop app generuje XML → woła skrypt przez CLI EPLAN
+Web app (Next.js) — formularz w przeglądarce, generowanie serwerowe, dla wielu użytkowników
+Agent AI jako frontend — opis słowny → Claude generuje XML konfiguracji → skrypt uruchamia EPLAN
+
+Rekomendacja: zacznij od WinForms w skrypcie. Logika biznesowa i tak jest w .cs — dodanie formularza to 20 linii.
+
+Struktura projektu Cursor (sugerowana)
+schemagen/
+├── SchemaGen_MVP.cs          ← główny skrypt EPLAN
+├── config/
+│   └── 901_Drive_Design.xml  ← przykładowy plik konfiguracji
+├── templates/
+│   └── relay_latch.xml       ← definicja obwodu przekaźnika podtrzymującego
+└── docs/
+    └── eplan_api_notes.md    ← notatki o API

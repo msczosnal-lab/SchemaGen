@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration typical="#901 Drive design">
+
+	<ConfigurationVariables>		
+		<ConfigurationVariable name="SE_Drive_Control">Frequency Converter</ConfigurationVariable>
+		<ConfigurationVariable name="SE_Drive_Type">1,5 kW</ConfigurationVariable>		
+		<ConfigurationVariable name="SE_Terminal_Pin">Pins</ConfigurationVariable>
+		<ConfigurationVariable name="FT_Page_Description">Sample: Drive Control</ConfigurationVariable>		
+		<ConfigurationVariable name="HL_Multi_Machine">MA101</ConfigurationVariable>		
+		<ConfigurationVariable name="FT_Drive">Grind</ConfigurationVariable>		
+		<ConfigurationVariable name="ML_Multi_Machine">A2</ConfigurationVariable>		
+		<ConfigurationVariable name="ML_Drive">A1</ConfigurationVariable>	
+		<ConfigurationVariable name="ML_Cable">A3</ConfigurationVariable>	
+	
+	</ConfigurationVariables>
+
+
+</Configuration>

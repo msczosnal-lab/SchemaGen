@@ -1,0 +1,24 @@
+# Sekrety
+.env
+.env.*
+*.local
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# Build
+bin/
+obj/
+dist/
+*.dll
+
+# EPLAN — eksporty testowe
+*.csv
+connections.csv
+schemat.pdf
