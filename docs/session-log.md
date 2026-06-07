@@ -14,7 +14,7 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 - `build_addin.ps1` OK — DLL skopiowana do EPLAN
 
 **Test EPLAN (kroki):**
-1. Skopiuj do `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`: `SchemaGen_MVP.cs`, `SchemaGenConfig.cs`
+1. Skopiuj do `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`: tylko `SchemaGen_MVP.cs` (usuń `SchemaGenConfig.cs` jeśli jest)
 2. Skopiuj `config\901_Drive_Design.xml` → `Skrypty\Schemagen\config\`
 3. Zamknij inne projekty → Narzędzia → Skrypty → `SchemaGen_MVP.cs`
 4. Oczekiwany wynik: dwa makra na stronie + dialog z `Typ napędu (XML): 1,5 kW`

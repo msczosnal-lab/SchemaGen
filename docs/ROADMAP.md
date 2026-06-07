@@ -98,6 +98,16 @@ flowchart TD
 
 ---
 
+## Tech debt
+
+| ID | Temat | Stan (sesja 1.4) | Docelowe rozwiązanie | Kiedy refaktor |
+|----|-------|------------------|----------------------|----------------|
+| TD-01 | **Moduły skryptu w jednym pliku** | `SchemaGenConfig` (parser XML) jest w `SchemaGen_MVP.cs` — workaround na błąd EPLAN S046013 (osobny `.cs` w `Skrypty\` bez `[Start]`) | **Opcja A:** logika wspólna w add-in DLL (`SchemaGenLoadConfig` + cienka orkiestracja w MVP). **Opcja B:** `scripts/lib/*.cs` + `build_script.ps1` sklejający jeden plik przy deployu do EPLAN | Gdy pojawi się 3.–4. moduł (walidacja XML, mapowanie makr, tagi — sesje 1.5–1.6) lub plik MVP stanie się trudny w utrzymaniu |
+
+**Zasada do czasu refaktoru:** w `Skrypty\Schemagen\` tylko jeden plik `.cs` z `[Start]`; repo może mieć strukturę modułową, deploy — na razie jeden plik.
+
+---
+
 ## Faza 2 — Walidacja
 
 1. Eksport CSV listy połączeń (`XExport /Format:CSV`)

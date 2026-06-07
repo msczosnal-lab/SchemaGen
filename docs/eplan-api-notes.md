@@ -5,7 +5,8 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 ## Sesja 1.4 — 2026-06-07 (implementacja gotowa, test EPLAN oczekujący)
 
 - **Zakres:** parsowanie `901_Drive_Design.xml` + wstawienie `Frequency_Control.ema` obok makra 400V
-- Parser: [`SchemaGenConfig.cs`](../scripts/SchemaGenConfig.cs) — `System.Xml.XmlDocument`, `//ConfigurationVariable`
+- Parser: klasa `SchemaGenConfig` w [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — `System.Xml.XmlDocument`, `//ConfigurationVariable`
+- **EPLAN S046013:** osobny plik `.cs` bez `[Start]` w `Skrypty\` powoduje „Brak atrybutów do wczytania” — helper musi być w tym samym pliku co `[Start]`
 - Ścieżka XML: primary `Skrypty\Schemagen\config\`, fallback `EPLAN_Sample_Macros.edb\DOC\`
 - Logika wyboru makra: `SE_Drive_Control == "Frequency Converter"` → `Frequency_Control.ema`
 - Orkiestracja: [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — LoadConfig → CreatePage → InsertPowerMacro (400V) → InsertDriveMacro

@@ -20,7 +20,7 @@ Kod źródłowy skryptów C# dla EPLAN API.
 
 | 1.3 ✅ | `addin/Actions/InsertPowerMacroAction.cs` | Makro 400V na stronie |
 
-| 1.4 | `SchemaGenConfig.cs`, `SchemaGen_MVP.cs`, `InsertPowerMacroAction.cs` | `Frequency_Control.ema` + XML (test EPLAN) |
+| 1.4 | `SchemaGen_MVP.cs` (parser XML w tym pliku), `InsertPowerMacroAction.cs` | `Frequency_Control.ema` + XML (test EPLAN) |
 
 
 
@@ -32,8 +32,7 @@ Kod źródłowy skryptów C# dla EPLAN API.
 
 |------|------|
 
-| [`SchemaGen_MVP.cs`](SchemaGen_MVP.cs) | Orchestrator — LoadConfig → Open → CreatePage → 400V → Frequency_Control |
-| [`SchemaGenConfig.cs`](SchemaGenConfig.cs) | Parser XML `ConfigurationVariable` (sesja 1.4) |
+| [`SchemaGen_MVP.cs`](SchemaGen_MVP.cs) | Orchestrator + parser XML (`SchemaGenConfig` w tym samym pliku) |
 
 | `dist/SchemaGen.EplAddIn..dll` | Skompilowany add-in (nie w gicie — buduj lokalnie) |
 
