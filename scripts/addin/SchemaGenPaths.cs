@@ -21,13 +21,13 @@ public static class SchemaGenPaths
     // Insert.WindowMacro PointD(X, Y): X → oś RY (pion strony), Y → oś RX (poziom).
     // Test 1.5: zmiana „MacroInsertY” przesuwała RX, nie RY.
     // Pozycja wklejania: RY=1, RX=1 (góra-lewo strony).
-    public const double MacroInsertRy = -2.0;
+    public const double MacroInsertRy = -1.0;
     public const double MacroInsertRx = 18.0;
 
-    public const double DriveMacroInsertRy = -2.0;
+    public const double DriveMacroInsertRy = -1.0;
     public const double DriveMacroInsertRx = 18.0;
 
-    public const double ControlMacroInsertRy = -2.0;
+    public const double ControlMacroInsertRy = -1.0;
     public const double ControlMacroInsertRx = 18.0;
 
     // Aliasy dla kompatybilności parametrów CLI MACROX/MACROY (X=RY, Y=RX)

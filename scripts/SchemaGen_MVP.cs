@@ -24,10 +24,10 @@ public static class SchemaGenConfig
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\202_PCT-Loop\Fan_motor_control_two_switches.ema";
 
     // Pozycje wstawienia — muszą być zgodne z SchemaGenPaths.cs (add-in)
-    public const double DriveMacroInsertRy = 1.0;
-    public const double DriveMacroInsertRx = 1.0;
-    public const double ControlMacroInsertRy = 1.0;
-    public const double ControlMacroInsertRx = 1.0;
+    public const double DriveMacroInsertRy = -1.0;
+    public const double DriveMacroInsertRx = 18.0;
+    public const double ControlMacroInsertRy = -1.0;
+    public const double ControlMacroInsertRx = 18.0;
 
     public static string ResolveConfigPath()
     {
