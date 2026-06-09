@@ -40,12 +40,17 @@ public class SchemaGenCreatePageAction : IEplAction
         new CommandLineInterpreter().Execute("edit /Name:" + oNewPage.Name);
         ctx.AddParameter("PAGENAME", oNewPage.Name);
 
-        int pageCount = oProject.Pages.Length;
-        SchemaGenUi.ShowSuccess(
-            "SchemaGen — strona",
-            "Projekt: " + oProject.ProjectLinkFilePath
-                + "\nUtworzono stronę: " + oNewPage.Name
-                + "\nStron w projekcie: " + pageCount);
+        string silent = "";
+        ctx.GetParameter("SILENT", ref silent);
+        if (silent != "1")
+        {
+            int pageCount = oProject.Pages.Length;
+            SchemaGenUi.ShowSuccess(
+                "SchemaGen — strona",
+                "Projekt: " + oProject.ProjectLinkFilePath
+                    + "\nUtworzono stronę: " + oNewPage.Name
+                    + "\nStron w projekcie: " + pageCount);
+        }
         return true;
     }
 }

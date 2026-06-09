@@ -90,7 +90,7 @@ flowchart TD
 | **1.2** ✅ | Utwórz stronę schematu | Nowa strona widoczna w projekcie |
 | **1.3** ✅ | Wstaw `400VAC_Power_Supply.ema` | Makro zasilania widoczne na stronie |
 | **1.4** ✅ | Parsuj XML + wstaw `Frequency_Control.ema` | Dwie strony (400V + napęd), dane z XML, `generate CONNECTIONS` |
-| **1.5** | Odnośniki potencjałów + Start/Stop (strona 3) | Linki między stronami + przekaźnik podtrzymujący |
+| **1.5** | Odnośniki potencjałów + Start/Stop (strona 3) — implementacja ✅, test EPLAN | Linki między stronami + przekaźnik podtrzymujący |
 | **1.6** | Połączenia silnika + podmiana tagów | Pełny MVP techniczny |
 
 **Wzorzec kodu:** `PageNavi_ContextMenu_OpenFolders.cs` w folderze skryptów EPLAN.  

@@ -4,6 +4,47 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-09 — sesja 1.5 (feedback z testu EPLAN + poprawki)
+**Etap:** Faza 1 — sesja 1.5 — poprawki po teście
+**Problemy z testu:**
+- RY=-0,6 zamiast docelowego 0,6; zmiana 8.35→9.85 przesuwała **RX**, nie RY
+- Potencjały: `=GAA-2L1` (falownik) vs `2L1` (400V) — brak odnośników
+- Tagi PLC: surowe stringi `[20171<218<44025...]` — struktura =GAA z Sample Project
+
+**Poprawki:**
+- **Oś RY/RX:** `PointD(X,Y)` → X=RY, Y=RX; `MacroInsertRy=17.2` (+1,2), `MacroInsertRx=8.35` (cofnięte 9.85) — [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs)
+- **Adaptacja makra:** [`MacroAdaptation.cs`](../scripts/addin/MacroAdaptation.cs) — remap =GAA→SCHEMAGEN, normalizacja potencjałów, PlaceHolder
+- **LinkPotentials:** normalizacja przed `generate CONNECTIONS`
+- **Architektura 2 etapy:** [`docs/macro-pipeline.md`](macro-pipeline.md)
+
+**Retest:** `build_addin.ps1` + kopia MVP → uruchom skrypt, sprawdź RY=0,6, odnośniki 2L1, tagi PLC
+
+---
+
+#### 2026-06-09 — sesja 1.5 (implementacja)
+**Etap:** Faza 1 — sesja 1.5 — implementacja ✅, test EPLAN do wykonania
+**Zrobione:**
+- **Layout:** `MacroInsertY` / `DriveMacroInsertY` / `ControlMacroInsertY` = **9.85** (było 8.35) w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs) i [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs)
+- **Strona 3 + Start/Stop:** makro `Fan_motor_control_two_switches.ema` (Opcja 1 — dedykowane `.ema` z biblioteki Schemagen)
+- **Odnośniki potencjałów:** nowa akcja `SchemaGenLinkPotentials` — `generate CONNECTIONS` + audyt `InterruptionPoint` / `PotentialDefinition` (CrossReferencedObjectsAll)
+- **Orkiestracja MVP:** 3 strony → LinkPotentials na końcu
+
+**Test EPLAN (kroki):**
+1. `powershell scripts/build_addin.ps1` (DLL → `Skrypty\Schemagen\`)
+2. Skopiuj `scripts\SchemaGen_MVP.cs` → `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`
+3. Zamknij inne projekty → Narzędzia → Skrypty → `SchemaGen_MVP.cs`
+4. Oczekiwany wynik: 3 strony (400V, napęd, Start/Stop), makra na Y=9.85, dialog audytu odnośników
+
+**Następny krok:** po teście → **Sesja 1.6** (połączenia silnika + podmiana tagów)
+
+**Prompt na start sesji 1.6:**
+```
+Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md @docs/eplan-api-notes.md
+Sesja 1.6: Podłącz uzwojenie silnika do falownika i podmień oznaczenia (=MACHINE+CABINET-M1).
+```
+
+---
+
 #### 2026-06-07 — koniec dnia (sesja 1.4+)
 **Etap:** Faza 1 — sesja 1.4 ✅ domknięta
 **Zrobione (dodatkowo):**

@@ -2,6 +2,40 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.5 — 2026-06-09 (poprawki po teście EPLAN)
+
+### Oś RY/RX — pułapka Insert.WindowMacro
+- `Insert.WindowMacro(..., new PointD(X, Y), Relative)` — **X = oś RY**, **Y = oś RX** (potwierdzone testem)
+- Błąd sesji 1.5: zmiana `MacroInsertY` 8.35→9.85 przesuwała RX, nie RY
+- Poprawka: `MacroInsertRy=17.2` (góra makra RY=0,6, było -0,6 przy 16.0), `MacroInsertRx=8.35`
+- Parametry CLI: `MACROX`=RY, `MACROY`=RX
+
+### Potencjały =GAA-2L1 vs 2L1
+- Makra Sample używają prefiksu instalacji `=GAA-`; makro 400V używa krótkich nazw `2L1`
+- [`MacroAdaptation.cs`](../scripts/addin/MacroAdaptation.cs) — `CanonicalPotentialName`: strip `=PLANT-` prefix
+- [`LinkPotentialsAction.cs`](../scripts/addin/Actions/LinkPotentialsAction.cs) — normalizacja przed generate + audyt
+
+### Tagi PLC — `[20171<218<44025...]`
+- Nierozwiązane PropertyPlacement — makro niesie strukturę =GAA z projektu źródłowego
+- Fix częściowy: remap `DESIGNATION_PLANT` GAA→SCHEMAGEN w `MacroAdaptation`
+- Pełne rozwiązanie: etap 1 pipeline (macro-pipeline.md) — dedykowane makra lub generator
+
+### Pipeline 2 etapy
+- Dokumentacja: [`macro-pipeline.md`](macro-pipeline.md)
+- Etap 2 (insert+adapt) — zaimplementowany; Etap 1 (generator makra) — Faza 3+
+
+## Sesja 1.5 — 2026-06-09 (implementacja, test do wykonania)
+
+- **Layout:** `MacroInsertY` / `DriveMacroInsertY` = **9.85** (+1,5 RY względem 8.35) w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs)
+- **Strona 3:** opis „Sterowanie Start/Stop”, makro [`Fan_motor_control_two_switches.ema`](../scripts/addin/SchemaGenPaths.cs) (`203_Electrical_Engine/202_PCT-Loop/`)
+- **Akcja audytu:** `SchemaGenLinkPotentials` → [`LinkPotentialsAction.cs`](../scripts/addin/Actions/LinkPotentialsAction.cs)
+  - Wywołuje `generate /TYPE:CONNECTIONS`
+  - Skanuje strony `=SCHEMAGEN*` — `InterruptionPoint` i `PotentialDefinition` w `AllFirstLevelPlacements`
+  - Grupuje po nazwie; sprawdza `CrossReferencedObjectsAll` dla grup wielostronnych
+  - EPLAN łączy punkty o **tej samej nazwie** automatycznie — audyt raportuje brakujące odnośniki
+- **Orkiestracja:** [`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs) — 3 strony + LinkPotentials (zamiast samego generate)
+- **Deploy:** `build_addin.ps1` + kopia `SchemaGen_MVP.cs` do `Skrypty\Schemagen\`
+
 ## Sesja 1.4 — 2026-06-07 ✅ przetestowane (debug: dwie strony)
 
 - **Wynik testu:** XML wczytany, makro 400V na stronie 1, `Frequency_Control.ema` na stronie 2, opisy stron ustawione
@@ -11,7 +45,7 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 - Orkiestracja: LoadConfig → CreatePage (400V) → InsertPowerMacro → CreatePage (napęd) → InsertDriveMacro → `generate /TYPE:CONNECTIONS`
 - **CreatePage + opis:** [`CreatePageAction.cs`](../scripts/addin/Actions/CreatePageAction.cs) — `PAGEDESCRIPTION`; opis **po** `Page.Create()` przez `Properties.Page.PAGE_NOMINATIOMN` (#11011). **Pułapka:** #11013 to `PAGE_SUBCOUNTER`, nie opis — stąd w nawigatorze widać tylko liczniki 1, 2
 - Makra: [`InsertPowerMacroAction.cs`](../scripts/addin/Actions/InsertPowerMacroAction.cs) — `MACROX`, `MACROY`, `DRIVETYPE`
-- Pozycja Y makr: `MacroInsertY` / `DriveMacroInsertY` = **8.35** w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs) — **do obniżenia o 1,5 RY na sesji 1.5** (dodać 1,5 → **9.85**; makra zbyt wysoko)
+- Pozycja Y makr: `MacroInsertY` / `DriveMacroInsertY` = **9.85** w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs) (sesja 1.5)
 - **Otwarte:** `generate /TYPE:CONNECTIONS` — punkty przerwania potencjałów w makrach są; **odnośnik między stronami nie potwierdzony** → sesja 1.5: `PotentialDistributionPoint`, interruption points
 
 ## Sesja 1.3 — 2026-06-07 ✅ przetestowane

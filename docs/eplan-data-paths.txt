@@ -20,3 +20,4 @@ Makra:
   Biblioteka: C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\
   Zasilanie 400V: 201_Power_Supply\101_01_Variant_1\400VAC_Power_Supply.ema
   Falownik:       203_Electrical_Engine\101_02_Variant_2\Frequency_Control.ema
+  Start/Stop:     203_Electrical_Engine\202_PCT-Loop\Fan_motor_control_two_switches.ema

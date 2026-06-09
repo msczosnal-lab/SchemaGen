@@ -1,10 +1,8 @@
 //#################################################################################################################################################
 // SchemaGen — SchemaGen_MVP
 //#################################################################################################################################################
-// Sesja 1.4: Wczytuje XML → dwie strony (400V + napęd) → generate CONNECTIONS
-// Orkiestracja przez CLI; logika DataModel/HEServices w add-in DLL.
-// Kod źródłowy: repo scripts/ → kopia do C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\
-// UWAGA EPLAN: tylko jeden plik .cs w Skrypty\Schemagen\ — helper SchemaGenConfig w tym samym pliku.
+// Sesja 1.5+: add-in otwiera projekt (ProjectManager) → 3 strony → makra → LinkPotentials
+// MACROX = RY (PointD.X), MACROY = RX (PointD.Y) — patrz SchemaGenPaths.cs
 //#################################################################################################################################################
 //[C#]
 using System.Collections.Generic;
@@ -22,8 +20,13 @@ public static class SchemaGenConfig
     public const string FrequencyControlMacro =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\101_02_Variant_2\Frequency_Control.ema";
 
-    public const double DriveMacroInsertX = 16.0;
-    public const double DriveMacroInsertY = 8.35; // wycentrowane w ramce RY 0,2..70
+    public const string StartStopRelayMacro =
+        @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\202_PCT-Loop\Fan_motor_control_two_switches.ema";
+
+    public const double DriveMacroInsertRy = 17.2;
+    public const double DriveMacroInsertRx = 8.35;
+    public const double ControlMacroInsertRy = 17.2;
+    public const double ControlMacroInsertRx = 8.35;
 
     public static string ResolveConfigPath()
     {
@@ -132,18 +135,22 @@ public class SchemaGen_MVP
         string driveType = SchemaGenConfig.GetDriveType(config);
         string projectPath = PathMap.SubstitutePath(@"$(MD_PROJECTS)\Hello_world.elk");
 
-        // EPLAN wymaga jednego otwartego projektu — zamknij inne przed uruchomieniem
-        bool opened = OpenProject(projectPath);
-        if (opened)
-            System.Threading.Thread.Sleep(3000);
-
+        // 1. Add-in (DataModel) musi być załadowany przed otwarciem projektu przez API
         if (!EnsureAddInLoaded())
         {
-            ShowError("Nie wczytano add-in SchemaGen.");
+            ShowError("Nie wczytano add-in SchemaGen.\n\nEPLAN → Plik → Dodatki → Interfejsy → API → Zarządzaj → Wczytaj");
             return;
         }
 
-        // Strona 1: zasilanie 400VAC
+        // 2. Otwórz / aktywuj Hello_world (GetProject lub OpenProject — działa też gdy już otwarty)
+        if (!EnsureProject(projectPath))
+        {
+            ShowError("Nie przygotowano projektu Hello_world.\nZamknij inne projekty i spróbuj ponownie.");
+            return;
+        }
+
+        System.Threading.Thread.Sleep(1000);
+
         string powerPageName = "";
         if (!CreateSchematicPage(projectPath, ref powerPageName, "Zasilanie 400VAC"))
         {
@@ -157,7 +164,6 @@ public class SchemaGen_MVP
             return;
         }
 
-        // Strona 2: sterowanie napędem
         string drivePageName = "";
         if (!CreateSchematicPage(projectPath, ref drivePageName, "Sterowanie napędem"))
         {
@@ -171,36 +177,64 @@ public class SchemaGen_MVP
             return;
         }
 
-        // Połączenia i odnośniki między punktami przerwania potencjałów (L1/L2/L3/PE) — weryfikacja w 1.5
-        new CommandLineInterpreter().Execute("generate /TYPE:CONNECTIONS");
-    }
+        string controlPageName = "";
+        if (!CreateSchematicPage(projectPath, ref controlPageName, "Sterowanie Start/Stop"))
+        {
+            ShowError("Akcja SchemaGenCreatePage (Start/Stop) nie powiodła się.");
+            return;
+        }
 
-    private static bool OpenProject(string projectPath)
-    {
-        CommandLineInterpreter cli = new CommandLineInterpreter();
-        if (cli.Execute("ProjectOpen /Project:\"" + projectPath + "\""))
-            return true;
-        if (cli.Execute("XPrjActionProjectOpen /PROJECT:\"" + projectPath + "\""))
-            return true;
-        return cli.Execute("edit /PROJECTNAME:\"" + projectPath + "\"");
+        if (!InsertControlMacro(projectPath, controlPageName))
+        {
+            ShowError("Akcja SchemaGenInsertPowerMacro (Start/Stop) nie powiodła się.");
+            return;
+        }
+
+        LinkPotentials(projectPath);
+
+        new Decider().Decide(
+            EnumDecisionType.eOkDecision,
+            "Wygenerowano schemat SchemaGen:\n"
+                + powerPageName + " (400V)\n"
+                + drivePageName + " (napęd)\n"
+                + controlPageName + " (Start/Stop)",
+            "SchemaGen MVP — gotowe",
+            EnumDecisionReturn.eOK,
+            EnumDecisionReturn.eOK);
     }
 
     private static bool EnsureAddInLoaded()
     {
         ActionManager am = new ActionManager();
-        if (am.FindAction("SchemaGenCreatePage") != null
+        if (am.FindAction("SchemaGenEnsureProject") != null
+            && am.FindAction("SchemaGenCreatePage") != null
             && am.FindAction("SchemaGenInsertPowerMacro") != null)
             return true;
 
         string addInPath = AddInFolder + AddInFileName;
-        return new CommandLineInterpreter().Execute(
-            "EplApiModuleAction /Filename:\"" + addInPath + "\"");
+        if (!new CommandLineInterpreter().Execute(
+            "EplApiModuleAction /Filename:\"" + addInPath + "\""))
+            return false;
+
+        System.Threading.Thread.Sleep(1500);
+        am = new ActionManager();
+        return am.FindAction("SchemaGenEnsureProject") != null
+            && am.FindAction("SchemaGenCreatePage") != null
+            && am.FindAction("SchemaGenInsertPowerMacro") != null;
+    }
+
+    private static bool EnsureProject(string projectPath)
+    {
+        ActionCallingContext ctx = new ActionCallingContext();
+        ctx.AddParameter("PROJECTPATH", projectPath);
+        return new CommandLineInterpreter().Execute("SchemaGenEnsureProject", ctx);
     }
 
     private static bool CreateSchematicPage(string projectPath, ref string pageName, string description = "")
     {
         ActionCallingContext ctx = new ActionCallingContext();
         ctx.AddParameter("PROJECTPATH", projectPath);
+        ctx.AddParameter("SILENT", "1");
         if (!string.IsNullOrEmpty(description))
             ctx.AddParameter("PAGEDESCRIPTION", description);
         if (!new CommandLineInterpreter().Execute("SchemaGenCreatePage", ctx))
@@ -215,6 +249,7 @@ public class SchemaGen_MVP
         ActionCallingContext ctx = new ActionCallingContext();
         ctx.AddParameter("PROJECTPATH", projectPath);
         ctx.AddParameter("PAGENAME", pageName);
+        ctx.AddParameter("SILENT", "1");
         return new CommandLineInterpreter().Execute("SchemaGenInsertPowerMacro", ctx);
     }
 
@@ -228,13 +263,35 @@ public class SchemaGen_MVP
         ctx.AddParameter("PROJECTPATH", projectPath);
         ctx.AddParameter("PAGENAME", pageName);
         ctx.AddParameter("MACROPATH", macroPath);
-        ctx.AddParameter("MACROX", SchemaGenConfig.DriveMacroInsertX.ToString(
+        ctx.AddParameter("SILENT", "1");
+        ctx.AddParameter("MACROX", SchemaGenConfig.DriveMacroInsertRy.ToString(
             System.Globalization.CultureInfo.InvariantCulture));
-        ctx.AddParameter("MACROY", SchemaGenConfig.DriveMacroInsertY.ToString(
+        ctx.AddParameter("MACROY", SchemaGenConfig.DriveMacroInsertRx.ToString(
             System.Globalization.CultureInfo.InvariantCulture));
         if (!string.IsNullOrEmpty(driveType))
             ctx.AddParameter("DRIVETYPE", driveType);
         return new CommandLineInterpreter().Execute("SchemaGenInsertPowerMacro", ctx);
+    }
+
+    private static bool InsertControlMacro(string projectPath, string pageName)
+    {
+        ActionCallingContext ctx = new ActionCallingContext();
+        ctx.AddParameter("PROJECTPATH", projectPath);
+        ctx.AddParameter("PAGENAME", pageName);
+        ctx.AddParameter("MACROPATH", SchemaGenConfig.StartStopRelayMacro);
+        ctx.AddParameter("SILENT", "1");
+        ctx.AddParameter("MACROX", SchemaGenConfig.ControlMacroInsertRy.ToString(
+            System.Globalization.CultureInfo.InvariantCulture));
+        ctx.AddParameter("MACROY", SchemaGenConfig.ControlMacroInsertRx.ToString(
+            System.Globalization.CultureInfo.InvariantCulture));
+        return new CommandLineInterpreter().Execute("SchemaGenInsertPowerMacro", ctx);
+    }
+
+    private static void LinkPotentials(string projectPath)
+    {
+        ActionCallingContext ctx = new ActionCallingContext();
+        ctx.AddParameter("PROJECTPATH", projectPath);
+        new CommandLineInterpreter().Execute("SchemaGenLinkPotentials", ctx);
     }
 
     private static void ShowError(string message)
@@ -248,4 +305,3 @@ public class SchemaGen_MVP
         new CommandLineInterpreter().Execute("SystemErrDialog");
     }
 }
-

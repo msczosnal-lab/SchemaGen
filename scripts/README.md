@@ -21,6 +21,7 @@ Kod źródłowy skryptów C# dla EPLAN API.
 | 1.3 ✅ | `addin/Actions/InsertPowerMacroAction.cs` | Makro 400V na stronie |
 
 | 1.4 ✅ | `SchemaGen_MVP.cs`, `CreatePageAction.cs`, `InsertPowerMacroAction.cs` | Dwie strony + XML + generate CONNECTIONS |
+| 1.5 | `LinkPotentialsAction.cs`, strona 3 Start/Stop, Y=9.85 | Trzy strony + audyt odnośników (test do wykonania) |
 
 
 

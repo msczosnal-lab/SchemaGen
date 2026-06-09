@@ -10,13 +10,31 @@ public static class SchemaGenPaths
 
     public const string PowerPageDescription = "Zasilanie 400VAC";
     public const string DrivePageDescription = "Sterowanie napędem";
+    public const string ControlPageDescription = "Sterowanie Start/Stop";
 
     public const string FrequencyControl =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\101_02_Variant_2\Frequency_Control.ema";
 
-    public const double MacroInsertX = 16.0;
-    public const double MacroInsertY = 8.35; // wycentrowane w ramce RY 0,2..70
+    public const string StartStopRelay =
+        @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\202_PCT-Loop\Fan_motor_control_two_switches.ema";
 
-    public const double DriveMacroInsertX = 16.0;
-    public const double DriveMacroInsertY = 8.35; // wycentrowane w ramce RY 0,2..70
+    // Insert.WindowMacro PointD(X, Y): X → oś RY (pion strony), Y → oś RX (poziom).
+    // Test 1.5: zmiana „MacroInsertY” przesuwała RX, nie RY.
+    // Docelowo góra makra na RY=0,6 (było -0,6 przy Ry=16 → +1,2).
+    public const double MacroInsertRy = 17.2;
+    public const double MacroInsertRx = 8.35;
+
+    public const double DriveMacroInsertRy = 17.2;
+    public const double DriveMacroInsertRx = 8.35;
+
+    public const double ControlMacroInsertRy = 17.2;
+    public const double ControlMacroInsertRx = 8.35;
+
+    // Aliasy dla kompatybilności parametrów CLI MACROX/MACROY (X=RY, Y=RX)
+    public const double MacroInsertX = MacroInsertRy;
+    public const double MacroInsertY = MacroInsertRx;
+    public const double DriveMacroInsertX = DriveMacroInsertRy;
+    public const double DriveMacroInsertY = DriveMacroInsertRx;
+    public const double ControlMacroInsertX = ControlMacroInsertRy;
+    public const double ControlMacroInsertY = ControlMacroInsertRx;
 }

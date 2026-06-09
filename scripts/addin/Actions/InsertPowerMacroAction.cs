@@ -52,33 +52,44 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
             return false;
         }
 
-        double macroX = SchemaGenPaths.MacroInsertX;
-        double macroY = SchemaGenPaths.MacroInsertY;
+        // MACROX = RY (PointD.X), MACROY = RX (PointD.Y)
+        double insertRy = SchemaGenPaths.MacroInsertRy;
+        double insertRx = SchemaGenPaths.MacroInsertRx;
         string macroXStr = "";
         string macroYStr = "";
         ctx.GetParameter("MACROX", ref macroXStr);
         ctx.GetParameter("MACROY", ref macroYStr);
         if (!string.IsNullOrEmpty(macroXStr))
-            double.TryParse(macroXStr, NumberStyles.Float, CultureInfo.InvariantCulture, out macroX);
+            double.TryParse(macroXStr, NumberStyles.Float, CultureInfo.InvariantCulture, out insertRy);
         if (!string.IsNullOrEmpty(macroYStr))
-            double.TryParse(macroYStr, NumberStyles.Float, CultureInfo.InvariantCulture, out macroY);
-
-        Insert oInsert = new Insert();
-        oInsert.WindowMacro(
-            macroPath,
-            0,
-            oPage,
-            new PointD(macroX, macroY),
-            Insert.MoveKind.Relative);
-
-        new CommandLineInterpreter().Execute("edit /Name:" + pageName);
+            double.TryParse(macroYStr, NumberStyles.Float, CultureInfo.InvariantCulture, out insertRx);
 
         string driveType = "";
         ctx.GetParameter("DRIVETYPE", ref driveType);
 
+        Insert oInsert = new Insert();
+        StorableObject[] inserted = oInsert.WindowMacro(
+            macroPath,
+            0,
+            oPage,
+            new PointD(insertRy, insertRx),
+            Insert.MoveKind.Relative);
+
+        // Tylko PlaceHolder z wyniku insert — bez RemapFunctionStructure (S063111)
+        MacroAdaptation.AdaptInsertedObjects(inserted, driveType);
+
+        new CommandLineInterpreter().Execute("edit /Name:" + pageName);
+
+        string silent = "";
+        ctx.GetParameter("SILENT", ref silent);
+        if (silent == "1")
+            return true;
+
         int funcCount = oPage.Functions.Length;
         string message = "Wstawiono makro:\n" + macroPath
             + "\nStrona: " + pageName
+            + "\nPozycja: RY=" + insertRy.ToString("0.##", CultureInfo.InvariantCulture)
+            + ", RX=" + insertRx.ToString("0.##", CultureInfo.InvariantCulture)
             + "\nFunkcji na stronie: " + funcCount;
         if (!string.IsNullOrEmpty(driveType))
             message += "\nTyp napędu (XML): " + driveType;
