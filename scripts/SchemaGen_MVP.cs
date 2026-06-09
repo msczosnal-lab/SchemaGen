@@ -176,7 +176,6 @@ public class SchemaGen_MVP
             ShowError("Akcja SchemaGenInsertPowerMacro (falownik) nie powiodła się.");
             return;
         }
-
         string controlPageName = "";
         if (!CreateSchematicPage(projectPath, ref controlPageName, "Sterowanie Start/Stop"))
         {
