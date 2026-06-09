@@ -18,6 +18,11 @@ flowchart TD
         Relay[Przekaznik_StartStop]
         Tags[Podmiana_oznaczen]
     end
+    subgraph f1b [Faza1b_MCP]
+        MCP[MCP_schemagen_eplan]
+        Audit[SchemaGenAuditLayout]
+        Frame[FrameLayoutCalculator]
+    end
     subgraph f2 [Faza2_Walidacja]
         CSV[Eksport_CSV_polaczen]
         Rules[Reguly_walidacji]
@@ -41,7 +46,8 @@ flowchart TD
     end
     Repo --> Open
     Open --> Page --> Macro1 --> Macro2 --> Relay --> Tags
-    Tags --> CSV --> Rules --> Loop
+    Tags --> Audit --> Frame --> MCP
+    MCP --> CSV --> Rules --> Loop
     Loop --> Form --> XmlGen
     XmlGen --> Parse --> Dialog
     Dialog --> MoreMacros --> Netlista
@@ -90,19 +96,38 @@ flowchart TD
 | **1.2** ✅ | Utwórz stronę schematu | Nowa strona widoczna w projekcie |
 | **1.3** ✅ | Wstaw `400VAC_Power_Supply.ema` | Makro zasilania widoczne na stronie |
 | **1.4** ✅ | Parsuj XML + wstaw `Frequency_Control.ema` | Dwie strony (400V + napęd), dane z XML, `generate CONNECTIONS` |
-| **1.5** | Odnośniki potencjałów + Start/Stop (strona 3) — implementacja ✅, test EPLAN | Linki między stronami + przekaźnik podtrzymujący |
-| **1.6** | Połączenia silnika + podmiana tagów | Pełny MVP techniczny |
+| **1.5** ✅ | Odnośniki potencjałów + Start/Stop + MacroFitCalculator | Pipeline OK; **layout w ramce: NIE** (makra poza ramką druku) |
+| **1.6** ✅ | Połączenia silnika + tagi + FrameLayout + MCP fundament | Implementacja ✅ — test EPLAN + kalibracja Frame* |
+| **1.7** | Test 1.6 + `eplan_closed_loop` + reguły walidacji CSV | Faza 2 start |
 
 **Wzorzec kodu:** `PageNavi_ContextMenu_OpenFolders.cs` w folderze skryptów EPLAN.  
 **Kod źródłowy:** `scripts/` → kopia do `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\`
 
 ---
 
+## Faza 1b — MCP (zamknięty obieg z EPLAN)
+
+**Cel:** agent (Cursor lub Claude Cowork) uruchamia EPLAN, dostaje wynik na bieżąco — bez ręcznego klikania przez użytkownika.
+
+| Etap | Zakres | Priorytet |
+|------|--------|-----------|
+| **1b.1** | Akcja `SchemaGenAuditLayout` — bbox makra vs granice ramki strony (JSON) | Sesja 1.6 |
+| **1b.2** | MCP `schemagen-eplan` — `eplan_build_addin`, `eplan_run_script`, `eplan_get_layout` | Sesja 1.6–1.7 |
+| **1b.3** | `FrameLayoutCalculator` — auto-pozycjonowanie w ramce zamiast ręcznych stałych | Po 1b.2 |
+| **1b.4** | Konfiguracja MCP w Cursor (`.cursor/mcp.json`) + Claude Cowork (`claude_desktop_config.json`) | Po 1b.2 |
+| **1b.5** | EPLAN Remoting (gRPC) jako alternatywa dla CLI headless | Opcjonalnie |
+
+**Claude Cowork:** plan 5-godzinny — autonomiczna praca nad repo gdy użytkownika nie ma przy PC (sesja 1.6+, naprawa layoutu, testy). Ten sam serwer MCP co Cursor.
+
+---
+
 ## Tech debt
 
-| ID | Temat | Stan (sesja 1.4) | Docelowe rozwiązanie | Kiedy refaktor |
+| ID | Temat | Stan (sesja 1.5) | Docelowe rozwiązanie | Kiedy refaktor |
 |----|-------|------------------|----------------------|----------------|
 | TD-01 | **Moduły skryptu w jednym pliku** | `SchemaGenConfig` (parser XML) jest w `SchemaGen_MVP.cs` — workaround na błąd EPLAN S046013 (osobny `.cs` w `Skrypty\` bez `[Start]`) | **Opcja A:** logika wspólna w add-in DLL (`SchemaGenLoadConfig` + cienka orkiestracja w MVP). **Opcja B:** `scripts/lib/*.cs` + `build_script.ps1` sklejający jeden plik przy deployu do EPLAN | Gdy pojawi się 3.–4. moduł (walidacja XML, mapowanie makr, tagi — sesje 1.5–1.6) lub plik MVP stanie się trudny w utrzymaniu |
+| TD-02 | **Layout w ramce strony** | Makra poza ramką druku; ręczne stałe `MacroInsertRy/Rx` (-1.0 / 18.0); brak sprzężenia zwrotnego | `FrameLayoutCalculator` + `SchemaGenAuditLayout` + MCP feedback loop | Faza 1b (równolegle z sesją 1.6) |
+| TD-03 | **Niespójność docs vs kod** | session-log i notatki cytują stare współrzędne (17.2/8.35/9.85) | Jedno źródło prawdy: `SchemaGenPaths.cs` + sync po każdej sesji | ✅ zsynchronizowane 2026-06-09 |
 
 **Zasada do czasu refaktoru:** w `Skrypty\Schemagen\` tylko jeden plik `.cs` z `[Start]`; repo może mieć strukturę modułową, deploy — na razie jeden plik.
 
@@ -110,9 +135,9 @@ flowchart TD
 
 ## Faza 2 — Walidacja
 
-1. Eksport CSV listy połączeń (`XExport /Format:CSV`)
+1. Eksport CSV listy połączeń (`XExport /Format:CSV`) — narzędzie MCP `eplan_export_connections`
 2. Zestaw reguł walidacji (np. falownik ma DI Ready, silnik ma PE)
-3. Pętla: błąd → modyfikacja XML → ponowne generowanie
+3. Pętla: błąd → modyfikacja XML → ponowne generowanie (przez MCP, bez klikania)
 
 PDF tylko dla człowieka na końcu — nie jako sprzężenie zwrotne dla agenta.
 

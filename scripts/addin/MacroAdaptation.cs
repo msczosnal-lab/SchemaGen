@@ -1,8 +1,10 @@
+using System;
+using Eplan.EplApi.ApplicationFramework;
+using Eplan.EplApi.Base;
 using Eplan.EplApi.DataModel;
 using Eplan.EplApi.DataModel.Graphics;
 
 // Etap 2: bezpieczna adaptacja po Insert.WindowMacro.
-// UWAGA: RemapFunctionStructure (GAA→SCHEMAGEN via NameParts) powoduje S063111 — wyłączone do sesji 1.6.
 public static class MacroAdaptation
 {
     public static string CanonicalPotentialName(string name)
@@ -66,6 +68,157 @@ public static class MacroAdaptation
             {
                 // brak rekordu PlaceHolder — ignoruj
             }
+        }
+    }
+
+    public static int RemapMotorTag(Page page, string targetTag)
+    {
+        if (page == null || string.IsNullOrEmpty(targetTag))
+            return 0;
+
+        int count = 0;
+        foreach (Function func in page.Functions)
+        {
+            if (!IsMotorFunction(func))
+                continue;
+
+            try
+            {
+                if (func.Name == targetTag)
+                    continue;
+
+                using (SafetyPoint sp = SafetyPoint.Create())
+                {
+                    using (Transaction tx = new TransactionManager().CreateTransaction())
+                    {
+                        func.Name = targetTag;
+                        tx.Commit();
+                    }
+                    sp.Commit();
+                }
+                count++;
+            }
+            catch
+            {
+                // pojedyncza funkcja — nie przerywaj
+            }
+        }
+        return count;
+    }
+
+    public static int ConnectMotorWindings(Project project)
+    {
+        if (project == null)
+            return 0;
+
+        int normalized = 0;
+        foreach (Page page in project.Pages)
+        {
+            if (!IsSchemaGenPage(page))
+                continue;
+            normalized += NormalizeMotorConnectionsOnPage(page);
+        }
+
+        new CommandLineInterpreter().Execute("generate /TYPE:CONNECTIONS");
+        return normalized;
+    }
+
+    private static int NormalizeMotorConnectionsOnPage(Page page)
+    {
+        int changes = 0;
+        foreach (Function func in page.Functions)
+        {
+            if (!IsMotorFunction(func) && !IsDriveOutputFunction(func))
+                continue;
+
+            for (int i = 1; i <= 3; i++)
+            {
+                try
+                {
+                    string conn = func.Properties[Properties.Function.FUNC_CONNECTIONDESIGNATION, i].ToString();
+                    if (string.IsNullOrEmpty(conn))
+                        continue;
+
+                    string canonical = CanonicalMotorWindingName(conn);
+                    if (canonical == conn)
+                        continue;
+
+                    using (SafetyPoint sp = SafetyPoint.Create())
+                    {
+                        using (Transaction tx = new TransactionManager().CreateTransaction())
+                        {
+                            func.Properties[Properties.Function.FUNC_CONNECTIONDESIGNATION, i] = canonical;
+                            tx.Commit();
+                        }
+                        sp.Commit();
+                    }
+                    changes++;
+                }
+                catch
+                {
+                    // brak indeksu połączenia — pomijamy
+                }
+            }
+        }
+        return changes;
+    }
+
+    private static bool IsMotorFunction(Function func)
+    {
+        if (func == null)
+            return false;
+
+        try
+        {
+            if (func.FunctionCategory == Eplan.EplApi.Base.Enums.FunctionCategory.Motor)
+                return true;
+        }
+        catch { /* brak kategorii */ }
+
+        string name = func.Name ?? "";
+        if (name.IndexOf("MOTOR", StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (name.IndexOf("-M1", StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (name.IndexOf("+M1", StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        return false;
+    }
+
+    private static bool IsDriveOutputFunction(Function func)
+    {
+        if (func == null)
+            return false;
+
+        string name = func.Name ?? "";
+        return name.IndexOf("FREQUENCY", StringComparison.OrdinalIgnoreCase) >= 0
+            || name.IndexOf("CONVERTER", StringComparison.OrdinalIgnoreCase) >= 0
+            || name.IndexOf("INVERTER", StringComparison.OrdinalIgnoreCase) >= 0
+            || name.IndexOf("U1", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static string CanonicalMotorWindingName(string conn)
+    {
+        string trimmed = (conn ?? "").Trim().ToUpperInvariant();
+        if (trimmed == "U" || trimmed == "U1" || trimmed.EndsWith("-U"))
+            return "U";
+        if (trimmed == "V" || trimmed == "V1" || trimmed.EndsWith("-V"))
+            return "V";
+        if (trimmed == "W" || trimmed == "W1" || trimmed.EndsWith("-W"))
+            return "W";
+        return conn;
+    }
+
+    private static bool IsSchemaGenPage(Page page)
+    {
+        try
+        {
+            string plant = page.Properties[Properties.Page.DESIGNATION_PLANT].ToString();
+            return plant != null && plant.IndexOf(SchemaGenPaths.Plant, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+        catch
+        {
+            return false;
         }
     }
 }

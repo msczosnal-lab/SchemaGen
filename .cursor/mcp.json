@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "schemagen-eplan": {
+      "command": "python",
+      "args": [
+        "mcp/schemagen_eplan/server.py"
+      ],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}

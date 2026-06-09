@@ -64,6 +64,17 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
         if (!string.IsNullOrEmpty(macroYStr))
             double.TryParse(macroYStr, NumberStyles.Float, CultureInfo.InvariantCulture, out insertRx);
 
+        string useFrameLayout = "";
+        ctx.GetParameter("USE_FRAME_LAYOUT", ref useFrameLayout);
+        if (useFrameLayout == "1")
+        {
+            FrameLayoutCalculator.FrameRect frame = FrameLayoutCalculator.DefaultFrame();
+            FrameLayoutCalculator.InsertTarget target = FrameLayoutCalculator.ComputeInsertPoint(
+                PlacementBounds.Empty(), frame);
+            insertRy = target.Ry;
+            insertRx = target.Rx;
+        }
+
         string driveType = "";
         ctx.GetParameter("DRIVETYPE", ref driveType);
 

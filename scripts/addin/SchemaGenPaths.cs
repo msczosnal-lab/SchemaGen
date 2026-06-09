@@ -37,4 +37,23 @@ public static class SchemaGenPaths
     public const double DriveMacroInsertY = DriveMacroInsertRx;
     public const double ControlMacroInsertX = ControlMacroInsertRy;
     public const double ControlMacroInsertY = ControlMacroInsertRx;
+
+    // Oznaczenie silnika (sesja 1.6)
+    public const string MotorDesignation = "=MACHINE+CABINET-M1";
+
+    // Obszar rysunkowy ramki strony (mm, oś RY/RX) — kalibruj przez SchemaGenAuditLayout
+    public const double FrameMinRy = 0.6;
+    public const double FrameMinRx = 1.0;
+    public const double FrameMaxRy = 250.0;
+    public const double FrameMaxRx = 400.0;
+    public const double FrameMarginRy = 2.0;
+    public const double FrameMarginRx = 2.0;
+
+    // Domyślne ścieżki wyjścia MCP / walidacji
+    public const string DefaultLayoutAuditPath =
+        @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\layout-audit.json";
+    public const string DefaultConnectionsExportPath =
+        @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\connections.csv";
+    public const string DefaultValidationReportPath =
+        @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\validation-report.json";
 }

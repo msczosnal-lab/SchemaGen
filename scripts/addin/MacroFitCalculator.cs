@@ -66,27 +66,7 @@ public static class MacroFitCalculator
 
     private static PointD MeasureBoundingBoxMin(StorableObject[] objects)
     {
-        double minX = double.MaxValue;
-        double minY = double.MaxValue;
-
-        foreach (StorableObject obj in objects)
-        {
-            Placement placement = obj as Placement;
-            if (placement == null)
-                continue;
-
-            try
-            {
-                PointD loc = placement.Location;
-                // Location.X = ekranowe X (poziome) = oś PointD.Y (RX)
-                // Location.Y = ekranowe Y (pionowe)  = oś PointD.X (RY)
-                minX = Math.Min(minX, loc.Y); // pionowe → offset.X → PointD.X
-                minY = Math.Min(minY, loc.X); // poziome → offset.Y → PointD.Y
-            }
-            catch { /* pomijamy obiekty bez Location */ }
-        }
-
-        return new PointD(minX, minY);
+        return PlacementBounds.MeasureMinCorner(objects);
     }
 
     private static void DeleteObjects(StorableObject[] objects)

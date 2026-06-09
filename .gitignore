@@ -22,3 +22,6 @@ dist/
 *.csv
 connections.csv
 schemat.pdf
+
+# MCP / EPLAN output (lokalne na maszynie użytkownika)
+output/

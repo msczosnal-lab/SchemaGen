@@ -1,58 +1,73 @@
-# SchemaGen Add-in — mapa plików
-
-**Status sesji 1.5:** implementacja ✅ — 3 strony, audyt odnośników, Start/Stop; test EPLAN do wykonania.
-
-Kompilacja: [`../build_addin.ps1`](../build_addin.ps1) → `dist/SchemaGen.EplAddIn..dll` (auto-kopia do EPLAN)
-
-Debug add-inu: [`../watch_addin.ps1`](../watch_addin.ps1) — rebuild przy każdej zmianie `.cs`
-
-Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API → Zarządzaj → Wczytaj
-
-## Pliki źródłowe
-
-| Plik | Odpowiedzialność | Akcja CLI | Status |
-|------|------------------|-----------|--------|
-| [`SchemaGenAddInModule.cs`](SchemaGenAddInModule.cs) | Rejestracja modułu IEplAddIn | — | ✅ |
-| [`SchemaGenPaths.cs`](SchemaGenPaths.cs) | Stałe ścieżek makr i oznaczeń strony | — | ✅ |
-| [`ProjectResolver.cs`](ProjectResolver.cs) | Rozwiązywanie otwartego projektu (jeden projekt naraz) | — | ✅ |
-| [`PageFinder.cs`](PageFinder.cs) | Wyszukiwanie strony po PAGENAME | — | ✅ |
-| [`SchemaGenUi.cs`](SchemaGenUi.cs) | Komunikaty Decider (sukces/błąd) | — | ✅ |
-| [`Actions/CreatePageAction.cs`](Actions/CreatePageAction.cs) | Tworzenie strony schematu | `SchemaGenCreatePage` | ✅ sesja 1.2 |
-| [`Actions/InsertPowerMacroAction.cs`](Actions/InsertPowerMacroAction.cs) | Wstawienie makra (400V / falownik / Start/Stop) | `SchemaGenInsertPowerMacro` | ✅ sesja 1.3–1.5 |
-| [`Actions/LinkPotentialsAction.cs`](Actions/LinkPotentialsAction.cs) | generate CONNECTIONS + audyt odnośników potencjałów | `SchemaGenLinkPotentials` | ✅ sesja 1.5 |
-
-## Parametry akcji
-
-### SchemaGenCreatePage
-
-| Parametr | Kierunek | Opis |
-|----------|----------|------|
-| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna — fallback: aktywny projekt) |
-| `PAGEDESCRIPTION` | wejście | Opcjonalny opis strony (po Create: `Properties.Page.PAGE_NOMINATIOMN` #11011) |
-| `PAGENAME` | wyjście | Nazwa utworzonej strony, np. `=SCHEMAGEN+MAIN/1` |
-
-### SchemaGenInsertPowerMacro
-
-| Parametr | Kierunek | Opis |
-|----------|----------|------|
-| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
-| `PAGENAME` | wejście | Wymagana — strona docelowa |
-| `MACROPATH` | wejście | Opcjonalna — domyślnie `SchemaGenPaths.PowerSupply400Vac` |
-| `MACROX` | wejście | Opcjonalna — domyślnie `SchemaGenPaths.MacroInsertX` |
-| `MACROY` | wejście | Opcjonalna — domyślnie `SchemaGenPaths.MacroInsertY` (9.85) |
-| `DRIVETYPE` | wejście | Opcjonalna — typ napędu z XML (`SE_Drive_Type`) do komunikatu sukcesu |
-
-### SchemaGenLinkPotentials
-
-| Parametr | Kierunek | Opis |
-|----------|----------|------|
-| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
-
-Wywołuje `generate /TYPE:CONNECTIONS`, następnie raportuje grupy `InterruptionPoint` / `PotentialDefinition` bez `CrossReferencedObjectsAll` między stronami.
-
-## Odnośniki
-
-- Notatki z testu: [`../../docs/eplan-api-notes.md`](../../docs/eplan-api-notes.md) § Sesja 1.5
-- Ścieżki EPLAN: [`../../docs/eplan-data-paths.txt`](../../docs/eplan-data-paths.txt)
-- Wzorzec API makr: [`../../docs/eplan-kb/schemagen-cheatsheet.md`](../../docs/eplan-kb/schemagen-cheatsheet.md) § Wstaw makro okna
-- Orkiestracja ze skryptu: [`../SchemaGen_MVP.cs`](../SchemaGen_MVP.cs)
+# SchemaGen Add-in — mapa plików
+
+**Status sesji 1.6:** implementacja ✅ — RemapTags, AuditLayout, FrameLayout, ExportConnections; test EPLAN do wykonania.
+
+Kompilacja: [`../build_addin.ps1`](../build_addin.ps1) → `dist/SchemaGen.EplAddIn..dll` (auto-kopia do EPLAN)
+
+Debug add-inu: [`../watch_addin.ps1`](../watch_addin.ps1) — rebuild przy każdej zmianie `.cs`
+
+Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API → Zarządzaj → Wczytaj
+
+## Pliki źródłowe
+
+| Plik | Odpowiedzialność | Akcja CLI | Status |
+|------|------------------|-----------|--------|
+| [`SchemaGenAddInModule.cs`](SchemaGenAddInModule.cs) | Rejestracja modułu IEplAddIn | — | ✅ |
+| [`SchemaGenPaths.cs`](SchemaGenPaths.cs) | Stałe ścieżek, ramka, tag silnika | — | ✅ |
+| [`PlacementBounds.cs`](PlacementBounds.cs) | Pomiar bbox Placement | — | ✅ sesja 1.6 |
+| [`FrameLayoutCalculator.cs`](FrameLayoutCalculator.cs) | Auto-pozycjonowanie w ramce | — | ✅ sesja 1.6 |
+| [`MacroFitCalculator.cs`](MacroFitCalculator.cs) | Offset origin makra | — | ✅ |
+| [`MacroAdaptation.cs`](MacroAdaptation.cs) | Potencjały, tagi silnika, uzwojenia | — | ✅ sesja 1.6 |
+| [`ProjectResolver.cs`](ProjectResolver.cs) | Rozwiązywanie otwartego projektu | — | ✅ |
+| [`PageFinder.cs`](PageFinder.cs) | Wyszukiwanie strony po PAGENAME | — | ✅ |
+| [`SchemaGenUi.cs`](SchemaGenUi.cs) | Komunikaty Decider | — | ✅ |
+| [`Actions/CreatePageAction.cs`](Actions/CreatePageAction.cs) | Tworzenie strony | `SchemaGenCreatePage` | ✅ |
+| [`Actions/InsertPowerMacroAction.cs`](Actions/InsertPowerMacroAction.cs) | Wstawienie makra | `SchemaGenInsertPowerMacro` | ✅ |
+| [`Actions/LinkPotentialsAction.cs`](Actions/LinkPotentialsAction.cs) | generate CONNECTIONS + audyt | `SchemaGenLinkPotentials` | ✅ |
+| [`Actions/RemapTagsAction.cs`](Actions/RemapTagsAction.cs) | Tagi silnika + uzwojenia | `SchemaGenRemapTags` | ✅ sesja 1.6 |
+| [`Actions/AuditLayoutAction.cs`](Actions/AuditLayoutAction.cs) | Bbox vs ramka (JSON) | `SchemaGenAuditLayout` | ✅ sesja 1.6 |
+| [`Actions/ExportConnectionsAction.cs`](Actions/ExportConnectionsAction.cs) | Eksport CSV | `SchemaGenExportConnections` | ✅ sesja 1.6 |
+
+## Parametry akcji (nowe w 1.6)
+
+### SchemaGenRemapTags
+
+| Parametr | Kierunek | Opis |
+|----------|----------|------|
+| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
+| `MOTORTAG` | wejście | Domyślnie `=MACHINE+CABINET-M1` |
+| `OUTPUTPATH` | wejście | JSON wyniku (opcjonalny) |
+| `SILENT` | wejście | `1` — bez dialogu |
+
+### SchemaGenAuditLayout
+
+| Parametr | Kierunek | Opis |
+|----------|----------|------|
+| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
+| `PAGENAME` | wejście | Opcjonalna — jedna strona |
+| `OUTPUTPATH` | wejście | Ścieżka JSON (np. `output/layout-audit.json`) |
+| `SILENT` | wejście | `1` — bez dialogu |
+
+### SchemaGenInsertPowerMacro (rozszerzenie)
+
+| Parametr | Kierunek | Opis |
+|----------|----------|------|
+| `USE_FRAME_LAYOUT` | wejście | `1` — użyj `FrameLayoutCalculator` zamiast stałych MACROX/MACROY |
+
+### SchemaGenExportConnections
+
+| Parametr | Kierunek | Opis |
+|----------|----------|------|
+| `OUTPUTPATH` | wejście | Domyślnie `output/connections.csv` |
+| `SILENT` | wejście | `1` — bez dialogu |
+
+## MCP
+
+Narzędzia MCP wołają powyższe akcje headless — patrz [`../../mcp/README.md`](../../mcp/README.md).
+
+## Odnośniki
+
+- Notatki: [`../../docs/eplan-api-notes.md`](../../docs/eplan-api-notes.md)
+- Ścieżki EPLAN: [`../../docs/eplan-data-paths.txt`](../../docs/eplan-data-paths.txt)
+- Orkiestracja: [`../SchemaGen_MVP.cs`](../SchemaGen_MVP.cs)
+

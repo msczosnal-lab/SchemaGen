@@ -1,0 +1,6 @@
+{
+  "required_potentials": ["PE", "2L1"],
+  "required_connection_markers": ["U", "V", "W"],
+  "motor_tag": "=MACHINE+CABINET-M1",
+  "notes": "Dostosuj reguły po pierwszym eksporcie CSV z Hello_world.elk"
+}

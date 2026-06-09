@@ -2,6 +2,35 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.6 — 2026-06-09 (tagi silnika + MCP + FrameLayout)
+
+### Zaimplementowano
+- `SchemaGenRemapTags` — `=MACHINE+CABINET-M1`, `ConnectMotorWindings` (U/V/W + generate CONNECTIONS)
+- `SchemaGenAuditLayout` — JSON bbox vs ramka → `output/layout-audit.json`
+- `FrameLayoutCalculator` + `USE_FRAME_LAYOUT=1` w MVP
+- MCP `schemagen-eplan`, walidacja CSV (`validate_connections.py`)
+
+### Test EPLAN
+1. `build_addin.ps1` + kopia `SchemaGen_MVP.cs`
+2. Uruchom skrypt → sprawdź tag silnika i `output/layout-audit.json`
+3. Skoryguj `FrameMinRy/Rx/MaxRy/Rx` w `SchemaGenPaths.cs` wg audytu
+
+## Koniec dnia 2026-06-09 — layout w ramce (kalibracja po teście)
+
+### Objaw
+Schematy tworzą się poprawnie (3 strony, 3 makra, potencjały), ale makra są **poza ramką druku** strony EPLAN.
+
+### Przyczyna
+- Brak odczytu granic ramki strony z API — tylko ręczne stałe w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs)
+- Aktualne wartości: `MacroInsertRy=-1.0`, `MacroInsertRx=18.0` (wszystkie 3 makra)
+- `MacroFitCalculator` wyrównuje lewy-górny róg bbox makra do punktu docelowego, ale **nie sprawdza overflow** względem ramki
+- Agent nie widzi EPLAN po uruchomieniu — brak pętli testowej (docelowo: MCP + `SchemaGenAuditLayout`)
+
+### Kierunek naprawy (Faza 1b)
+1. Akcja `SchemaGenAuditLayout` — zwraca bbox makra + granice ramki strony
+2. `FrameLayoutCalculator` — docelowy punkt = lewy-górny róg ramki + margines
+3. MCP `schemagen-eplan` — agent iteruje bez ręcznego klikania
+
 ## Sesja 1.5+ — 2026-06-09 (MacroFitCalculator — rozrzucone elementy makra)
 
 ### Objaw
@@ -41,7 +70,7 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 
 ## Sesja 1.5 — 2026-06-09 (implementacja, test do wykonania)
 
-- **Layout:** `MacroInsertY` / `DriveMacroInsertY` = **9.85** (+1,5 RY względem 8.35) w [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs)
+- **Layout (historyczne):** `MacroInsertY` = 9.85 — **zastąpione** przez `FrameLayoutCalculator` + `USE_FRAME_LAYOUT=1` (sesja 1.6)
 - **Strona 3:** opis „Sterowanie Start/Stop”, makro [`Fan_motor_control_two_switches.ema`](../scripts/addin/SchemaGenPaths.cs) (`203_Electrical_Engine/202_PCT-Loop/`)
 - **Akcja audytu:** `SchemaGenLinkPotentials` → [`LinkPotentialsAction.cs`](../scripts/addin/Actions/LinkPotentialsAction.cs)
   - Wywołuje `generate /TYPE:CONNECTIONS`

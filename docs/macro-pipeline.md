@@ -69,18 +69,20 @@ Stałe pozycji ([`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs)):
 
 ```
 PointD(MacroInsertRy, MacroInsertRx)
-  MacroInsertRy = 17.2  → oś RY (góra makra docelowo 0,6)
-  MacroInsertRx = 8.35  → oś RX (przywrócone po błędnym 9,85)
+  MacroInsertRy = -1.0  → oś RY (pion strony)
+  MacroInsertRx = 18.0  → oś RX (poziom strony)
 ```
 
 Parametry CLI: `MACROX` = RY, `MACROY` = RX.
+
+**Otwarte (2026-06-09):** makra poza ramką druku — brak `FrameLayoutCalculator`. Docelowo: `SchemaGenAuditLayout` + MCP feedback.
 
 ---
 
 ## Rekomendacja na najbliższe sesje
 
-1. **Teraz (1.5+):** Etap 2 + `MacroAdaptation` po każdym insert — bez nowego generatora plików `.ema`
-2. **Sesja 1.6:** tagi PLC / podmiana oznaczeń (`=MACHINE+CABINET-M1`) w `MacroAdaptation`
+1. **Sesja 1.6:** tagi PLC / podmiana oznaczeń (`=MACHINE+CABINET-M1`) + `SchemaGenAuditLayout`
+2. **Faza 1b:** MCP `schemagen-eplan` + `FrameLayoutCalculator` — auto-pozycjonowanie w ramce
 3. **Faza 3:** deklaratywny XML obwodów (`config/circuits/*.xml`) zamiast hardcoded ścieżek makr
 4. **Faza 5+:** Macro Builder jako osobny produkt; SchemaGen konsumuje wygenerowaną bibliotekę
 

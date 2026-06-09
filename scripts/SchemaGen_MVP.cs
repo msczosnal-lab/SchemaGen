@@ -1,7 +1,7 @@
 //#################################################################################################################################################
 // SchemaGen — SchemaGen_MVP
 //#################################################################################################################################################
-// Sesja 1.5+: add-in otwiera projekt (ProjectManager) → 3 strony → makra → LinkPotentials
+// Sesja 1.6: 3 strony → makra (FrameLayout) → LinkPotentials → RemapTags → AuditLayout
 // MACROX = RY (PointD.X), MACROY = RX (PointD.Y) — patrz SchemaGenPaths.cs
 //#################################################################################################################################################
 //[C#]
@@ -143,6 +143,8 @@ public class SchemaGen_MVP
             return;
         }
 
+        // Sesja 1.6+: RemapTags, AuditLayout, ExportConnections
+
         // 2. Otwórz / aktywuj Hello_world (GetProject lub OpenProject — działa też gdy już otwarty)
         if (!EnsureProject(projectPath))
         {
@@ -192,6 +194,14 @@ public class SchemaGen_MVP
 
         LinkPotentials(projectPath);
 
+        if (!RemapMotorTags(projectPath))
+        {
+            ShowError("Akcja SchemaGenRemapTags nie powiodła się.");
+            return;
+        }
+
+        AuditLayout(projectPath);
+
         new Decider().Decide(
             EnumDecisionType.eOkDecision,
             "Wygenerowano schemat SchemaGen:\n"
@@ -208,7 +218,9 @@ public class SchemaGen_MVP
         ActionManager am = new ActionManager();
         if (am.FindAction("SchemaGenEnsureProject") != null
             && am.FindAction("SchemaGenCreatePage") != null
-            && am.FindAction("SchemaGenInsertPowerMacro") != null)
+            && am.FindAction("SchemaGenInsertPowerMacro") != null
+            && am.FindAction("SchemaGenRemapTags") != null
+            && am.FindAction("SchemaGenAuditLayout") != null)
             return true;
 
         string addInPath = AddInFolder + AddInFileName;
@@ -220,7 +232,9 @@ public class SchemaGen_MVP
         am = new ActionManager();
         return am.FindAction("SchemaGenEnsureProject") != null
             && am.FindAction("SchemaGenCreatePage") != null
-            && am.FindAction("SchemaGenInsertPowerMacro") != null;
+            && am.FindAction("SchemaGenInsertPowerMacro") != null
+            && am.FindAction("SchemaGenRemapTags") != null
+            && am.FindAction("SchemaGenAuditLayout") != null;
     }
 
     private static bool EnsureProject(string projectPath)
@@ -250,6 +264,7 @@ public class SchemaGen_MVP
         ctx.AddParameter("PROJECTPATH", projectPath);
         ctx.AddParameter("PAGENAME", pageName);
         ctx.AddParameter("SILENT", "1");
+        ctx.AddParameter("USE_FRAME_LAYOUT", "1");
         return new CommandLineInterpreter().Execute("SchemaGenInsertPowerMacro", ctx);
     }
 
@@ -270,6 +285,7 @@ public class SchemaGen_MVP
             System.Globalization.CultureInfo.InvariantCulture));
         if (!string.IsNullOrEmpty(driveType))
             ctx.AddParameter("DRIVETYPE", driveType);
+        ctx.AddParameter("USE_FRAME_LAYOUT", "1");
         return new CommandLineInterpreter().Execute("SchemaGenInsertPowerMacro", ctx);
     }
 
@@ -284,6 +300,7 @@ public class SchemaGen_MVP
             System.Globalization.CultureInfo.InvariantCulture));
         ctx.AddParameter("MACROY", SchemaGenConfig.ControlMacroInsertRx.ToString(
             System.Globalization.CultureInfo.InvariantCulture));
+        ctx.AddParameter("USE_FRAME_LAYOUT", "1");
         return new CommandLineInterpreter().Execute("SchemaGenInsertPowerMacro", ctx);
     }
 
@@ -292,6 +309,26 @@ public class SchemaGen_MVP
         ActionCallingContext ctx = new ActionCallingContext();
         ctx.AddParameter("PROJECTPATH", projectPath);
         new CommandLineInterpreter().Execute("SchemaGenLinkPotentials", ctx);
+    }
+
+    private static bool RemapMotorTags(string projectPath)
+    {
+        ActionCallingContext ctx = new ActionCallingContext();
+        ctx.AddParameter("PROJECTPATH", projectPath);
+        ctx.AddParameter("SILENT", "1");
+        ctx.AddParameter("OUTPUTPATH",
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\remap-tags.json");
+        return new CommandLineInterpreter().Execute("SchemaGenRemapTags", ctx);
+    }
+
+    private static void AuditLayout(string projectPath)
+    {
+        ActionCallingContext ctx = new ActionCallingContext();
+        ctx.AddParameter("PROJECTPATH", projectPath);
+        ctx.AddParameter("SILENT", "1");
+        ctx.AddParameter("OUTPUTPATH",
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\layout-audit.json");
+        new CommandLineInterpreter().Execute("SchemaGenAuditLayout", ctx);
     }
 
     private static void ShowError(string message)

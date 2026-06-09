@@ -4,6 +4,83 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-09 — sesja 1.6 + Faza 1b MCP (implementacja)
+**Etap:** Faza 1 sesja 1.6 ✅ + Faza 1b fundament MCP ✅ — test EPLAN do wykonania
+
+**Zrobione (sesja 1.6):**
+- `SchemaGenRemapTags` — podmiana tagów silnika na `=MACHINE+CABINET-M1` + `generate CONNECTIONS` (uzwojenia U/V/W)
+- `MacroAdaptation.RemapMotorTag` / `ConnectMotorWindings` — SafetyPoint + Transaction
+- Orkiestracja MVP: po LinkPotentials → RemapTags → AuditLayout
+
+**Zrobione (layout + MCP):**
+- `PlacementBounds`, `FrameLayoutCalculator` — auto-pozycjonowanie (`USE_FRAME_LAYOUT=1` w MVP)
+- `SchemaGenAuditLayout` — JSON bbox vs ramka → `output/layout-audit.json`
+- `SchemaGenExportConnections` — CSV pod Fazę 2
+- MCP `schemagen-eplan` — [`mcp/schemagen_eplan/server.py`](../mcp/schemagen_eplan/server.py)
+- Walidacja: [`scripts/validation/validate_connections.py`](../scripts/validation/validate_connections.py) + [`config/validation-rules.json`](../config/validation-rules.json)
+- Konfiguracja: [`.cursor/mcp.json`](../.cursor/mcp.json), [`config/claude_desktop_config.example.json`](../config/claude_desktop_config.example.json)
+
+**Test EPLAN (kroki):**
+1. `powershell scripts/build_addin.ps1`
+2. Skopiuj `scripts/SchemaGen_MVP.cs` → `Skrypty\Schemagen\`
+3. Narzędzia → Skrypty → `SchemaGen_MVP.cs`
+4. Sprawdź: tag `=MACHINE+CABINET-M1`, pliki w `output/` (layout-audit.json, remap-tags.json)
+
+**Następny krok:** test EPLAN → kalibracja `FrameMinRy/Rx/MaxRy/Rx` w `SchemaGenPaths.cs` po `layout-audit.json` → Faza 2 pełna pętla przez MCP `eplan_closed_loop`
+
+**Prompt na start sesji 1.7:**
+```
+Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md @docs/eplan-api-notes.md
+Po teście sesji 1.6: skoryguj Frame* w SchemaGenPaths.cs wg layout-audit.json. Uruchom eplan_closed_loop i dopracuj reguły validation-rules.json.
+```
+
+---
+
+#### 2026-06-09 — koniec dnia (podsumowanie sesji 1.5)
+**Etap:** Faza 1 — sesja 1.5 ✅ domknięta (pipeline OK, layout w ramce: **NIE**)
+
+**Co działa:**
+- Pełny pipeline: XML → 3 strony → 3 makra → `SchemaGenLinkPotentials`
+- `MacroFitCalculator` — bbox offset per makro (cache `macro-offsets.xml` v3)
+- `MacroAdaptation` — normalizacja potencjałów, PlaceHolder
+- Add-in + `build_addin.ps1` — deploy bez Visual Studio
+
+**Co nie działa — schematy poza ramką:**
+- Makra są widoczne, ale **nie mieszczą się w ramce druku** strony EPLAN
+- Przyczyna: brak algorytmu „dopasuj do ramki” — tylko ręczne stałe `MacroInsertRy/Rx` + offset makra
+- Agent nie widzi wyniku w EPLAN → iteruje na ślepo; kod „wygląda OK”, ale bez sprzężenia zwrotnego
+- Pułapka osi: `PointD(X,Y)` → X=RY, Y=RX (zmiana `MacroInsertY` przesuwa RX, nie RY)
+- Aktualne współrzędne w kodzie: `RY=-1.0`, `RX=18.0` — [`SchemaGenPaths.cs`](../scripts/addin/SchemaGenPaths.cs)
+
+**Otwarte (poza ramką):**
+- Tagi PLC surowe `[20171<218<...]` — `RemapFunctionStructure` wyłączone (S063111)
+- Pełna weryfikacja odnośników potencjałów między stronami
+
+**Kierunek na przyszłość — MCP (zamknięty obieg):**
+- Serwer `schemagen-eplan` — agent uruchamia skrypt, dostaje bbox/CSV/screenshot bez klikania
+- Narzędzia: `eplan_run_script`, `eplan_build_addin`, `eplan_get_layout`, `eplan_export_connections`
+- Akcja add-in `SchemaGenAuditLayout` — bbox makra vs granice ramki strony
+- `FrameLayoutCalculator` — auto-pozycjonowanie zamiast ręcznych stałych
+- Ten sam MCP dla **Cursor** i **Claude Cowork** (plan 5h, praca gdy użytkownika nie ma przy PC)
+- Konfiguracja Cowork: `%APPDATA%\Claude\claude_desktop_config.json`
+
+**Stan Fazy 1:** ~5/6 sesji MVP — brakuje sesji 1.6 i rozwiązania layoutu w ramce.
+
+**Następna sesja (1.6 + fundament MCP):**
+1. Połączenia uzwojenia silnika + tagi `=MACHINE+CABINET-M1`
+2. Szkielet `SchemaGenAuditLayout` (bbox vs ramka)
+3. Szkielet MCP `schemagen-eplan` (build + run + layout)
+
+**Prompt na start sesji 1.6:**
+```
+Kontekst: @docs/project-context.txt @docs/eplan-data-paths.txt @docs/ROADMAP.md @docs/eplan-api-notes.md
+1. Sesja 1.6: połączenia uzwojenia silnika + tagi =MACHINE+CABINET-M1
+2. Dodaj akcję SchemaGenAuditLayout (bbox makra vs ramka strony) — fundament pod MCP
+3. Szkielet MCP servera schemagen-eplan (eplan_run_script, eplan_build_addin)
+```
+
+---
+
 #### 2026-06-09 — sesja 1.5 (feedback z testu EPLAN + poprawki)
 **Etap:** Faza 1 — sesja 1.5 — poprawki po teście
 **Problemy z testu:**

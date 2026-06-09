@@ -12,4 +12,9 @@
 | `eplan-api-notes.md` | Notatki z testów EPLAN API (uzupełniaj po sesjach) |
 | `eplan-kb/INDEX.md` | **Baza wiedzy EPLAN API 2025** — lokalna, bez web search |
 
+| `../mcp/README.md` | Serwer MCP schemagen-eplan (Cursor + Claude Cowork) |
+| `../config/validation-rules.json` | Reguły walidacji CSV (Faza 2) |
+
+**Następna sesja:** 1.7 — test EPLAN 1.6 + kalibracja ramki + `eplan_closed_loop`. Ostatni wpis: `session-log.md`.
+
 W nowym chacie podawaj kontekst przez `@docs/project-context.txt` i `@docs/eplan-kb/INDEX.md`.
