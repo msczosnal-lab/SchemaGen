@@ -21,7 +21,7 @@ using Eplan.EplApi.HEServices;
 /// </summary>
 public static class MacroFitCalculator
 {
-    private const int CacheSchemaVersion = 2;
+    private const int CacheSchemaVersion = 3; // v3: poprawna oś Location.Y→PointD.X
 
     private static Dictionary<string, PointD> _cache;
 
@@ -78,8 +78,10 @@ public static class MacroFitCalculator
             try
             {
                 PointD loc = placement.Location;
-                minX = Math.Min(minX, loc.X);
-                minY = Math.Min(minY, loc.Y);
+                // Location.X = ekranowe X (poziome) = oś PointD.Y (RX)
+                // Location.Y = ekranowe Y (pionowe)  = oś PointD.X (RY)
+                minX = Math.Min(minX, loc.Y); // pionowe → offset.X → PointD.X
+                minY = Math.Min(minY, loc.X); // poziome → offset.Y → PointD.Y
             }
             catch { /* pomijamy obiekty bez Location */ }
         }
