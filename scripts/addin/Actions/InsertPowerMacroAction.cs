@@ -68,12 +68,8 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
         ctx.GetParameter("DRIVETYPE", ref driveType);
 
         Insert oInsert = new Insert();
-        StorableObject[] inserted = oInsert.WindowMacro(
-            macroPath,
-            0,
-            oPage,
-            new PointD(insertRy, insertRx),
-            Insert.MoveKind.Relative);
+        StorableObject[] inserted = MacroFitCalculator.InsertAtTarget(
+            oInsert, macroPath, oPage, insertRy, insertRx);
 
         // Tylko PlaceHolder z wyniku insert — bez RemapFunctionStructure (S063111)
         MacroAdaptation.AdaptInsertedObjects(inserted, driveType);

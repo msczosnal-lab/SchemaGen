@@ -23,10 +23,11 @@ public static class SchemaGenConfig
     public const string StartStopRelayMacro =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\202_PCT-Loop\Fan_motor_control_two_switches.ema";
 
-    public const double DriveMacroInsertRy = 17.2;
-    public const double DriveMacroInsertRx = 8.35;
-    public const double ControlMacroInsertRy = 17.2;
-    public const double ControlMacroInsertRx = 8.35;
+    // Pozycje wstawienia — single source of truth w SchemaGenPaths.cs
+    public static double DriveMacroInsertRy   => SchemaGenPaths.DriveMacroInsertRy;
+    public static double DriveMacroInsertRx   => SchemaGenPaths.DriveMacroInsertRx;
+    public static double ControlMacroInsertRy => SchemaGenPaths.ControlMacroInsertRy;
+    public static double ControlMacroInsertRx => SchemaGenPaths.ControlMacroInsertRx;
 
     public static string ResolveConfigPath()
     {
