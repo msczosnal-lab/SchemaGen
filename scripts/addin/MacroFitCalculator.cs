@@ -5,38 +5,29 @@ using System.IO;
 using System.Xml;
 using Eplan.EplApi.Base;
 using Eplan.EplApi.DataModel;
+using Eplan.EplApi.HEServices;
 
 /// <summary>
 /// Pozycjonuje makra tak, by ich wizualny lewy-górny róg lądował dokładnie
 /// na zadanym (targetRy, targetRx), niezależnie od wewnętrznego origin .ema.
 ///
+/// Makro musi trafić na stronę jako całość (WindowMacro) — nigdy nie przesuwaj
+/// tylko części obiektów (Function bez linii = urwane połączenia graficzne).
+///
 /// Przepływ:
-///   1. Pierwsze wstawienie danego makra → insert na (0,0), pomiar BoundingBox
-///      wstawionych obiektów, przesunięcie do celu, zapis offsetu do cache XML.
-///   2. Kolejne wstawienia → odczyt cache, wyliczenie insertPoint = target - offset,
-///      insert od razu na właściwej pozycji.
+///   1. Brak offsetu w cache → probe insert na (0,0), pomiar bbox Placement,
+///      usunięcie probe, zapis offsetu, final insert na target - offset.
+///   2. Z cache → insert od razu na target - offset.
 /// </summary>
 public static class MacroFitCalculator
 {
-    // Cache trzymany w pamięci przez całą sesję EPLAN
+    private const int CacheSchemaVersion = 2;
+
     private static Dictionary<string, PointD> _cache;
 
-    // Plik trwały — współdzielony z resztą config projektu
     public static readonly string CachePath =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\config\macro-offsets.xml";
 
-    // ------------------------------------------------------------------ //
-    // Główne API                                                           //
-    // ------------------------------------------------------------------ //
-
-    /// <summary>
-    /// Wstawia makro na stronę i gwarantuje, że wizualny lewy-górny róg
-    /// wyląduje na (targetRy, targetRx).
-    ///
-    /// Jeśli offset dla tego makra jest już w cache — insert bezpośrednio
-    /// na właściwej pozycji (brak potrzeby przesuwania po fakcie).
-    /// Jeśli nie — insert na (0,0), pomiar, przesunięcie, zapis do cache.
-    /// </summary>
     public static StorableObject[] InsertAtTarget(
         Insert oInsert,
         string macroPath,
@@ -47,42 +38,31 @@ public static class MacroFitCalculator
         EnsureLoaded();
 
         PointD offset;
-        bool hasCached = _cache.TryGetValue(macroPath, out offset);
-
-        if (hasCached)
+        if (!_cache.TryGetValue(macroPath, out offset))
         {
-            // Znamy offset: insert od razu w docelowym miejscu
-            PointD insertPoint = new PointD(targetRy - offset.X, targetRx - offset.Y);
-            return oInsert.WindowMacro(
-                macroPath, 0, oPage, insertPoint, Insert.MoveKind.Relative);
-        }
-        else
-        {
-            // Nieznany offset: insert na (0,0), pomiar, przesunięcie do celu
-            StorableObject[] inserted = oInsert.WindowMacro(
+            StorableObject[] probe = oInsert.WindowMacro(
                 macroPath, 0, oPage, new PointD(0.0, 0.0), Insert.MoveKind.Relative);
 
-            PointD measuredMin = MeasureBoundingBoxMin(inserted);
-
-            if (measuredMin.X < double.MaxValue / 2.0)
+            offset = MeasureBoundingBoxMin(probe);
+            if (offset.X < double.MaxValue / 2.0)
             {
-                // Zapisz offset do cache
-                _cache[macroPath] = measuredMin;
+                _cache[macroPath] = offset;
                 SaveCache();
-
-                // Przesuń wstawione obiekty do celu
-                double dx = targetRy - measuredMin.X;
-                double dy = targetRx - measuredMin.Y;
-                MoveObjects(inserted, dx, dy);
             }
 
-            return inserted;
+            DeleteObjects(probe);
         }
-    }
 
-    // ------------------------------------------------------------------ //
-    // Helpers                                                              //
-    // ------------------------------------------------------------------ //
+        if (offset.X >= double.MaxValue / 2.0)
+        {
+            return oInsert.WindowMacro(
+                macroPath, 0, oPage, new PointD(targetRy, targetRx), Insert.MoveKind.Relative);
+        }
+
+        PointD insertPoint = new PointD(targetRy - offset.X, targetRx - offset.Y);
+        return oInsert.WindowMacro(
+            macroPath, 0, oPage, insertPoint, Insert.MoveKind.Relative);
+    }
 
     private static PointD MeasureBoundingBoxMin(StorableObject[] objects)
     {
@@ -91,43 +71,43 @@ public static class MacroFitCalculator
 
         foreach (StorableObject obj in objects)
         {
-            Function f = obj as Function;
-            if (f != null)
+            Placement placement = obj as Placement;
+            if (placement == null)
+                continue;
+
+            try
             {
-                try
-                {
-                    minX = Math.Min(minX, f.Location.X);
-                    minY = Math.Min(minY, f.Location.Y);
-                }
-                catch { /* pomijamy obiekty bez Location */ }
+                PointD loc = placement.Location;
+                minX = Math.Min(minX, loc.X);
+                minY = Math.Min(minY, loc.Y);
             }
+            catch { /* pomijamy obiekty bez Location */ }
         }
 
         return new PointD(minX, minY);
     }
 
-    private static void MoveObjects(StorableObject[] objects, double dx, double dy)
+    private static void DeleteObjects(StorableObject[] objects)
     {
-        if (Math.Abs(dx) < 1e-9 && Math.Abs(dy) < 1e-9) return;
+        if (objects == null || objects.Length == 0)
+            return;
 
         using (UndoStep undo = new UndoManager().CreateUndoStep())
         {
             foreach (StorableObject obj in objects)
             {
-                Function f = obj as Function;
-                if (f == null) continue;
+                Placement placement = obj as Placement;
+                if (placement == null)
+                    continue;
+
                 try
                 {
-                    f.Location = new PointD(f.Location.X + dx, f.Location.Y + dy);
+                    placement.Remove();
                 }
-                catch { /* obiekty tylko do odczytu pomijamy */ }
+                catch { /* obiekt już usunięty lub tylko do odczytu */ }
             }
         }
     }
-
-    // ------------------------------------------------------------------ //
-    // Trwały cache XML                                                     //
-    // ------------------------------------------------------------------ //
 
     private static void EnsureLoaded()
     {
@@ -143,15 +123,33 @@ public static class MacroFitCalculator
         XmlDocument doc = new XmlDocument();
         doc.Load(CachePath);
 
+        XmlElement root = doc.DocumentElement;
+        if (root == null)
+            return;
+
+        XmlAttribute versionAttr = root.Attributes["schemaVersion"];
+        int version;
+        if (versionAttr == null
+            || !int.TryParse(versionAttr.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out version)
+            || version != CacheSchemaVersion)
+        {
+            return;
+        }
+
         foreach (XmlNode node in doc.SelectNodes("//Macro"))
         {
-            string path = node.Attributes["path"]?.Value;
+            XmlAttribute pathAttr = node.Attributes["path"];
+            string path = pathAttr != null ? pathAttr.Value : null;
             if (string.IsNullOrEmpty(path)) continue;
 
+            XmlAttribute offsetXAttr = node.Attributes["offsetX"];
+            XmlAttribute offsetYAttr = node.Attributes["offsetY"];
+            if (offsetXAttr == null || offsetYAttr == null) continue;
+
             double x, y;
-            if (double.TryParse(node.Attributes["offsetX"]?.Value,
+            if (double.TryParse(offsetXAttr.Value,
                     NumberStyles.Float, CultureInfo.InvariantCulture, out x)
-                && double.TryParse(node.Attributes["offsetY"]?.Value,
+                && double.TryParse(offsetYAttr.Value,
                     NumberStyles.Float, CultureInfo.InvariantCulture, out y))
             {
                 _cache[path] = new PointD(x, y);
@@ -167,6 +165,8 @@ public static class MacroFitCalculator
 
         XmlDocument doc = new XmlDocument();
         XmlElement root = doc.CreateElement("MacroOffsets");
+        root.SetAttribute("schemaVersion",
+            CacheSchemaVersion.ToString(CultureInfo.InvariantCulture));
         doc.AppendChild(root);
 
         foreach (KeyValuePair<string, PointD> kv in _cache)

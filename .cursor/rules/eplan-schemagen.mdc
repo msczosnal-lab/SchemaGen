@@ -40,6 +40,7 @@ Automatyczne generowanie schematów elektrycznych w EPLAN Electric P8 2025 na po
 - Nie zakładaj dostępu do Visual Studio / pluginu DLL na tym etapie
 - Nie wymyślaj własnego formatu konfiguracji — używaj XML z Sample Project
 - Nie generuj safety / layout szafy w MVP
+- **Połączenia graficzne:** linie muszą zawsze prowadzić dokądś lub kończyć się strzałką — nigdy urwane połączenia; makro wstawiaj wyłącznie przez `WindowMacro` jako całość, nie przesuwaj osobno Function bez linii
 
 ## EPLAN API — baza wiedzy (lokalna, bez web)
 - **Start:** `docs/eplan-kb/INDEX.md`

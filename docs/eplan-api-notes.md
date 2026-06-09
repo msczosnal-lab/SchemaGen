@@ -2,6 +2,21 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.5+ — 2026-06-09 (MacroFitCalculator — rozrzucone elementy makra)
+
+### Objaw
+- Górna linia zasilająca OK w marginesie; sekcje pionowe po lewej przesunięte w lewo/dół, urwane połączenia.
+
+### Przyczyna
+- `MacroFitCalculator.MoveObjects` przesuwał tylko `Function.Location` po probe-insert — linie i inne elementy graficzne zostawały na miejscu.
+
+### Poprawka
+- Probe insert → pomiar bbox `Placement` → **usunięcie** probe → final `WindowMacro` na `target - offset` (makro jako całość).
+- Cache `macro-offsets.xml` wersja 2 (`schemaVersion`) — stary cache ignorowany.
+
+### Reguła projektu (zawsze)
+- Linie muszą prowadzić dokądś lub kończyć się strzałką — graficznie urwane połączenia są niedopuszczalne.
+
 ## Sesja 1.5 — 2026-06-09 (poprawki po teście EPLAN)
 
 ### Oś RY/RX — pułapka Insert.WindowMacro
