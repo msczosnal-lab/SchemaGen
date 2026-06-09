@@ -22,13 +22,13 @@ public static class SchemaGenPaths
     // Test 1.5: zmiana „MacroInsertY” przesuwała RX, nie RY.
     // Pozycja wklejania: RY=1, RX=1 (góra-lewo strony).
     public const double MacroInsertRy = -2.0;
-    public const double MacroInsertRx = 8.0;
+    public const double MacroInsertRx = 18.0;
 
     public const double DriveMacroInsertRy = -2.0;
-    public const double DriveMacroInsertRx = 8.0;
+    public const double DriveMacroInsertRx = 18.0;
 
     public const double ControlMacroInsertRy = -2.0;
-    public const double ControlMacroInsertRx = 8.0;
+    public const double ControlMacroInsertRx = 18.0;
 
     // Aliasy dla kompatybilności parametrów CLI MACROX/MACROY (X=RY, Y=RX)
     public const double MacroInsertX = MacroInsertRy;
