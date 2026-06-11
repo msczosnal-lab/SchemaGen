@@ -51,7 +51,12 @@ public class SchemaGenAuditLayoutAction : IEplAction
         ctx.GetParameter("OUTPUTPATH", ref outputPath);
         string json = results.ToString();
         if (!string.IsNullOrEmpty(outputPath))
+        {
+            string dir = Path.GetDirectoryName(outputPath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
             File.WriteAllText(outputPath, json, Encoding.UTF8);
+        }
 
         string silent = "";
         ctx.GetParameter("SILENT", ref silent);

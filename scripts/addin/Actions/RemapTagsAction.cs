@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text;
 using Eplan.EplApi.ApplicationFramework;
 using Eplan.EplApi.DataModel;
@@ -49,7 +50,12 @@ public class SchemaGenRemapTagsAction : IEplAction
         ctx.GetParameter("OUTPUTPATH", ref outputPath);
         string json = BuildJson(remapped, connections, targetTag, report.ToString());
         if (!string.IsNullOrEmpty(outputPath))
-            System.IO.File.WriteAllText(outputPath, json, Encoding.UTF8);
+        {
+            string dir = Path.GetDirectoryName(outputPath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(outputPath, json, Encoding.UTF8);
+        }
 
         string silent = "";
         ctx.GetParameter("SILENT", ref silent);
