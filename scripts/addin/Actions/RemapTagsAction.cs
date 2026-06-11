@@ -34,17 +34,16 @@ public class SchemaGenRemapTagsAction : IEplAction
         int connections = 0;
         var report = new StringBuilder();
 
-        // Sesja 1.7c: licznik silników wspólny dla całego projektu → MA1, MA2, ... bez duplikatów.
-        int motorCounter = 0;
+        // Sesja 1.7c: numeracja urządzeń wg numeru strony — bez duplikatów MA1/FC1.
         foreach (Page page in oProject.Pages)
         {
             if (!IsSchemaGenPage(page))
                 continue;
 
-            int pageRemapped = MacroAdaptation.RemapMotorTag(page, targetTag, ref motorCounter);
+            int pageRemapped = MacroAdaptation.RemapDeviceTags(page);
             remapped += pageRemapped;
             if (pageRemapped > 0)
-                report.AppendLine(page.Name + ": " + pageRemapped + " silnik(ów)");
+                report.AppendLine(page.Name + ": " + pageRemapped + " urządzeń(ia)");
         }
 
         connections = MacroAdaptation.ConnectMotorWindings(oProject);

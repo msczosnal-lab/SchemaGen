@@ -100,39 +100,47 @@ public static class MacroAdaptation
         }
     }
 
-    // Sesja 1.7c: licznik silników nadawany rosnąco przez WSZYSTKIE strony (ref) — MA1, MA2, ...
-    // Bez tego każdy silnik dostawał ten sam FUNC_COUNTER=1 i oba wychodziły jako MA1.
-    public static int RemapMotorTag(Page page, string targetTag, ref int counter)
+    // Sesja 1.7c: numeracja urządzeń wg NUMERU STRONY (tymczasowy system tagowania).
+    // Każde urządzenie zachowuje swój kod (MA, FC, ...), licznik = numer strony:
+    // strona 1 → MA1/FC1, strona 2 → MA2/FC2. Eliminuje duplikaty z powielanych makr.
+    // Struktura DT przez NameParts (KB: datamodel), nie func.Name.
+    public static int RemapDeviceTags(Page page)
     {
         if (page == null)
             return 0;
 
+        int pageNo = PageNumber(page);
         int count = 0;
         foreach (Function func in page.Functions)
         {
-            if (!IsMotorFunction(func))
+            string code;
+            try
+            {
+                code = func.Properties[Properties.Function.FUNC_CODE].ToString();
+            }
+            catch
+            {
+                continue; // funkcja bez kodu (np. potencjał) — pomijamy
+            }
+            if (string.IsNullOrEmpty(code))
                 continue;
 
             try
             {
-                int next = counter + 1;
-
                 using (SafetyPoint sp = SafetyPoint.Create())
                 {
                     using (Transaction tx = new TransactionManager().CreateTransaction())
                     {
-                        // Struktura DT przez NameParts (KB: datamodel), nie func.Name.
                         var np = new FunctionBasePropertyList();
                         np.DESIGNATION_PLANT    = SchemaGenPaths.MotorPlant;
                         np.DESIGNATION_LOCATION = SchemaGenPaths.MotorLocation;
-                        np.FUNC_CODE    = SchemaGenPaths.MotorCode;
-                        np.FUNC_COUNTER = next;
+                        np.FUNC_CODE    = code;      // zachowaj istniejący kod (MA, FC, ...)
+                        np.FUNC_COUNTER = pageNo;    // licznik = numer strony
                         func.NameParts = np;
                         tx.Commit();
                     }
                     sp.Commit();
                 }
-                counter = next;
                 count++;
             }
             catch
@@ -141,6 +149,30 @@ public static class MacroAdaptation
             }
         }
         return count;
+    }
+
+    private static int PageNumber(Page page)
+    {
+        try
+        {
+            return (int)page.Properties[Properties.Page.PAGE_COUNTER].ToInt();
+        }
+        catch { /* brak property — fallback na nazwę */ }
+
+        try
+        {
+            string n = page.Name ?? "";
+            int slash = n.LastIndexOf('/');
+            if (slash >= 0 && slash < n.Length - 1)
+            {
+                int v;
+                if (int.TryParse(n.Substring(slash + 1), out v))
+                    return v;
+            }
+        }
+        catch { }
+
+        return 1;
     }
 
     public static int ConnectMotorWindings(Project project)
