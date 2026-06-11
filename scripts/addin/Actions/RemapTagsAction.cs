@@ -40,10 +40,8 @@ public class SchemaGenRemapTagsAction : IEplAction
             if (!IsSchemaGenPage(page))
                 continue;
 
-            int pageRemapped = MacroAdaptation.RemapDeviceTags(page);
+            int pageRemapped = MacroAdaptation.RemapDeviceTags(page, report);
             remapped += pageRemapped;
-            if (pageRemapped > 0)
-                report.AppendLine(page.Name + ": " + pageRemapped + " urządzeń(ia)");
         }
 
         connections = MacroAdaptation.ConnectMotorWindings(oProject);

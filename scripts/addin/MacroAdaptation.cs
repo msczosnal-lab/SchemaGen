@@ -104,27 +104,32 @@ public static class MacroAdaptation
     // Każde urządzenie zachowuje swój kod (MA, FC, ...), licznik = numer strony:
     // strona 1 → MA1/FC1, strona 2 → MA2/FC2. Eliminuje duplikaty z powielanych makr.
     // Struktura DT przez NameParts (KB: datamodel), nie func.Name.
-    public static int RemapDeviceTags(Page page)
+    public static int RemapDeviceTags(Page page, System.Text.StringBuilder diag)
     {
         if (page == null)
             return 0;
 
         int pageNo = PageNumber(page);
         int count = 0;
+        int funcSeen = 0;
         foreach (Function func in page.Functions)
         {
-            string code;
-            try
-            {
-                code = func.Properties.FUNC_CODE.ToString();
-            }
-            catch
-            {
-                continue; // funkcja bez kodu (np. potencjał) — pomijamy
-            }
-            if (string.IsNullOrEmpty(code))
-                continue;
+            funcSeen++;
+            string code = "";
+            try { code = func.Properties.FUNC_CODE.ToString(); } catch { }
 
+            string oldName = "";
+            try { oldName = func.Name; } catch { }
+
+            if (string.IsNullOrEmpty(code))
+            {
+                if (diag != null)
+                    diag.AppendLine(page.Name + " | " + oldName + " | kod=PUSTY | POMINIETO");
+                continue;
+            }
+
+            string newName = oldName;
+            bool ok = false;
             try
             {
                 using (SafetyPoint sp = SafetyPoint.Create())
@@ -141,13 +146,23 @@ public static class MacroAdaptation
                     }
                     sp.Commit();
                 }
+                try { newName = func.Name; } catch { }
+                ok = true;
                 count++;
             }
-            catch
+            catch (System.Exception ex)
             {
-                // pojedyncza funkcja — nie przerywaj
+                if (diag != null)
+                    diag.AppendLine(page.Name + " | " + oldName + " | kod=" + code + " | WYJATEK: " + ex.Message);
             }
+
+            if (ok && diag != null)
+                diag.AppendLine(page.Name + " | kod=" + code + " | pageNo=" + pageNo
+                    + " | " + oldName + " -> " + newName);
         }
+
+        if (diag != null && funcSeen == 0)
+            diag.AppendLine(page.Name + " | BRAK FUNKCJI na stronie");
         return count;
     }
 
