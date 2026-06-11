@@ -19,6 +19,7 @@ public static class FrameLayoutCalculator
         public double Ry;
         public double Rx;
         public bool FitsKnownContent;
+        public bool MacroTooLarge;
     }
 
     public struct FitReport
@@ -26,6 +27,7 @@ public static class FrameLayoutCalculator
         public FrameRect Frame;
         public Bounds2D Content;
         public bool FitsInFrame;
+        public bool MacroTooLarge;
         public bool OverflowTop;
         public bool OverflowLeft;
         public bool OverflowRight;
@@ -43,31 +45,52 @@ public static class FrameLayoutCalculator
         };
     }
 
-    public static InsertTarget ComputeInsertPoint(Bounds2D macroSize, FrameRect frame)
+    /// <summary>
+    /// Docelowy lewy-górny róg makra (RY/RX) — MacroFitCalculator wstawia na target − offset.
+    /// </summary>
+    public static InsertTarget ComputeInsertPoint(Bounds2D macroBounds, FrameRect frame)
     {
-        double targetRy = frame.MinRy + SchemaGenPaths.FrameMarginRy;
-        double targetRx = frame.MinRx + SchemaGenPaths.FrameMarginRx;
+        double marginRy = SchemaGenPaths.FrameMarginRy;
+        double marginRx = SchemaGenPaths.FrameMarginRx;
+        double targetRy = frame.MinRy + marginRy;
+        double targetRx = frame.MinRx + marginRx;
 
-        if (macroSize.IsValid)
+        if (!macroBounds.IsValid)
         {
-            double macroHeight = macroSize.HeightRy;
-            double macroWidth = macroSize.WidthRx;
-            double frameHeight = frame.MaxRy - frame.MinRy;
-            double frameWidth = frame.MaxRx - frame.MinRx;
-
-            if (macroHeight <= frameHeight - 2 * SchemaGenPaths.FrameMarginRy
-                && macroWidth <= frameWidth - 2 * SchemaGenPaths.FrameMarginRx)
+            return new InsertTarget
             {
-                targetRy = frame.MinRy + SchemaGenPaths.FrameMarginRy;
-                targetRx = frame.MinRx + SchemaGenPaths.FrameMarginRx;
-            }
+                Ry = targetRy,
+                Rx = targetRx,
+                FitsKnownContent = false,
+                MacroTooLarge = false
+            };
         }
+
+        double macroHeight = macroBounds.HeightRy;
+        double macroWidth = macroBounds.WidthRx;
+        double innerHeight = frame.MaxRy - frame.MinRy - 2 * marginRy;
+        double innerWidth = frame.MaxRx - frame.MinRx - 2 * marginRx;
+
+        bool tooLarge = macroHeight > innerHeight || macroWidth > innerWidth;
+
+        // Wyrównaj lewą-górą do ramki; jeśli nie mieści się — przesuń w górę / w lewo
+        if (macroHeight <= innerHeight && targetRy + macroHeight > frame.MaxRy - marginRy)
+            targetRy = frame.MaxRy - marginRy - macroHeight;
+
+        if (macroWidth <= innerWidth && targetRx + macroWidth > frame.MaxRx - marginRx)
+            targetRx = frame.MaxRx - marginRx - macroWidth;
+
+        if (targetRy < frame.MinRy + marginRy)
+            targetRy = frame.MinRy + marginRy;
+        if (targetRx < frame.MinRx + marginRx)
+            targetRx = frame.MinRx + marginRx;
 
         return new InsertTarget
         {
             Ry = targetRy,
             Rx = targetRx,
-            FitsKnownContent = macroSize.IsValid
+            FitsKnownContent = true,
+            MacroTooLarge = tooLarge
         };
     }
 
@@ -77,11 +100,16 @@ public static class FrameLayoutCalculator
         {
             Frame = frame,
             Content = content,
-            FitsInFrame = true
+            FitsInFrame = true,
+            MacroTooLarge = false
         };
 
         if (!content.IsValid)
             return report;
+
+        double innerHeight = frame.MaxRy - frame.MinRy;
+        double innerWidth = frame.MaxRx - frame.MinRx;
+        report.MacroTooLarge = content.HeightRy > innerHeight || content.WidthRx > innerWidth;
 
         report.OverflowTop = content.MinRy < frame.MinRy;
         report.OverflowLeft = content.MinRx < frame.MinRx;

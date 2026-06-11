@@ -10,23 +10,45 @@ using Eplan.EplApi.HEServices;
 /// <summary>
 /// Pozycjonuje makra tak, by ich wizualny lewy-górny róg lądował dokładnie
 /// na zadanym (targetRy, targetRx), niezależnie od wewnętrznego origin .ema.
-///
-/// Makro musi trafić na stronę jako całość (WindowMacro) — nigdy nie przesuwaj
-/// tylko części obiektów (Function bez linii = urwane połączenia graficzne).
-///
-/// Przepływ:
-///   1. Brak offsetu w cache → probe insert na (0,0), pomiar bbox Placement,
-///      usunięcie probe, zapis offsetu, final insert na target - offset.
-///   2. Z cache → insert od razu na target - offset.
 /// </summary>
 public static class MacroFitCalculator
 {
-    private const int CacheSchemaVersion = 3; // v3: poprawna oś Location.Y→PointD.X
+    private const int CacheSchemaVersion = 4; // v4: pełny bbox makra (min+max) dla FrameLayout
 
-    private static Dictionary<string, PointD> _cache;
+    private static Dictionary<string, PointD> _offsetCache;
+    private static Dictionary<string, Bounds2D> _boundsCache;
 
     public static readonly string CachePath =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\config\macro-offsets.xml";
+
+    /// <summary>
+    /// Pełny bbox makra z cache lub probe insert na (0,0). Wymagane przed FrameLayout.
+    /// </summary>
+    public static Bounds2D EnsureMacroBounds(Insert oInsert, string macroPath, Page oPage)
+    {
+        EnsureLoaded();
+
+        Bounds2D bounds;
+        if (_boundsCache.TryGetValue(macroPath, out bounds))
+            return bounds;
+
+        StorableObject[] probe = oInsert.WindowMacro(
+            macroPath, 0, oPage, new PointD(0.0, 0.0), Insert.MoveKind.Relative);
+
+        bounds = PlacementBounds.MeasureObjects(probe);
+        PointD minCorner = PlacementBounds.MeasureMinCorner(probe);
+
+        if (bounds.IsValid)
+        {
+            _boundsCache[macroPath] = bounds;
+            if (minCorner.X < double.MaxValue / 2.0)
+                _offsetCache[macroPath] = minCorner;
+            SaveCache();
+        }
+
+        DeleteObjects(probe);
+        return bounds;
+    }
 
     public static StorableObject[] InsertAtTarget(
         Insert oInsert,
@@ -38,19 +60,10 @@ public static class MacroFitCalculator
         EnsureLoaded();
 
         PointD offset;
-        if (!_cache.TryGetValue(macroPath, out offset))
+        if (!_offsetCache.TryGetValue(macroPath, out offset))
         {
-            StorableObject[] probe = oInsert.WindowMacro(
-                macroPath, 0, oPage, new PointD(0.0, 0.0), Insert.MoveKind.Relative);
-
-            offset = MeasureBoundingBoxMin(probe);
-            if (offset.X < double.MaxValue / 2.0)
-            {
-                _cache[macroPath] = offset;
-                SaveCache();
-            }
-
-            DeleteObjects(probe);
+            EnsureMacroBounds(oInsert, macroPath, oPage);
+            _offsetCache.TryGetValue(macroPath, out offset);
         }
 
         if (offset.X >= double.MaxValue / 2.0)
@@ -62,11 +75,6 @@ public static class MacroFitCalculator
         PointD insertPoint = new PointD(targetRy - offset.X, targetRx - offset.Y);
         return oInsert.WindowMacro(
             macroPath, 0, oPage, insertPoint, Insert.MoveKind.Relative);
-    }
-
-    private static PointD MeasureBoundingBoxMin(StorableObject[] objects)
-    {
-        return PlacementBounds.MeasureMinCorner(objects);
     }
 
     private static void DeleteObjects(StorableObject[] objects)
@@ -93,14 +101,18 @@ public static class MacroFitCalculator
 
     private static void EnsureLoaded()
     {
-        if (_cache != null) return;
-        _cache = new Dictionary<string, PointD>(StringComparer.OrdinalIgnoreCase);
+        if (_offsetCache != null)
+            return;
+
+        _offsetCache = new Dictionary<string, PointD>(StringComparer.OrdinalIgnoreCase);
+        _boundsCache = new Dictionary<string, Bounds2D>(StringComparer.OrdinalIgnoreCase);
         try { LoadCache(); } catch { /* brak pliku przy pierwszym uruchomieniu */ }
     }
 
     private static void LoadCache()
     {
-        if (!File.Exists(CachePath)) return;
+        if (!File.Exists(CachePath))
+            return;
 
         XmlDocument doc = new XmlDocument();
         doc.Load(CachePath);
@@ -122,21 +134,34 @@ public static class MacroFitCalculator
         {
             XmlAttribute pathAttr = node.Attributes["path"];
             string path = pathAttr != null ? pathAttr.Value : null;
-            if (string.IsNullOrEmpty(path)) continue;
+            if (string.IsNullOrEmpty(path))
+                continue;
 
-            XmlAttribute offsetXAttr = node.Attributes["offsetX"];
-            XmlAttribute offsetYAttr = node.Attributes["offsetY"];
-            if (offsetXAttr == null || offsetYAttr == null) continue;
+            double minRy, minRx, maxRy, maxRx;
+            if (!TryParseAttr(node, "minRy", out minRy)
+                || !TryParseAttr(node, "minRx", out minRx)
+                || !TryParseAttr(node, "maxRy", out maxRy)
+                || !TryParseAttr(node, "maxRx", out maxRx))
+                continue;
 
-            double x, y;
-            if (double.TryParse(offsetXAttr.Value,
-                    NumberStyles.Float, CultureInfo.InvariantCulture, out x)
-                && double.TryParse(offsetYAttr.Value,
-                    NumberStyles.Float, CultureInfo.InvariantCulture, out y))
+            _boundsCache[path] = new Bounds2D
             {
-                _cache[path] = new PointD(x, y);
-            }
+                MinRy = minRy,
+                MinRx = minRx,
+                MaxRy = maxRy,
+                MaxRx = maxRx
+            };
+            _offsetCache[path] = new PointD(minRy, minRx);
         }
+    }
+
+    private static bool TryParseAttr(XmlNode node, string name, out double value)
+    {
+        value = 0;
+        XmlAttribute attr = node.Attributes[name];
+        if (attr == null)
+            return false;
+        return double.TryParse(attr.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
     }
 
     private static void SaveCache()
@@ -151,14 +176,18 @@ public static class MacroFitCalculator
             CacheSchemaVersion.ToString(CultureInfo.InvariantCulture));
         doc.AppendChild(root);
 
-        foreach (KeyValuePair<string, PointD> kv in _cache)
+        foreach (KeyValuePair<string, Bounds2D> kv in _boundsCache)
         {
+            Bounds2D b = kv.Value;
+            if (!b.IsValid)
+                continue;
+
             XmlElement el = doc.CreateElement("Macro");
             el.SetAttribute("path", kv.Key);
-            el.SetAttribute("offsetX",
-                kv.Value.X.ToString("G6", CultureInfo.InvariantCulture));
-            el.SetAttribute("offsetY",
-                kv.Value.Y.ToString("G6", CultureInfo.InvariantCulture));
+            el.SetAttribute("minRy", b.MinRy.ToString("G6", CultureInfo.InvariantCulture));
+            el.SetAttribute("minRx", b.MinRx.ToString("G6", CultureInfo.InvariantCulture));
+            el.SetAttribute("maxRy", b.MaxRy.ToString("G6", CultureInfo.InvariantCulture));
+            el.SetAttribute("maxRx", b.MaxRx.ToString("G6", CultureInfo.InvariantCulture));
             root.AppendChild(el);
         }
 

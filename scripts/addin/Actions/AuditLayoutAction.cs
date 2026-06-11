@@ -87,6 +87,7 @@ public class SchemaGenAuditLayoutAction : IEplAction
             + ContentField("maxRx", content.MaxRx, content.IsValid)
             + "},"
             + "\"fitsInFrame\":" + (fit.FitsInFrame ? "true" : "false") + ","
+            + "\"macroTooLarge\":" + (fit.MacroTooLarge ? "true" : "false") + ","
             + "\"overflow\":{"
             + "\"top\":" + Bool(fit.OverflowTop) + ","
             + "\"left\":" + Bool(fit.OverflowLeft) + ","

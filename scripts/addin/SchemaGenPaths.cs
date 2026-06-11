@@ -20,15 +20,15 @@ public static class SchemaGenPaths
 
     // Insert.WindowMacro PointD(X, Y): X → oś RY (pion strony), Y → oś RX (poziom).
     // Test 1.5: zmiana „MacroInsertY” przesuwała RX, nie RY.
-    // Sesja 1.7: pozycja = FrameMinRy + FrameMarginRy (2.6), FrameMinRx + FrameMarginRx (3.0)
-    public const double MacroInsertRy = 2.6;
-    public const double MacroInsertRx = 3.0;
+    // Sesja 1.7b: FrameMin + FrameMargin (domyślnie gdy USE_FRAME_LAYOUT=0)
+    public const double MacroInsertRy = 37.0;
+    public const double MacroInsertRx = 37.0;
 
-    public const double DriveMacroInsertRy = 2.6;
-    public const double DriveMacroInsertRx = 3.0;
+    public const double DriveMacroInsertRy = 37.0;
+    public const double DriveMacroInsertRx = 37.0;
 
-    public const double ControlMacroInsertRy = 2.6;
-    public const double ControlMacroInsertRx = 3.0;
+    public const double ControlMacroInsertRy = 37.0;
+    public const double ControlMacroInsertRx = 37.0;
 
     // Aliasy dla kompatybilności parametrów CLI MACROX/MACROY (X=RY, Y=RX)
     public const double MacroInsertX = MacroInsertRy;
@@ -42,13 +42,13 @@ public static class SchemaGenPaths
     public const string MotorDesignation = "=MACHINE+CABINET-M1";
 
     // Obszar rysunkowy ramki strony (mm, oś RY/RX) — kalibruj przez SchemaGenAuditLayout
-    public const double FrameMinRy = 0.6;
-    public const double FrameMinRx = 1.0;
-    // Format strony: A4 landscape (sesja 1.7)
-    public const double PageWidthMm  = 297.0;   // A4 landscape — poziom (RX)
-    public const double PageHeightMm = 210.0;   // A4 landscape — pion (RY)
-    public const double FrameMaxRy = 200.0;     // PageHeightMm − 10mm margines
-    public const double FrameMaxRx = 292.0;     // PageWidthMm  − 5mm margines
+    // Hello_world / IEC_bas003: A3 landscape; MinRy/MinRx poniżej nagłówka strony (layout-audit)
+    public const double FrameMinRy = 35.0;
+    public const double FrameMinRx = 35.0;
+    public const double PageWidthMm  = 420.0;   // A3 landscape — poziom (RX)
+    public const double PageHeightMm = 297.0;   // A3 landscape — pion (RY)
+    public const double FrameMaxRy = 287.0;     // PageHeightMm − 10mm margines
+    public const double FrameMaxRx = 415.0;     // PageWidthMm  − 5mm margines
     public const double FrameMarginRy = 2.0;
     public const double FrameMarginRx = 2.0;
 

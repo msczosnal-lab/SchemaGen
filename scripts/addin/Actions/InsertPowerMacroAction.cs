@@ -64,13 +64,16 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
         if (!string.IsNullOrEmpty(macroYStr))
             double.TryParse(macroYStr, NumberStyles.Float, CultureInfo.InvariantCulture, out insertRx);
 
+        Insert oInsert = new Insert();
+
         string useFrameLayout = "";
         ctx.GetParameter("USE_FRAME_LAYOUT", ref useFrameLayout);
         if (useFrameLayout == "1")
         {
+            Bounds2D macroBounds = MacroFitCalculator.EnsureMacroBounds(oInsert, macroPath, oPage);
             FrameLayoutCalculator.FrameRect frame = FrameLayoutCalculator.DefaultFrame();
-            FrameLayoutCalculator.InsertTarget target = FrameLayoutCalculator.ComputeInsertPoint(
-                PlacementBounds.Empty(), frame);
+            FrameLayoutCalculator.InsertTarget target =
+                FrameLayoutCalculator.ComputeInsertPoint(macroBounds, frame);
             insertRy = target.Ry;
             insertRx = target.Rx;
         }
@@ -78,7 +81,6 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
         string driveType = "";
         ctx.GetParameter("DRIVETYPE", ref driveType);
 
-        Insert oInsert = new Insert();
         StorableObject[] inserted = MacroFitCalculator.InsertAtTarget(
             oInsert, macroPath, oPage, insertRy, insertRx);
 
