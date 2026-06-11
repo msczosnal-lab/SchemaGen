@@ -114,6 +114,10 @@ public static class MacroAdaptation
         int funcSeen = 0;
         foreach (Function func in page.Functions)
         {
+            // Tylko funkcje GŁÓWNE urządzeń — pomijamy styki/zaciski/cewki (podfunkcje),
+            // które dziedziczą FUNC_CODE i powodowały remap 140 zamiast kilku urządzeń.
+            try { if (!func.IsMainFunction) continue; } catch { }
+
             funcSeen++;
             string code = "";
             try { code = func.Properties.FUNC_CODE.ToString(); } catch { }
