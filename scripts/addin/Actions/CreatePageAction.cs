@@ -32,6 +32,18 @@ public class SchemaGenCreatePageAction : IEplAction
         Page oNewPage = new Page();
         oNewPage.Create(oProject, DocumentTypeManager.DocumentType.Circuit, oPageProps);
 
+        // Format strony A4 landscape (sesja 1.7) — po Create, nie w PagePropertyList
+        // [RYZYKO] DRAWING_DISPLAYEDWIDTH/HEIGHT — zweryfikuj po rebuild w EPLAN 2025
+        try
+        {
+            oNewPage.Properties[Properties.Page.DRAWING_DISPLAYEDWIDTH]  = SchemaGenPaths.PageWidthMm;
+            oNewPage.Properties[Properties.Page.DRAWING_DISPLAYEDHEIGHT] = SchemaGenPaths.PageHeightMm;
+        }
+        catch
+        {
+            // starsze API może nie mieć tej własności — ignoruj, strona zostaje z domyślnym formatem
+        }
+
         // Opis strony (PAGE_NOMINATIOMN #11011) — widoczny w nawigatorze stron; ustawiany po Create
         // UWAGA: 11013 to PAGE_SUBCOUNTER, nie opis!
         if (!string.IsNullOrEmpty(pageDescription))

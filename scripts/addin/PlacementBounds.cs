@@ -36,7 +36,15 @@ public static class PlacementBounds
     {
         Bounds2D bounds = Empty();
         foreach (Placement placement in page.AllFirstLevelPlacements)
+        {
+            // Pomijamy ramkę rysunkową strony (graficzne obiekty ramki, GridSymbol itp.)
+            // Ramka EPLAN ma Location≈(0,0) lub ujemne — bez filtra powoduje fitsInFrame=false.
+            if (!(placement is Function)
+                && !(placement is PotentialDefinition)
+                && !(placement is InterruptionPoint))
+                continue;
             IncludePlacement(ref bounds, placement);
+        }
         return bounds;
     }
 

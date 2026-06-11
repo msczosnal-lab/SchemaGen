@@ -28,22 +28,51 @@ public static class MacroAdaptation
         int changes = 0;
         foreach (Placement placement in page.AllFirstLevelPlacements)
         {
+            // PotentialDefinition — bezpośrednia zmiana nazwy
             PotentialDefinition pd = placement as PotentialDefinition;
-            if (pd == null)
+            if (pd != null)
+            {
+                try
+                {
+                    string canonical = CanonicalPotentialName(pd.PotentialName);
+                    if (!string.IsNullOrEmpty(canonical) && canonical != pd.PotentialName)
+                    {
+                        pd.PotentialName = canonical;
+                        changes++;
+                    }
+                }
+                catch
+                {
+                    // pojedynczy punkt — nie przerywaj insertu
+                }
                 continue;
-
-            try
-            {
-                string canonical = CanonicalPotentialName(pd.PotentialName);
-                if (string.IsNullOrEmpty(canonical) || canonical == pd.PotentialName)
-                    continue;
-
-                pd.PotentialName = canonical;
-                changes++;
             }
-            catch
+
+            // InterruptionPoint (sesja 1.7) — nosi pełną ścieżkę potencjału np. =GAA-2L1
+            InterruptionPoint ip = placement as InterruptionPoint;
+            if (ip != null)
             {
-                // pojedynczy punkt — nie przerywaj insertu
+                try
+                {
+                    string canonical = CanonicalPotentialName(ip.Name);
+                    if (!string.IsNullOrEmpty(canonical) && canonical != ip.Name)
+                    {
+                        using (SafetyPoint sp = SafetyPoint.Create())
+                        {
+                            using (Transaction tx = new TransactionManager().CreateTransaction())
+                            {
+                                ip.Name = canonical;
+                                tx.Commit();
+                            }
+                            sp.Commit();
+                        }
+                        changes++;
+                    }
+                }
+                catch
+                {
+                    // ip.Name może być tylko do odczytu w starszych API — ignoruj
+                }
             }
         }
         return changes;

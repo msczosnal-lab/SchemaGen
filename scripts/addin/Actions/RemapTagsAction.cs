@@ -4,6 +4,7 @@ using Eplan.EplApi.ApplicationFramework;
 using Eplan.EplApi.DataModel;
 
 // Sesja 1.6: podmiana oznaczeń silnika na =MACHINE+CABINET-M1 + generate CONNECTIONS (uzwojenia).
+// Sesja 1.7: generate IDENTIFIERS po connections, pole identifiersGenerated w JSON.
 public class SchemaGenRemapTagsAction : IEplAction
 {
     public bool OnRegister(ref string Name, ref int Ordinal)
@@ -46,9 +47,12 @@ public class SchemaGenRemapTagsAction : IEplAction
 
         connections = MacroAdaptation.ConnectMotorWindings(oProject);
 
+        // Sesja 1.7: odśwież oznaczenia na schematach po generate CONNECTIONS
+        bool identifiersGenerated = new CommandLineInterpreter().Execute("generate /TYPE:IDENTIFIERS");
+
         string outputPath = "";
         ctx.GetParameter("OUTPUTPATH", ref outputPath);
-        string json = BuildJson(remapped, connections, targetTag, report.ToString());
+        string json = BuildJson(remapped, connections, targetTag, report.ToString(), identifiersGenerated);
         if (!string.IsNullOrEmpty(outputPath))
         {
             string dir = Path.GetDirectoryName(outputPath);
@@ -66,6 +70,7 @@ public class SchemaGenRemapTagsAction : IEplAction
             "SchemaGen — tagi silnika",
             "Podmieniono oznaczenia: " + remapped
             + "\nPołączenia uzwojeń (generate CONNECTIONS): " + connections
+            + "\nOznaczenia (generate IDENTIFIERS): " + (identifiersGenerated ? "OK" : "błąd")
             + "\nDocelowy tag: " + targetTag
             + (report.Length > 0 ? "\n\n" + report : ""));
         return true;
@@ -84,11 +89,12 @@ public class SchemaGenRemapTagsAction : IEplAction
         }
     }
 
-    private static string BuildJson(int remapped, int connections, string targetTag, string details)
+    private static string BuildJson(int remapped, int connections, string targetTag, string details, bool identifiersGenerated = false)
     {
         return "{"
             + "\"remappedMotors\":" + remapped + ","
             + "\"connectionPasses\":" + connections + ","
+            + "\"identifiersGenerated\":" + (identifiersGenerated ? "true" : "false") + ","
             + "\"targetTag\":\"" + EscapeJson(targetTag) + "\","
             + "\"details\":\"" + EscapeJson(details.Trim()) + "\""
             + "}";
