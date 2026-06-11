@@ -41,6 +41,13 @@ public static class SchemaGenPaths
     // Oznaczenie silnika (sesja 1.6)
     public const string MotorDesignation = "=MACHINE+CABINET-M1";
 
+    // Sesja 1.7c: struktura DT silnika rozbita na NameParts (=PLANT +LOCATION -CODE+COUNTER).
+    // func.Name = "=...-M1" nie ustawia struktury — wymagane NameParts (KB: datamodel).
+    public const string MotorPlant    = "MACHINE";  // =
+    public const string MotorLocation = "CABINET";  // +
+    public const string MotorCode     = "M";        // -M
+    public const int    MotorCounter  = 1;          //   1
+
     // Obszar rysunkowy ramki strony (mm, oś RY/RX) — kalibruj przez SchemaGenAuditLayout
     public const double FrameMinRy = 0.6;
     public const double FrameMinRx = 1.0;
