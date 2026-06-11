@@ -11,9 +11,9 @@ public class SchemaGenAuditLayoutScript
     public void Run()
     {
         ActionCallingContext ctx = new ActionCallingContext();
-        // Zapis JSON do pliku w repo — okno potwierdza wykonanie, treść czytam z pliku.
+        // Zapis JSON do Skrypty\Schemagen\output\layout-audit.json.
         ctx.AddParameter("OUTPUTPATH",
-            @"C:\Users\Filip\Desktop\Cursor\SchemaGen\scripts\layout-audit.json");
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\layout-audit.json");
         new CommandLineInterpreter().Execute("SchemaGenAuditLayout", ctx);
     }
 }

@@ -4,6 +4,32 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-11 — sesja 1.7c (debug layout RY + DT) — częściowy sukces
+**Etap:** Faza 1 — layout ✅ (RY) | numeracja DT ❌ ślepa uliczka
+
+**Działa — zachować (commit `aaba7b4`+):**
+- **Layout RY:** `MeasureContentObjects` + `ShiftPlacementsRy` w `InsertPowerMacroAction` — makro w ramce góra/dół po korekcie; **RX nietknięty**
+- **Frame A3:** `FrameMin 35/35`, `FrameMax 287/415`
+- Skrypty diagnostyczne: `SchemaGen_AuditLayout.cs`, `SchemaGen_RemapTags.cs` (tylko CLI → akcje DLL, bez DataModel w skrypcie)
+
+**Nie działa — DT / tagi urządzeń:**
+- `func.Name`, `NameParts`, czyszczenie property `<20010>` (S063113) — nie zmieniają widocznego DT na schemacie
+- Duplikaty: `=SCHEMAGEN+MAIN-FC1` na str. 1 i 2; silniki `=SCHEMAGEN+B2-MA1` / `+B4-MA1` wyświetlają się jako `-MA1` (lokalizacja w nagłówku strony)
+- Stałe `MotorPlant=MACHINE` / `MotorLocation=CABINET` **błędne** — realna struktura: `=SCHEMAGEN` + lokalizacje per makro (+MAIN, +A2, +B2, +B4)
+
+**Następny krok (sesja 1.7d):**
+1. Porzucić ręczny `RemapDeviceTags` → natywna numeracja EPLAN (akcja renumber / Projekt → Numeruj)
+2. Ręczny test numeracji w Hello_world → decyzja: MA globalne vs per-lokalizacja
+3. Commit porządkujący: cofnąć martwy kod DT, zostawić layout + skrypty diag.
+
+**Prompt na start sesji 1.7d:**
+```
+Kontekst: @docs/session-log.md @docs/eplan-api-notes.md
+Sesja 1.7d: Zastąp RemapDeviceTags akcją natywnej numeracji EPLAN. Layout RY nie ruszać.
+```
+
+---
+
 #### 2026-06-09 — sesja 1.6 + Faza 1b MCP (implementacja)
 **Etap:** Faza 1 sesja 1.6 ✅ + Faza 1b fundament MCP ✅ — test EPLAN do wykonania
 

@@ -38,14 +38,8 @@ public static class SchemaGenPaths
     public const double ControlMacroInsertX = ControlMacroInsertRy;
     public const double ControlMacroInsertY = ControlMacroInsertRx;
 
-    // Oznaczenie silnika (sesja 1.6)
+    // Oznaczenie silnika (sesja 1.6) — docelowe; widoczne DT: natywna numeracja EPLAN (sesja 1.7d).
     public const string MotorDesignation = "=MACHINE+CABINET-M1";
-
-    // Sesja 1.7c: struktura DT silnika rozbita na NameParts (=PLANT +LOCATION -CODE+COUNTER).
-    // func.Name = "=...-M1" nie ustawia struktury — wymagane NameParts (KB: datamodel).
-    public const string MotorPlant    = "MACHINE";  // =
-    public const string MotorLocation = "CABINET";  // +
-    public const string MotorCode     = "MA";       // -MA (napęd) — licznik nadawany rosnąco: MA1, MA2, ...
 
     // Obszar rysunkowy ramki strony (mm, oś RY/RX) — kalibruj przez SchemaGenAuditLayout
     // Hello_world / IEC_bas003: A3 landscape; MinRy/MinRx poniżej nagłówka strony (layout-audit)

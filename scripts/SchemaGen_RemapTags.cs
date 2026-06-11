@@ -5,7 +5,7 @@ using Eplan.EplApi.ApplicationFramework;
 // Skrypt NIE używa typów DataModel (Page/Function) — te są tylko w add-in (DLL).
 // Skrypt jedynie woła zarejestrowaną akcję przez CommandLineInterpreter.
 // Bez SILENT -> okno z raportem (stary DT -> nowy DT, kod, numer strony).
-// Wynik także w pliku scripts\remap-tags.json (do wklejenia).
+// Wynik także w pliku Skrypty\Schemagen\output\remap-tags.json.
 // Wymóg: projekt Hello_world OTWARTY i aktywny.
 public class SchemaGenRemapTagsScript
 {
@@ -14,7 +14,7 @@ public class SchemaGenRemapTagsScript
     {
         ActionCallingContext ctx = new ActionCallingContext();
         ctx.AddParameter("OUTPUTPATH",
-            @"C:\Users\Filip\Desktop\Cursor\SchemaGen\scripts\remap-tags.json");
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\remap-tags.json");
         new CommandLineInterpreter().Execute("SchemaGenRemapTags", ctx);
     }
 }

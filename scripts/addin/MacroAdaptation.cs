@@ -100,61 +100,39 @@ public static class MacroAdaptation
         }
     }
 
-    // Sesja 1.7c: numeracja urządzeń wg NUMERU STRONY (tymczasowy system tagowania).
-    // Każde urządzenie zachowuje swój kod (MA, FC, ...), licznik = numer strony:
-    // strona 1 → MA1/FC1, strona 2 → MA2/FC2. Eliminuje duplikaty z powielanych makr.
-    // Struktura DT przez NameParts (KB: datamodel), nie func.Name.
-    public static int RemapDeviceTags(Page page, System.Text.StringBuilder diag)
+    // Sesja 1.6: podmiana tagu silnika (logiczna). Widoczne DT na rysunku — sesja 1.7d (renumber EPLAN).
+    public static int RemapMotorTag(Page page, string targetTag)
     {
-        if (page == null)
+        if (page == null || string.IsNullOrEmpty(targetTag))
             return 0;
 
         int count = 0;
-        int funcSeen = 0;
         foreach (Function func in page.Functions)
         {
-            // Tylko funkcje GŁÓWNE urządzeń — pomijamy styki/zaciski/cewki (podfunkcje).
-            try { if (!func.IsMainFunction) continue; } catch { }
+            if (!IsMotorFunction(func))
+                continue;
 
-            funcSeen++;
-            string dt = "";
-            try { dt = func.Name; } catch { }
-
-            // <20010> = widoczny DT (override z makra). Gdy niepusty, przesłania wyliczone DT.
-            // Czyścimy go, by edytor pokazał strukturalne oznaczenie (które EPLAN numeruje poprawnie).
-            string visBefore = "";
-            try { visBefore = func.Properties[20010, 0].ToString(); } catch { }
-
-            string visAfter = visBefore;
-            bool ok = false;
             try
             {
+                if (func.Name == targetTag)
+                    continue;
+
                 using (SafetyPoint sp = SafetyPoint.Create())
                 {
                     using (Transaction tx = new TransactionManager().CreateTransaction())
                     {
-                        func.Properties[20010, 0] = "";
+                        func.Name = targetTag;
                         tx.Commit();
                     }
                     sp.Commit();
                 }
-                try { visAfter = func.Properties[20010, 0].ToString(); } catch { }
-                ok = true;
                 count++;
             }
-            catch (System.Exception ex)
+            catch
             {
-                if (diag != null)
-                    diag.AppendLine(page.Name + " | DT=" + dt + " | WYJATEK: " + ex.Message);
+                // pojedyncza funkcja — nie przerywaj
             }
-
-            if (ok && diag != null)
-                diag.AppendLine(page.Name + " | DT=" + dt
-                    + " | vis20010: '" + visBefore + "' -> '" + visAfter + "'");
         }
-
-        if (diag != null && funcSeen == 0)
-            diag.AppendLine(page.Name + " | BRAK FUNKCJI na stronie");
         return count;
     }
 

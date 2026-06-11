@@ -3,8 +3,9 @@ using System.Text;
 using Eplan.EplApi.ApplicationFramework;
 using Eplan.EplApi.DataModel;
 
-// Sesja 1.6: podmiana oznaczeń silnika na =MACHINE+CABINET-M1 + generate CONNECTIONS (uzwojenia).
-// Sesja 1.7: generate IDENTIFIERS po connections, pole identifiersGenerated w JSON.
+// Sesja 1.6: podmiana tagów silnika + generate CONNECTIONS (uzwojenia).
+// Sesja 1.7c: gedRedraw zamiast generate IDENTIFIERS (nieobsługiwane).
+// Numeracja DT urządzeń — sesja 1.7d (natywna renumber EPLAN), nie ręczny remap.
 public class SchemaGenRemapTagsAction : IEplAction
 {
     public bool OnRegister(ref string Name, ref int Ordinal)
@@ -34,25 +35,24 @@ public class SchemaGenRemapTagsAction : IEplAction
         int connections = 0;
         var report = new StringBuilder();
 
-        // Sesja 1.7c: numeracja urządzeń wg numeru strony — bez duplikatów MA1/FC1.
         foreach (Page page in oProject.Pages)
         {
             if (!IsSchemaGenPage(page))
                 continue;
 
-            int pageRemapped = MacroAdaptation.RemapDeviceTags(page, report);
+            int pageRemapped = MacroAdaptation.RemapMotorTag(page, targetTag);
             remapped += pageRemapped;
+            if (pageRemapped > 0)
+                report.AppendLine(page.Name + ": " + pageRemapped + " silnik(ów)");
         }
 
         connections = MacroAdaptation.ConnectMotorWindings(oProject);
 
-        // Sesja 1.7c: NameParts ustawia DT od razu — wystarczy odświeżenie widoku.
-        // [BŁĄD naprawiony] generate obsługuje tylko CONNECTIONS/CABLES; /TYPE:IDENTIFIERS zwracał false.
-        bool identifiersGenerated = new CommandLineInterpreter().Execute("gedRedraw");
+        bool viewRefreshed = new CommandLineInterpreter().Execute("gedRedraw");
 
         string outputPath = "";
         ctx.GetParameter("OUTPUTPATH", ref outputPath);
-        string json = BuildJson(remapped, connections, targetTag, report.ToString(), identifiersGenerated);
+        string json = BuildJson(remapped, connections, targetTag, report.ToString(), viewRefreshed);
         if (!string.IsNullOrEmpty(outputPath))
         {
             string dir = Path.GetDirectoryName(outputPath);
@@ -68,11 +68,12 @@ public class SchemaGenRemapTagsAction : IEplAction
 
         SchemaGenUi.ShowSuccess(
             "SchemaGen — tagi silnika",
-            "Podmieniono oznaczenia: " + remapped
+            "Podmieniono oznaczenia silnika: " + remapped
             + "\nPołączenia uzwojeń (generate CONNECTIONS): " + connections
-            + "\nOznaczenia (generate IDENTIFIERS): " + (identifiersGenerated ? "OK" : "błąd")
+            + "\nOdświeżenie widoku (gedRedraw): " + (viewRefreshed ? "OK" : "błąd")
             + "\nDocelowy tag: " + targetTag
-            + (report.Length > 0 ? "\n\n" + report : ""));
+            + (report.Length > 0 ? "\n\n" + report : "")
+            + "\n\nNumeracja DT urządzeń (FC/MA): sesja 1.7d — natywna renumber EPLAN.");
         return true;
     }
 
@@ -89,12 +90,13 @@ public class SchemaGenRemapTagsAction : IEplAction
         }
     }
 
-    private static string BuildJson(int remapped, int connections, string targetTag, string details, bool identifiersGenerated = false)
+    private static string BuildJson(int remapped, int connections, string targetTag, string details, bool viewRefreshed)
     {
         return "{"
             + "\"remappedMotors\":" + remapped + ","
             + "\"connectionPasses\":" + connections + ","
-            + "\"identifiersGenerated\":" + (identifiersGenerated ? "true" : "false") + ","
+            + "\"viewRefreshed\":" + (viewRefreshed ? "true" : "false") + ","
+            + "\"identifiersGenerated\":" + (viewRefreshed ? "true" : "false") + ","
             + "\"targetTag\":\"" + EscapeJson(targetTag) + "\","
             + "\"details\":\"" + EscapeJson(details.Trim()) + "\""
             + "}";

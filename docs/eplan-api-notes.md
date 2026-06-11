@@ -2,6 +2,28 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.7c — 2026-06-11 (layout RY + ślepa uliczka DT)
+
+### Layout RY — działa
+- **Przyczyna:** `MacroFitCalculator.EnsureMacroBounds` mierzył offset ze wszystkich obiektów makra (origin ~0) → `offset.X≈0` → treść funkcyjna na RY≈73 zamiast ~37 → wystawanie **górą** ramki.
+- **Fix:** `PlacementBounds.MeasureContentObjects` (tylko Function/PotentialDefinition/InterruptionPoint) + `InsertPowerMacroAction.ShiftPlacementsRy` po insert — dosuwa makro w pionie do `FrameMinRy+margin`. **RX nietknięty.**
+- **Ramka A3:** FrameMin 35/35, FrameMax 287/415. Oś audytu: `minRy=Location.Y`, `minRx=Location.X`.
+- **Uwaga:** w `FrameLayoutCalculator.Evaluate` nazwy `overflow.top/bottom` mogą być mylące względem fizycznej góry strony — weryfikuj wizualnie PDF, nie tylko JSON.
+
+### DT / oznaczenia urządzeń — nie ruszać ręcznie
+- `func.Name` ustawia tylko fragment product (`-M1`), nie pełne DT na rysunku.
+- `FunctionBasePropertyList.NameParts` — zmiany nie nadpisują widocznego DT w testach.
+- Property **`<20010>`** (ID widoczne) — zapis pustym stringiem → **S063113** (chronione). Odczyt: `func.Properties[20010, 0]`.
+- `func.IsMainFunction` — **konieczny filtr** (bez niego remap łapie ~140 funkcji zamiast ~17 głównych).
+- `Properties.Function.FUNC_CODE` — brak jako stała (CS0117); działa `func.Properties.FUNC_CODE`.
+- `generate /TYPE:IDENTIFIERS` — **nie istnieje** w akcji generate (tylko CONNECTIONS/CABLES). Odświeżenie: `gedRedraw`.
+- **Realna struktura Hello_world:** `=SCHEMAGEN` + lokalizacje (+MAIN, +A2, +B2, +B4, +B2.X1). Nie `MACHINE/CABINET`.
+- **Kierunek:** natywna numeracja EPLAN (Projekt → Numeruj / akcja renumber), nie ręczny remap property.
+
+### Skrypty diagnostyczne
+- `SchemaGen_AuditLayout.cs`, `SchemaGen_RemapTags.cs` — tylko `CommandLineInterpreter` + akcje DLL.
+- Skrypt `.cs` z `[Start]` **nie może** używać typów DataModel bezpośrednio (brak ref do DataModel.dll przy ExecuteScript).
+
 ## Sesja 1.6 — 2026-06-09 (tagi silnika + MCP + FrameLayout)
 
 ### Zaimplementowano
