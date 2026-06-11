@@ -45,8 +45,7 @@ public static class SchemaGenPaths
     // func.Name = "=...-M1" nie ustawia struktury — wymagane NameParts (KB: datamodel).
     public const string MotorPlant    = "MACHINE";  // =
     public const string MotorLocation = "CABINET";  // +
-    public const string MotorCode     = "M";        // -M
-    public const int    MotorCounter  = 1;          //   1
+    public const string MotorCode     = "MA";       // -MA (napęd) — licznik nadawany rosnąco: MA1, MA2, ...
 
     // Obszar rysunkowy ramki strony (mm, oś RY/RX) — kalibruj przez SchemaGenAuditLayout
     // Hello_world / IEC_bas003: A3 landscape; MinRy/MinRx poniżej nagłówka strony (layout-audit)

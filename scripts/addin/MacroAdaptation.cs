@@ -100,9 +100,11 @@ public static class MacroAdaptation
         }
     }
 
-    public static int RemapMotorTag(Page page, string targetTag)
+    // Sesja 1.7c: licznik silników nadawany rosnąco przez WSZYSTKIE strony (ref) — MA1, MA2, ...
+    // Bez tego każdy silnik dostawał ten sam FUNC_COUNTER=1 i oba wychodziły jako MA1.
+    public static int RemapMotorTag(Page page, string targetTag, ref int counter)
     {
-        if (page == null || string.IsNullOrEmpty(targetTag))
+        if (page == null)
             return 0;
 
         int count = 0;
@@ -113,25 +115,24 @@ public static class MacroAdaptation
 
             try
             {
-                if (func.Name == targetTag)
-                    continue;
+                int next = counter + 1;
 
                 using (SafetyPoint sp = SafetyPoint.Create())
                 {
                     using (Transaction tx = new TransactionManager().CreateTransaction())
                     {
-                        // Sesja 1.7c: struktura DT przez NameParts, nie func.Name.
-                        // func.Name = "=MACHINE+CABINET-M1" ustawia tylko product (-M1) — struktura przepada.
+                        // Struktura DT przez NameParts (KB: datamodel), nie func.Name.
                         var np = new FunctionBasePropertyList();
                         np.DESIGNATION_PLANT    = SchemaGenPaths.MotorPlant;
                         np.DESIGNATION_LOCATION = SchemaGenPaths.MotorLocation;
                         np.FUNC_CODE    = SchemaGenPaths.MotorCode;
-                        np.FUNC_COUNTER = SchemaGenPaths.MotorCounter;
+                        np.FUNC_COUNTER = next;
                         func.NameParts = np;
                         tx.Commit();
                     }
                     sp.Commit();
                 }
+                counter = next;
                 count++;
             }
             catch
