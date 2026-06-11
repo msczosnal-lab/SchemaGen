@@ -120,7 +120,14 @@ public static class MacroAdaptation
                 {
                     using (Transaction tx = new TransactionManager().CreateTransaction())
                     {
-                        func.Name = targetTag;
+                        // Sesja 1.7c: struktura DT przez NameParts, nie func.Name.
+                        // func.Name = "=MACHINE+CABINET-M1" ustawia tylko product (-M1) — struktura przepada.
+                        var np = new FunctionBasePropertyList();
+                        np.DESIGNATION_PLANT    = SchemaGenPaths.MotorPlant;
+                        np.DESIGNATION_LOCATION = SchemaGenPaths.MotorLocation;
+                        np.FUNC_CODE    = SchemaGenPaths.MotorCode;
+                        np.FUNC_COUNTER = SchemaGenPaths.MotorCounter;
+                        func.NameParts = np;
                         tx.Commit();
                     }
                     sp.Commit();

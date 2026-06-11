@@ -47,8 +47,9 @@ public class SchemaGenRemapTagsAction : IEplAction
 
         connections = MacroAdaptation.ConnectMotorWindings(oProject);
 
-        // Sesja 1.7: odśwież oznaczenia na schematach po generate CONNECTIONS
-        bool identifiersGenerated = new CommandLineInterpreter().Execute("generate /TYPE:IDENTIFIERS");
+        // Sesja 1.7c: NameParts ustawia DT od razu — wystarczy odświeżenie widoku.
+        // [BŁĄD naprawiony] generate obsługuje tylko CONNECTIONS/CABLES; /TYPE:IDENTIFIERS zwracał false.
+        bool identifiersGenerated = new CommandLineInterpreter().Execute("gedRedraw");
 
         string outputPath = "";
         ctx.GetParameter("OUTPUTPATH", ref outputPath);
