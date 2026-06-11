@@ -116,7 +116,7 @@ public static class MacroAdaptation
             string code;
             try
             {
-                code = func.Properties[Properties.Function.FUNC_CODE].ToString();
+                code = func.Properties.FUNC_CODE.ToString();
             }
             catch
             {
@@ -151,22 +151,26 @@ public static class MacroAdaptation
         return count;
     }
 
+    // Numer strony z nazwy: "=SCHEMAGEN+MAIN/1" → 1. Bierze cyfry po ostatnim '/'.
     private static int PageNumber(Page page)
     {
-        try
-        {
-            return (int)page.Properties[Properties.Page.PAGE_COUNTER].ToInt();
-        }
-        catch { /* brak property — fallback na nazwę */ }
-
         try
         {
             string n = page.Name ?? "";
             int slash = n.LastIndexOf('/');
             if (slash >= 0 && slash < n.Length - 1)
             {
+                string tail = n.Substring(slash + 1);
+                var digits = new System.Text.StringBuilder();
+                foreach (char c in tail)
+                {
+                    if (char.IsDigit(c))
+                        digits.Append(c);
+                    else
+                        break;
+                }
                 int v;
-                if (int.TryParse(n.Substring(slash + 1), out v))
+                if (digits.Length > 0 && int.TryParse(digits.ToString(), out v))
                     return v;
             }
         }
