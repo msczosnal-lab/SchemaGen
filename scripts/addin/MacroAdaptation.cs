@@ -109,30 +109,23 @@ public static class MacroAdaptation
         if (page == null)
             return 0;
 
-        int pageNo = PageNumber(page);
         int count = 0;
         int funcSeen = 0;
         foreach (Function func in page.Functions)
         {
-            // Tylko funkcje GŁÓWNE urządzeń — pomijamy styki/zaciski/cewki (podfunkcje),
-            // które dziedziczą FUNC_CODE i powodowały remap 140 zamiast kilku urządzeń.
+            // Tylko funkcje GŁÓWNE urządzeń — pomijamy styki/zaciski/cewki (podfunkcje).
             try { if (!func.IsMainFunction) continue; } catch { }
 
             funcSeen++;
-            string code = "";
-            try { code = func.Properties.FUNC_CODE.ToString(); } catch { }
+            string dt = "";
+            try { dt = func.Name; } catch { }
 
-            string oldName = "";
-            try { oldName = func.Name; } catch { }
+            // <20010> = widoczny DT (override z makra). Gdy niepusty, przesłania wyliczone DT.
+            // Czyścimy go, by edytor pokazał strukturalne oznaczenie (które EPLAN numeruje poprawnie).
+            string visBefore = "";
+            try { visBefore = func.Properties[20010, 0].ToString(); } catch { }
 
-            if (string.IsNullOrEmpty(code))
-            {
-                if (diag != null)
-                    diag.AppendLine(page.Name + " | " + oldName + " | kod=PUSTY | POMINIETO");
-                continue;
-            }
-
-            string newName = oldName;
+            string visAfter = visBefore;
             bool ok = false;
             try
             {
@@ -140,62 +133,29 @@ public static class MacroAdaptation
                 {
                     using (Transaction tx = new TransactionManager().CreateTransaction())
                     {
-                        var np = new FunctionBasePropertyList();
-                        np.DESIGNATION_PLANT    = SchemaGenPaths.MotorPlant;
-                        np.DESIGNATION_LOCATION = SchemaGenPaths.MotorLocation;
-                        np.FUNC_CODE    = code;      // zachowaj istniejący kod (MA, FC, ...)
-                        np.FUNC_COUNTER = pageNo;    // licznik = numer strony
-                        func.NameParts = np;
+                        func.Properties[20010, 0] = "";
                         tx.Commit();
                     }
                     sp.Commit();
                 }
-                try { newName = func.Name; } catch { }
+                try { visAfter = func.Properties[20010, 0].ToString(); } catch { }
                 ok = true;
                 count++;
             }
             catch (System.Exception ex)
             {
                 if (diag != null)
-                    diag.AppendLine(page.Name + " | " + oldName + " | kod=" + code + " | WYJATEK: " + ex.Message);
+                    diag.AppendLine(page.Name + " | DT=" + dt + " | WYJATEK: " + ex.Message);
             }
 
             if (ok && diag != null)
-                diag.AppendLine(page.Name + " | kod=" + code + " | pageNo=" + pageNo
-                    + " | " + oldName + " -> " + newName);
+                diag.AppendLine(page.Name + " | DT=" + dt
+                    + " | vis20010: '" + visBefore + "' -> '" + visAfter + "'");
         }
 
         if (diag != null && funcSeen == 0)
             diag.AppendLine(page.Name + " | BRAK FUNKCJI na stronie");
         return count;
-    }
-
-    // Numer strony z nazwy: "=SCHEMAGEN+MAIN/1" → 1. Bierze cyfry po ostatnim '/'.
-    private static int PageNumber(Page page)
-    {
-        try
-        {
-            string n = page.Name ?? "";
-            int slash = n.LastIndexOf('/');
-            if (slash >= 0 && slash < n.Length - 1)
-            {
-                string tail = n.Substring(slash + 1);
-                var digits = new System.Text.StringBuilder();
-                foreach (char c in tail)
-                {
-                    if (char.IsDigit(c))
-                        digits.Append(c);
-                    else
-                        break;
-                }
-                int v;
-                if (digits.Length > 0 && int.TryParse(digits.ToString(), out v))
-                    return v;
-            }
-        }
-        catch { }
-
-        return 1;
     }
 
     public static int ConnectMotorWindings(Project project)
