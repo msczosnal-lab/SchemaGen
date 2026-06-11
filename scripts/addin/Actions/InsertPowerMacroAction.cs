@@ -84,6 +84,21 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
         StorableObject[] inserted = MacroFitCalculator.InsertAtTarget(
             oInsert, macroPath, oPage, insertRy, insertRx);
 
+        // Sesja 1.7c: korekta TYLKO w pionie (RY). offset z cache bywa ~0 (origin makra na 0,0),
+        // przez co treść funkcyjna wychodzi górą ramki. Mierzymy realny dolny róg funkcji
+        // i dosuwamy makro w pionie do FrameMinRy+margin. RX celowo nietknięty.
+        if (useFrameLayout == "1")
+        {
+            Bounds2D content = PlacementBounds.MeasureContentObjects(inserted);
+            if (content.IsValid)
+            {
+                double targetMinRy = SchemaGenPaths.FrameMinRy + SchemaGenPaths.FrameMarginRy;
+                double deltaRy = targetMinRy - content.MinRy;
+                if (System.Math.Abs(deltaRy) > 0.01)
+                    ShiftPlacementsRy(inserted, deltaRy);
+            }
+        }
+
         // Tylko PlaceHolder z wyniku insert — bez RemapFunctionStructure (S063111)
         MacroAdaptation.AdaptInsertedObjects(inserted, driveType);
 
@@ -105,5 +120,36 @@ public class SchemaGenInsertPowerMacroAction : IEplAction
 
         SchemaGenUi.ShowSuccess("SchemaGen — makro", message);
         return true;
+    }
+
+    // Sesja 1.7c: translacja wstawionych obiektów makra wyłącznie w osi pionowej (RY = Location.Y).
+    private static void ShiftPlacementsRy(StorableObject[] objects, double deltaRy)
+    {
+        if (objects == null)
+            return;
+
+        using (SafetyPoint sp = SafetyPoint.Create())
+        {
+            using (Transaction tx = new TransactionManager().CreateTransaction())
+            {
+                foreach (StorableObject obj in objects)
+                {
+                    Placement p = obj as Placement;
+                    if (p == null)
+                        continue;
+                    try
+                    {
+                        PointD loc = p.Location;
+                        p.Location = new PointD(loc.X, loc.Y + deltaRy);
+                    }
+                    catch
+                    {
+                        // obiekt bez modyfikowalnej pozycji — pomijamy
+                    }
+                }
+                tx.Commit();
+            }
+            sp.Commit();
+        }
     }
 }

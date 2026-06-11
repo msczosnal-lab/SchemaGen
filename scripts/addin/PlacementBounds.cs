@@ -63,6 +63,29 @@ public static class PlacementBounds
         return bounds;
     }
 
+    // Sesja 1.7c: pomiar TYLKO treści schematu (Function/Potential/Interruption),
+    // spójny z MeasurePageContent i audytem. Pomija origin/grafikę makra na (0,0),
+    // która zaniżała offset do ~0 i psuła kompensację RY w InsertAtTarget.
+    public static Bounds2D MeasureContentObjects(StorableObject[] objects)
+    {
+        Bounds2D bounds = Empty();
+        if (objects == null)
+            return bounds;
+
+        foreach (StorableObject obj in objects)
+        {
+            Placement placement = obj as Placement;
+            if (placement == null)
+                continue;
+            if (!(placement is Function)
+                && !(placement is PotentialDefinition)
+                && !(placement is InterruptionPoint))
+                continue;
+            IncludePlacement(ref bounds, placement);
+        }
+        return bounds;
+    }
+
     public static Bounds2D Empty()
     {
         return new Bounds2D
