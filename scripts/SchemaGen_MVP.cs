@@ -433,6 +433,7 @@ public class SchemaGen_MVP
         if (File.Exists(rulesPath)
             && SchemaGenConfig.TryLoadNumberingRules(rulesPath, out rules, out rulesError))
         {
+            // Pass 1 — natywny renumber per reguła (FC per-lokalizacja, baseline DT).
             for (int i = 0; i < rules.Length; i++)
             {
                 SchemaGenConfig.NumberingRule rule = rules[i];
@@ -448,6 +449,29 @@ public class SchemaGen_MVP
                     ctx.AddParameter("OUTPUTPATH", outputPath);
 
                 if (!new CommandLineInterpreter().Execute("SchemaGenRenumberDevices", ctx))
+                    return false;
+            }
+
+            // Pass 2 — Plan B 1.7g: wymuś globalny licznik dla reguł forceGlobalCounter
+            // (np. MA1, MA2 dla silników w różnych lokalizacjach). Renumber per-lokalizacja
+            // zostawił -MA1 wszędzie; tu nadpisujemy FUNC_COUNTER przez NameParts.
+            const string forceCounterOutput =
+                @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\force-global-counter.json";
+            for (int i = 0; i < rules.Length; i++)
+            {
+                SchemaGenConfig.NumberingRule rule = rules[i];
+                if (!rule.ForceGlobalCounter)
+                    continue;
+
+                ActionCallingContext fctx = new ActionCallingContext();
+                fctx.AddParameter("PROJECTPATH", projectPath);
+                fctx.AddParameter("SILENT", "1");
+                fctx.AddParameter("IDENTIFIER", rule.Identifier);
+                fctx.AddParameter("STARTVALUE", rule.StartValue);
+                fctx.AddParameter("STEPVALUE", rule.StepValue);
+                fctx.AddParameter("OUTPUTPATH", forceCounterOutput);
+
+                if (!new CommandLineInterpreter().Execute("SchemaGenForceGlobalCounter", fctx))
                     return false;
             }
             return true;
