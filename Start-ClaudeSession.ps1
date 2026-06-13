@@ -19,19 +19,23 @@ param(
 
 $ErrorActionPreference = "Continue"
 
-function Write-Step([string]$msg, [string]$color = "White") {
-    Write-Host $msg -ForegroundColor $color
+function Write-Step {
+    param(
+        [string]$Message,
+        [string]$Color = "White"
+    )
+    Write-Host $Message -ForegroundColor $Color
 }
 
 if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
-    Write-Step "[BLAD] $RepoPath nie jest repozytorium git." "Red"
+    Write-Step -Message "[BLAD] $RepoPath nie jest repozytorium git." -Color Red
     exit 1
 }
 
-Write-Step ""
-Write-Step "=== SchemaGen — start sesji Claude [$MachineTag] ===" "Cyan"
-Write-Step "Repo: $RepoPath"
-Write-Step ""
+Write-Step -Message ""
+Write-Step -Message "=== SchemaGen - start sesji Claude [$MachineTag] ===" -Color Cyan
+Write-Step -Message "Repo: $RepoPath"
+Write-Step -Message ""
 
 # --- GitSync daemon ---
 $statusFile = Join-Path $RepoPath "sync\.status-$MachineTag.json"
@@ -43,43 +47,44 @@ if (Test-Path $statusFile) {
         $ageSec = ((Get-Date) - $statusTime.LocalDateTime).TotalSeconds
         if ($ageSec -lt $DaemonMaxAgeSec) {
             $daemonRunning = $true
-            Write-Step "[OK] GitSync daemon aktywny (ostatni heartbeat ${ageSec:N0}s temu)." "Green"
+            $hbMsg = "[OK] GitSync daemon aktywny (ostatni heartbeat {0:N0}s temu)." -f $ageSec
+            Write-Step -Message $hbMsg -Color Green
         }
     } catch {}
 }
 
 if (-not $daemonRunning) {
-    Write-Step "[INFO] GitSync nie wykryty — uruchamiam daemon w osobnym oknie..." "Yellow"
+    Write-Step -Message "[INFO] GitSync nie wykryty - uruchamiam daemon w osobnym oknie..." -Color Yellow
     $daemonScript = Join-Path $RepoPath "GitSyncDaemon.ps1"
     if (Test-Path $daemonScript) {
         Start-Process powershell -ArgumentList @(
             "-NoProfile", "-ExecutionPolicy", "Bypass", "-NoExit",
-            "-File", "`"$daemonScript`"", "-MachineTag", $MachineTag,
-            "-RepoPath", "`"$RepoPath`"", "-Toast"
+            "-File", $daemonScript, "-MachineTag", $MachineTag,
+            "-RepoPath", $RepoPath, "-Toast"
         )
         Start-Sleep -Seconds 3
     } else {
-        Write-Step "[UWAGA] Brak GitSyncDaemon.ps1 — sync reczny." "Yellow"
+        Write-Step -Message "[UWAGA] Brak GitSyncDaemon.ps1 - sync reczny." -Color Yellow
     }
 }
 
 # --- pull ---
-Write-Step ""
-Write-Step "--- Synchronizacja git ---" "Cyan"
+Write-Step -Message ""
+Write-Step -Message "--- Synchronizacja git ---" -Color Cyan
 & git -C $RepoPath fetch origin 2>&1 | Out-Null
 $pullOut = & git -C $RepoPath pull --rebase origin main 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Write-Step "[OK] pull --rebase" "Green"
-    if ($pullOut) { Write-Step $pullOut "Gray" }
+    Write-Step -Message "[OK] pull --rebase" -Color Green
+    if ($pullOut) { Write-Step -Message $pullOut -Color Gray }
 } else {
-    Write-Step "[BLAD] pull --rebase nie powiodl sie:" "Red"
-    Write-Step $pullOut "Red"
-    Write-Step "Rozwiaz konflikt recznie przed sesja Claude." "Red"
+    Write-Step -Message "[BLAD] pull --rebase nie powiodl sie:" -Color Red
+    Write-Step -Message $pullOut -Color Red
+    Write-Step -Message "Rozwiaz konflikt recznie przed sesja Claude." -Color Red
 }
 
 # --- skrzynka Filip ---
-Write-Step ""
-Write-Step "--- Skrzynka od Filipa (filip-to-zw.md) ---" "Cyan"
+Write-Step -Message ""
+Write-Step -Message "--- Skrzynka od Filipa (filip-to-zw.md) ---" -Color Cyan
 $inbox = Join-Path $RepoPath "sync\filip-to-zw.md"
 if (Test-Path $inbox) {
     $lines = Get-Content $inbox -Encoding UTF8
@@ -92,50 +97,50 @@ if (Test-Path $inbox) {
             $shown = 0
         }
         if ($inSection -and $shown -lt 12) {
-            Write-Step $line "Gray"
+            Write-Step -Message $line -Color Gray
             $shown++
         }
     }
 } else {
-    Write-Step "(brak pliku)" "Yellow"
+    Write-Step -Message "(brak pliku)" -Color Yellow
 }
 
 # --- TASKS OPEN ---
-Write-Step ""
-Write-Step "--- TASKS.md (OPEN) ---" "Cyan"
+Write-Step -Message ""
+Write-Step -Message "--- TASKS.md (OPEN) ---" -Color Cyan
 $tasks = Join-Path $RepoPath "sync\TASKS.md"
 if (Test-Path $tasks) {
     Get-Content $tasks -Encoding UTF8 | Where-Object { $_ -match '\| OPEN \|' } | ForEach-Object {
-        Write-Step $_ "Gray"
+        Write-Step -Message $_ -Color Gray
     }
 }
 
 # --- prompt sesji ---
-Write-Step ""
-Write-Step "--- Prompt sesji ---" "Cyan"
+Write-Step -Message ""
+Write-Step -Message "--- Prompt sesji ---" -Color Cyan
 $promptPath = Join-Path $RepoPath ($PromptFile -replace '/', '\')
 if (-not (Test-Path $promptPath)) {
-    Write-Step "[BLAD] Brak pliku promptu: $promptPath" "Red"
+    Write-Step -Message "[BLAD] Brak pliku promptu: $promptPath" -Color Red
     exit 1
 }
 
 $promptText = Get-Content $promptPath -Raw -Encoding UTF8
 try {
     Set-Clipboard -Value $promptText
-    Write-Step "[OK] Prompt skopiowany do schowka." "Green"
+    Write-Step -Message "[OK] Prompt skopiowany do schowka." -Color Green
 } catch {
-    Write-Step "[UWAGA] Nie udalo sie skopiowac do schowka: $_" "Yellow"
+    Write-Step -Message "[UWAGA] Nie udalo sie skopiowac do schowka: $_" -Color Yellow
 }
 
-Write-Step ""
-Write-Step "Plik promptu (pelna sciezka):" "White"
-Write-Step $promptPath "Cyan"
-Write-Step ""
-Write-Step "W Claude Cowork:" "White"
-Write-Step "  1. Wklej prompt ze schowka LUB dolacz pliki:" "White"
-Write-Step "     @$PromptFile" "Yellow"
-Write-Step "     @docs/claude-opus-instructions.md" "Yellow"
-Write-Step "     @sync/filip-to-zw.md" "Yellow"
-Write-Step "  2. Po pracy: wpis tylko w sync/zw-to-filip.md + TASKS.md" "White"
-Write-Step "  3. GitSync wypchnie commit automatycznie (~10 s)" "White"
-Write-Step ""
+Write-Step -Message ""
+Write-Step -Message "Plik promptu (pelna sciezka):" -Color White
+Write-Step -Message $promptPath -Color Cyan
+Write-Step -Message ""
+Write-Step -Message "W Claude Cowork:" -Color White
+Write-Step -Message "  1. Wklej prompt ze schowka LUB dolacz pliki:" -Color White
+Write-Step -Message "     @$PromptFile" -Color Yellow
+Write-Step -Message "     @docs/claude-opus-instructions.md" -Color Yellow
+Write-Step -Message "     @sync/filip-to-zw.md" -Color Yellow
+Write-Step -Message "  2. Po pracy: wpis tylko w sync/zw-to-filip.md + TASKS.md" -Color White
+Write-Step -Message "  3. GitSync wypchnie commit automatycznie w ok. 10 s" -Color White
+Write-Step -Message ""
