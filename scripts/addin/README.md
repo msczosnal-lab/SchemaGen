@@ -26,6 +26,7 @@ Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API →
 | [`Actions/LinkPotentialsAction.cs`](Actions/LinkPotentialsAction.cs) | generate CONNECTIONS + audyt | `SchemaGenLinkPotentials` | ✅ |
 | [`Actions/ConnectMotorAction.cs`](Actions/ConnectMotorAction.cs) | Uzwojenia silnika (U/V/W) + generate CONNECTIONS | `SchemaGenConnectMotor` | ✅ sesja 1.7d |
 | [`Actions/RenumberDevicesAction.cs`](Actions/RenumberDevicesAction.cs) | Numeracja DT (natywny renumber) | `SchemaGenRenumberDevices` | ✅ sesja 1.7d cd. |
+| [`Actions/ForceGlobalCounterAction.cs`](Actions/ForceGlobalCounterAction.cs) | Globalny licznik DT (FUNC_COUNTER przez NameParts) | `SchemaGenForceGlobalCounter` | ✅ sesja 1.7g (Plan B) |
 | [`Actions/AuditLayoutAction.cs`](Actions/AuditLayoutAction.cs) | Bbox vs ramka (JSON) | `SchemaGenAuditLayout` | ✅ sesja 1.6 |
 | [`Actions/ExportConnectionsAction.cs`](Actions/ExportConnectionsAction.cs) | Eksport CSV | `SchemaGenExportConnections` | ✅ sesja 1.6 |
 
