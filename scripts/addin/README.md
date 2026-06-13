@@ -25,6 +25,7 @@ Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API →
 | [`Actions/InsertPowerMacroAction.cs`](Actions/InsertPowerMacroAction.cs) | Wstawienie makra | `SchemaGenInsertPowerMacro` | ✅ |
 | [`Actions/LinkPotentialsAction.cs`](Actions/LinkPotentialsAction.cs) | generate CONNECTIONS + audyt | `SchemaGenLinkPotentials` | ✅ |
 | [`Actions/ConnectMotorAction.cs`](Actions/ConnectMotorAction.cs) | Uzwojenia silnika (U/V/W) + generate CONNECTIONS | `SchemaGenConnectMotor` | ✅ sesja 1.7d |
+| [`Actions/RenumberDevicesAction.cs`](Actions/RenumberDevicesAction.cs) | Numeracja DT (natywny renumber) | `SchemaGenRenumberDevices` | ✅ sesja 1.7d cd. |
 | [`Actions/AuditLayoutAction.cs`](Actions/AuditLayoutAction.cs) | Bbox vs ramka (JSON) | `SchemaGenAuditLayout` | ✅ sesja 1.6 |
 | [`Actions/ExportConnectionsAction.cs`](Actions/ExportConnectionsAction.cs) | Eksport CSV | `SchemaGenExportConnections` | ✅ sesja 1.6 |
 
@@ -38,6 +39,16 @@ Rejestracja (jednorazowo): EPLAN → Plik → Dodatki → Interfejsy → API →
 |----------|----------|------|
 | `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
 | `OUTPUTPATH` | wejście | JSON wyniku (opcjonalny), np. `output/connect-motor.json` |
+| `SILENT` | wejście | `1` — bez dialogu |
+
+### SchemaGenRenumberDevices
+
+Natywna numeracja oznaczeń urządzeń (DT) przez CLI `renumber /TYPE:DEVICES` + `gedRedraw`. Zastępuje ręczny remap DT (ślepa uliczka 1.7c, S063113). Działa na aktywnym projekcie — wymaga wcześniejszego `SchemaGenEnsureProject`.
+
+| Parametr | Kierunek | Opis |
+|----------|----------|------|
+| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
+| `OUTPUTPATH` | wejście | JSON wyniku (opcjonalny), np. `output/renumber-devices.json` |
 | `SILENT` | wejście | `1` — bez dialogu |
 
 ### SchemaGenAuditLayout

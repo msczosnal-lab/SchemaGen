@@ -200,6 +200,12 @@ public class SchemaGen_MVP
             return;
         }
 
+        if (!RenumberDevices(projectPath))
+        {
+            ShowError("Akcja SchemaGenRenumberDevices nie powiodła się.");
+            return;
+        }
+
         AuditLayout(projectPath);
 
         new Decider().Decide(
@@ -220,6 +226,7 @@ public class SchemaGen_MVP
             && am.FindAction("SchemaGenCreatePage") != null
             && am.FindAction("SchemaGenInsertPowerMacro") != null
             && am.FindAction("SchemaGenConnectMotor") != null
+            && am.FindAction("SchemaGenRenumberDevices") != null
             && am.FindAction("SchemaGenAuditLayout") != null)
             return true;
 
@@ -234,6 +241,7 @@ public class SchemaGen_MVP
             && am.FindAction("SchemaGenCreatePage") != null
             && am.FindAction("SchemaGenInsertPowerMacro") != null
             && am.FindAction("SchemaGenConnectMotor") != null
+            && am.FindAction("SchemaGenRenumberDevices") != null
             && am.FindAction("SchemaGenAuditLayout") != null;
     }
 
@@ -319,6 +327,16 @@ public class SchemaGen_MVP
         ctx.AddParameter("OUTPUTPATH",
             @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\connect-motor.json");
         return new CommandLineInterpreter().Execute("SchemaGenConnectMotor", ctx);
+    }
+
+    private static bool RenumberDevices(string projectPath)
+    {
+        ActionCallingContext ctx = new ActionCallingContext();
+        ctx.AddParameter("PROJECTPATH", projectPath);
+        ctx.AddParameter("SILENT", "1");
+        ctx.AddParameter("OUTPUTPATH",
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\renumber-devices.json");
+        return new CommandLineInterpreter().Execute("SchemaGenRenumberDevices", ctx);
     }
 
     private static void AuditLayout(string projectPath)
