@@ -104,12 +104,21 @@ public static class SchemaGenConfig
             if (stepAttr != null && !string.IsNullOrEmpty(stepAttr.Value))
                 stepValue = stepAttr.Value.Trim();
 
+            bool forceGlobalCounter = false;
+            XmlAttribute forceAttr = node.Attributes["forceGlobalCounter"];
+            if (forceAttr != null)
+            {
+                string fv = (forceAttr.Value ?? "").Trim().ToLowerInvariant();
+                forceGlobalCounter = (fv == "true" || fv == "1");
+            }
+
             list.Add(new NumberingRule
             {
                 Identifier = idAttr.Value.Trim(),
                 ConfigScheme = configScheme.Trim(),
                 StartValue = startValue,
-                StepValue = stepValue
+                StepValue = stepValue,
+                ForceGlobalCounter = forceGlobalCounter
             });
         }
 
