@@ -2,6 +2,13 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.7d cd. — 2026-06-13 (RenumberDevices)
+
+- **Numeracja DT — rozwiązana natywnie:** akcja `SchemaGenRenumberDevices` woła `renumber /TYPE:DEVICES` (przechwycone z Action Monitor: Projekt → Numeruj). Ręczny test: FC1→FC2 OK, MA numerowane per-lokalizacja OK. To zamyka ślepą uliczkę ręcznego remapu DT z 1.7c.
+- `renumber` działa na **aktywnym projekcie** (jak `generate /TYPE:CONNECTIONS`) — nie wymaga `/PROJECTNAME`, bo `SchemaGenEnsureProject` aktywuje Hello_world wcześniej. Po renumber: `gedRedraw`.
+- Pipeline MVP: LinkPotentials → ConnectMotor → **RenumberDevices** → AuditLayout. Kolejność istotna: numerację robimy po połączeniach (ConnectMotor), przed audytem layoutu.
+- **[RYZYKO] do potwierdzenia w EPLAN:** czy `renumber /TYPE:DEVICES` używa ostatnio użytego schematu numeracji (general remark: „last used scheme”). Jeśli schemat jest nie ten — ustawić w GUI przed pierwszym biegiem lub dodać parametr schematu.
+
 ## Sesja 1.7d — 2026-06-13 (refaktor: RemapTags → ConnectMotor)
 
 - Usunięto `MacroAdaptation.RemapMotorTag` — ręczny remap DT przez `func.Name` był martwym kodem (1.7c). Akcja `SchemaGenRemapTags` przemianowana na `SchemaGenConnectMotor` (`ConnectMotorAction.cs`); robi tylko `ConnectMotorWindings` (U/V/W + `generate /TYPE:CONNECTIONS`) + `gedRedraw`.

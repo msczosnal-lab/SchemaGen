@@ -4,6 +4,26 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-13 — sesja 1.7d cd. (zad. 1+2: RenumberDevices) — kod gotowy, build u Filipa
+**Etap:** Faza 1 — natywna numeracja DT + domknięcie pipeline MVP
+
+**Zrobione:**
+- Nowa akcja **`SchemaGenRenumberDevices`** ([`Actions/RenumberDevicesAction.cs`](../scripts/addin/Actions/RenumberDevicesAction.cs)) — wrapper CLI `renumber /TYPE:DEVICES` + `gedRedraw`. Ordinal 26. Params: `PROJECTPATH`, `OUTPUTPATH` (`renumber-devices.json`), `SILENT`. JSON: `renumbered`, `viewRefreshed`. Składnia potwierdzona ręcznym testem (FC1→FC2 OK, MA per-lokalizacja OK).
+- Pipeline MVP ([`SchemaGen_MVP.cs`](../scripts/SchemaGen_MVP.cs)): **LinkPotentials → ConnectMotor → RenumberDevices → AuditLayout**. Dodano `RenumberDevices()` + guard `SchemaGenRenumberDevices` w obu blokach `EnsureAddInLoaded`.
+- Docs: `addin/README.md` (wiersz + sekcja parametrów), `eplan-api-notes.md`.
+
+**[RYZYKO] Niezweryfikowane (do zrobienia u Filipa):**
+- Build: `scripts/build_addin.ps1` — kompilacji nie da się uruchomić w sandbox (Linux, brak csc + DLL EPLAN). Uruchom, potwierdź 0 błędów. **Przeładuj DLL w EPLAN** — pojawi się akcja `SchemaGenRenumberDevices`.
+- Test pipeline: po `renumber` sprawdź DT na schemacie (brak duplikatów `-FC1` str.1/2, MA per-lokalizacja) i `output/renumber-devices.json`.
+- **[RYZYKO] Git:** index znów uszkodzony (`index.lock` — `Operation not permitted` z sandboxa; `git status` pokazuje wszystko jako `D`). Z poziomu agenta nie da się usunąć `index.lock` ani zrobić `reset`. Filip: na Windows usuń `.git/index.lock`, `git reset` (mixed), potem normalny commit/push.
+
+**Następny krok (sesja 1.7e):**
+1. Test EPLAN całego pipeline + kalibracja, jeśli renumber zmienia layout.
+2. Zad. 3: `SchemaGenSetDesignations` (jawne DT z parametrów/JSON) — jeśli numeracja natywna nie wystarcza.
+3. Polityka MA: reguły per projekt od Filipa (nie hardkodować).
+
+---
+
 #### 2026-06-13 — sesja 1.7d (zad. 5: refaktor RemapTags) — kod gotowy, build u Filipa
 **Etap:** Faza 1 — usunięcie martwego kodu DT, rename akcji
 
