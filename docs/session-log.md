@@ -4,6 +4,29 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-13 — sesja 1.7g cd. (Plan B: globalny FUNC_COUNTER — ZW/Claude)
+
+**Etap:** Faza 1 — numeracja DT: MA globalne (MA1+MA2), FC per-lokalizacja bez regresji
+
+**Wynik testu Filipa (Plan A):** dual-pass `CONFIGSCHEME` **nie zadziałał** — silniki +B2/+B4 nadal `-MA1`/`-MA1`. FC OK (ta sama lokalizacja obiektowa, różne strony). → przejście na Plan B.
+
+**Zrobione (ZW/Claude):**
+- Nowa akcja add-inu **`SchemaGenForceGlobalCounter`** ([`Actions/ForceGlobalCounterAction.cs`](../scripts/addin/Actions/ForceGlobalCounterAction.cs), ordinal 27): funkcje główne z `FUNC_CODE==IDENTIFIER` dostają kolejne `FUNC_COUNTER` (START, START+STEP, ...) przez `func.NameParts` w `Transaction`+`SafetyPoint`. Audyt → `output/force-global-counter.json`.
+- **NIE rusza `<20010>`** — widoczny tag zmienia się przez przekomponowanie `DESIGNATION_PRODUCT = FUNC_CODE + FUNC_COUNTER` (KB datamodel.md:454, decyzja: ścieżka akceptowana przez EPLAN, nie S063113).
+- `config/numbering-rules.xml`: reguła MA → `configScheme=""` + `forceGlobalCounter="true"` (Plan A wyłączony, dokumentacja atrybutu).
+- `SchemaGen_MVP.cs`: pole `NumberingRule.ForceGlobalCounter` + parser; w `RenumberDevices()` pass 2 woła `SchemaGenForceGlobalCounter` dla reguł z flagą; guard `EnsureAddInLoaded` wymusza reload DLL gdy brak nowej akcji.
+- Docs: `addin/README.md` (parametry akcji), `eplan-api-notes.md` (werdykt CONFIGSCHEME + RYZYKO NameParts).
+
+**[RYZYKO] niezweryfikowane w EPLAN (Filip):**
+- Getter/setter `Function.NameParts` musi utrzymać licznik i nie zgubić plant/lokalizacji. Wyjątek → `force-global-counter.json` (`log`, `changed<total`). Alternatywa w api-notes (świeży `FunctionBasePropertyList`).
+- Kolejność funkcji = kolejność stron SchemaGen → czy +B2 dostaje MA1 a +B4 MA2 (jeśli odwrotnie: nieszkodliwe, oba globalne i unikalne).
+
+**Następny krok (Filip):**
+1. `build_addin.ps1` + kopia `SchemaGen_MVP.cs` + `config/numbering-rules.xml` → `Skrypty\Schemagen\config\`.
+2. Przeładuj DLL (pojawi się `SchemaGenForceGlobalCounter`), świeży Hello_world, uruchom MVP.
+3. Sprawdź `-MA1`/`-MA2` na +B2/+B4, FC bez zmian, `output/force-global-counter.json` (`changed==total`), layout bez regresji.
+4. Wynik → `sync/filip-to-zw.md`.
+
 #### 2026-06-13 — sesja 1.7g (handoff Claude + dual-pass numbering-rules)
 
 **Etap:** Faza 1 — numeracja DT: MA globalne (MA1+MA2), FC per-lokalizacja
