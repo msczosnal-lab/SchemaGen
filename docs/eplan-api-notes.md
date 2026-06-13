@@ -18,7 +18,15 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 - `Properties.Function.FUNC_CODE` — brak jako stała (CS0117); działa `func.Properties.FUNC_CODE`.
 - `generate /TYPE:IDENTIFIERS` — **nie istnieje** w akcji generate (tylko CONNECTIONS/CABLES). Odświeżenie: `gedRedraw`.
 - **Realna struktura Hello_world:** `=SCHEMAGEN` + lokalizacje (+MAIN, +A2, +B2, +B4, +B2.X1). Nie `MACHINE/CABINET`.
-- **Kierunek:** natywna numeracja EPLAN (Projekt → Numeruj / akcja renumber), nie ręczny remap property.
+- **Kierunek:** natywna numeracja EPLAN (akcja CLI `renumber`), nie ręczny remap property.
+- **Pułapka (sesja 1.7d):** `StartOfflineNumeration` = numeracja **stron**, nie DT urządzeń.
+- **Akcja `renumber` (urządzenia):** wymaga `/TYPE:DEVICES` — samo `renumber` → **S025019** „Proces jest nieobsługiwany”.
+- **Minimalne CLI (cały projekt, schemat z ustawień projektu):**
+  ```
+  renumber /TYPE:DEVICES /USESELECTION:0 /STARTVALUE:1 /STEPVALUE:1 /POSTNUMERATE:0
+  ```
+- **TYPE:** `DEVICES` | `PAGES` | `TERMINALS` | `CABLES` | `CONNECTIONS`. Opcjonalnie `/CONFIGSCHEME:"..."` (nazwa z GUI numeracji).
+- **Test:** skrypt `SchemaGen_TryRenumber.cs`.
 
 ### Skrypty diagnostyczne
 - `SchemaGen_AuditLayout.cs`, `SchemaGen_RemapTags.cs` — tylko `CommandLineInterpreter` + akcje DLL.
