@@ -320,6 +320,7 @@ public class SchemaGen_MVP
             && am.FindAction("SchemaGenInsertPowerMacro") != null
             && am.FindAction("SchemaGenConnectMotor") != null
             && am.FindAction("SchemaGenRenumberDevices") != null
+            && am.FindAction("SchemaGenForceGlobalCounter") != null
             && am.FindAction("SchemaGenAuditLayout") != null)
             return true;
 
@@ -335,6 +336,7 @@ public class SchemaGen_MVP
             && am.FindAction("SchemaGenInsertPowerMacro") != null
             && am.FindAction("SchemaGenConnectMotor") != null
             && am.FindAction("SchemaGenRenumberDevices") != null
+            && am.FindAction("SchemaGenForceGlobalCounter") != null
             && am.FindAction("SchemaGenAuditLayout") != null;
     }
 
