@@ -106,7 +106,7 @@ public class SchemaGenForceGlobalCounterAction : IEplAction
             {
                 using (Transaction tx = new TransactionManager().CreateTransaction())
                 {
-                    FunctionPropertyList parts = func.NameParts;
+                    FunctionBasePropertyList parts = func.NameParts;
                     parts.FUNC_COUNTER = newCounter;
                     func.NameParts = parts;
                     tx.Commit();
