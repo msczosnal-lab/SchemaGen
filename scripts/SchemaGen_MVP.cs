@@ -58,6 +58,7 @@ public static class SchemaGenConfig
         public string ConfigScheme;
         public string StartValue;
         public string StepValue;
+        public bool ForceGlobalCounter;
     }
 
     public static bool TryLoadNumberingRules(string path, out NumberingRule[] rules, out string error)

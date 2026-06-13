@@ -16,6 +16,11 @@
                    /IDENTIFIER tylko filtruje, które DT renumerować w danym przebiegu.
     startValue   — wartość początkowa licznika (rezerwa pod przyszłe wpięcie do akcji).
     step         — krok licznika (rezerwa j.w.).
+    forceGlobalCounter — "true" = po renumber wymuś GLOBALNY licznik w add-inie
+                   (akcja SchemaGenForceGlobalCounter: FUNC_COUNTER przez NameParts,
+                   kolejne funkcje główne dostają START, START+STEP, ...). Plan B 1.7g —
+                   gdy natywny CONFIGSCHEME nie daje globalnych liczników (silniki w róż-
+                   nych lokalizacjach). NIE rusza <20010> (S063113). Domyślnie "false".
 
   Kolejność <rule> = kolejność przebiegów renumber (dual-pass).
   <fallback> — gdy DT nie pasuje do żadnej reguły.
