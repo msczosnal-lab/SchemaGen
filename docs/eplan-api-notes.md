@@ -2,6 +2,13 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.7d — 2026-06-13 (refaktor: RemapTags → ConnectMotor)
+
+- Usunięto `MacroAdaptation.RemapMotorTag` — ręczny remap DT przez `func.Name` był martwym kodem (1.7c). Akcja `SchemaGenRemapTags` przemianowana na `SchemaGenConnectMotor` (`ConnectMotorAction.cs`); robi tylko `ConnectMotorWindings` (U/V/W + `generate /TYPE:CONNECTIONS`) + `gedRedraw`.
+- Skrypt diag.: `SchemaGen_RemapTags.cs` → `SchemaGen_ConnectMotor.cs`. Orchestrator i `FindAction` zaktualizowane.
+- Rejestracja akcji w EPLAN jest automatyczna (IEplAction, brak jawnej listy w `SchemaGenAddInModule`) — zmiana nazwy nie wymaga edycji modułu, ale **w EPLAN trzeba przeładować DLL** (stara akcja `SchemaGenRemapTags` zniknie, pojawi się `SchemaGenConnectMotor`).
+- Numeracja DT (FC/MA) = osobny krok: natywny `renumber` EPLAN — czeka na przechwycenie składni z Action Monitor.
+
 ## Sesja 1.7c — 2026-06-11 (layout RY + ślepa uliczka DT)
 
 ### Layout RY — działa

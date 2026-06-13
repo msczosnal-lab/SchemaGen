@@ -4,6 +4,28 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-13 — sesja 1.7d (zad. 5: refaktor RemapTags) — kod gotowy, build u Filipa
+**Etap:** Faza 1 — usunięcie martwego kodu DT, rename akcji
+
+**Zrobione:**
+- Usunięto `MacroAdaptation.RemapMotorTag` (ślepa uliczka DT z 1.7c: `func.Name`/`NameParts`/`<20010>` → S063113). Zostało `ConnectMotorWindings` + `IsMotorFunction`.
+- Akcja `SchemaGenRemapTags` → **`SchemaGenConnectMotor`** (`ConnectMotorAction.cs`). Usunięto pętlę remap + param `MOTORTAG`; akcja łączy tylko uzwojenia U/V/W (`generate CONNECTIONS` + `gedRedraw`). JSON: `connectionPasses`, `viewRefreshed`.
+- Skrypt diag. `SchemaGen_RemapTags.cs` → `SchemaGen_ConnectMotor.cs`.
+- Orchestrator `SchemaGen_MVP.cs`: `RemapMotorTags`→`ConnectMotor`, `FindAction`/`Execute` na nową nazwę, OUTPUTPATH `remap-tags.json`→`connect-motor.json`.
+- Docs: `addin/README.md`, `claude-opus-instructions.md` (tabela akcji).
+- Pipeline MVP bez zmian funkcjonalnych: LinkPotentials → ConnectMotor → AuditLayout.
+
+**[RYZYKO] Niezweryfikowane (do zrobienia u Filipa):**
+- Build: `scripts/build_addin.ps1` — kompilacji nie dało się uruchomić w sandbox (Linux, brak csc + DLL EPLAN). Uruchom i potwierdź 0 błędów.
+- Git index w repo był uszkodzony (`bad signature` / `index.lock`) — rename plików zrobiony przez `mv`, nie `git mv`. Przy commicie sprawdź `git status` (stare nazwy jako delete, nowe jako add).
+
+**Następny krok (sesja 1.7d cd.):**
+1. Zad. 1+4: przechwyć linię `renumber /...` z Action Monitor (Projekt → Numeruj na `=SCHEMAGEN*`) → akcja `SchemaGenRenumberDevices` jako wrapper CLI.
+2. Zad. 3: `SchemaGenSetDesignations` (jawne DT z parametrów/JSON).
+3. Zad. 6: czeka na `docs/electrical-domain.md` od Filipa.
+
+---
+
 #### 2026-06-11 — sesja 1.7c (debug layout RY + DT) — częściowy sukces
 **Etap:** Faza 1 — layout ✅ (RY) | numeracja DT ❌ ślepa uliczka
 

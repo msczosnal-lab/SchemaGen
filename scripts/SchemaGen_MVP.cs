@@ -1,7 +1,7 @@
 //#################################################################################################################################################
 // SchemaGen — SchemaGen_MVP
 //#################################################################################################################################################
-// Sesja 1.6: 3 strony → makra (FrameLayout) → LinkPotentials → RemapTags → AuditLayout
+// Pipeline: 3 strony → makra (FrameLayout) → LinkPotentials → ConnectMotor → AuditLayout
 // MACROX = RY (PointD.X), MACROY = RX (PointD.Y) — patrz SchemaGenPaths.cs
 //#################################################################################################################################################
 //[C#]
@@ -143,7 +143,7 @@ public class SchemaGen_MVP
             return;
         }
 
-        // Sesja 1.6+: RemapTags, AuditLayout, ExportConnections
+        // Sesja 1.6+: ConnectMotor, AuditLayout, ExportConnections
 
         // 2. Otwórz / aktywuj Hello_world (GetProject lub OpenProject — działa też gdy już otwarty)
         if (!EnsureProject(projectPath))
@@ -194,9 +194,9 @@ public class SchemaGen_MVP
 
         LinkPotentials(projectPath);
 
-        if (!RemapMotorTags(projectPath))
+        if (!ConnectMotor(projectPath))
         {
-            ShowError("Akcja SchemaGenRemapTags nie powiodła się.");
+            ShowError("Akcja SchemaGenConnectMotor nie powiodła się.");
             return;
         }
 
@@ -219,7 +219,7 @@ public class SchemaGen_MVP
         if (am.FindAction("SchemaGenEnsureProject") != null
             && am.FindAction("SchemaGenCreatePage") != null
             && am.FindAction("SchemaGenInsertPowerMacro") != null
-            && am.FindAction("SchemaGenRemapTags") != null
+            && am.FindAction("SchemaGenConnectMotor") != null
             && am.FindAction("SchemaGenAuditLayout") != null)
             return true;
 
@@ -233,7 +233,7 @@ public class SchemaGen_MVP
         return am.FindAction("SchemaGenEnsureProject") != null
             && am.FindAction("SchemaGenCreatePage") != null
             && am.FindAction("SchemaGenInsertPowerMacro") != null
-            && am.FindAction("SchemaGenRemapTags") != null
+            && am.FindAction("SchemaGenConnectMotor") != null
             && am.FindAction("SchemaGenAuditLayout") != null;
     }
 
@@ -311,14 +311,14 @@ public class SchemaGen_MVP
         new CommandLineInterpreter().Execute("SchemaGenLinkPotentials", ctx);
     }
 
-    private static bool RemapMotorTags(string projectPath)
+    private static bool ConnectMotor(string projectPath)
     {
         ActionCallingContext ctx = new ActionCallingContext();
         ctx.AddParameter("PROJECTPATH", projectPath);
         ctx.AddParameter("SILENT", "1");
         ctx.AddParameter("OUTPUTPATH",
-            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\remap-tags.json");
-        return new CommandLineInterpreter().Execute("SchemaGenRemapTags", ctx);
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\connect-motor.json");
+        return new CommandLineInterpreter().Execute("SchemaGenConnectMotor", ctx);
     }
 
     private static void AuditLayout(string projectPath)

@@ -23,7 +23,7 @@ SchemaGen/
 ├── scripts/                          ← KOD ŹRÓDŁOWY (edytuj tutaj)
 │   ├── SchemaGen_MVP.cs              ← główny orchestrator + SchemaGenConfig (XML)
 │   ├── SchemaGen_AuditLayout.cs      ← skrypt diag. → SchemaGenAuditLayout
-│   ├── SchemaGen_RemapTags.cs        ← skrypt diag. → SchemaGenRemapTags
+│   ├── SchemaGen_ConnectMotor.cs     ← skrypt diag. → SchemaGenConnectMotor
 │   ├── build_addin.ps1               ← kompilacja DLL + kopia do EPLAN
 │   ├── watch_addin.ps1               ← auto-rebuild przy edycji add-inu
 │   ├── extract_eplan_docs.py         ← regeneracja KB z HTML
@@ -115,7 +115,7 @@ Skrypt woła je przez `CommandLineInterpreter().Execute(...)`:
 | `SchemaGenCreatePage` | CreatePageAction | Strona `=SCHEMAGEN+MAIN/N` |
 | `SchemaGenInsertPowerMacro` | InsertPowerMacroAction | Wstawienie `.ema` (+ `USE_FRAME_LAYOUT=1`) |
 | `SchemaGenLinkPotentials` | LinkPotentialsAction | generate CONNECTIONS + audyt odnośników |
-| `SchemaGenRemapTags` | RemapTagsAction | Tag silnika + uzwojenia |
+| `SchemaGenConnectMotor` | ConnectMotorAction | Uzwojenia silnika (U/V/W) |
 | `SchemaGenAuditLayout` | AuditLayoutAction | `output/layout-audit.json` |
 | `SchemaGenExportConnections` | ExportConnectionsAction | `output/connections.csv` |
 
@@ -151,7 +151,7 @@ Wyjścia: `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\`
 3. Utwórz 3 strony (zasilanie, napęd, Start/Stop)
 4. Wstaw 3 makra (XML `SE_Drive_Type` → falownik)
 5. `SchemaGenLinkPotentials`
-6. `SchemaGenRemapTags`
+6. `SchemaGenConnectMotor`
 7. `SchemaGenAuditLayout`
 
 **Walidacja agenta:** CSV → `config/validation-rules.json` → `scripts/validation/validate_connections.py` → `{ errors, warnings, approved }`

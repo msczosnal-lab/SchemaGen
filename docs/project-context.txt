@@ -91,7 +91,7 @@ SchemaGen_MVP.cs + add-in SchemaGen.EplAddIn..dll:
 ✅ Po makrach: SchemaGenLinkPotentials (generate CONNECTIONS + audyt odnośników)
 ✅ MacroFitCalculator — kompensacja origin makra (bbox offset, cache macro-offsets.xml v3)
 
-✅ Sesja 1.6: SchemaGenRemapTags (=MACHINE+CABINET-M1) + ConnectMotorWindings (U/V/W + generate CONNECTIONS)
+✅ SchemaGenConnectMotor: ConnectMotorWindings (U/V/W + generate CONNECTIONS). Numeracja DT — osobny krok (renumber EPLAN, 1.7d)
 ✅ FrameLayoutCalculator + USE_FRAME_LAYOUT=1 w MVP (auto-pozycjonowanie w ramce)
 ✅ SchemaGenAuditLayout → output/layout-audit.json (sprzężenie zwrotne layoutu)
 ✅ MCP schemagen-eplan: eplan_build_addin, eplan_run_script, eplan_get_layout, eplan_closed_loop

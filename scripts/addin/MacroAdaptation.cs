@@ -100,42 +100,8 @@ public static class MacroAdaptation
         }
     }
 
-    // Sesja 1.6: podmiana tagu silnika (logiczna). Widoczne DT na rysunku — sesja 1.7d (renumber EPLAN).
-    public static int RemapMotorTag(Page page, string targetTag)
-    {
-        if (page == null || string.IsNullOrEmpty(targetTag))
-            return 0;
-
-        int count = 0;
-        foreach (Function func in page.Functions)
-        {
-            if (!IsMotorFunction(func))
-                continue;
-
-            try
-            {
-                if (func.Name == targetTag)
-                    continue;
-
-                using (SafetyPoint sp = SafetyPoint.Create())
-                {
-                    using (Transaction tx = new TransactionManager().CreateTransaction())
-                    {
-                        func.Name = targetTag;
-                        tx.Commit();
-                    }
-                    sp.Commit();
-                }
-                count++;
-            }
-            catch
-            {
-                // pojedyncza funkcja — nie przerywaj
-            }
-        }
-        return count;
-    }
-
+    // Sesja 1.7d: usunięto RemapMotorTag — ręczna podmiana DT (func.Name/NameParts/<20010>)
+    // to ślepa uliczka (S063113, nie nadpisuje widocznego DT). Numeracja DT = natywny renumber EPLAN.
     public static int ConnectMotorWindings(Project project)
     {
         if (project == null)
