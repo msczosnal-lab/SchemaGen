@@ -130,6 +130,8 @@ do {
         $rh = (& git -C $RepoPath rev-parse --short "origin/$Branch" 2>$null)
         if ($lh) { $lh = $lh.Trim() }
         if ($rh) { $rh = $rh.Trim() }
+        $ahead  = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
+        $behind = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
         $hb = "{0}  czuwam [{1}]  local={2} remote={3} ahead={4} behind={5}" -f (Get-Date -Format "HH:mm:ss"), $MachineTag, $lh, $rh, $ahead, $behind
         if ($lh -eq $rh) {
             Write-Host $hb -ForegroundColor DarkGray
