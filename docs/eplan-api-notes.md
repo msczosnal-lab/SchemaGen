@@ -2,6 +2,15 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.7f — 2026-06-13 (globalne MA — dual-pass renumber)
+
+- **Root cause MA1 wszędzie:** zakres licznika DT ustawia **schemat numeracji** (param `/CONFIGSCHEME`), NIE `/IDENTIFIER`. Silniki w różnych lokalizacjach (+B2, +B4) mają już unikalne pełne DT (`=SCHEMAGEN+B2-MA1` ≠ `+B4-MA1`), więc domyślny schemat per-lokalizacja zostawia MA1 w każdej lokalizacji.
+- **Cel:** MA = schemat „cały projekt” (MA1, MA2 globalnie), FC = schemat per-lokalizacja (bez zmian) → **dual-pass**: dwa przebiegi renumber z różnym CONFIGSCHEME.
+- `/IDENTIFIER` filtruje tylko, które DT renumerować w przebiegu — sam nie zmienia zakresu liczenia.
+- **[RYZYKO] niepotwierdzone parametry:** `/IDENTIFIER`, `/CONFIGSCHEME` — brak w lokalnej KB (tylko „renumber | numbering functionality”). Potwierdzone testem 1.7d: `/TYPE:DEVICES /USESELECTION /STARTVALUE /STEPVALUE /POSTNUMERATE`. Probe `SchemaGen_TryRenumber_MA.cs` wykaże czy IDENTIFIER/CONFIGSCHEME działają (S025019 = brak wsparcia → plan B: `FUNC_COUNTER` w add-inie).
+- **Schemat numeracji musi istnieć z nazwy** w EPLAN (Ustawienia → Projekty → Urządzenia → Numeracja offline) — nie tworzony z kodu. Nazwa trafia do `config/numbering-rules.xml` (`configScheme`).
+- **Architektura config-driven:** `config/numbering-rules.xml` — per identyfikator {scope, configScheme, start, step}; docelowo generowany przez LLM/aplikację. Orkiestrator woła akcję per reguła. Plan B (FUNC_COUNTER) tylko gdy natywny CONFIGSCHEME zawiedzie.
+
 ## Sesja 1.7d cd. — 2026-06-13 (RenumberDevices)
 
 - **Numeracja DT — rozwiązana natywnie:** akcja `SchemaGenRenumberDevices` woła `renumber /TYPE:DEVICES` (przechwycone z Action Monitor: Projekt → Numeruj). Ręczny test: FC1→FC2 OK, MA numerowane per-lokalizacja OK. To zamyka ślepą uliczkę ręcznego remapu DT z 1.7c.

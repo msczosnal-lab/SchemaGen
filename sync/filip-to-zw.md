@@ -1,0 +1,13 @@
+# Skrzynka: Filip → ZW
+
+> Pisze **tylko Filip** (Cursor). ZW czyta na starcie sesji i nie edytuje tego pliku.
+> Najnowsze wpisy na górze.
+
+---
+
+## (przykład — usuń)
+## 2026-06-13 [Filip]
+Temat: ...
+Kontekst: ...
+Do zrobienia po stronie ZW: ...
+Commit: ...

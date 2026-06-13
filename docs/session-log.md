@@ -15,6 +15,30 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 **Następny krok:** `build_addin.ps1` → przeładuj DLL → MVP na świeżym Hello_world → sprawdź `output/renumber-devices.json` i DT na schemacie.
 
+#### 2026-06-13 — sesja 1.7f (globalne MA) — probe + kontrakt reguł, czeka na test EPLAN
+**Etap:** Faza 1 — numeracja DT: MA globalne (MA1, MA2), FC per-lokalizacja zostaje
+
+**Root cause:** silniki są w różnych lokalizacjach (+B2, +B4). `=SCHEMAGEN+B2-MA1` i `+B4-MA1` to dla EPLAN **unikalne pełne DT** (różni je lokalizacja), więc `renumber` z domyślnym schematem (per-lokalizacja) zostawia MA1 wszędzie. Zakres liczenia ustawia **schemat numeracji (CONFIGSCHEME)**, nie `/IDENTIFIER` (ten tylko filtruje DT w przebiegu).
+
+**Decyzja (od Filipa):** rozwiązanie **config-driven** — polityka numeracji per identyfikator w pliku, docelowo generowanym przez LLM/aplikację. Mechanizm: natywny EPLAN, dual-pass z różnym CONFIGSCHEME per identyfikator. Bez hardkodu, bez walki z chronionym `<20010>`.
+
+**Zrobione:**
+- `config/numbering-rules.xml` — kontrakt reguł (FC perLocation, MA projectWide, `configScheme` do uzupełnienia). Format pod przyszły generator.
+- `scripts/SchemaGen_TryRenumber_MA.cs` — probe dual-pass: potwierdza `/IDENTIFIER` + `/CONFIGSCHEME` i nazwy schematów dające globalne MA.
+- Akcja `SchemaGenRenumberDevices` (rozszerzona przez Filipa) już wspiera `CONFIGSCHEME`, `IDENTIFIER` (split `;`/`,`), audyt `FUNC_CODE`/`FUNC_COUNTER` → `renumber-devices.json`.
+
+**[RYZYKO] do zrobienia u Filipa (blokuje wpięcie orkiestracji):**
+- `/IDENTIFIER` i `/CONFIGSCHEME` **niepotwierdzone** — KB ma tylko „renumber | numbering functionality”. Probe wykaże czy działają (S025019 = nie).
+- Schemat „cały projekt” musi **istnieć z nazwy** w EPLAN — utwórz/znajdź w Ustawienia → Projekty → Urządzenia → Numeracja offline; wpisz do probe, potem do `numbering-rules.xml`.
+- Brak `output/renumber-devices.json` (MVP z nową akcją jeszcze nie puszczony).
+
+**Następny krok (1.7f cd. — po probe):**
+1. Filip: uruchom MVP (świeży Hello_world), potem `SchemaGen_TryRenumber_MA.cs`; podaj działające nazwy schematów + przyślij `renumber-devices.json`.
+2. Wpięcie config-driven: MVP czyta `numbering-rules.xml` i woła akcję per reguła (IDENTIFIER + CONFIGSCHEME); fallback = obecny pojedynczy renumber (brak regresji). Akcja: czytaj START/STEP z ctx (fallback consts).
+3. Test: MA1+MA2 widoczne, FC bez zmian, layout RY bez regresji.
+
+---
+
 #### 2026-06-13 — sesja 1.7d cd. (zad. 1+2: RenumberDevices) — kod gotowy, build u Filipa
 **Etap:** Faza 1 — natywna numeracja DT + domknięcie pipeline MVP
 

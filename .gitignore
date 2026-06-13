@@ -25,3 +25,7 @@ schemat.pdf
 
 # MCP / EPLAN output (lokalne na maszynie użytkownika)
 output/
+
+# GitSync daemon — logi i status lokalne (nie synchronizować)
+sync/.daemon-*.log
+sync/.status-*.json
