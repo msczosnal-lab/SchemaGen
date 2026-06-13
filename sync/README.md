@@ -13,6 +13,7 @@ Dlatego pliki są **jednokierunkowe — jeden autor na plik**:
 |------|-------|-------|
 | `zw-to-filip.md`   | tylko ZW    | Filip |
 | `filip-to-zw.md`   | tylko Filip | ZW    |
+| `prompts/*.md`     | autor zadania | obaj (read) |
 | `TASKS.md`         | obaj — **tylko dopisywanie** (append), nigdy edycja cudzych linii | obaj |
 | `.status-*.json`   | daemon danej maszyny | człowiek/agent |
 
@@ -25,7 +26,8 @@ Reguły:
 
 1. Przeczytaj skrzynkę od drugiej strony (`filip-to-zw.md` lub `zw-to-filip.md`).
 2. Przeczytaj `TASKS.md` — co jest OPEN.
-3. Pracuj. Po zmianie dopisz krótki wpis do własnej skrzynki + do `TASKS.md`.
+3. **ZW (Claude Cowork):** uruchom `Start-ClaudeSession.cmd` — wczytuje prompt z `sync/prompts/` (domyślnie `1.7g-ma-global-dt.md`).
+4. Pracuj. Po zmianie dopisz krótki wpis do własnej skrzynki + do `TASKS.md`.
 
 ## Format wpisu (skrzynka)
 

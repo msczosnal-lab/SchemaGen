@@ -4,6 +4,30 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-13 — sesja 1.7g (handoff Claude + dual-pass numbering-rules)
+
+**Etap:** Faza 1 — numeracja DT: MA globalne (MA1+MA2), FC per-lokalizacja
+
+**Problem (Filip):** build OK, ale na schemacie nadal **MA1 + MA1** (+B2, +B4). Probe `TryRenumber_MA` nie rozwiązał.
+
+**Zrobione (Cursor/Filip):**
+- `sync/prompts/1.7g-ma-global-dt.md` — prompt zadania dla Claude Cowork (ZW)
+- `Start-ClaudeSession.cmd` + `Start-ClaudeSession.ps1` — GitSync + prompt do schowka
+- `docs/claude-opus-instructions.md` — sekcja 16 (obowiązkowy prompt z `sync/prompts/`)
+- **MVP:** parser `numbering-rules.xml`, dual-pass `SchemaGenRenumberDevices` (FC → MA z CONFIGSCHEME)
+- **Akcja:** `STARTVALUE` / `STEPVALUE` z ctx (fallback `SchemaGenPaths`)
+- Handoff: `sync/filip-to-zw.md`, `sync/TASKS.md`
+
+**[RYZYKO] Niezweryfikowane w EPLAN:**
+- Czy dual-pass z pliku reguł daje widoczne MA1+MA2 (zależy od CONFIGSCHEME w Hello_world)
+- Jeśli nadal MA1+MA1 → Plan B: FUNC_COUNTER w add-inie (zadanie #6 TASKS, ZW)
+
+**Następny krok (Filip):**
+1. `build_addin.ps1` + kopia `SchemaGen_MVP.cs` + `config/numbering-rules.xml` → `Skrypty\Schemagen\config\`
+2. Przeładuj DLL, świeży Hello_world, uruchom MVP
+3. Sprawdź `-MA1`/`-MA2` na +B2/+B4, `output/renumber-devices.json`, layout bez regresji
+4. Wynik → `sync/filip-to-zw.md` (jeśli nadal MA1+MA1, ZW bierze Plan B)
+
 #### 2026-06-13 — sesja 1.7e (fix RenumberDevices + audyt DT)
 
 **Wynik testu MVP po merge (Filip):**

@@ -1,7 +1,7 @@
 //#################################################################################################################################################
 // SchemaGen — SchemaGen_MVP
 //#################################################################################################################################################
-// Pipeline: 3 strony → makra (FrameLayout) → LinkPotentials → ConnectMotor → AuditLayout
+// Pipeline: 3 strony → makra (FrameLayout) → LinkPotentials → ConnectMotor → RenumberDevices → AuditLayout
 // MACROX = RY (PointD.X), MACROY = RX (PointD.Y) — patrz SchemaGenPaths.cs
 //#################################################################################################################################################
 //[C#]
@@ -12,10 +12,13 @@ using System.Xml;
 public static class SchemaGenConfig
 {
     private const string ConfigFileName = "901_Drive_Design.xml";
+    private const string NumberingRulesFileName = "numbering-rules.xml";
     private const string PrimaryConfigDir =
         @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\config\";
     private const string FallbackConfigPath =
         @"C:\Users\Public\EPLAN\Data\Projekty\Schemagen\EPLAN_Sample_Macros.edb\DOC\901_Drive_Design.xml";
+    private const string FallbackNumberingRulesPath =
+        @"C:\Users\Filip\Desktop\Cursor\SchemaGen\config\numbering-rules.xml";
 
     public const string FrequencyControlMacro =
         @"C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\203_Electrical_Engine\101_02_Variant_2\Frequency_Control.ema";
@@ -37,6 +40,86 @@ public static class SchemaGenConfig
         if (File.Exists(FallbackConfigPath))
             return FallbackConfigPath;
         return primary;
+    }
+
+    public static string ResolveNumberingRulesPath()
+    {
+        string primary = PrimaryConfigDir + NumberingRulesFileName;
+        if (File.Exists(primary))
+            return primary;
+        if (File.Exists(FallbackNumberingRulesPath))
+            return FallbackNumberingRulesPath;
+        return primary;
+    }
+
+    public struct NumberingRule
+    {
+        public string Identifier;
+        public string ConfigScheme;
+        public string StartValue;
+        public string StepValue;
+    }
+
+    public static bool TryLoadNumberingRules(string path, out NumberingRule[] rules, out string error)
+    {
+        rules = null;
+        error = null;
+
+        if (!File.Exists(path))
+        {
+            error = "Brak pliku reguł numeracji:\n" + path;
+            return false;
+        }
+
+        XmlDocument doc = new XmlDocument();
+        doc.Load(path);
+
+        XmlNodeList ruleNodes = doc.SelectNodes("//NumberingRules/rule");
+        if (ruleNodes == null || ruleNodes.Count == 0)
+        {
+            error = "Brak elementów <rule> w pliku:\n" + path;
+            return false;
+        }
+
+        var list = new List<NumberingRule>();
+        foreach (XmlNode node in ruleNodes)
+        {
+            XmlAttribute idAttr = node.Attributes["identifier"];
+            if (idAttr == null || string.IsNullOrEmpty(idAttr.Value))
+                continue;
+
+            string configScheme = "";
+            XmlAttribute schemeAttr = node.Attributes["configScheme"];
+            if (schemeAttr != null)
+                configScheme = schemeAttr.Value ?? "";
+
+            string startValue = "1";
+            XmlAttribute startAttr = node.Attributes["startValue"];
+            if (startAttr != null && !string.IsNullOrEmpty(startAttr.Value))
+                startValue = startAttr.Value.Trim();
+
+            string stepValue = "1";
+            XmlAttribute stepAttr = node.Attributes["step"];
+            if (stepAttr != null && !string.IsNullOrEmpty(stepAttr.Value))
+                stepValue = stepAttr.Value.Trim();
+
+            list.Add(new NumberingRule
+            {
+                Identifier = idAttr.Value.Trim(),
+                ConfigScheme = configScheme.Trim(),
+                StartValue = startValue,
+                StepValue = stepValue
+            });
+        }
+
+        if (list.Count == 0)
+        {
+            error = "Brak poprawnych reguł (atrybut identifier) w:\n" + path;
+            return false;
+        }
+
+        rules = list.ToArray();
+        return true;
     }
 
     public static bool TryLoad(out Dictionary<string, string> config, out string error)
@@ -331,12 +414,40 @@ public class SchemaGen_MVP
 
     private static bool RenumberDevices(string projectPath)
     {
-        ActionCallingContext ctx = new ActionCallingContext();
-        ctx.AddParameter("PROJECTPATH", projectPath);
-        ctx.AddParameter("SILENT", "1");
-        ctx.AddParameter("OUTPUTPATH",
-            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\renumber-devices.json");
-        return new CommandLineInterpreter().Execute("SchemaGenRenumberDevices", ctx);
+        const string outputPath =
+            @"C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\renumber-devices.json";
+
+        string rulesPath = SchemaGenConfig.ResolveNumberingRulesPath();
+        SchemaGenConfig.NumberingRule[] rules;
+        string rulesError;
+        if (File.Exists(rulesPath)
+            && SchemaGenConfig.TryLoadNumberingRules(rulesPath, out rules, out rulesError))
+        {
+            for (int i = 0; i < rules.Length; i++)
+            {
+                SchemaGenConfig.NumberingRule rule = rules[i];
+                ActionCallingContext ctx = new ActionCallingContext();
+                ctx.AddParameter("PROJECTPATH", projectPath);
+                ctx.AddParameter("SILENT", "1");
+                ctx.AddParameter("IDENTIFIER", rule.Identifier);
+                if (!string.IsNullOrEmpty(rule.ConfigScheme))
+                    ctx.AddParameter("CONFIGSCHEME", rule.ConfigScheme);
+                ctx.AddParameter("STARTVALUE", rule.StartValue);
+                ctx.AddParameter("STEPVALUE", rule.StepValue);
+                if (i == rules.Length - 1)
+                    ctx.AddParameter("OUTPUTPATH", outputPath);
+
+                if (!new CommandLineInterpreter().Execute("SchemaGenRenumberDevices", ctx))
+                    return false;
+            }
+            return true;
+        }
+
+        ActionCallingContext fallbackCtx = new ActionCallingContext();
+        fallbackCtx.AddParameter("PROJECTPATH", projectPath);
+        fallbackCtx.AddParameter("SILENT", "1");
+        fallbackCtx.AddParameter("OUTPUTPATH", outputPath);
+        return new CommandLineInterpreter().Execute("SchemaGenRenumberDevices", fallbackCtx);
     }
 
     private static void AuditLayout(string projectPath)

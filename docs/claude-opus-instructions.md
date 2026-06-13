@@ -41,8 +41,16 @@ SchemaGen/
 │       └── Actions/                  ← akcje IEplAction (CLI)
 ├── config/
 │   ├── 901_Drive_Design.xml          ← przykładowa konfiguracja MVP
+│   ├── numbering-rules.xml           ← reguły numeracji DT (FC/MA per identyfikator)
 │   ├── validation-rules.json         ← reguły walidacji CSV
 │   └── claude_desktop_config.example.json
+├── sync/
+│   ├── prompts/                      ← pliki promptu sesji (jeden aktywny zadanie)
+│   │   └── 1.7g-ma-global-dt.md    ← domyślny prompt sesji 1.7g
+│   ├── filip-to-zw.md / zw-to-filip.md
+│   └── TASKS.md
+├── Start-ClaudeSession.cmd           ← ZW: sync + prompt do schowka przed Cowork
+├── Start-GitSync.cmd                 ← daemon GitSync (Filip / ZW)
 ├── docs/
 │   ├── project-context.txt           ← kontekst techniczny (aktualny stan)
 │   ├── session-log.md                ← dziennik sesji — OSTATNI WPIS = następny krok
@@ -116,6 +124,7 @@ Skrypt woła je przez `CommandLineInterpreter().Execute(...)`:
 | `SchemaGenInsertPowerMacro` | InsertPowerMacroAction | Wstawienie `.ema` (+ `USE_FRAME_LAYOUT=1`) |
 | `SchemaGenLinkPotentials` | LinkPotentialsAction | generate CONNECTIONS + audyt odnośników |
 | `SchemaGenConnectMotor` | ConnectMotorAction | Uzwojenia silnika (U/V/W) |
+| `SchemaGenRenumberDevices` | RenumberDevicesAction | Numeracja DT (`renumber /TYPE:DEVICES`, dual-pass z `numbering-rules.xml`) |
 | `SchemaGenAuditLayout` | AuditLayoutAction | `output/layout-audit.json` |
 | `SchemaGenExportConnections` | ExportConnectionsAction | `output/connections.csv` |
 
@@ -152,7 +161,10 @@ Wyjścia: `C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\output\`
 4. Wstaw 3 makra (XML `SE_Drive_Type` → falownik)
 5. `SchemaGenLinkPotentials`
 6. `SchemaGenConnectMotor`
-7. `SchemaGenAuditLayout`
+7. `SchemaGenRenumberDevices` — dual-pass z `config/numbering-rules.xml` (FC per-lokalizacja, MA globalne)
+8. `SchemaGenAuditLayout`
+
+**Numeracja DT:** reguły w [`config/numbering-rules.xml`](../config/numbering-rules.xml). MVP woła akcję per `<rule>` z `IDENTIFIER` + `CONFIGSCHEME`. Bez pliku reguł — pojedynczy renumber (fallback).
 
 **Walidacja agenta:** CSV → `config/validation-rules.json` → `scripts/validation/validate_connections.py` → `{ errors, warnings, approved }`
 
@@ -276,3 +288,39 @@ Zasady:
 **Dobrze:** „Dodam wywołanie `SchemaGenExportConnections` w orchestratorze MVP po `LinkPotentials`, wzoruję się na `ExportConnectionsAction.cs`. Test: po uruchomieniu MCP `eplan_closed_loop` plik `output/connections.csv` zawiera PE i uzwojenia U/V/W.»
 
 **Źle:** „Zaimplementuję uniwersalny framework layoutu z pluginem, własnym JSON configiem i eksportem PDF do walidacji przez vision model.»
+
+---
+
+## 16. Prompt sesji (obowiązkowy)
+
+Przed kodowaniem **wczytaj plik promptu** wskazany w `sync/TASKS.md` lub domyślnie:
+
+**[`sync/prompts/1.7g-ma-global-dt.md`](../sync/prompts/1.7g-ma-global-dt.md)**
+
+### Start na ZW (Claude Cowork)
+
+1. Uruchom [`Start-ClaudeSession.cmd`](../Start-ClaudeSession.cmd) — pull przez GitSync, prompt w schowku.
+2. W Cowork dołącz pliki:
+   - `@sync/prompts/1.7g-ma-global-dt.md`
+   - `@docs/claude-opus-instructions.md`
+   - `@sync/filip-to-zw.md` (najnowszy wpis od Filipa)
+3. Przeczytaj `sync/TASKS.md` — zadania OPEN.
+
+### Koordynacja GitSync
+
+- Transport: [`GitSyncDaemon.ps1`](../GitSyncDaemon.ps1) — auto commit/push co ~10 s.
+- **Kod edytuje jedna strona naraz** — ogłoś w swojej skrzynce przed edycją `scripts/`.
+- Po pracy: wpis **tylko** w `sync/zw-to-filip.md` + dopisz do `sync/TASKS.md`.
+- **Nie edytuj** `sync/filip-to-zw.md` (autor: Filip).
+
+### Szablon startu sesji (ZW)
+
+```
+@sync/prompts/1.7g-ma-global-dt.md
+@docs/claude-opus-instructions.md
+@sync/filip-to-zw.md
+@docs/session-log.md
+
+Zadanie: patrz plik promptu sesji (sync/prompts/).
+GitSync wypchnie commit — nie edytuj plików Filipa.
+```

@@ -48,7 +48,12 @@ Natywna numeracja oznaczeń urządzeń (DT) przez CLI `renumber /TYPE:DEVICES` +
 | Parametr | Kierunek | Opis |
 |----------|----------|------|
 | `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
-| `OUTPUTPATH` | wejście | JSON wyniku (opcjonalny), np. `output/renumber-devices.json` |
+| `OUTPUTPATH` | wejście | JSON wyniku (opcjonalny), np. `output/renumber-devices.json` — audyt DT po ostatnim przebiegu |
+| `IDENTIFIER` | wejście | Identyfikator DT (np. `FC`, `MA`); wiele wartości: `;` lub `,` |
+| `CONFIGSCHEME` | wejście | Nazwa schematu numeracji z EPLAN (pusty = domyślny projektu) |
+| `STARTVALUE` | wejście | Wartość początkowa licznika (domyślnie `1` z `SchemaGenPaths`) |
+| `STEPVALUE` | wejście | Krok licznika (domyślnie `1`) |
+| `USESELECTION` | wejście | `0` = cały projekt (domyślnie) |
 | `SILENT` | wejście | `1` — bez dialogu |
 
 ### SchemaGenAuditLayout

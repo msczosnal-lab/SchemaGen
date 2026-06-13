@@ -69,6 +69,16 @@ Wyłączenie: `Unregister-ScheduledTask -TaskName "SchemaGen GitSync" -Confirm:$
 
 Podgląd na żywo: `Get-Content sync\.daemon-ZW.log -Wait`.
 
+### Start sesji Claude (ZW)
+
+```powershell
+.\Start-ClaudeSession.cmd
+# lub z innym promptem:
+.\Start-ClaudeSession.cmd ZW sync/prompts/1.7g-ma-global-dt.md
+```
+
+Skrypt: pull przez GitSync, podsumowanie `filip-to-zw.md`, prompt do schowka. Patrz `docs/claude-opus-instructions.md` sekcja 16.
+
 ## 4. Jak współpracują dwa modele
 
 - Start sesji: każdy agent czyta skrzynkę od drugiego + `TASKS.md`.

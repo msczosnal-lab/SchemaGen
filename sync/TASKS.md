@@ -5,5 +5,9 @@
 
 | # | Data | Autor | Status | Zadanie | Dla |
 |---|------|-------|--------|---------|-----|
-| 1 | 2026-06-13 | ZW | OPEN | Zarejestruj daemon GitSync na komputerze Filip | Filip |
-| 2 | 2026-06-13 | ZW | OPEN | Potwierdź, że dwustronny auto-sync działa (test pliku tam i z powrotem) | obaj |
+| 1 | 2026-06-13 | ZW | DONE | Zarejestruj daemon GitSync na komputerze Filip | Filip |
+| 2 | 2026-06-13 | ZW | DONE | Potwierdź, że dwustronny auto-sync działa (test pliku tam i z powrotem) | obaj |
+| 3 | 2026-06-13 | Filip | DONE | Przekaż MA globalne → Claude (prompt 1.7g + Start-ClaudeSession) | ZW |
+| 4 | 2026-06-13 | Filip | DONE | Implementacja dual-pass numbering-rules.xml w MVP + STARTVALUE/STEPVALUE w akcji | Filip |
+| 5 | 2026-06-13 | Filip | OPEN | Retest EPLAN po deploy: MA1+MA2 na +B2/+B4, FC bez regresji, layout OK | Filip |
+| 6 | 2026-06-13 | ZW | OPEN | Plan B FUNC_COUNTER — tylko jeśli Filip potwierdzi nadal MA1+MA1 po teście | ZW |

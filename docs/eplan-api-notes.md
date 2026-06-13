@@ -2,6 +2,13 @@
 
 Uzupełniaj po każdej sesji testowej w EPLAN.
 
+## Sesja 1.7g — 2026-06-13 (dual-pass numbering-rules w MVP)
+
+- **Orkiestracja:** `SchemaGen_MVP.cs` czyta `config/numbering-rules.xml` (primary: `Skrypty\Schemagen\config\`, fallback: repo `config/`). Dla każdej `<rule>` woła `SchemaGenRenumberDevices` z `IDENTIFIER`, opcjonalnie `CONFIGSCHEME`, `STARTVALUE`, `STEPVALUE`. Audyt JSON tylko po ostatnim przebiegu.
+- **Fallback:** brak pliku reguł → pojedynczy renumber (jak 1.7e).
+- **Handoff Claude:** `sync/prompts/1.7g-ma-global-dt.md`, `Start-ClaudeSession.cmd` — sync + prompt do schowka na ZW.
+- **[RYZYKO] test EPLAN pending:** Filip nadal widział MA1+MA1 przed deployem 1.7g. Po teście: potwierdzić CONFIGSCHEME lub Plan B (FUNC_COUNTER).
+
 ## Sesja 1.7f — 2026-06-13 (globalne MA — dual-pass renumber)
 
 - **Root cause MA1 wszędzie:** zakres licznika DT ustawia **schemat numeracji** (param `/CONFIGSCHEME`), NIE `/IDENTIFIER`. Silniki w różnych lokalizacjach (+B2, +B4) mają już unikalne pełne DT (`=SCHEMAGEN+B2-MA1` ≠ `+B4-MA1`), więc domyślny schemat per-lokalizacja zostawia MA1 w każdej lokalizacji.

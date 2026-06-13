@@ -34,6 +34,12 @@ public class SchemaGenRenumberDevicesAction : IEplAction
         string useSelection = SchemaGenPaths.RenumberUseSelection;
         ctx.GetParameter("USESELECTION", ref useSelection);
 
+        string startValue = SchemaGenPaths.RenumberStartValue;
+        ctx.GetParameter("STARTVALUE", ref startValue);
+
+        string stepValue = SchemaGenPaths.RenumberStepValue;
+        ctx.GetParameter("STEPVALUE", ref stepValue);
+
         var commands = new List<string>();
         if (!string.IsNullOrEmpty(identifier))
         {
@@ -41,11 +47,11 @@ public class SchemaGenRenumberDevicesAction : IEplAction
             {
                 string trimmed = id.Trim();
                 if (trimmed.Length > 0)
-                    commands.Add(BuildRenumberCommand(trimmed, configScheme, useSelection));
+                    commands.Add(BuildRenumberCommand(trimmed, configScheme, useSelection, startValue, stepValue));
             }
         }
         else
-            commands.Add(BuildRenumberCommand("", configScheme, useSelection));
+            commands.Add(BuildRenumberCommand("", configScheme, useSelection, startValue, stepValue));
 
         var cli = new CommandLineInterpreter();
         bool renumbered = true;
@@ -96,13 +102,18 @@ public class SchemaGenRenumberDevicesAction : IEplAction
         return renumbered;
     }
 
-    private static string BuildRenumberCommand(string identifier, string configScheme, string useSelection)
+    private static string BuildRenumberCommand(
+        string identifier,
+        string configScheme,
+        string useSelection,
+        string startValue,
+        string stepValue)
     {
         var sb = new StringBuilder();
         sb.Append("renumber /TYPE:DEVICES");
         sb.Append(" /USESELECTION:").Append(string.IsNullOrEmpty(useSelection) ? "0" : useSelection);
-        sb.Append(" /STARTVALUE:").Append(SchemaGenPaths.RenumberStartValue);
-        sb.Append(" /STEPVALUE:").Append(SchemaGenPaths.RenumberStepValue);
+        sb.Append(" /STARTVALUE:").Append(string.IsNullOrEmpty(startValue) ? SchemaGenPaths.RenumberStartValue : startValue);
+        sb.Append(" /STEPVALUE:").Append(string.IsNullOrEmpty(stepValue) ? SchemaGenPaths.RenumberStepValue : stepValue);
         sb.Append(" /POSTNUMERATE:").Append(SchemaGenPaths.RenumberPostnumerate);
         if (!string.IsNullOrEmpty(identifier))
             sb.Append(" /IDENTIFIER:").Append(identifier);
