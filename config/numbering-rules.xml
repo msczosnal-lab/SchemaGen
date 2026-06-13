@@ -42,7 +42,7 @@
 <NumberingRules schemaVersion="1">
   <rule identifier="FC" scope="perLocation"  configScheme="" startValue="1" step="1"
         comment="Falowniki — schemat domyślny (per lokalizacja): +MAIN-FC1, +MAIN-FC2 — zostaje" />
-  <rule identifier="MA" scope="projectWide" configScheme="Identyfikator + Licznik techniki strumieniowej" startValue="1" step="1"
-        comment="Silniki — globalny licznik co kolumnę: +B2-MA1, +B4-MA2 (ignoruje lokalizację)" />
+  <rule identifier="MA" scope="projectWide" configScheme="" startValue="1" step="1" forceGlobalCounter="true"
+        comment="Silniki — globalny licznik wymuszany w add-inie (Plan B 1.7g): +B2-MA1, +B4-MA2. CONFIGSCHEME pominięte (Plan A nieskuteczny)." />
   <fallback scope="perLocation" configScheme="" />
 </NumberingRules>
