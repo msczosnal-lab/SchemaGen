@@ -57,6 +57,19 @@ Natywna numeracja oznaczeń urządzeń (DT) przez CLI `renumber /TYPE:DEVICES` +
 | `USESELECTION` | wejście | `0` = cały projekt (domyślnie) |
 | `SILENT` | wejście | `1` — bez dialogu |
 
+### SchemaGenForceGlobalCounter
+
+Wymusza **globalny licznik DT** dla jednego identyfikatora — kolejne funkcje główne z danym `FUNC_CODE` dostają `STARTVALUE`, `STARTVALUE+STEPVALUE`, ... (np. `-MA1`, `-MA2` dla silników w różnych lokalizacjach). Mechanizm: `func.NameParts` → `FUNC_COUNTER` w `Transaction`+`SafetyPoint`; widoczne `DESIGNATION_PRODUCT` jest przekomponowane (KB datamodel.md:454). **Nie** pisze property `<20010>` wprost (ślepa uliczka S063113). Plan B sesji 1.7g — gdy natywny `CONFIGSCHEME` nie daje globalnych liczników. Wołane z MVP po `SchemaGenRenumberDevices` dla reguł `forceGlobalCounter="true"`.
+
+| Parametr | Kierunek | Opis |
+|----------|----------|------|
+| `PROJECTPATH` | wejście | Ścieżka `.elk` (opcjonalna) |
+| `IDENTIFIER` | wejście | Identyfikator DT (jeden, np. `MA`) — wymagany |
+| `STARTVALUE` | wejście | Pierwszy licznik (domyślnie `1`) |
+| `STEPVALUE` | wejście | Krok (domyślnie `1`) |
+| `OUTPUTPATH` | wejście | JSON wyniku, np. `output/force-global-counter.json` (changed/total/log + audyt DT) |
+| `SILENT` | wejście | `1` — bez dialogu |
+
 ### SchemaGenAuditLayout
 
 | Parametr | Kierunek | Opis |
