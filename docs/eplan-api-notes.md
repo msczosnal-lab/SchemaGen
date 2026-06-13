@@ -14,7 +14,8 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 - Usunięto `MacroAdaptation.RemapMotorTag` — ręczny remap DT przez `func.Name` był martwym kodem (1.7c). Akcja `SchemaGenRemapTags` przemianowana na `SchemaGenConnectMotor` (`ConnectMotorAction.cs`); robi tylko `ConnectMotorWindings` (U/V/W + `generate /TYPE:CONNECTIONS`) + `gedRedraw`.
 - Skrypt diag.: `SchemaGen_RemapTags.cs` → `SchemaGen_ConnectMotor.cs`. Orchestrator i `FindAction` zaktualizowane.
 - Rejestracja akcji w EPLAN jest automatyczna (IEplAction, brak jawnej listy w `SchemaGenAddInModule`) — zmiana nazwy nie wymaga edycji modułu, ale **w EPLAN trzeba przeładować DLL** (stara akcja `SchemaGenRemapTags` zniknie, pojawi się `SchemaGenConnectMotor`).
-- Numeracja DT (FC/MA) = osobny krok: natywny `renumber` EPLAN — czeka na przechwycenie składni z Action Monitor.
+- Numeracja DT (FC/MA) = osobny krok: `SchemaGenRenumberDevices` → `renumber /TYPE:DEVICES` + pełne parametry (USESELECTION, STARTVALUE, STEPVALUE, POSTNUMERATE). Opcjonalnie `CONFIGSCHEME`, `IDENTIFIER`.
+- **Wynik testu MVP:** widoczne `-FC1`/`-FC2`/`-FC1` na str. 1/2/3 i `-MA1` wszędzie = **numeracja per lokalizacja** w schemacie Hello_world (lokalizacja w nagłówku strony). Pełne DT: `=SCHEMAGEN+lokacja-FC1` — unikalne. Globalne liczniki na rysunku wymagają `CONFIGSCHEME` (schemat „cały projekt” z ustawień EPLAN).
 
 ## Sesja 1.7c — 2026-06-11 (layout RY + ślepa uliczka DT)
 
@@ -43,7 +44,7 @@ Uzupełniaj po każdej sesji testowej w EPLAN.
 - **Test:** skrypt `SchemaGen_TryRenumber.cs`.
 
 ### Skrypty diagnostyczne
-- `SchemaGen_AuditLayout.cs`, `SchemaGen_RemapTags.cs` — tylko `CommandLineInterpreter` + akcje DLL.
+- `SchemaGen_AuditLayout.cs`, `SchemaGen_ConnectMotor.cs` — tylko `CommandLineInterpreter` + akcje DLL.
 - Skrypt `.cs` z `[Start]` **nie może** używać typów DataModel bezpośrednio (brak ref do DataModel.dll przy ExecuteScript).
 
 ## Sesja 1.6 — 2026-06-09 (tagi silnika + MCP + FrameLayout)

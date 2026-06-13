@@ -4,6 +4,17 @@ Każda sesja = nowy wpis **na górze**. Ostatni wpis zawsze wskazuje następny k
 
 ---
 
+#### 2026-06-13 — sesja 1.7e (fix RenumberDevices + audyt DT)
+
+**Wynik testu MVP po merge (Filip):**
+- Widoczne nazwy: **FC1** na str. 1 i 3, **FC2** na str. 2; **silniki MA1** bez zmian na wszystkich stronach.
+- **Przyczyna:** schemat numeracji Hello_world numeruje **per lokalizacja** — na rysunku widać tylko `-FC1` (lokalizacja w nagłówku strony). Pełne DT: `=SCHEMAGEN+MAIN-FC1`, `=SCHEMAGEN+A2-FC2`, `=SCHEMAGEN+B4-FC1` — unikalne.
+- **Bug w kodzie:** `RenumberDevicesAction` wołał niepełne `renumber /TYPE:DEVICES` (bez USESELECTION/STARTVALUE/STEPVALUE/POSTNUMERATE). Naprawiono — pełna linia CLI jak w `SchemaGen_TryRenumber.cs`.
+- **Audyt:** `renumber-devices.json` zawiera listę `devices[]` (page, location, funcCode, funcCounter, visibleName, fullTag).
+- **Globalne FC1/FC2/FC3 i MA1/MA2/MA3 na rysunku:** wymaga parametru `CONFIGSCHEME` (nazwa schematu „cały projekt” z Ustawienia projektu → Numeracja w EPLAN). Polityka MA per projekt — nie hardkodować.
+
+**Następny krok:** `build_addin.ps1` → przeładuj DLL → MVP na świeżym Hello_world → sprawdź `output/renumber-devices.json` i DT na schemacie.
+
 #### 2026-06-13 — sesja 1.7d cd. (zad. 1+2: RenumberDevices) — kod gotowy, build u Filipa
 **Etap:** Faza 1 — natywna numeracja DT + domknięcie pipeline MVP
 

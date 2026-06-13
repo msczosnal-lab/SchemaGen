@@ -38,8 +38,16 @@ public static class SchemaGenPaths
     public const double ControlMacroInsertX = ControlMacroInsertRy;
     public const double ControlMacroInsertY = ControlMacroInsertRx;
 
-    // Oznaczenie silnika (sesja 1.6) — docelowe; widoczne DT: natywna numeracja EPLAN (sesja 1.7d).
+    // Oznaczenie silnika (sesja 1.6) — historyczne; DT: natywna numeracja EPLAN (sesja 1.7d).
     public const string MotorDesignation = "=MACHINE+CABINET-M1";
+
+    // Domyślne parametry renumber /TYPE:DEVICES (potwierdzone testem 2026-06-13).
+    // CONFIGSCHEME: puste = schemat z ustawień projektu (często per-lokalizacja → -FC1 na każdej stronie).
+    // Aby globalne liczniki FC/MA: podaj nazwę schematu „cały projekt” z EPLAN (parametr CONFIGSCHEME akcji).
+    public const string RenumberUseSelection = "0";
+    public const string RenumberStartValue = "1";
+    public const string RenumberStepValue = "1";
+    public const string RenumberPostnumerate = "0";
 
     // Obszar rysunkowy ramki strony (mm, oś RY/RX) — kalibruj przez SchemaGenAuditLayout
     // Hello_world / IEC_bas003: A3 landscape; MinRy/MinRx poniżej nagłówka strony (layout-audit)
