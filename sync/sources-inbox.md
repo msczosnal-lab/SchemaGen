@@ -30,6 +30,14 @@
 - **Dlaczego wybrałem:** poradnik o czytaniu schematów, symbole + system oznaczeń
 - **Notatki:** poziom wprowadzający; autor Szymon Adamek; data 2024-09, akt. 2026-01. Ocena → `docs/knowledge-sources-analysis.md`
 
+### IEC 60617 — atlas symboli (PDF)
+- **Typ:** atlas symboli (PDF)
+- **URL / ścieżka:** `data/raw/IEC60617.pdf`
+- **Język:** EN (opisy), symbole graficzne
+- **Standard:** **IEC 60617** (norma symboli graficznych)
+- **Dlaczego wybrałem:** atlas symboli — typy urządzeń do katalogu i treningu
+- **Notatki:** 53 strony, ~533 osadzone grafiki symboli; tabela SYMBOL | DESCRIPTION | COMMENTS. Pokrywa: bezpieczniki, styczniki, przekaźniki, wyłączniki, rozłączniki, silniki, transformatory, styki, zaciski, uziemienia.
+
 ---
 
 ## Kontekst projektu (dla Claude)
