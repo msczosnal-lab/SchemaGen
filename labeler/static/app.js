@@ -456,11 +456,13 @@ document.getElementById("save-btn").addEventListener("click", async () => {
 });
 
 document.getElementById("export-btn").addEventListener("click", async () => {
-  if (!currentPageId) return alert("Wybierz stronę");
-  const paths = await fetchJson(`/api/export/${currentPageId}`, { method: "POST" });
-  alert("Eksport:\n" + JSON.stringify(paths, null, 2));
-};
-
-// ── init ──────────────────────────────────────────────────────────────────────
+  if (!currentPageId) return alert("Wybierz strone");
+  try {
+    const paths = await fetchJson(`/api/export/${currentPageId}`, { method: "POST" });
+    alert("Eksport:\n" + JSON.stringify(paths, null, 2));
+  } catch (err) {
+    alert(`Blad eksportu: ${err.message}`);
+  }
+});
 
 init();
