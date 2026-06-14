@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "schemagen-local": {
+      "command": "python",
+      "args": ["-m", "mcp.schemagen_local.server"],
+      "cwd": "C:/Users/Filip/Desktop/Cursor/SchemaGen"
+    }
+  }
+}
