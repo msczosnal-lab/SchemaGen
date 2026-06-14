@@ -25,8 +25,11 @@ let originY = 0;
 
 // Drawing state
 let drawing = false;
+let drawMoved = false;
+let clickSelectCandidate = -1;
 let startX = 0;
 let startY = 0;
+const DRAG_THRESHOLD = 5;
 
 // Loaded image
 let bgImage = null;
@@ -234,7 +237,7 @@ async function selectPage(pageId) {
   const idx = currentPageIndex();
   const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
   document.getElementById("hint").textContent =
-    `Strona ${pos}: ${pageId} — opis → bbox → Zapisz | ←/→ strony | scroll zoom | Del usuwa`;
+    `Strona ${pos}: ${pageId} — przeciagnij = nowy bbox | klik = zaznacz | ←/→ strony`;
 }
 
 function summaryTag(tag, i) {
@@ -349,23 +352,12 @@ canvas.addEventListener("mousedown", (e) => {
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
 
-  // Check if clicking existing bbox (select)
-  const hit = bboxes.findLastIndex(
+  clickSelectCandidate = bboxes.findLastIndex(
     (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
   );
-  if (hit >= 0) {
-    selectBbox(hit);
-    return;
-  }
-
   pendingTag = tagInput.value;
   drawing = true;
-  selectedIdx = -1;
-  expandedIdx = -1;
-  document.querySelectorAll(".annotation-accordion").forEach((el) => {
-    el.classList.remove("active", "expanded");
-  });
-  redraw();
+  drawMoved = false;
   startX = pt.x;
   startY = pt.y;
 });
@@ -374,9 +366,11 @@ canvas.addEventListener("mousemove", (e) => {
   if (!drawing) return;
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
+  const w = Math.abs(pt.x - startX);
+  const h = Math.abs(pt.y - startY);
+  if (w >= DRAG_THRESHOLD || h >= DRAG_THRESHOLD) drawMoved = true;
   redraw();
 
-  // Preview rect
   ctx.save();
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
@@ -399,7 +393,22 @@ canvas.addEventListener("mouseup", (e) => {
   const w = Math.abs(pt.x - startX);
   const h = Math.abs(pt.y - startY);
 
-  if (w < 4 || h < 4) { redraw(); return; } // too small — ignore
+  if (!drawMoved) {
+    if (clickSelectCandidate >= 0) {
+      selectBbox(clickSelectCandidate);
+    } else {
+      selectedIdx = -1;
+      expandedIdx = -1;
+      renderAnnotationList();
+      redraw();
+    }
+    return;
+  }
+
+  if (w < DRAG_THRESHOLD || h < DRAG_THRESHOLD) {
+    redraw();
+    return;
+  }
 
   const tag = tagInput.value.trim();
   const id = `${DEFAULT_CLASS}_${Date.now()}`;
@@ -412,8 +421,8 @@ canvas.addEventListener("mouseup", (e) => {
     height: h,
     tag,
   });
-  selectedIdx = bboxes.length - 1;
-  expandedIdx = bboxes.length - 1;
+  selectedIdx = -1;
+  expandedIdx = -1;
   redraw();
   renderAnnotationList();
   clearNewTagEditor();
