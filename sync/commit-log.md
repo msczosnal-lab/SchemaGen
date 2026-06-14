@@ -15,3 +15,4 @@
 | 2026-06-14 18:40 | Claude | b03eb08 | [Claude] train: dataset export + YOLO train code M0 (prompt 005) |
 | 2026-06-14 20:27 | Cursor | 8affd374 | [Cursor] fix: gitignore venv311/runs/yolo + GitSync rebase przed push |
 | 2026-06-14 20:34 | Claude | c2833898 | [Claude] recognize: ONNX export + symbol detector inference (prompts 006+001) |
+| 2026-06-14 20:38 | Claude | 0863fd97 | [Claude] fix: export_onnx auto-find best.pt (auto-incremented run dir) |
