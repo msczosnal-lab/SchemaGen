@@ -7,8 +7,16 @@ from pathlib import Path
 
 import yaml
 
+from backend.geometry.bbox_layout import enrich_label_record
 from backend.models.label import LabelRecord
-from backend.models.schema import Component, Connection, GraphicLine, SchemaMeta, SchemaModel
+from backend.models.schema import (
+    Component,
+    Connection,
+    GraphicLine,
+    SchemaMeta,
+    SchemaModel,
+    SpatialRelation,
+)
 from backend.paths import CONFIG, LABELED
 
 
@@ -22,6 +30,9 @@ def load_class_map() -> dict[str, int]:
 
 
 def label_to_schema(record: LabelRecord) -> SchemaModel:
+    # Hierarchia/relacje moga byc puste w starych rekordach — przelicz w locie.
+    if not record.spatial_relations:
+        record = enrich_label_record(record)
     components = [
         Component(
             id=b.id,
@@ -31,8 +42,15 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
             source="manual",
             semantic_group=b.semantic_group,
             color_ref=b.color_ref,
+            parent_id=b.parent_id,
+            depth=b.depth,
+            rel_bbox=b.rel_bbox,
         )
         for b in record.bboxes
+    ]
+    spatial_relations = [
+        SpatialRelation(from_id=r.from_id, to_id=r.to_id, relation=r.relation)
+        for r in record.spatial_relations
     ]
     graphic_lines = [
         GraphicLine(
