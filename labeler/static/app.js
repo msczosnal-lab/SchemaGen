@@ -701,6 +701,7 @@ function renderAnnotationList() {
 function removeBboxAt(idx) {
   if (idx < 0 || idx >= bboxes.length) return;
   bboxes.splice(idx, 1);
+  recomputeHierarchy();
   selectedIdx = -1;
   expandedIdx = -1;
   focusTextareaIdx = null;
@@ -804,7 +805,11 @@ canvas.addEventListener("mouseup", (e) => {
     height: h,
     tag,
     seq: nextSeq++,
+    parent_id: "",
+    depth: 0,
+    rel_bbox: [],
   });
+  recomputeHierarchy();
   selectedIdx = -1;
   expandedIdx = -1;
   focusTextareaIdx = null;
