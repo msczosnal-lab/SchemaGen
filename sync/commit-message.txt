@@ -3,3 +3,5 @@
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
+
+[Claude] recognize: ONNX export + symbol detector inference (prompts 006+001)
