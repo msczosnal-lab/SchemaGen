@@ -14,8 +14,25 @@ from pathlib import Path
 from backend.paths import DATA, MODELS
 from train.train_symbols import register_model
 
-DEFAULT_WEIGHTS = DATA / "runs" / "symbols_v1" / "weights" / "best.pt"
+RUNS_DIR = DATA / "runs"
+DEFAULT_WEIGHTS = RUNS_DIR / "symbols_v1" / "weights" / "best.pt"
 DEFAULT_OPSET = 12  # zgodny z onnxruntime-gpu 1.17
+
+
+def find_best_weights() -> Path | None:
+    """Znajdz best.pt: najpierw domyslny run, potem najnowszy w data/runs/**.
+
+    ultralytics auto-inkrementuje katalog runu (symbols_v1, symbols_v12, ...),
+    wiec nie zakladamy stalej nazwy.
+    """
+    if DEFAULT_WEIGHTS.exists():
+        return DEFAULT_WEIGHTS
+    candidates = sorted(
+        RUNS_DIR.glob("**/weights/best.pt"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    return candidates[0] if candidates else None
 
 
 def export_onnx(
@@ -26,11 +43,23 @@ def export_onnx(
     metrics: dict | None = None,
 ) -> str:
     """Konwertuj best.pt -> ONNX, skopiuj do data/models/ i zarejestruj wersje."""
-    weights = weights_path or str(DEFAULT_WEIGHTS)
-    if not Path(weights).exists():
+    if weights_path:
+        weights = Path(weights_path)
+    else:
+        found = find_best_weights()
+        if found is None:
+            raise FileNotFoundError(
+                f"Brak best.pt w {RUNS_DIR} ani {DEFAULT_WEIGHTS}. "
+                f"Najpierw trening: `python -m train.train_symbols`, "
+                f"lub wskaz --weights <sciezka>."
+            )
+        weights = found
+    if not weights.exists():
         raise FileNotFoundError(
             f"Brak wag: {weights}. Najpierw trening: `python -m train.train_symbols`."
         )
+    weights_str = str(weights)
+    print(f"Wagi: {weights_str}")
 
     try:
         from ultralytics import YOLO
