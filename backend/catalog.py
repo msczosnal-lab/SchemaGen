@@ -33,7 +33,7 @@ def list_element_labels() -> list[str]:
     return [str(e.get("label", "")).strip() for e in load_catalog()["elements"] if e.get("label")]
 
 
-def register_labels(labels: list[str], yolo_class: str = "text_label") -> int:
+def register_labels(labels: list[str], yolo_class: str = "element") -> int:
     """Dopisuje nowe etykiety do katalogu. Zwraca liczbe dodanych."""
     labels = [t.strip() for t in labels if t and t.strip()]
     if not labels:

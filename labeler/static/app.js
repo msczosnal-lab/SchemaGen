@@ -4,13 +4,18 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+const DEFAULT_CLASS = "element";
+const PALETTE = [
+  "#e74c3c", "#3498db", "#2ecc71", "#f39c12",
+  "#9b59b6", "#1abc9c", "#e67e22", "#34495e", "#e91e63",
+];
+
 let currentPageId = null;
 let pageIds = [];
 let pagesMeta = [];
-let classes = [];
 let bboxes = [];
 let selectedIdx = -1;
-let activeClassIdx = 0;
+let pendingTag = "";
 
 // Zoom/pan state
 let scale = 1;
@@ -53,13 +58,11 @@ function clientToCanvas(e) {
   };
 }
 
-function colorForClass(name) {
-  const palette = [
-    "#e74c3c", "#3498db", "#2ecc71", "#f39c12",
-    "#9b59b6", "#1abc9c", "#e67e22", "#34495e", "#e91e63",
-  ];
-  const idx = classes.indexOf(name);
-  return palette[idx % palette.length] || "#4a9eff";
+function colorFromTag(tag, fallbackIdx = 0) {
+  if (!tag) return PALETTE[fallbackIdx % PALETTE.length];
+  let h = 0;
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
 }
 
 // ── render ───────────────────────────────────────────────────────────────────
@@ -73,7 +76,7 @@ function redraw() {
   if (bgImage) ctx.drawImage(bgImage, 0, 0);
 
   bboxes.forEach((b, i) => {
-    const color = colorForClass(b.class_name);
+    const color = colorFromTag(b.tag, i);
     ctx.strokeStyle = color;
     ctx.lineWidth = 2 / scale;
     ctx.strokeRect(b.x, b.y, b.width, b.height);
@@ -88,7 +91,7 @@ function redraw() {
 
     ctx.fillStyle = color;
     ctx.font = `${13 / scale}px Segoe UI, Arial, sans-serif`;
-    const caption = b.tag ? b.tag : `${b.class_name} ${b.id}`;
+    const caption = b.tag || "(bez opisu)";
     ctx.fillText(caption, b.x + 2 / scale, b.y - 4 / scale);
   });
 
@@ -153,14 +156,6 @@ async function navigatePage(delta) {
   await selectPage(pageIds[idx]);
 }
 
-async function loadClasses() {
-  const data = await fetchJson("/api/classes");
-  classes = data.classes || [];
-  const textIdx = classes.indexOf("text_label");
-  if (textIdx >= 0) activeClassIdx = textIdx;
-  renderClassList();
-}
-
 async function loadElementCatalog() {
   const data = await fetchJson("/api/element-catalog");
   catalogLabels = data.labels || [];
@@ -174,44 +169,27 @@ async function loadElementCatalog() {
 }
 
 function syncTagEditor() {
-  const hasSelection = selectedIdx >= 0 && bboxes[selectedIdx];
-  tagInput.disabled = !hasSelection;
-  if (!hasSelection) {
-    tagInput.value = "";
-    editorHint.textContent = "Zaznacz bbox na canvasie.";
-    classHint.textContent = "";
+  tagInput.disabled = false;
+  if (selectedIdx >= 0 && bboxes[selectedIdx]) {
+    tagInput.value = bboxes[selectedIdx].tag || "";
+    editorHint.textContent = `Edycja zaznaczonego (#${selectedIdx + 1})`;
+    classHint.textContent = "Zmien opis — aktualizuje zaznaczony bbox.";
     return;
   }
-  const b = bboxes[selectedIdx];
-  tagInput.value = b.tag || "";
-  editorHint.textContent = `Bbox #${selectedIdx + 1}`;
-  classHint.textContent = `Klasa YOLO (skrot): ${b.class_name} — szczegoly wpisuj w opisie powyzej.`;
+  tagInput.value = pendingTag;
+  editorHint.textContent = "Wpisz opis, potem narysuj bbox na schemacie.";
+  classHint.textContent = "Kliknij istniejacy bbox, aby edytowac opis.";
 }
 
-function updateSelectedTag(value) {
-  if (selectedIdx < 0 || !bboxes[selectedIdx]) return;
-  bboxes[selectedIdx].tag = value.trim();
-  redraw();
-  renderAnnotationList();
-}
-
-function renderClassList() {
-  const list = document.getElementById("class-list");
-  list.innerHTML = "";
-  classes.forEach((name, idx) => {
-    const li = document.createElement("li");
-    li.textContent = `${idx + 1}. ${name}`;
-    if (idx === activeClassIdx) li.classList.add("active");
-    li.onclick = () => setActiveClass(idx);
-    list.appendChild(li);
-  });
-}
-
-function setActiveClass(idx) {
-  activeClassIdx = idx;
-  renderClassList();
-  document.getElementById("hint").textContent =
-    `Aktywna klasa: ${classes[idx] || "—"} (klawisze 1–9, rysuj bbox)`;
+function onTagInputChange(value) {
+  const text = value; // keep spaces while typing
+  if (selectedIdx >= 0 && bboxes[selectedIdx]) {
+    bboxes[selectedIdx].tag = text.trim();
+    redraw();
+    renderAnnotationList();
+    return;
+  }
+  pendingTag = text;
 }
 
 async function selectPage(pageId) {
@@ -248,7 +226,7 @@ async function selectPage(pageId) {
   const idx = currentPageIndex();
   const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
   document.getElementById("hint").textContent =
-    `Strona ${pos}: ${pageId} — ←/→ | scroll=zoom | Del=usuń | opis po zaznaczeniu`;
+    `Strona ${pos}: ${pageId} — opis → bbox → Zapisz | ←/→ strony | scroll zoom | Del usuwa`;
 }
 
 // ── annotation list ───────────────────────────────────────────────────────────
@@ -258,7 +236,7 @@ function renderAnnotationList() {
   list.innerHTML = "";
   bboxes.forEach((b, i) => {
     const li = document.createElement("li");
-    li.textContent = b.tag ? b.tag : `${b.class_name} (${b.id})`;
+    li.textContent = b.tag || "(bez opisu)";
     if (i === selectedIdx) li.classList.add("active");
     li.onclick = () => { selectedIdx = i; redraw(); renderAnnotationList(); syncTagEditor(); };
     list.appendChild(li);
@@ -284,9 +262,11 @@ canvas.addEventListener("mousedown", (e) => {
     return;
   }
 
-  // Start drawing
+  // Start drawing — zachowaj opis jako pending dla nowego bbox
+  pendingTag = tagInput.value;
   drawing = true;
   selectedIdx = -1;
+  syncTagEditor();
   startX = pt.x;
   startY = pt.y;
 });
@@ -301,7 +281,7 @@ canvas.addEventListener("mousemove", (e) => {
   ctx.save();
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
-  ctx.strokeStyle = colorForClass(classes[activeClassIdx] || "");
+  ctx.strokeStyle = colorFromTag(pendingTag || tagInput.value, bboxes.length);
   ctx.lineWidth = 2 / scale;
   ctx.setLineDash([6 / scale, 3 / scale]);
   ctx.strokeRect(startX, startY, pt.x - startX, pt.y - startY);
@@ -322,14 +302,22 @@ canvas.addEventListener("mouseup", (e) => {
 
   if (w < 4 || h < 4) { redraw(); return; } // too small — ignore
 
-  const className = classes[activeClassIdx] || "unknown";
-  const id = `${className}_${Date.now()}`;
-  bboxes.push({ id, class_name: className, x, y, width: w, height: h, tag: "" });
+  const tag = (tagInput.value || pendingTag).trim();
+  pendingTag = tagInput.value;
+  const id = `${DEFAULT_CLASS}_${Date.now()}`;
+  bboxes.push({
+    id,
+    class_name: DEFAULT_CLASS,
+    x,
+    y,
+    width: w,
+    height: h,
+    tag,
+  });
   selectedIdx = bboxes.length - 1;
   redraw();
   renderAnnotationList();
   syncTagEditor();
-  tagInput.focus();
 });
 
 // ── zoom ──────────────────────────────────────────────────────────────────────
@@ -347,10 +335,7 @@ canvas.addEventListener("wheel", (e) => {
 // ── keyboard ──────────────────────────────────────────────────────────────────
 
 document.addEventListener("keydown", (e) => {
-  if (e.target === tagInput) {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") return;
-    return;
-  }
+  if (e.target === tagInput) return;
   if (e.key === "ArrowLeft") {
     e.preventDefault();
     navigatePage(-1);
@@ -361,13 +346,7 @@ document.addEventListener("keydown", (e) => {
     navigatePage(1);
     return;
   }
-  const n = parseInt(e.key, 10);
-  if (n >= 1 && n <= 9 && n <= classes.length) {
-    setActiveClass(n - 1);
-    return;
-  }
   if ((e.key === "Delete" || e.key === "Backspace") && selectedIdx >= 0) {
-    if (e.target === tagInput) return;
     bboxes.splice(selectedIdx, 1);
     selectedIdx = -1;
     redraw();
@@ -376,8 +355,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-tagInput.addEventListener("input", (e) => updateSelectedTag(e.target.value));
-tagInput.addEventListener("change", (e) => updateSelectedTag(e.target.value));
+tagInput.addEventListener("input", (e) => onTagInputChange(e.target.value));
 
 pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
 pageNextBtn?.addEventListener("click", () => navigatePage(1));
@@ -389,7 +367,6 @@ async function init() {
   } else {
     updatePageNav();
   }
-  await loadClasses();
   await loadElementCatalog();
   syncTagEditor();
 }

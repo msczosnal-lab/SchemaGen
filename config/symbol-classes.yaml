@@ -1,10 +1,4 @@
+# Jedna klasa techniczna na etapie katalogu opisow.
+# Szczegoly elementu: pole "Opis" w labelerze + config/element-catalog.yaml
 classes:
-  - motor
-  - contactor
-  - inverter
-  - fuse
-  - relay
-  - terminal
-  - text_label
-  - pe
-  - disconnect
+  - element
