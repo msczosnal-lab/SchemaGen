@@ -73,6 +73,14 @@ def test_export_dataset_structure(tmp_path: Path) -> None:
     assert data["val"] == "images/val"
     assert data["names"] == {0: "element"}
 
+    # export-manifest.json z lista stron train/val
+    import json
+
+    manifest = json.loads((out / "export-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["train_count"] + manifest["val_count"] == 3
+    assert manifest["total_bboxes"] == 3
+    assert set(manifest["train_pages"]) | set(manifest["val_pages"]) == set(page_ids)
+
 
 def test_export_label_content(tmp_path: Path) -> None:
     raw = tmp_path / "raw"
