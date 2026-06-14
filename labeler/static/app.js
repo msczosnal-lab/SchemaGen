@@ -315,7 +315,7 @@ canvas.addEventListener("mousedown", (e) => {
   pendingTag = tagInput.value;
   drawing = true;
   selectedIdx = -1;
-  list.querySelectorAll(".annotation-row").forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".annotation-row").forEach((el) => el.classList.remove("active"));
   redraw();
   startX = pt.x;
   startY = pt.y;
@@ -352,8 +352,7 @@ canvas.addEventListener("mouseup", (e) => {
 
   if (w < 4 || h < 4) { redraw(); return; } // too small — ignore
 
-  const tag = (tagInput.value || pendingTag).trim();
-  pendingTag = tagInput.value;
+  const tag = tagInput.value.trim();
   const id = `${DEFAULT_CLASS}_${Date.now()}`;
   bboxes.push({
     id,
@@ -364,10 +363,11 @@ canvas.addEventListener("mouseup", (e) => {
     height: h,
     tag,
   });
-  selectedIdx = bboxes.length - 1;
+  selectedIdx = -1;
   redraw();
   renderAnnotationList();
-  syncTagEditor();
+  clearNewTagEditor();
+  tagInput.focus();
 });
 
 // ── zoom ──────────────────────────────────────────────────────────────────────
@@ -385,7 +385,7 @@ canvas.addEventListener("wheel", (e) => {
 // ── keyboard ──────────────────────────────────────────────────────────────────
 
 document.addEventListener("keydown", (e) => {
-  if (e.target === tagInput) return;
+  if (e.target === tagInput || e.target.classList?.contains("row-tag")) return;
   if (e.key === "ArrowLeft") {
     e.preventDefault();
     navigatePage(-1);
@@ -401,11 +401,10 @@ document.addEventListener("keydown", (e) => {
     selectedIdx = -1;
     redraw();
     renderAnnotationList();
-    syncTagEditor();
   }
 });
 
-tagInput.addEventListener("input", (e) => onTagInputChange(e.target.value));
+tagInput.addEventListener("input", (e) => onNewTagInput(e.target.value));
 
 pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
 pageNextBtn?.addEventListener("click", () => navigatePage(1));
@@ -418,34 +417,45 @@ async function init() {
     updatePageNav();
   }
   await loadElementCatalog();
-  syncTagEditor();
+  clearNewTagEditor();
 }
 
-// ── save / export ─────────────────────────────────────────────────────────────
+document.getElementById("save-btn").addEventListener("click", async () => {
+  if (!currentPageId) {
+    alert("Wybierz strone z listy.");
+    return;
+  }
+  const saveBtn = document.getElementById("save-btn");
+  saveBtn.disabled = true;
+  try {
+    const payload = {
+      record: {
+        page_id: currentPageId,
+        image_path: `${currentPageId}.png`,
+        image_width: bgImage ? bgImage.naturalWidth : canvas.width,
+        image_height: bgImage ? bgImage.naturalHeight : canvas.height,
+        bboxes: normalizeBboxesForSave(),
+        lines: [],
+        texts: [],
+        connections: [],
+      },
+    };
+    await fetchJson("/api/annotations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    await loadElementCatalog();
+    document.getElementById("hint").textContent = "Zapisano ✓ (katalog uaktualniony)";
+  } catch (err) {
+    alert(`Blad zapisu: ${err.message}`);
+    document.getElementById("hint").textContent = "Blad zapisu — sprawdz konsole.";
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
 
-document.getElementById("save-btn").onclick = async () => {
-  if (!currentPageId) return alert("Wybierz stronę");
-  const payload = {
-    record: {
-      page_id: currentPageId,
-      image_path: `${currentPageId}.png`,
-      image_width: bgImage ? bgImage.naturalWidth : canvas.width,
-      image_height: bgImage ? bgImage.naturalHeight : canvas.height,
-      bboxes,
-      texts: [],
-      connections: [],
-    },
-  };
-  await fetchJson("/api/annotations", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  await loadElementCatalog();
-  document.getElementById("hint").textContent = "Zapisano ✓ (katalog uaktualniony)";
-};
-
-document.getElementById("export-btn").onclick = async () => {
+document.getElementById("export-btn").addEventListener("click", async () => {
   if (!currentPageId) return alert("Wybierz stronę");
   const paths = await fetchJson(`/api/export/${currentPageId}`, { method: "POST" });
   alert("Eksport:\n" + JSON.stringify(paths, null, 2));
