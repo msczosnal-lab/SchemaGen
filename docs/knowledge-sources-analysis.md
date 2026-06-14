@@ -65,6 +65,50 @@ Drugie źródło — **`IEC60617.pdf`** — to **właściwy atlas symboli**: 53 
 
 ---
 
+### Źródło 2 — IEC 60617 (atlas symboli, PDF)
+
+**Co zawiera:** 53 strony, ~**533 osadzone grafiki** symboli. Każda strona = tabela **IEC SYMBOL | IEC DESCRIPTION | COMMENTS**. Opisy i komentarze po **EN**. To norma-referencja symboli graficznych — autorytatywny język symboli, ten sam, na którym oparty jest WRT01.
+
+**Pokrycie typów (zweryfikowane skanem treści) — kluczowe dla WRT01:**
+
+| Typ urządzenia | Strony (PDF) |
+|----------------|--------------|
+| Bezpieczniki (fuse) | 17 |
+| Styczniki (contactor) | 11, 14 |
+| Przekaźniki (relay) | 16, 17, 52 |
+| Wyłączniki / circuit breaker | 11, 14 |
+| Rozłączniki / disconnector | 11, 14, 15, 17, 53 |
+| Łączniki / switch | 11–15, 17, 22, 23 |
+| Styki zwierne/rozwierne (make/break) | 12, 13, 14 |
+| Silniki (motor) | 8, 10, 16, 31–33, 48 |
+| Transformatory | 16, 22, 34–40 |
+| Zaciski / terminal | 1, 2, 3, 11, 21, 52 |
+| Uziemienia (earth/ground) | 11, 17, 20, 52, 53 |
+| Rezystory, kondensatory, diody, tranzystory, lampy | 25–30, 43, 46 |
+
+**Macierz oceny (1–5):**
+
+| Kryterium | Ocena | Uzasadnienie |
+|-----------|:-----:|--------------|
+| Przydatność dla oznaczającego | **4** | Realne `default_description` per typ; minus: opisy EN → trzeba warstwy aliasów PL |
+| Przydatność dla treningu YOLO | **4** | ~533 crop-y symboli jako klasy/syntetyka; minus: symbole **idealne** ≠ rendering skanu (domain gap) — wymaga augmentacji |
+| Przydatność dla walidacji | **4** | Kanoniczna semantyka symboli + reguły „styk zwierny/rozwierny", topologia |
+| Koszt integracji | **średni** | Ekstrakcja OK, ale **parowanie grafika ↔ opis** nietrywialne (patrz [RYZYKO]) |
+| Ryzyko | **niskie–średnie** | EN-only; alignment obraz/tekst; idealne symbole vs skan |
+
+**Zgodność z WRT01: 4/5** — ten sam normatywny język symboli (IEC). Minus za: opisy EN (WRT01 PL) oraz brak oznaczeń producenckich/handlowych aparatury (Finder, Schneider itp.).
+
+#### [RYZYKO] integracyjne — do rozwiązania w prompcie implementacyjnym
+
+1. **[RYZYKO] Parowanie obraz ↔ opis.** W PDF warstwa grafiki (533 obr.) i warstwa tekstu (~905 linii) są **rozdzielne**; `extract_text` nie zachowuje przypisania wiersza do symbolu. Potrzebna **ekstrakcja z koordynatami** (np. pozycje obrazów + bboxy tekstu, parowanie po współrzędnej Y w wierszu tabeli). Bez tego mapowanie symbol→nazwa będzie błędne.
+2. **[RYZYKO] Domain gap dla YOLO.** Symbole w atlasie są czyste/wektorowe; WRT01 to skan/rendering o innej grubości linii, szumie, skali. Crop-y atlasu nadają się na **syntetykę / pretraining / walidację klas**, ale model i tak wymaga realnych bboxów z WRT01.
+3. **[RYZYKO] Język.** Opisy EN — `aliases_pl` trzeba dołożyć ręcznie/półautomatycznie; ControlByte (źródło 1) pomaga jako słownik PL pojęć.
+4. **[RYZYKO] Licencja.** IEC 60617 to treść normatywna — sprawdzić warunki redystrybucji crop-ów, jeśli atlas miałby trafić do repo publicznego. **[do potwierdzenia przez Filipa]**
+
+**Wniosek dla źródła 2:** **fundament katalogu typów**. Realna droga: ekstrakcja layout-aware → `config/symbol-reference.yaml` (id, iec_ref, default_description EN + aliases_pl, crop PNG). Trening: crop-y jako baza syntetyki, ale priorytet to bboxy z WRT01.
+
+---
+
 ## Mapowanie na SchemaGen
 
 Co realnie pokrywa potrzeby — i skąd:
