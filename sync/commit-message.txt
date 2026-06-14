@@ -3,3 +3,5 @@
 # [Claude] opis etapu   — agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
+
+[Cursor] gitsync: named commits + tags Cursor/Claude
