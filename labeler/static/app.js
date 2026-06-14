@@ -304,14 +304,14 @@ async function selectPage(pageId) {
     `Strona ${pos}: ${pageId} — przeciagnij = nowy bbox | klik = zaznacz | ←/→ strony`;
 }
 
-function toggleAccordion(i, focusTextarea = false) {
+function toggleAccordion(i) {
   if (expandedIdx === i) {
     expandedIdx = -1;
     focusTextareaIdx = null;
   } else {
     expandedIdx = i;
     selectedIdx = i;
-    if (focusTextarea) focusTextareaIdx = i;
+    focusTextareaIdx = i;
   }
   renderAnnotationList();
   redraw();
@@ -331,32 +331,23 @@ function renderAnnotationList() {
     return;
   }
   bboxes.forEach((b, i) => {
+    const isExpanded = i === expandedIdx;
     const row = document.createElement("li");
     row.className = "annotation-accordion";
     if (i === selectedIdx) row.classList.add("active");
-    if (i === expandedIdx) row.classList.add("expanded");
+    if (isExpanded) row.classList.add("expanded");
 
     const summary = document.createElement("div");
     summary.className = "accordion-summary";
 
-    const toggle = document.createElement("button");
-    toggle.type = "button";
-    toggle.className = "accordion-toggle";
-    toggle.textContent = "▶";
-    toggle.title = "Rozwin / zwin";
-    toggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleAccordion(i);
-    });
-
     const line = document.createElement("button");
     line.type = "button";
     line.className = "summary-line";
-    line.textContent = summaryLine(b);
-    line.title = b.tag || "(bez opisu)";
+    line.textContent = listLabel(b);
+    line.title = isExpanded ? "Zwin" : (b.tag || "Kliknij aby edytowac opis");
     line.addEventListener("click", (e) => {
       e.stopPropagation();
-      toggleAccordion(i, expandedIdx !== i);
+      toggleAccordion(i);
     });
 
     const del = document.createElement("button");
@@ -369,32 +360,33 @@ function renderAnnotationList() {
       removeBboxAt(i);
     });
 
-    summary.appendChild(toggle);
     summary.appendChild(line);
     summary.appendChild(del);
-
-    const body = document.createElement("div");
-    body.className = "accordion-body";
-    const textarea = document.createElement("textarea");
-    textarea.className = "row-tag tag-textarea";
-    textarea.dataset.idx = String(i);
-    textarea.rows = 4;
-    textarea.value = b.tag || "";
-    textarea.placeholder = "Pelny opis elementu…";
-    bindRowTextarea(textarea, line, i);
-    body.appendChild(textarea);
-
     row.appendChild(summary);
-    row.appendChild(body);
-    list.appendChild(row);
 
-    if (focusTextareaIdx === i) {
-      requestAnimationFrame(() => {
-        textarea.focus();
-        textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-        focusTextareaIdx = null;
-      });
+    if (isExpanded) {
+      const body = document.createElement("div");
+      body.className = "accordion-body";
+      const textarea = document.createElement("textarea");
+      textarea.className = "row-tag tag-textarea";
+      textarea.dataset.idx = String(i);
+      textarea.rows = 5;
+      textarea.value = b.tag || "";
+      textarea.placeholder = "Opis elementu…";
+      bindRowTextarea(textarea, i);
+      body.appendChild(textarea);
+      row.appendChild(body);
+
+      if (focusTextareaIdx === i) {
+        requestAnimationFrame(() => {
+          textarea.focus();
+          textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+          focusTextareaIdx = null;
+        });
+      }
     }
+
+    list.appendChild(row);
   });
 }
 
@@ -408,22 +400,16 @@ function removeBboxAt(idx) {
   redraw();
 }
 
-function bindRowTextarea(textarea, summaryBtn, i) {
+function bindRowTextarea(textarea, i) {
   textarea.addEventListener("mousedown", (e) => e.stopPropagation());
   textarea.addEventListener("input", (e) => {
     bboxes[i].tag = e.target.value;
-    summaryBtn.textContent = summaryLine(bboxes[i]);
-    summaryBtn.title = e.target.value || "(bez opisu)";
     redraw();
   });
 }
 
-function selectBbox(idx, expand = false) {
+function selectBbox(idx) {
   selectedIdx = idx;
-  if (expand) {
-    expandedIdx = idx;
-    focusTextareaIdx = idx;
-  }
   renderAnnotationList();
   redraw();
 }
@@ -511,6 +497,7 @@ canvas.addEventListener("mouseup", (e) => {
   });
   selectedIdx = -1;
   expandedIdx = -1;
+  focusTextareaIdx = null;
   redraw();
   renderAnnotationList();
   clearNewTagEditor();

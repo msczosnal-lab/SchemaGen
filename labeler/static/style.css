@@ -1,7 +1,7 @@
 * { box-sizing: border-box; }
 body { font-family: Segoe UI, Arial, sans-serif; margin: 0; background: #1e1e1e; color: #eee; }
 header { padding: 12px 20px; background: #2d2d2d; border-bottom: 1px solid #444; }
-.layout { display: grid; grid-template-columns: 280px 1fr 360px; min-height: calc(100vh - 64px); }
+.layout { display: grid; grid-template-columns: 280px 1fr 320px; min-height: calc(100vh - 64px); }
 aside { padding: 12px; border-right: 1px solid #444; overflow: auto; }
 #annotations-panel { border-right: none; border-left: 1px solid #444; display: flex; flex-direction: column; }
 #annotation-list { flex: 1; overflow: auto; margin-bottom: 8px; }
@@ -14,12 +14,12 @@ canvas { background: #fff; border: 1px solid #666; max-width: 100%; cursor: cros
 ul { list-style: none; padding: 0; margin: 0; }
 #page-list li { padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; }
 #page-list li.active { outline: 2px solid #4a9eff; }
-button { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
+#save-btn, #export-btn { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
 #hint { color: #aaa; font-size: 0.9rem; }
 .muted { color: #888; font-size: 0.85rem; margin: 4px 0 8px; }
 #bbox-editor { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #444; }
 #bbox-editor label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 4px; }
-.tag-textarea, #tag-input {
+#tag-input {
   width: 100%;
   min-height: 120px;
   padding: 10px;
@@ -32,72 +32,68 @@ button { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: no
   font-family: inherit;
   resize: vertical;
 }
-.tag-textarea:focus, #tag-input:focus { border-color: #4a9eff; outline: none; }
+#tag-input:focus { border-color: #4a9eff; outline: none; }
 li.annotation-accordion {
-  margin: 6px 0;
-  background: #333;
+  margin: 5px 0;
   border-radius: 6px;
-  border: 1px solid #444;
   overflow: hidden;
 }
-li.annotation-accordion.active { border-color: #4a9eff; box-shadow: 0 0 0 1px #4a9eff inset; }
+li.annotation-accordion.active .summary-line { box-shadow: 0 0 0 2px #fff inset; }
 .accordion-summary {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  background: #3a3a3a;
+  align-items: stretch;
+  gap: 4px;
 }
-.accordion-toggle {
-  flex: 0 0 auto;
-  margin: 0;
-  padding: 2px 8px;
-  min-width: 28px;
-  background: transparent;
-  color: #4a9eff;
-  font-size: 0.85rem;
-  line-height: 1.2;
-  border-radius: 4px;
-}
-.accordion-toggle:hover { background: #4a4a4a; }
 .summary-line {
   flex: 1;
   margin: 0;
-  padding: 4px 6px;
+  padding: 10px 12px;
   border: none;
-  background: transparent;
-  color: #4a9eff;
+  background: #4a9eff;
+  color: #fff;
   text-align: left;
   cursor: pointer;
   font: inherit;
-  font-size: 0.9rem;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 6px 0 0 6px;
 }
-.summary-line:hover { background: #454545; border-radius: 4px; }
+.summary-line:hover { background: #5babff; }
+li.annotation-accordion.expanded .summary-line { border-radius: 6px 0 0 0; }
 .delete-btn {
   flex: 0 0 auto;
   margin: 0;
-  padding: 2px 10px;
-  min-width: 32px;
+  padding: 0 12px;
+  min-width: 40px;
+  border: none;
   background: #5a2a2a;
   color: #ffb4b4;
-  font-size: 1.1rem;
-  line-height: 1.1;
-  border-radius: 4px;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 0 6px 6px 0;
 }
 .delete-btn:hover { background: #7a3030; }
-li.annotation-accordion.expanded .accordion-toggle { transform: rotate(90deg); }
+li.annotation-accordion.expanded .delete-btn { border-radius: 0 6px 0 0; }
 .accordion-body {
-  display: none;
-  padding: 0 8px 8px;
+  padding: 8px;
   background: #2e2e2e;
-  border-top: 1px solid #444;
+  border: 1px solid #444;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
 }
-li.annotation-accordion.expanded .accordion-body { display: block; }
 .accordion-body .row-tag {
-  min-height: 88px;
-  margin-top: 6px;
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #1e1e1e;
+  color: #eee;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  font-family: inherit;
+  resize: vertical;
 }
+.accordion-body .row-tag:focus { border-color: #4a9eff; outline: none; }
