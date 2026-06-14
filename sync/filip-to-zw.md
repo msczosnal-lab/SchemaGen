@@ -23,6 +23,8 @@ Zasada: **linia na schemacie ≠ polaczenie**. Prompt 002 (linie w labelerze) �
 
 Commit pending: `[Cursor] model: graphic lines + semantic colors palette`
 
+**Trigger Claude (2026-06-14):** push wszedł — kolejne zadanie. GitHub Action: komentarz `@claude` z instrukcją z `sync/KOLEJNE-ZADANIE.md`.
+
 ---
 
 ## 2026-06-14 [Cursor]
