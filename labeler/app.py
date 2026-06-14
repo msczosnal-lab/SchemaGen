@@ -79,8 +79,17 @@ def post_annotations(body: AnnotationPayload) -> dict:
     save_annotation(record.page_id, record.model_dump())
     upsert_page(record.page_id, record.image_path, status="labeled")
     tags = [b.tag for b in record.bboxes if b.tag.strip()]
-    added = register_labels(tags)
-    return {"status": "saved", "page_id": record.page_id, "catalog_added": added}
+    added = 0
+    try:
+        added = register_labels(tags)
+    except OSError:
+        pass
+    return {
+        "status": "saved",
+        "page_id": record.page_id,
+        "catalog_added": added,
+        "bbox_count": len(record.bboxes),
+    }
 
 
 @app.post("/api/export/{page_id}")
