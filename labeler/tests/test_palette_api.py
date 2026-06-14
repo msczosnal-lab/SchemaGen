@@ -8,7 +8,7 @@ client = TestClient(app)
 
 
 def test_symbol_palette_endpoint():
-    res = client.get("/api/symbol-palette")
+    res = client.get("/api/symbol-palette", params={"limit": 60})
     assert res.status_code == 200
     data = res.json()
     assert "symbols" in data

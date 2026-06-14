@@ -26,8 +26,8 @@ def test_search_by_alias():
 
 def test_search_empty_returns_all_capped():
     hits = search_palette("")
-    assert len(hits) >= 40
-    assert len(hits) <= 30
+    assert len(hits) == 30  # domyslny limit
+    assert len(list_palette_entries()) >= 40
 
 
 def test_search_no_match():

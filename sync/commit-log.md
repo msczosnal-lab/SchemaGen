@@ -22,3 +22,4 @@
 | 2026-06-14 23:16 | Claude | c61fcec5 | [Claude] atlas: QET extract -> symbol-reference.yaml (prompt 008a) |
 | 2026-06-14 23:40 | Cursor | d8b06ac0 | [Cursor] sync: handoff prompt 010 bbox-first + paleta, etap 1 detekcja elementów |
 | 2026-06-14 23:50 | Cursor | 8d6a6810 | [Cursor] sync: trzy filary interpretacji schematu, rezygnacja QET |
+| 2026-06-14 23:52 | Cursor | 0d64d7cb | [Cursor] labeler: bbox-first + symbol palette (prompt 010) |
