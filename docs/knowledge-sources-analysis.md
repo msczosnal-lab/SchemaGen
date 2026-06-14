@@ -14,7 +14,7 @@ Trzy źródła tworzące **warstwowy atlas**. Profil WRT01 (PLC/IO/sieci + apara
 
 - **ControlByte (1)** — wprowadzenie; wartość = system oznaczeń **IEC 81346-1 (`=`/`+`/`–`)** + słownik pojęć PL. Do typów/treningu nieprzydatny, miejscami **błędny** (patrz [BŁĘDY]).
 - **IEC 60617 (2)** — atlas normatywny, 53 str., ~533 symbole. **Baza** katalogu i `default_description`. Słabo pokrywa PLC/IO i aparaturę producencką.
-- **QElectroTech (3)** — biblioteka CAD open-source, **>8000 symboli** (IEC 60617 + **przemysłowe/PLC** + pneumatyka), format **.elmt/XML** (łatwa ekstrakcja), nazwy **wielojęzyczne w tym PL**, licencja **GPL**. **Najlepiej trafia w profil WRT01** i rozwiązuje aliasy PL oraz licencję.
+- **QElectroTech (3)** — biblioteka CAD open-source, **8732 symbole** (pobrane; pełny raport `docs/qet-library-report.md`), format **.elmt/XML**, licencja **GPL**. Najsilniejsza warstwa **generyczna** (allpole, IEC 60617, WAGO/Siemens). [KOREKTA] PL tylko **~34%** plików (nie „za darmo"), a **aparatura WRT01 — GE Vernova (brak) i Phoenix Contact (13, rdzeń brak)** — wymaga osobnej warstwy producenta.
 
 **Rekomendacja (atlas warstwowy):**
 1. **IEC 60617** — warstwa bazowa, kanoniczne `iec_ref` i opisy.
