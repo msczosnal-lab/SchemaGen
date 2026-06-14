@@ -5,6 +5,8 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 let currentPageId = null;
+let pageIds = [];
+let pagesMeta = [];
 let classes = [];
 let bboxes = [];
 let selectedIdx = -1;
@@ -27,6 +29,9 @@ let catalogLabels = [];
 const tagInput = document.getElementById("tag-input");
 const editorHint = document.getElementById("editor-hint");
 const classHint = document.getElementById("class-hint");
+const pagePrevBtn = document.getElementById("page-prev");
+const pageNextBtn = document.getElementById("page-next");
+const pagePositionEl = document.getElementById("page-position");
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 

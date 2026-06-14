@@ -5,6 +5,10 @@ header { padding: 12px 20px; background: #2d2d2d; border-bottom: 1px solid #444;
 aside { padding: 12px; border-right: 1px solid #444; overflow: auto; }
 #annotations-panel { border-right: none; border-left: 1px solid #444; }
 #canvas-panel { padding: 12px; display: flex; flex-direction: column; align-items: center; }
+#page-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; width: 100%; max-width: 900px; justify-content: center; }
+#page-nav button { margin: 0; min-width: 44px; font-size: 1.25rem; line-height: 1; padding: 6px 14px; }
+#page-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+#page-position { color: #ccc; font-size: 0.95rem; min-width: 10em; text-align: center; }
 canvas { background: #fff; border: 1px solid #666; max-width: 100%; cursor: crosshair; }
 ul { list-style: none; padding: 0; }
 li { padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; }
