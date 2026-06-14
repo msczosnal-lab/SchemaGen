@@ -44,7 +44,14 @@
 - **Język:** wielojęzyczny (w tym **PL**), folder IEC 60617
 - **Standard:** IEC 60617 + symbole przemysłowe / **PLC** / pneumatyka
 - **Dlaczego wybrałem:** uzupełnia IEC 60617 o PLC/IO/sieci i aparaturę przemysłową (profil WRT01)
-- **Notatki:** **>8000 symboli**, format **.elmt / XML** (łatwa ekstrakcja), licencja **GNU/GPL**. Wersja 0.100.
+- **Notatki:** **8732 symbole** (pobrane 2026-06-14), format **.elmt / XML**, licencja **GNU/GPL**. Pełny raport: `docs/qet-library-report.md`. PL tylko ~34% plików. **GE Vernova: brak; Phoenix Contact: 13 (rdzeń brak)** → warstwa producenta osobno.
+
+---
+
+## Aparatura WRT01 (od Filipa, 2026-06-14)
+- **Sterowniki:** GE Vernova
+- **Złączki/IO:** Phoenix Contact
+- Oba słabo/wcale pokryte w QET → potrzebne biblioteki producentów (EPLAN/DTR) jako źródła #4/#5.
 
 ---
 
