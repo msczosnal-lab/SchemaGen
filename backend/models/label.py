@@ -27,6 +27,7 @@ class BboxAnnotation(BaseModel):
     width: float
     height: float
     tag: str = ""
+    seq: int = 0
     semantic_group: str = ""
     color_ref: str = ""
 
