@@ -272,6 +272,103 @@ function listLabel(b) {
   return `#${b.seq || "?"}`;
 }
 
+// ── hierarchia bboxow (lustro backend/geometry/bbox_layout.py) ─────────────────
+
+const HIER_EPS = 1.0;
+
+function bboxArea(b) {
+  return Math.max(b.width, 0) * Math.max(b.height, 0);
+}
+
+function bboxContains(outer, inner) {
+  if (outer.id === inner.id) return false;
+  if (bboxArea(inner) >= bboxArea(outer)) return false;
+  return (
+    inner.x >= outer.x - HIER_EPS &&
+    inner.y >= outer.y - HIER_EPS &&
+    inner.x + inner.width <= outer.x + outer.width + HIER_EPS &&
+    inner.y + inner.height <= outer.y + outer.height + HIER_EPS
+  );
+}
+
+function findParentId(b) {
+  let best = null;
+  for (const o of bboxes) {
+    if (o.id === b.id) continue;
+    if (bboxContains(o, b)) {
+      if (
+        best === null ||
+        bboxArea(o) < bboxArea(best) ||
+        (bboxArea(o) === bboxArea(best) && o.id < best.id)
+      ) {
+        best = o;
+      }
+    }
+  }
+  return best ? best.id : "";
+}
+
+function recomputeHierarchy() {
+  const byId = new Map(bboxes.map((b) => [b.id, b]));
+  const parentMap = new Map();
+  for (const b of bboxes) parentMap.set(b.id, findParentId(b));
+  for (const b of bboxes) {
+    const pid = parentMap.get(b.id) || "";
+    b.parent_id = pid;
+    let depth = 0;
+    const seen = new Set();
+    let cur = parentMap.get(b.id) || "";
+    while (cur) {
+      if (seen.has(cur)) break;
+      seen.add(cur);
+      depth += 1;
+      cur = parentMap.get(cur) || "";
+    }
+    b.depth = depth;
+    const parent = pid ? byId.get(pid) : null;
+    if (parent && parent.width > 0 && parent.height > 0) {
+      b.rel_bbox = [
+        (b.x - parent.x) / parent.width,
+        (b.y - parent.y) / parent.height,
+        b.width / parent.width,
+        b.height / parent.height,
+      ];
+    } else {
+      b.rel_bbox = [];
+    }
+  }
+}
+
+function parentSeqOf(b) {
+  if (!b.parent_id) return null;
+  const p = bboxes.find((x) => x.id === b.parent_id);
+  return p ? p.seq || "?" : null;
+}
+
+function treeOrderedIndices() {
+  const childrenOf = new Map();
+  bboxes.forEach((b, i) => {
+    const key = b.parent_id || "";
+    if (!childrenOf.has(key)) childrenOf.set(key, []);
+    childrenOf.get(key).push(i);
+  });
+  for (const arr of childrenOf.values()) {
+    arr.sort((a, b) => (bboxes[a].seq || 0) - (bboxes[b].seq || 0));
+  }
+  const order = [];
+  const visit = (key) => {
+    for (const i of childrenOf.get(key) || []) {
+      order.push(i);
+      visit(bboxes[i].id);
+    }
+  };
+  visit("");
+  bboxes.forEach((b, i) => {
+    if (!order.includes(i)) order.push(i);
+  });
+  return order;
+}
+
 function drawBboxNumber(b, color) {
   const num = String(b.seq || "?");
   const pad = 5 / scale;
