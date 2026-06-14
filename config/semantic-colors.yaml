@@ -1,0 +1,52 @@
+# Paleta kolorow semantycznych — uzytkownik uzupelnia w miare rozwoju taksonomii.
+# Po kolorze rozpoznajemy grupe obiektow (recognize, validate, generate SVG).
+
+version: 1
+
+groups:
+  cable:
+    description: "Kable / przewody zasilajace"
+    roles: [wire]
+    stroke: "#000000"
+    style: solid
+
+  motor_device:
+    description: "Silnik, przekaznik, stycznik — obrys urzadzenia"
+    roles: [device_stroke]
+    applies_to_types: [motor, relay, contactor]
+    stroke: "#0066CC"
+    style: solid
+
+  inverter:
+    description: "Falownik / przetwornica"
+    applies_to_types: [inverter]
+    fill: "#9933FF"
+    stroke: "#9933FF"
+    style: solid
+
+  enclosure:
+    description: "Obudowa / ramka obiektowa"
+    roles: [frame, device_stroke]
+    fill: "#00AA44"
+    stroke: "#00AA44"
+    style: solid
+
+  dashed_aux:
+    description: "Linie pomocnicze przerywane"
+    roles: [dash]
+    stroke: "#666666"
+    style: dashed
+
+  pe_wire:
+    description: "Przewod ochronny PE"
+    roles: [wire]
+    stroke: "#00AA44"
+    style: solid
+
+text:
+  inherit_from: component
+
+tolerance:
+  hue_deg: 12
+  sat_min: 0.15
+  value_delta: 0.12
