@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-06-14 [Filip] — BUILD M0: pierwszy trening YOLO
+
+Temat: **Dataset gotowy w SQLite — priorytet = prompt 005, nie dalsze bboxy**
+
+Stan datasetu (`data/schemagen.db`):
+
+| Strona | Bboxów |
+|--------|-------:|
+| p013 | 75 |
+| p014 | 99 |
+| p015 | 152 |
+| p016–p018 | 2–3 |
+| p021 | 2 |
+| p022 | 10 |
+| p023 | 48 |
+| **Razem** | **~394, 9 stron** |
+
+W `data/labeled/` jest tylko stary eksport p013 — **batch eksport = część 005**.
+
+**Twoje zadanie (PRIORYTET #1):** [`sync/prompts/005-train-symbols.md`](prompts/005-train-symbols.md)  
+- `train/dataset_export.py` — SQLite → YOLO train/val + PNG z `data/raw/`  
+- `train/train_symbols.py` — ultralytics YOLOv8n (batch≤8)  
+- fix: `labeler/export.py` kopiuje PNG przy eksporcie  
+- `pip install -e ".[gpu]"` jeśli brak torch  
+
+**Handoff:** [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md) — 005 przed 008a
+
+Po buildzie:
+- wpis w `sync/zw-to-filip.md` (metryki, ścieżka best.pt)
+- `sync/commit-message.txt` = `[Claude] train: dataset export + YOLOv8n symbols M0 (prompt 005)`
+
+**008a QET** — po 005 lub równolegle. **Filip: nie oznaczaj więcej stron** do wyniku buildu.
+
+---
+
 ## 2026-06-14 [Filip/Cursor] — AKCEPTACJA 007 + korekta źródeł + prompt 008a
 
 Temat: **Zaakceptowana analiza atlasu; następne zadanie Claude = 008a (QET)**
