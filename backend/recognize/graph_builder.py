@@ -7,7 +7,8 @@ from __future__ import annotations
 from backend.models.schema import SchemaModel
 from backend.recognize.ocr_engine import PaddleOcrEngine
 from backend.recognize.symbol_detector import OnnxSymbolDetector
-from backend.recognize.wire_tracer import WireTracer
+from backend.recognize.line_classifier import LineClassifier
+from backend.recognize.line_tracer import LineTracer
 
 
 class GraphBuilder:
@@ -15,11 +16,16 @@ class GraphBuilder:
         self,
         detector: OnnxSymbolDetector | None = None,
         ocr: PaddleOcrEngine | None = None,
-        tracer: WireTracer | None = None,
+        tracer: LineTracer | None = None,
+        classifier: LineClassifier | None = None,
     ) -> None:
         self._detector = detector
         self._ocr = ocr
         self._tracer = tracer
+        self._classifier = classifier
 
     def build(self, image_path: str, source: str = "") -> SchemaModel:
-        raise NotImplementedError("COWORK: polacz detect + OCR + wire trace w SchemaModel")
+        raise NotImplementedError(
+            "COWORK: detect + OCR + line trace/classify -> SchemaModel; "
+            "connections tylko z graphic_lines role wire|bus"
+        )

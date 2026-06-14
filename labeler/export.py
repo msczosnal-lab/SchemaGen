@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 from backend.models.label import LabelRecord
-from backend.models.schema import Component, Connection, SchemaMeta, SchemaModel
+from backend.models.schema import Component, Connection, GraphicLine, SchemaMeta, SchemaModel
 from backend.paths import CONFIG, LABELED
 
 
@@ -29,8 +29,21 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
             tag=b.tag,
             bbox=[b.x, b.y, b.x + b.width, b.y + b.height],
             source="manual",
+            semantic_group=b.semantic_group,
+            color_ref=b.color_ref,
         )
         for b in record.bboxes
+    ]
+    graphic_lines = [
+        GraphicLine(
+            id=line.id,
+            points=line.points,
+            role=line.role,
+            style=line.style,
+            semantic_group=line.semantic_group,
+            color_ref=line.color_ref,
+        )
+        for line in record.lines
     ]
     connections = [
         Connection.model_validate({"from": c.from_ref, "to": c.to, "kind": c.kind})
@@ -40,6 +53,7 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
     return SchemaModel(
         meta=SchemaMeta(source=record.page_id, page=0),
         components=components,
+        graphic_lines=graphic_lines,
         connections=connections,
         annotations=annotations,
     )

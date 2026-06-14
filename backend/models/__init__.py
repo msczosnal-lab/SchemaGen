@@ -5,11 +5,13 @@ from backend.models.label import (
     BboxAnnotation,
     ConnectionAnnotation,
     LabelRecord,
+    LineAnnotation,
     TextAnnotation,
 )
 from backend.models.schema import (
     Component,
     Connection,
+    GraphicLine,
     SchemaMeta,
     SchemaModel,
     UserIntent,
@@ -21,7 +23,9 @@ __all__ = [
     "Component",
     "Connection",
     "ConnectionAnnotation",
+    "GraphicLine",
     "LabelRecord",
+    "LineAnnotation",
     "SchemaMeta",
     "SchemaModel",
     "SymbolDetection",
