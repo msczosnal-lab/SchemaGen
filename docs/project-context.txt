@@ -1,3 +1,25 @@
+Kontekst projektu: SchemaGen offline — rozpoznawanie i generowanie schematow elektrycznych
+
+## Cel
+
+Na podstawie PDF/obrazu schematu + konfiguracji napędu (XML) system offline:
+- rozpoznaje elementy (YOLO + OCR + OpenCV),
+- buduje SchemaModel JSON,
+- waliduje regułami,
+- generuje nowy schemat SVG z biblioteki blokow.
+
+## Srodowisko runtime
+
+- Maszyna: PC uzytkownika, GPU RTX 2080 (8 GB VRAM) — hard cap
+- Offline: brak cloud API w backend/recognize, train/, labeler/
+- Opcjonalny chat: formularz user_intent lub lokalny LLM 7B (pozniej)
+
+## Agenci (development)
+
+- Cursor: kod strukturalny, prompty sync/prompts/, review, akceptacja
+- Claude Cowork (ZW): implementacja NotImplementedError
+- Uzytkownik: oznaczanie w labelerze, kierunek projektu
+
 ## Etap 1 (2026-06-15) — trzy filary interpretacji wizualnej
 
 Pelna wizja: docs/schematic-interpretation.md
@@ -13,3 +35,22 @@ REZYGNACJA: atlas QET, kurator, cropy — nie uzywamy w runtime.
 Trening detekcji = wylacznie bboxy ze skanow oznaczonych przez Filipa.
 
 ## MVP status (2026-06-15)
+
+- BUILD M0: trening YOLO + ONNX + detektor (u Filipa, .venv311)
+- labeler/: canvas bbox, hierarchia 003; nastepny: 010 bbox-first + paleta
+- train/: dataset_export, train_symbols, export_onnx
+- backend/atlas/: kod 008a w repo — NIE UZYWAC w runtime
+
+## Semantyka linii i kolorow
+
+- GraphicLine = linia na rysunku (wire, bus, device_stroke, frame, dash, crossing...)
+- Connection = polaczenie logiczne — tylko z linii wire/bus
+- Kolory: config/semantic-colors.yaml
+
+## Nastepny krok
+
+1. Claude: 010-labeler-bbox-first-palette (filar symbole)
+2. Claude: 002-ocr-engine (filar tekst)
+3. Claude: 002-labeler-lines-colors + 003-line-tracer (filar polaczenia)
+4. Claude: 004-graph-builder (relacje)
+5. Filip: bboxy + linie + tekst GT na schematach
