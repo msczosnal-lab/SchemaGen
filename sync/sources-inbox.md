@@ -46,21 +46,34 @@
 - **Dlaczego wybrałem:** uzupełnia IEC 60617 o PLC/IO/sieci i aparaturę przemysłową (profil WRT01)
 - **Notatki:** **8732 symbole** (pobrane 2026-06-14), format **.elmt / XML**, licencja **GNU/GPL**. Pełny raport: `docs/qet-library-report.md`. PL tylko ~34% plików. **GE Vernova: brak; Phoenix Contact: 13 (rdzeń brak)** → warstwa producenta osobno.
 
-### Schemat WRT01 (PDF — jedyne źródło geometrii projektu)
-- **Typ:** PDF schematu elektrycznego
-- **URL / ścieżka:** `data/raw/` *(Filip: pliki PDF schematu — bez projektu EPLAN)*
+### Schemat WRT01 (PDF — główny projekt ground truth)
+- **Typ:** PDF schematu elektrycznego + wyekstrahowane strony PNG
+- **URL / ścieżka:** `data/raw/SchematWRT01.pdf` + `data/raw/SchematWRT01_p013.png` … `p089.png` (**77 stron**)
 - **Język:** PL (tagi, opisy)
 - **Standard:** IEC 81346-1 (tagi), symbole IEC
 - **Dlaczego wybrałem:** ground truth bboxów, linii, tagów instancji — **obowiązkowe**
-- **Notatki:** 77 stron, p013–p015 oznaczone bboxami. **Filip NIE ma** wersji EPLAN tego schematu.
+- **Notatki:** p013–p015 oznaczone bboxami. **Filip NIE ma** wersji EPLAN. Labeler czyta **PNG** z `data/raw/`.
 
-### Schemat PDF — inni producenci *(Filip dopisze ścieżkę)*
-- **Typ:** PDF schematu / atlas fragmentów
-- **URL / ścieżka:** *(Filip uzupełni — np. `data/raw/...pdf`)*
+### Korpus schematów PDF — inne projekty (`sync/sources/`)
+
+Filip dodał **4 PDF + 1 skrót** (inwentaryzacja: [`sync/sources/MANIFEST.json`](sources/MANIFEST.json)).
+
+| Plik | Projekt | Strony | ~MB | Rola |
+|------|---------|-------:|----:|------|
+| `20_A_022_PL_Norblin_Cars_2022-06-26.pdf` | Norblin Cars (A022) | 199 | 6,9 | trening / różnorodność producentów |
+| `22_A_153_PL_Adamed_AGV_SA2_20250706.pdf` | Adamed AGV SA2 (A153) | 200 | 6,9 | j.w. |
+| `22_A_153_PL_Adamed_INTEROL_SA1_20250729.pdf` | Adamed INTEROL SA1 (A153) | 99 | 2,9 | j.w. |
+| `25_A_229_PL5_19012026.pdf` | Stanley 229 / PL5 (A229) | 25 | 0,9 | j.w. |
+| `24_A_068_PL5_29102024 schemat PL5.lnk` | skrót OneDrive (PC ZW) | — | — | **niedziałający lokalnie** — skopiuj PDF jeśli potrzebny |
+
+**Razem:** 523 strony PDF (wektor/tekst — dobry OCR). PDF-y w `.gitignore`; w repo tylko `MANIFEST.json`.
+
+- **Typ:** PDF schematów projektowych (mix producentów / instalacji)
+- **Ścieżka:** `sync/sources/*.pdf`
 - **Język:** PL
-- **Standard:** IEC + aparatura producencka (nie-Siemens / mix)
-- **Dlaczego wybrałem:** warstwa 3 atlasu — symbole producentów pod trening / mapowanie klas
-- **Notatki:** prompt **008c** (po 008a). Na razie tylko zarejestrowane — bez implementacji.
+- **Standard:** IEC + aparatura producencka
+- **Dlaczego:** warstwa 3 atlasu + **dodatkowy korpus treningowy** (Siemens-first, klasy generyczne); prompt **008c** / ewent. konwersja PDF→PNG do labelera
+- **Notatki:** to **nie** zastępuje WRT01 — osobny primary (`data/raw/`). Do labelera trzeba rasteru (`data/raw/*.png`) — osobny krok importu.
 
 ### ~~EPLAN Electric P8 — dane lokalne~~ *(NIE DOTYCZY Filipa)*
 - Wpis z przeszukania Cursor — **Filip nie ma dostępu** do projektu WRT01 w EPLAN. Nie używać jako źródło runtime.
@@ -76,7 +89,8 @@
 
 ## Kontekst projektu (dla Claude)
 
-- Schemat analizy: **SchematWRT01** (77 stron, p013–p089), 3 strony oznaczone bboxami (~259 elementów)
+- **Primary:** SchematWRT01 — 77 stron PNG w `data/raw/`, bboxy p013–p015
+- **Dodatkowy korpus:** `sync/sources/` — 4 PDF, **523 strony** (`sync/sources/MANIFEST.json`); Norblin / Adamed / PL5
 - Oznaczanie: bbox + opis tekstowy; hierarchia bbox w bboxie
-- Runtime **offline** — źródła muszą dać się przekuć w lokalny YAML/JSON, nie „link do YouTube w runtime”
+- Runtime **offline** — źródła muszą dać się przekuć w lokalny YAML/JSON
 - Archiwum EPLAN: `archive/eplan-era-2026-06.zip` — tylko referencja offline, nie runtime API

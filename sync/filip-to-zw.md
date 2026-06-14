@@ -11,7 +11,7 @@ Temat: **Zaakceptowana analiza atlasu; następne zadanie Claude = 008a (QET)**
 Decyzje Filipa:
 - **Akceptuję** [`docs/knowledge-sources-analysis.md`](../docs/knowledge-sources-analysis.md) v4 — atlas warstwowy, Siemens-first, ControlByte tylko jako słownik PL.
 - **WRT01:** mam **tylko PDF schematu** — **nie mam** projektu EPLAN / Data Portal dla WRT01. Wpis o `C:\Users\Public\EPLAN\Data\` w inbox **nie dotyczy mnie** (to była notatka z przeszukania — ignoruj jako źródło runtime).
-- **Drugi PDF:** schemat z elementami **innych producentów** — dopiszę ścieżkę w `sync/sources-inbox.md` (warstwa 3 / prompt 008c, nie teraz).
+- **Drugi PDF:** schematy w **`sync/sources/`** — 4 PDF, 523 strony (Norblin, Adamed×2, PL5); manifest: `sync/sources/MANIFEST.json`
 - **BBox-y:** kontynuuję p013–p015, potem kilka stron pod różnorodność typów.
 - **Licencje:** crop-y atlasu lokalnie; surowe QET i IEC poza gitem; w repo YAML + wybrane PNG z atrybucją GPL.
 
