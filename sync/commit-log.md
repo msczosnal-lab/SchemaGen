@@ -18,3 +18,4 @@
 | 2026-06-14 20:38 | Claude | 0863fd97 | [Claude] fix: export_onnx auto-find best.pt (auto-incremented run dir) |
 | 2026-06-14 20:41 | Claude | 61ae48ee | [Claude] fix: export_onnx searches data/runs + runs/ for best.pt |
 | 2026-06-14 21:40 | Cursor | 8c549651 | [Cursor] sync: BUILD M0 done, handoff 008a + PLAN-TYMCZASOWY |
+| 2026-06-14 23:15 | Claude | c2800a8d | [Claude] atlas: QET extract → symbol-reference.yaml (prompt 008a) |
