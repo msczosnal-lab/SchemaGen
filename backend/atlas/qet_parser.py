@@ -27,7 +27,18 @@ class QetGeometry:
         default_factory=list
     )  # x, y, w, h, start_deg, span_deg
     polygons: list[list[tuple[float, float]]] = field(default_factory=list)
+    ellipses: list[tuple[float, float, float, float]] = field(default_factory=list)  # x, y, w, h
     terminals: list[QetTerminal] = field(default_factory=list)
+
+    def drawable_count(self) -> int:
+        return (
+            len(self.lines)
+            + len(self.rects)
+            + len(self.circles)
+            + len(self.arcs)
+            + len(self.polygons)
+            + len(self.ellipses)
+        )
 
     def all_points(self) -> list[tuple[float, float]]:
         pts: list[tuple[float, float]] = []
@@ -41,6 +52,8 @@ class QetGeometry:
             pts += [(x, y), (x + w, y + h)]
         for poly in self.polygons:
             pts += poly
+        for x, y, w, h in self.ellipses:
+            pts += [(x, y), (x + w, y + h)]
         for t in self.terminals:
             pts.append((t.x, t.y))
         return pts
@@ -145,9 +158,16 @@ def _parse_primitive(child: ET.Element, geom: QetGeometry) -> None:
             float(child.get("angle", 90)),
         ))
     elif tag == "polygon":
-        pts = [(float(pt.get("x", 0)), float(pt.get("y", 0))) for pt in child.findall("point")]
+        pts = _parse_polygon_points(child)
         if pts:
             geom.polygons.append(pts)
+    elif tag == "ellipse":
+        geom.ellipses.append((
+            float(child.get("x", 0)),
+            float(child.get("y", 0)),
+            float(child.get("width", 0)),
+            float(child.get("height", 0)),
+        ))
     elif tag == "terminal":
         geom.terminals.append(QetTerminal(
             x=float(child.get("x", 0)),
@@ -156,3 +176,15 @@ def _parse_primitive(child: ET.Element, geom: QetGeometry) -> None:
             name=child.get("name", ""),
         ))
     # text, dynamic_text, input — pomijamy (metadane, nie geometria)
+
+
+def _parse_polygon_points(child: ET.Element) -> list[tuple[float, float]]:
+    """QET: wierzcholki w atrybutach x1/y1, x2/y2, ... (nie jako <point>)."""
+    pts: list[tuple[float, float]] = []
+    n = 1
+    while f"x{n}" in child.attrib or f"y{n}" in child.attrib:
+        pts.append((float(child.get(f"x{n}", 0)), float(child.get(f"y{n}", 0))))
+        n += 1
+    if not pts:
+        pts = [(float(pt.get("x", 0)), float(pt.get("y", 0))) for pt in child.findall("point")]
+    return pts
