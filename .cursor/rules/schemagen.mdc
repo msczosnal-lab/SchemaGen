@@ -38,7 +38,14 @@ raise NotImplementedError("COWORK: opis")
 
 - `docs/project-context.txt`
 - `docs/claude-cowork-instructions.md`
+- `sync/KOLEJNE-ZADANIE.md` — aktywne zadanie dla Claude
 - `docs/eplan-kb/` — tylko archiwum (nie uzywac w runtime)
+
+## Semantyka schematu
+
+- **GraphicLine** ≠ **Connection** — linia moze byc urzadzeniem/obrysem, nie kablem
+- Kolory z `config/semantic-colors.yaml` — rozpoznawanie i walidacja po grupie semantycznej
+- Tylko role `wire` / `bus` → kandydaci na Connection w GraphBuilder
 
 ## Commit etapu (Cursor)
 

@@ -24,13 +24,22 @@ Na podstawie PDF/obrazu schematu + konfiguracji napędu (XML) system offline:
 
 - Archiwum EPLAN: archive/eplan-era-2026-06.zip
 - backend/: CLI, API, validate, generate, recognize stubs
-- labeler/: FastAPI + static stub (Cowork: canvas)
+- backend/colors/: paleta semantyczna (semantic-colors.yaml)
+- labeler/: FastAPI + static stub (Cowork: canvas, potem linie)
 - train/: stubs YOLO + ONNX
 - blocks/: 400vac_supply, frequency_control, start_stop
-- schema/fixtures/: page1_expected.json
+- schema/fixtures/: page1_expected.json (components + graphic_lines + connections)
+
+## Semantyka linii i kolorow
+
+- GraphicLine = linia na rysunku (wire, bus, device_stroke, frame, dash, crossing...)
+- Connection = polaczenie logiczne — tylko z linii wire/bus
+- Kolory: config/semantic-colors.yaml — uzytkownik definiuje grupy (kable czarne, falownik fioletowy...)
+- Rozpoznawanie i walidacja po kolorze + roli linii
 
 ## Nastepny krok
 
-1. Cowork: sync/prompts/001-labeler-canvas.md
-2. Uzytkownik: oznacz 3-5 stron w labelerze
-3. Cowork: train + recognize ONNX
+1. Claude: sync/KOLEJNE-ZADANIE.md → 001-labeler-canvas.md
+2. Claude: 002-labeler-lines-colors.md (po canvas)
+3. Uzytkownik: oznacz 3-5 stron w labelerze
+4. Claude: train + recognize ONNX + line tracer
