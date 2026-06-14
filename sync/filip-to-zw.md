@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-14 [Cursor] — prompt 007: analiza źródeł wiedzy
+
+Temat: **Ocena poradników, wideo, atlasów symboli — hybrid ze schematem WRT01**
+
+Kontekst:
+- Filip znalazł poradnik wideo o schematach; rozważa bazę symboli zamiast samych opisów z PNG.
+- SchemaGen nadal potrzebuje schematu (bboxy, linie, tagi instancji); źródła zewnętrzne = warstwa referencyjna.
+
+**Twoje zadanie:** [`sync/prompts/007-sources-analysis.md`](prompts/007-sources-analysis.md)  
+**Filip uzupełnia:** [`sync/sources-inbox.md`](sources-inbox.md) (linki, PDF, notatki)  
+**Wynik:** `docs/knowledge-sources-analysis.md`  
+**Handoff:** [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+To **research** — bez implementacji kodu. Pracuj iteracyjnie z Filipem.
+
+Po rundzie 1:
+- commit analizy
+- `sync/commit-message.txt` = `[Claude] docs: knowledge sources analysis (prompt 007)`
+
+002-labeler-lines-colors — **wstrzymane** do czasu zakończenia 007 lub decyzji Filipa.
+
+---
+
 ## 2026-06-14 [Cursor] — prompt 003 DONE, następny: 002
 
 Temat: **Review 003 OK — akceptacja. Kolejne zadanie: linie + kolory.**
