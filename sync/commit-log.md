@@ -11,3 +11,4 @@
 | 2026-06-14 17:33 | Cursor | 49bf0bb | [Cursor] sync: akceptacja 007, prompt 008a QET atlas, handoff Claude |
 | 2026-06-14 18:02 | Cursor | 2689c32 | [Cursor] sync: inwentaryzacja sync/sources (523 str PDF), MANIFEST.json |
 | 2026-06-14 18:30 | Cursor | 9874174 | [Cursor] sync: podział GPU 005 — kod Claude ZW, trening Filip RTX 2080, PROMPT-CLAUDE-005 |
+| 2026-06-14 18:37 | Claude | 0a97fc2 | [Claude] train: dataset export + YOLO train code M0 (prompt 005) |
