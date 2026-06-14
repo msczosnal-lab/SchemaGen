@@ -35,11 +35,16 @@ Implementujesz funkcje oznaczone `NotImplementedError` i `COWORK_TASK` w plikach
 ## Mapa repo
 
 ```
-backend/          — CLI, API, validate (dziala), recognize (stub)
+backend/          — CLI, API, validate, recognize (detektor ONNX)
 backend/colors/   — palette.py (gotowe — uzywaj w classify/render)
-config/           — semantic-colors.yaml, symbol-classes.yaml
-labeler/          — FastAPI :8765, export YOLO, canvas + hierarchia; **010: bbox-first + paleta**
+backend/atlas/    — QET parser 008a; palette.py (010)
 config/           — semantic-colors.yaml, symbol-classes.yaml, symbol-palette.yaml (010)
+labeler/          — FastAPI :8765, export YOLO, canvas + hierarchia; 010: bbox-first + paleta
+train/            — YOLO + ONNX export (BUILD M0)
+blocks/           — biblioteka blokow JSON
+schema/fixtures/  — ground truth
+sync/prompts/     — zadania (aktywny: 010-labeler-bbox-first-palette.md)
+sync/KOLEJNE-ZADANIE.md — co robic teraz
 ```
 
 ## Zasady domenowe (wazne)

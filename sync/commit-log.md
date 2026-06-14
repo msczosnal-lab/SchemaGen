@@ -20,3 +20,4 @@
 | 2026-06-14 21:40 | Cursor | 8c549651 | [Cursor] sync: BUILD M0 done, handoff 008a + PLAN-TYMCZASOWY |
 | 2026-06-14 23:15 | Claude | c2800a8d | [Claude] atlas: QET extract → symbol-reference.yaml (prompt 008a) |
 | 2026-06-14 23:16 | Claude | c61fcec5 | [Claude] atlas: QET extract -> symbol-reference.yaml (prompt 008a) |
+| 2026-06-14 23:40 | Cursor | d8b06ac0 | [Cursor] sync: handoff prompt 010 bbox-first + paleta, etap 1 detekcja elementów |
