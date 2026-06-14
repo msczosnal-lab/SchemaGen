@@ -5,8 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import svgwrite
-
-from backend.models.schema import SchemaModel
 from backend.paths import BLOCKS
 
 
@@ -24,7 +22,9 @@ class SvgRenderer:
         return None
 
     def render(self, model: SchemaModel, output_path: str) -> str:
-        dwg = svgwrite.Drawing(output_path, size=(self._width, self._height))
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        dwg = svgwrite.Drawing(str(out), size=(self._width, self._height))
         dwg.add(dwg.rect(insert=(0, 0), size=(self._width, self._height), fill="white"))
 
         for comp in model.components:
