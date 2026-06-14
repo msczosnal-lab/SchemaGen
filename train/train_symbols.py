@@ -106,5 +106,29 @@ def register_model(version: str, onnx_path: str, metrics: dict | None = None) ->
     REGISTRY_PATH.write_text(json.dumps(registry, indent=2), encoding="utf-8")
 
 
+def _cli() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Trening YOLOv8n symboli (RTX 2080).")
+    parser.add_argument("--data", default=None, help="data.yaml (domyslnie data/labeled/data.yaml)")
+    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--batch", type=int, default=8, help="max 8 (limit VRAM)")
+    parser.add_argument("--imgsz", type=int, default=640)
+    parser.add_argument("--device", default="0", help="0 = GPU, 'cpu' = CPU")
+    parser.add_argument("--name", default="symbols_v1")
+    args = parser.parse_args()
+
+    device: int | str = int(args.device) if args.device.isdigit() else args.device
+    summary = train(
+        data_yaml=args.data,
+        epochs=args.epochs,
+        batch=args.batch,
+        imgsz=args.imgsz,
+        device=device,
+        name=args.name,
+    )
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+
+
 if __name__ == "__main__":
-    train()
+    _cli()
