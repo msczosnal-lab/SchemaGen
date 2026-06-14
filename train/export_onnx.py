@@ -11,28 +11,34 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from backend.paths import DATA, MODELS
+from backend.paths import DATA, MODELS, ROOT
 from train.train_symbols import register_model
 
 RUNS_DIR = DATA / "runs"
 DEFAULT_WEIGHTS = RUNS_DIR / "symbols_v1" / "weights" / "best.pt"
 DEFAULT_OPSET = 12  # zgodny z onnxruntime-gpu 1.17
 
+# Lokalizacje, gdzie ultralytics moze zapisac wagi:
+#  - data/runs/  (gdy train_symbols przekazal project)
+#  - runs/       (domyslny ultralytics: runs/detect/train*/weights/best.pt)
+_SEARCH_ROOTS = (RUNS_DIR, ROOT / "runs")
+
 
 def find_best_weights() -> Path | None:
-    """Znajdz best.pt: najpierw domyslny run, potem najnowszy w data/runs/**.
+    """Znajdz best.pt: domyslny run, inaczej **najnowszy** w znanych lokalizacjach.
 
-    ultralytics auto-inkrementuje katalog runu (symbols_v1, symbols_v12, ...),
-    wiec nie zakladamy stalej nazwy.
+    ultralytics auto-inkrementuje katalog runu (symbols_v1, symbols_v12, ...)
+    i przy braku `project` pisze do `runs/detect/train*/` — przeszukujemy oba.
     """
     if DEFAULT_WEIGHTS.exists():
         return DEFAULT_WEIGHTS
-    candidates = sorted(
-        RUNS_DIR.glob("**/weights/best.pt"),
-        key=lambda p: p.stat().st_mtime,
-        reverse=True,
-    )
-    return candidates[0] if candidates else None
+    candidates: list[Path] = []
+    for root in _SEARCH_ROOTS:
+        if root.exists():
+            candidates.extend(root.glob("**/weights/best.pt"))
+    if not candidates:
+        return None
+    return max(candidates, key=lambda p: p.stat().st_mtime)
 
 
 def export_onnx(
