@@ -42,10 +42,10 @@ def train(
     except ImportError as exc:  # pragma: no cover - srodowisko bez GPU (PC ZW)
         raise RuntimeError(
             "Brak pakietu ultralytics. Zainstaluj na PC z GPU: "
-            "`pip install ultralytics`."
+            "`pip install -e \".[gpu]\"`."
         ) from exc
 
-    out_dir = Path(project) if project else (MODELS / "runs")
+    out_dir = Path(project) if project else RUNS_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
 
     yolo = YOLO(model)
@@ -62,13 +62,23 @@ def train(
     save_dir = Path(getattr(results, "save_dir", out_dir / name))
     best = save_dir / "weights" / "best.pt"
     metrics = _extract_metrics(results)
-    return {
+    summary = {
         "best_weights": str(best),
         "save_dir": str(save_dir),
         "epochs": epochs,
         "batch": batch,
+        "imgsz": imgsz,
+        "model": model,
         "metrics": metrics,
     }
+
+    MODELS.mkdir(parents=True, exist_ok=True)
+    summary_path = MODELS / f"{name}_train_summary.json"
+    summary_path.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    summary["summary_json"] = str(summary_path)
+    return summary
 
 
 def _extract_metrics(results: object) -> dict:
