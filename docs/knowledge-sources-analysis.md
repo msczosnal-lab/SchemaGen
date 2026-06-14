@@ -169,17 +169,18 @@ Filip wskazał, że dominują **PLC/IO/sieci** i **aparatura konkretnych produce
 
 Co realnie pokrywa potrzeby — i skąd:
 
-| Potrzeba | Ze schematu WRT01 (must) | Źródło referencyjne (nice) | ControlByte (1) | IEC 60617 (2) |
-|----------|--------------------------|----------------------------|:---------------:|:-------------:|
+| Potrzeba | WRT01 (must) | ControlByte (1) | IEC 60617 (2) | QElectroTech (3) |
+|----------|:------------:|:---------------:|:-------------:|:----------------:|
 | Pozycja bbox | ✓ (labeler) | — | — | — |
-| Tag instancji (`-11`, `-K1`) | OCR / labeler | składnia IEC 81346-1 | **Częściowo** (=/+/–) | — |
-| Typ urządzenia (fuse, contactor…) | YOLO / dopasowanie | atlas symboli | NIE | **TAK** (~533 symbole) |
-| Opis / definicja typu | dziś ręcznie | atlas → katalog | Słabo (z błędami) | **TAK** (EN, +aliasy PL) |
-| Trening YOLO (obrazy) | bboxy WRT01 | crop-y symboli / syntetyka | NIE | **Częściowo** (domain gap) |
-| Połączenia elektryczne | LineTracer + graf | reguły walidacji | Częściowo | **TAK** (semantyka styków) |
-| Bloki funkcjonalne (RUPS1…) | tylko projekt | częściowo teoria | NIE | NIE |
+| Tag instancji (`-11`, `-K1`) | OCR / labeler | Częściowo (=/+/–) | — | — |
+| Typ urządzenia (fuse, contactor…) | YOLO / dopas. | NIE | **TAK** (~533) | **TAK** (>8000) |
+| Opis / definicja typu | dziś ręcznie | Słabo (błędy) | TAK (EN) | **TAK (PL)** |
+| Trening YOLO (obrazy) | bboxy WRT01 | NIE | Częściowo | **TAK** (wektor→syntetyka) |
+| PLC/IO, sieci, napędy | — | NIE | Słabo | **TAK** (+producent) |
+| Połączenia elektryczne | LineTracer + graf | Częściowo | TAK (styki) | TAK |
+| Bloki funkcjonalne (RUPS1…) | tylko projekt | NIE | NIE | NIE |
 
-Wniosek: **ControlByte** zasila warstwę tagów/słownik PL. **IEC 60617** zasila **typy, opisy, walidację** i częściowo trening — to brakujący filar katalogu.
+Wniosek: **ControlByte** = tagi + słownik PL. **IEC 60617** = baza normatywna typów/opisów. **QElectroTech** = warstwa przemysłowa (PLC/IO/napędy) + aliasy PL + syntetyka treningowa. Konkretne modele producenckie → trzecia warstwa (EPLAN/producent).
 
 ---
 
