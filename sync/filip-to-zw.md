@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-14 [Filip/Cursor] — AKCEPTACJA 007 + korekta źródeł + prompt 008a
+
+Temat: **Zaakceptowana analiza atlasu; następne zadanie Claude = 008a (QET)**
+
+Decyzje Filipa:
+- **Akceptuję** [`docs/knowledge-sources-analysis.md`](../docs/knowledge-sources-analysis.md) v4 — atlas warstwowy, Siemens-first, ControlByte tylko jako słownik PL.
+- **WRT01:** mam **tylko PDF schematu** — **nie mam** projektu EPLAN / Data Portal dla WRT01. Wpis o `C:\Users\Public\EPLAN\Data\` w inbox **nie dotyczy mnie** (to była notatka z przeszukania — ignoruj jako źródło runtime).
+- **Drugi PDF:** schemat z elementami **innych producentów** — dopiszę ścieżkę w `sync/sources-inbox.md` (warstwa 3 / prompt 008c, nie teraz).
+- **BBox-y:** kontynuuję p013–p015, potem kilka stron pod różnorodność typów.
+- **Licencje:** crop-y atlasu lokalnie; surowe QET i IEC poza gitem; w repo YAML + wybrane PNG z atrybucją GPL.
+
+**Twoje zadanie:** [`sync/prompts/008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) — **faza 1 tylko QET**  
+**Handoff:** [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+Po ukończeniu 008a:
+- `pytest backend/tests labeler/tests`
+- wpis w `sync/zw-to-filip.md`
+- `sync/commit-message.txt` = `[Claude] atlas: QET extract → symbol-reference.yaml (prompt 008a)`
+
+**002-labeler-lines-colors** — możesz iść równolegle jeśli masz capacity; priorytet = 008a.
+
+---
+
 ## 2026-06-14 [Cursor] — prompt 007: analiza źródeł wiedzy
 
 Temat: **Ocena poradników, wideo, atlasów symboli — hybrid ze schematem WRT01**

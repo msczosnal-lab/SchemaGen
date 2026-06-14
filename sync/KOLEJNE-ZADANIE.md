@@ -4,14 +4,16 @@
 
 ---
 
-## Stan (2026-06-14)
+## Stan (2026-06-14, wieczór)
 
 | Prompt | Status |
 |--------|--------|
 | **001-labeler-canvas** | DONE |
 | **003-labeler-bbox-hierarchy** | DONE |
-| **007-sources-analysis** | **AKTYWNE** — wspólna praca Filip + Claude |
-| **002-labeler-lines-colors** | WSTRZYMANE — po 007 lub równolegle jeśli Filip wskaże |
+| **007-sources-analysis** | **DONE — akceptacja Filipa** |
+| **008-symbol-atlas-extract** (faza 1 / QET) | **AKTYWNE** |
+| **002-labeler-lines-colors** | OPEN — równolegle lub po 008a |
+| **009-bbox-symbol-id** | po 008a |
 
 ---
 
@@ -19,35 +21,38 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Prompt** | [`sync/prompts/007-sources-analysis.md`](prompts/007-sources-analysis.md) |
-| **Inbox źródeł** | [`sync/sources-inbox.md`](sources-inbox.md) — **Filip uzupełnia linki** |
-| **Deliverable** | `docs/knowledge-sources-analysis.md` |
-| **Typ** | Research / analiza (bez kodu) |
-| **Model** | Sonnet lub Opus, effort **High** |
+| **Prompt** | [`sync/prompts/008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) |
+| **Deliverable** | `config/symbol-reference.yaml`, `data/atlas/crops/`, `backend/atlas/` |
+| **Typ** | Implementacja offline (parser QET `.elmt`) |
+| **Model** | Sonnet, effort **High** |
 
 ### Kroki
 
-1. Przeczytaj `docs/claude-cowork-instructions.md`
-2. Przeczytaj `sync/filip-to-zw.md`
-3. Filip uzupełnia `sync/sources-inbox.md` (wideo, PDF, atlas…)
-4. Wykonaj **007-sources-analysis.md** → napisz `docs/knowledge-sources-analysis.md`
-5. Iteruj z Filipem — dopisuj źródła, aktualizuj analizę
+1. Przeczytaj `docs/knowledge-sources-analysis.md` (v4, zaakceptowane)
+2. Przeczytaj `sync/filip-to-zw.md` — **Filip: tylko PDF schematu, bez EPLAN WRT01**
+3. Sklonuj QET → `data/atlas/qet/` (gitignore)
+4. Wykonaj **008a** wg promptu
+5. `pytest backend/tests labeler/tests`
 6. Wpis w `sync/zw-to-filip.md`
-7. `sync/commit-message.txt` = `[Claude] docs: knowledge sources analysis (prompt 007)`
+7. `sync/commit-message.txt` = `[Claude] atlas: QET extract → symbol-reference.yaml (prompt 008a)`
 
-### Czego NIE robic w 007
+### Czego NIE robic w 008a
 
-- Implementacja labelera / recognize / importu atlasu
-- Cloud API w runtime
-- Rozpakowywanie EPLAN do kodu produkcyjnego
+- IEC 60617 PDF (008b)
+- PDF producenta (008c — Filip uzupełni ścieżkę później)
+- EPLAN lokalny / `.edz`
+- UI labelera (009)
+- Cloud API
 
 ---
 
-## Kontekst decyzji (Filip)
+## Kontekst decyzji (Filip, 2026-06-14)
 
-- Rozważa **podręcznik / wideo / bazę symboli** zamiast samych opisów ze schematu
-- SchemaGen = **hybrid**: geometria + tagi ze schematu WRT01, typy/opisy z bazy referencyjnej
-- 3 strony oznaczone (p013–p015), 77 stron w scope
+- **Akceptacja** analizy 007: atlas warstwowy + Siemens-first
+- **WRT01:** tylko **PDF** (77 str., p013–p015 oznaczone)
+- **Drugi PDF:** elementy innych producentów — ścieżka w `sync/sources-inbox.md` (Filip dopisze)
+- **Brak** projektu EPLAN / Data Portal dla WRT01
+- Bbox-y na WRT01: **kontynuować** (p013–p015, potem 3–5 stron różnorodnych)
 
 ---
 
@@ -55,10 +60,12 @@
 
 | # | Prompt | Status |
 |---|--------|--------|
-| 1 | 003-labeler-bbox-hierarchy | DONE |
-| 2 | **007-sources-analysis** | **AKTYWNE** |
-| 3 | 002-labeler-lines-colors | wstrzymane |
-| 4 | 001-symbol-detector | po danych + ewent. atlasie |
+| 1 | 007-sources-analysis | DONE ✓ |
+| 2 | **008-symbol-atlas-extract (a)** | **AKTYWNE** |
+| 3 | 002-labeler-lines-colors | OPEN |
+| 4 | 009-bbox-symbol-id | po 008a |
+| 5 | 008b IEC PDF / 008c PDF producenta | po 008a |
+| 6 | 001-symbol-detector | po danych bbox + atlas MVP |
 
 ---
 

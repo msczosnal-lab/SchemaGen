@@ -1,6 +1,6 @@
 # Zadanie 007: ocena i analiza źródeł wiedzy o schematach
 
-**Status:** OPEN — wspólna praca Filip + Claude  
+**Status:** DONE — akceptacja Filip 2026-06-14 (commit `dd8eceb`)  
 **Typ:** research / analiza (nie implementacja kodu)  
 **Model:** Sonnet lub Opus, effort **High** (dokładność terminologii)  
 **Deliverable:** [`docs/knowledge-sources-analysis.md`](../docs/knowledge-sources-analysis.md)
