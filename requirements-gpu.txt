@@ -1,0 +1,5 @@
+-r requirements.txt
+torch>=2.1
+ultralytics>=8.1
+onnxruntime-gpu>=1.17
+paddleocr>=2.7

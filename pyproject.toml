@@ -1,0 +1,59 @@
+[project]
+name = "schemagen"
+version = "0.1.0"
+description = "Offline rozpoznawanie i generowanie schematów elektrycznych (RTX 2080)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pyyaml>=6.0",
+    "pymupdf>=1.23",
+    "pillow>=10.0",
+    "opencv-python-headless>=4.9",
+    "networkx>=3.2",
+    "svgwrite>=1.4",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "torch>=2.1",
+    "ultralytics>=8.1",
+    "onnxruntime-gpu>=1.17",
+    "paddlepaddle-gpu>=2.6; platform_system=='Windows'",
+    "paddleocr>=2.7",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.3",
+    "mypy>=1.8",
+    "pre-commit>=3.6",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+schemagen = "backend.cli:main"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["backend*", "labeler*", "train*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests", "labeler/tests", "train/tests"]
