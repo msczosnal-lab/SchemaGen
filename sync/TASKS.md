@@ -22,3 +22,7 @@
 | 16 | 2026-06-14 | Claude | OPEN | Cowork: 002-labeler-lines-colors.md — po ukonczeniu #15 | Claude |
 | 17 | 2026-06-14 | Filip | OPEN | Oznacz 3-5 stron schematu w labelerze (data/raw/) | Filip |
 | 18 | 2026-06-14 | Claude | OPEN | Cowork: 001-symbol-detector + train po danych od Filipa | Claude |
+| 19 | 2026-06-14 | Claude | DONE | Cowork: 001-labeler-canvas — canvas bbox (commit 5d16757) | Claude |
+| 20 | 2026-06-14 | Cursor | OPEN | Review + akceptacja prompt 001 (labeler/static/app.js) | Cursor |
+| 21 | 2026-06-14 | Cursor | DONE | Handoff sesji → sync/NASTEPNA-SESJA.md | obaj |
+| 22 | 2026-06-14 | Claude | OPEN | Cowork: 002-labeler-lines-colors — po akceptacji #20 | Claude |

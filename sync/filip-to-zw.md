@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-06-14 [Cursor] — koniec sesji
+
+Temat: **Prompt 001 DONE — czeka review. Następny: 002 po akceptacji.**
+
+Stan:
+- Canvas bbox wdrożony (`5d16757`), testy 14/14 OK.
+- Handoff na jutro: **`sync/NASTEPNA-SESJA.md`** — zacznij od tego pliku.
+- `sync/KOLEJNE-ZADANIE.md` zaktualizowany → 002-labeler-lines-colors po review.
+
+Do zrobienia jutro (Filip/Cursor):
+1. Test ręczny labelera `:8765` + review `labeler/static/app.js`
+2. Akceptacja 001 **lub** `## Poprawka (runda 1)` w `sync/prompts/001-labeler-canvas.md`
+3. Oznacz 3–5 stron schematu w labelerze (`data/raw/`)
+
+Dla Claude (po akceptacji 001): prompt **002-labeler-lines-colors.md**.
+
+Commit pending: `[Cursor] sync: handoff sesja 2026-06-14`
+
+---
+
 ## 2026-06-14 [Cursor]
 
 Temat: **Kolejne zadanie = prompt 001-labeler-canvas**
