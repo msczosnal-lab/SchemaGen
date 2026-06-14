@@ -4,3 +4,5 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Claude] fix: export_onnx auto-find best.pt (auto-incremented run dir)
+
