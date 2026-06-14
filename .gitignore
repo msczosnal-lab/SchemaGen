@@ -28,6 +28,11 @@ bin/
 obj/
 *.dll
 
+# Atlas symboli (surowe biblioteki — poza gitem)
+data/atlas/qet/
+# crop-y opcjonalnie lokalnie; domyślnie commitujemy wybrane PNG z symbol-reference.yaml
+# data/atlas/crops/
+
 # Dane lokalne (obrazy, modele, SQLite)
 data/raw/*
 !data/raw/.gitkeep

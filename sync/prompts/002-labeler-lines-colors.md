@@ -1,6 +1,6 @@
 # Zadanie 002: labeler — linie graficzne + kolory semantyczne
 
-**Status:** BLOCKED — czeka na ukonczenie promptu 001  
+**Status:** OPEN — po akceptacji 001 i 003; priorytet po 008a lub równolegle  
 **Model:** Sonnet, effort High  
 **Pliki:** `labeler/static/app.js`, `labeler/static/index.html` (jesli trzeba UI), `labeler/app.py` (tylko jesli brakuje pol w API)
 

@@ -271,3 +271,17 @@ Filip: *można użyć innych komponentów do uczenia — schematy z komponentami
 3. **Aparatura producencka:** którzy producenci dominują na WRT01 (Siemens? Schneider? Eaton? Finder?) — zdeterminuje warstwę 3 i czy sięgać po `archive/eplan-era-2026-06.zip`.
 4. **Zakres bbox:** zostajemy na p013–p015, czy dobieramy kolejne strony pod różnorodność typów? Które stacje/obwody najważniejsze?
 5. **`tag_prefix`:** czy WRT01 trzyma konwencję członów literowych (`-F` bezpiecznik, `-K` przekaźnik/stycznik, `-M` silnik, `-Q` wyłącznik, `-A` moduł/PLC)? Zdeterminuje regułę walidacji tag → typ.
+
+---
+
+## Decyzja Filipa (2026-06-14) — ZAMKNIĘTE
+
+| Pytanie | Odpowiedź |
+|---------|-----------|
+| Akceptacja analizy v4 | **TAK** — atlas warstwowy + Siemens-first |
+| Dostęp EPLAN WRT01 | **NIE** — tylko **PDF schematu**; lokalne EPLAN z inbox nie dotyczy Filipa |
+| Warstwa producenta | **Drugi PDF** (mix producentów) — ścieżka w `sync/sources-inbox.md`; implementacja → prompt **008c** |
+| QET | **TAK** — clone lokalnie, implementacja **008a** |
+| Licencje | Surowe QET/IEC poza gitem; repo = `symbol-reference.yaml` + crop-y z atrybucją GPL |
+| Bbox | Kontynuacja p013–p015, potem 3–5 stron różnorodnych |
+| Następny prompt | **008-symbol-atlas-extract** (faza QET) — [`sync/prompts/008-symbol-atlas-extract.md`](../sync/prompts/008-symbol-atlas-extract.md) |
