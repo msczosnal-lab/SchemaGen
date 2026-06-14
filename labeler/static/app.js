@@ -372,6 +372,13 @@ function treeOrderedIndices() {
   return order;
 }
 
+/** Indeksy do listy UI: najnowsze na gorze (seq malejaco), nie drzewo DFS. */
+function listDisplayIndices() {
+  return bboxes
+    .map((_, i) => i)
+    .sort((a, b) => (bboxes[b].seq || 0) - (bboxes[a].seq || 0));
+}
+
 function drawBboxNumber(b, color) {
   const num = String(b.seq || "?");
   const pad = 5 / scale;
@@ -642,7 +649,7 @@ function renderAnnotationList() {
     list.appendChild(empty);
     return;
   }
-  treeOrderedIndices().forEach((i) => {
+  listDisplayIndices().forEach((i) => {
     const b = bboxes[i];
     const isExpanded = i === expandedIdx;
     const row = document.createElement("li");
