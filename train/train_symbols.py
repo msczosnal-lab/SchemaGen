@@ -7,9 +7,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from backend.paths import DATA, MODELS, REGISTRY_PATH
+from backend.paths import DATA, LABELED, MODELS, REGISTRY_PATH
 
-DATASET_YAML = DATA / "dataset" / "data.yaml"
+DATASET_YAML = LABELED / "data.yaml"
+RUNS_DIR = DATA / "runs"
 MAX_BATCH = 8  # limit dla RTX 2080 (8GB VRAM)
 
 
@@ -21,7 +22,7 @@ def train(
     device: int | str = 0,
     model: str = "yolov8n.pt",
     project: str | None = None,
-    name: str = "symbols",
+    name: str = "symbols_v1",
 ) -> dict:
     """Fine-tune YOLOv8n na oznaczonych symbolach.
 

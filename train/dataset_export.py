@@ -94,13 +94,14 @@ def export_dataset(
     records: list[LabelRecord] | None = None,
     raw_dir: Path | None = None,
 ) -> dict:
-    """Zbuduj dataset YOLO train/val i data.yaml. Zwraca podsumowanie + sciezke yaml."""
-    out = output_dir or DATASET_DIR
+    """Zbuduj dataset YOLO train/val + data.yaml + export-manifest.json."""
+    out = output_dir or LABELED
     raw = raw_dir or RAW
     recs = records if records is not None else load_labeled_records()
     class_map = load_class_map() or {"element": 0}
 
     train, val = split_train_val(recs, val_ratio)
+    out.mkdir(parents=True, exist_ok=True)
     n_train = _write_split(train, out, "train", class_map, raw)
     n_val = _write_split(val, out, "val", class_map, raw)
 
@@ -111,11 +112,26 @@ def export_dataset(
         "names": {idx: name for name, idx in class_map.items()},
     }
     yaml_path = out / "data.yaml"
-    out.mkdir(parents=True, exist_ok=True)
     yaml_path.write_text(yaml.dump(data_yaml, allow_unicode=True), encoding="utf-8")
+
+    manifest = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "classes": {name: idx for name, idx in class_map.items()},
+        "val_ratio": val_ratio,
+        "train_pages": [r.page_id for r in train],
+        "val_pages": [r.page_id for r in val],
+        "train_count": n_train,
+        "val_count": n_val,
+        "total_bboxes": sum(len(r.bboxes) for r in recs),
+    }
+    manifest_path = out / "export-manifest.json"
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     return {
         "data_yaml": str(yaml_path),
+        "manifest": str(manifest_path),
         "train": n_train,
         "val": n_val,
         "classes": len(class_map),
