@@ -1,0 +1,45 @@
+{
+  "path": "sync/sources/",
+  "pdf_count": 4,
+  "total_pages": 523,
+  "items": [
+    {
+      "file": "20_A_022_PL_Norblin_Cars_2022-06-26.pdf",
+      "project_code": "022",
+      "year_prefix": "20",
+      "pages": 199,
+      "size_kb": 6901,
+      "content_hint": "text/vector"
+    },
+    {
+      "file": "22_A_153_PL_Adamed_AGV_SA2_20250706.pdf",
+      "project_code": "153",
+      "year_prefix": "22",
+      "pages": 200,
+      "size_kb": 6910,
+      "content_hint": "text/vector"
+    },
+    {
+      "file": "22_A_153_PL_Adamed_INTEROL_SA1_20250729.pdf",
+      "project_code": "153",
+      "year_prefix": "22",
+      "pages": 99,
+      "size_kb": 2948,
+      "content_hint": "text/vector"
+    },
+    {
+      "file": "24_A_068_PL5_29102024 schemat PL5.lnk",
+      "type": "shortcut",
+      "target_pdf": null,
+      "note": "Skrót OneDrive (PC ZW) — skopiuj PDF lokalnie, jeśli potrzebny"
+    },
+    {
+      "file": "25_A_229_PL5_19012026.pdf",
+      "project_code": "229",
+      "year_prefix": "25",
+      "pages": 25,
+      "size_kb": 897,
+      "content_hint": "text/vector"
+    }
+  ]
+}
