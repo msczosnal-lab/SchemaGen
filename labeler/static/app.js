@@ -543,6 +543,9 @@ function normalizeBboxesForSave() {
     seq: b.seq || 0,
     semantic_group: b.semantic_group || "",
     color_ref: b.color_ref || "",
+    parent_id: b.parent_id || "",
+    depth: b.depth || 0,
+    rel_bbox: b.rel_bbox || [],
   }));
 }
 
