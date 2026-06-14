@@ -100,6 +100,6 @@ def list_pages() -> list[dict[str, str]]:
     init_db()
     with db_session() as conn:
         rows = conn.execute(
-            "SELECT id, filename, status FROM pages ORDER BY created_at"
+            "SELECT id, filename, status FROM pages ORDER BY id"
         ).fetchall()
     return [dict(row) for row in rows]

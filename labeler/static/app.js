@@ -126,10 +126,17 @@ function currentPageIndex() {
 function updatePageNav() {
   const idx = currentPageIndex();
   const total = pageIds.length;
-  if (total === 0 || idx < 0) {
+  if (!pagePrevBtn || !pageNextBtn || !pagePositionEl) return;
+  if (total === 0) {
     pagePositionEl.textContent = "— / —";
     pagePrevBtn.disabled = true;
     pageNextBtn.disabled = true;
+    return;
+  }
+  if (idx < 0) {
+    pagePositionEl.textContent = `— / ${total}`;
+    pagePrevBtn.disabled = true;
+    pageNextBtn.disabled = false;
     return;
   }
   pagePositionEl.textContent = `${idx + 1} / ${total}`;
@@ -208,19 +215,21 @@ function setActiveClass(idx) {
 }
 
 async function selectPage(pageId) {
+  if (!pageId) return;
   currentPageId = pageId;
   scale = 1;
   originX = 0;
   originY = 0;
   selectedIdx = -1;
 
-  bgImage = await new Promise((resolve) => {
+  bgImage = await new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
       resolve(img);
     };
+    img.onerror = () => reject(new Error(`Nie mozna zaladowac obrazu: ${pageId}`));
     img.src = `/api/pages/${pageId}/image?t=${Date.now()}`;
   });
 
@@ -370,8 +379,20 @@ document.addEventListener("keydown", (e) => {
 tagInput.addEventListener("input", (e) => updateSelectedTag(e.target.value));
 tagInput.addEventListener("change", (e) => updateSelectedTag(e.target.value));
 
-pagePrevBtn.addEventListener("click", () => navigatePage(-1));
-pageNextBtn.addEventListener("click", () => navigatePage(1));
+pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
+pageNextBtn?.addEventListener("click", () => navigatePage(1));
+
+async function init() {
+  await loadPages();
+  if (pageIds.length && currentPageId == null) {
+    await selectPage(pageIds[0]);
+  } else {
+    updatePageNav();
+  }
+  await loadClasses();
+  await loadElementCatalog();
+  syncTagEditor();
+}
 
 // ── save / export ─────────────────────────────────────────────────────────────
 
@@ -405,7 +426,4 @@ document.getElementById("export-btn").onclick = async () => {
 
 // ── init ──────────────────────────────────────────────────────────────────────
 
-loadPages();
-loadClasses();
-loadElementCatalog();
-syncTagEditor();
+init();

@@ -37,12 +37,9 @@ def index() -> FileResponse:
 
 @app.get("/api/pages")
 def api_pages() -> list[dict[str, str]]:
-    pages = list_pages()
-    if not pages:
-        for png in sorted(RAW.glob("*.png")):
-            upsert_page(png.stem, png.name)
-        pages = list_pages()
-    return pages
+    for png in sorted(RAW.glob("*.png")):
+        upsert_page(png.stem, png.name)
+    return list_pages()
 
 
 @app.get("/api/pages/{page_id}/image")
