@@ -1,131 +1,51 @@
 # NASTĘPNA SESJA — start tutaj (2026-06-15)
 
-> Plik handoff po sesji 2026-06-14. Cursor / Filip: wczytaj ten plik na początku jutrzejszej pracy.
+> Handoff po sesji 2026-06-14 (wieczór). Szczegóły planu: [`sync/PLAN-TYMCZASOWY.md`](PLAN-TYMCZASOWY.md).
 
 ---
 
-## Stan repo
+## Stan (2026-06-14 wieczór)
 
 | Pole | Wartość |
 |------|---------|
-| **Branch** | `main` @ `7984129` |
-| **GitSync** | Działa na PC Filip (`Start-GitSync.cmd Cursor`) |
-| **Testy** | `14 passed` (`pytest labeler/tests backend/tests`) |
-| **Labeler** | Canvas bbox zaimplementowany — **wymaga review Cursor** |
+| **BUILD M0** | ✅ trening + ONNX + inferencja (CPU) u Filipa |
+| **Model** | mAP50 ≈ 0.085, 1 klasa `element`, 9 stron train |
+| **Venv GPU** | **`.venv311`** (Py 3.11, torch cu121) — nie `.venv` |
+| **ONNX inferencja** | CPU OK; CUDA onnxruntime wymaga CUDA 12 DLL (opcjonalnie) |
+| **Testy repo** | `pytest backend/tests labeler/tests train/tests` |
+
+Lokalnie u Filipa (poza gitem): `best.pt`, `symbols_v1.onnx`, `registry.json` z `active=symbols_v1`.
 
 ---
 
-## Co zrobiliśmy dziś (2026-06-14)
+## Pierwsze kroki
 
-### Cursor
-- Model `GraphicLine` + `config/semantic-colors.yaml` + `backend/colors/palette.py`
-- GitSync: nazwane commity (`[Cursor]` / `[Claude]`), tagi maszyn
-- Weryfikacja integracji Claude (GitHub Action + GitSync)
-- Commity: `524df2c`, `884ae28`
+### Filip / Cursor
+1. Przeczytaj `sync/PLAN-TYMCZASOWY.md`.
+2. Decyzja: **008a atlas QET** u Claude vs więcej bboxów w labelerze.
+3. Opcjonalnie: porównaj `.pt` vs ONNX na p013 (`ultralytics predict` vs `OnnxSymbolDetector`).
 
-### Claude (PC ZW)
-- **Prompt 001 DONE** — interaktywny canvas bbox w `labeler/static/app.js`
-- Commit: `5d16757` — `[Claude] labeler: canvas bbox (prompt 001)`
-- Wpis w `sync/zw-to-filip.md` z instrukcją testów ręcznych
-
-### Infrastruktura
-- `.github/workflows/claude.yml` — trigger `@claude` na issue/PR (commit `477043b`)
-- Push **nie** uruchamia Claude automatycznie — wymaga komentarza `@claude` lub ręcznej wiadomości w sesji
+### Claude (ZW) — po „kolejne zadanie”
+- **Priorytet:** [`sync/prompts/008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) (faza QET)
+- Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+- Instrukcje: [`sync/filip-to-zw.md`](filip-to-zw.md) (wpis BUILD M0 DONE)
 
 ---
 
-## Pierwsze kroki jutro
+## Zamknięte dziś (Filip + Cursor)
 
-### 1. Filip / Cursor — review promptu 001
-
-```powershell
-cd C:\Users\Filip\Desktop\Cursor\SchemaGen
-Start-GitSync.cmd Cursor          # jeśli nie działa
-python -m labeler.app             # localhost:8765
-```
-
-**Test ręczny:**
-1. Załaduj stronę, wybierz klasę (1–9)
-2. Narysuj 3 bbox, zapisz, odśwież — bbox wracają
-3. Del usuwa zaznaczony, scroll = zoom
-
-**Review kodu:** `labeler/static/app.js` vs `sync/prompts/001-labeler-canvas.md`
-
-- OK → akceptacja, przejście do promptu 002
-- Poprawki → dopisz `## Poprawka (runda 1)` w `sync/prompts/001-labeler-canvas.md` + wpis w `sync/filip-to-zw.md`
-
-### 2. Filip — oznaczanie danych (równolegle)
-
-- Oznacz **3–5 stron** schematu w labelerze (`data/raw/`)
-- Po zebraniu danych → Claude może iść w `001-symbol-detector` + train
-
-### 3. Claude — następne zadanie (po akceptacji 001)
-
-| Prompt | Plik | Warunek |
-|--------|------|---------|
-| **002-labeler-lines-colors** | labeler + API | po review 001 |
-| 001-symbol-detector | `backend/recognize/symbol_detector.py` | po danych od Filipa |
-
-Start sesji Claude: „kolejne zadanie” → `sync/KOLEJNE-ZADANIE.md`
+- Diagnoza problemów Claude (006 przed treningiem, złe venv).
+- Odbudowa `.venv311` + trening 30 epok + export ONNX.
+- Smoke test: 5 detekcji na p013 @ conf=0.05.
 
 ---
 
-## Architektura — pamiętać
-
-1. **Linia ≠ połączenie** — `GraphicLine` (grafika) vs `Connection` (graf logiczny)
-2. **Kolory semantyczne** — `config/semantic-colors.yaml`, `backend/colors/palette.py`
-3. Tylko linie `wire` / `bus` → kandydaci na `Connection` w GraphBuilder
-4. **Zakaz** cloud API w `backend/recognize/`, `train/`, `labeler/`
-
-Fixture: `schema/fixtures/page1_expected.json` (ma `graphic_lines`).
-
----
-
-## Otwarte zadania (TASKS)
-
-| # | Status | Kto | Zadanie |
-|---|--------|-----|---------|
-| 10, 15 | **DONE** | Claude | 001-labeler-canvas |
-| 11, 17 | OPEN | Filip | Oznacz 3–5 stron w labelerze |
-| 16 | OPEN | Claude | 002-labeler-lines-colors (po review 001) |
-| 12, 18 | OPEN | Claude | symbol-detector + train (po danych) |
-| — | **NOWE** | Cursor | Review + akceptacja prompt 001 |
-
----
-
-## Historia commitów (dziś)
-
-| Hash | Autor | Wiadomość |
-|------|-------|-----------|
-| 477043b | ZW | GitHub Action `@claude` |
-| 524df2c | Cursor | model: graphic lines + semantic colors |
-| 884ae28 | Cursor | auto sync |
-| 5d16757 | Claude | labeler: canvas bbox (prompt 001) |
-| 7984129 | Claude | auto sync |
-
-Pełna historia: `sync/commit-log.md`
-
----
-
-## Pliki sync — mapa
+## Mapa sync
 
 | Plik | Rola |
 |------|------|
-| **`sync/NASTEPNA-SESJA.md`** | ← **TEN PLIK** — start jutro |
-| `sync/KOLEJNE-ZADANIE.md` | Aktywny prompt dla Claude |
-| `sync/filip-to-zw.md` | Instrukcje Cursor → Claude |
-| `sync/zw-to-filip.md` | Raport Claude → Cursor |
-| `sync/TASKS.md` | Kolejka wspólna |
-| `docs/claude-cowork-instructions.md` | Reguły dla Claude |
-
----
-
-## Commit na koniec sesji Cursor (opcjonalnie)
-
-Gdy review/handoff gotowy:
-
-```
-sync/commit-message.txt = [Cursor] sync: handoff sesja 2026-06-14, prompt 001 review
-```
-
-GitSync zacommituje w ≤10 s.
+| **`sync/PLAN-TYMCZASOWY.md`** | Plan i kontekst (tymczasowy) |
+| **`sync/NASTEPNA-SESJA.md`** | Ten plik — start sesji |
+| `sync/KOLEJNE-ZADANIE.md` | Aktywny prompt Claude |
+| `sync/filip-to-zw.md` | Cursor → Claude |
+| `sync/zw-to-filip.md` | Claude → Filip |

@@ -1,17 +1,19 @@
 # KOLEJNE ZADANIE — wczytaj ten plik po wiadomosci od Filipa
 
-> **Filip pisze:** „kolejne zadanie” → czytasz ten plik + `sync/filip-to-zw.md` + aktywny prompt.  
-> **Gotowy prompt do wklejenia:** [`sync/PROMPT-CLAUDE-005.md`](PROMPT-CLAUDE-005.md)
+> **Filip pisze:** „kolejne zadanie” → czytasz ten plik + `sync/filip-to-zw.md` + aktywny prompt.
 
 ---
 
-## Stan (2026-06-14 — BUILD M0)
+## Stan (2026-06-14 wieczór)
 
 | Prompt | Status |
 |--------|--------|
-| **005-train-symbols (BUILD M0)** | **PRIORYTET #1 — kod u Claude, trening u Filipa** |
-| **008-symbol-atlas-extract (QET)** | OPEN — po 005 |
+| **005-train-symbols** | ✅ kod w repo; trening + ONNX u Filipa DONE (mAP50≈0.085) |
+| **006-export-onnx** | ✅ zaimplementowany |
+| **001-symbol-detector** | ✅ zaimplementowany; smoke OK (CPU) |
+| **008-symbol-atlas-extract (QET)** | **PRIORYTET #1 — następny kod u Claude** |
 | **002-labeler-lines-colors** | OPEN |
+| **003-line-tracer / 004-graph-builder** | OPEN — po atlasie + danych |
 | **009-bbox-symbol-id** | po 008a |
 
 ---
@@ -20,50 +22,44 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Prompt** | [`sync/prompts/005-train-symbols.md`](prompts/005-train-symbols.md) |
-| **Deliverable (Claude ZW)** | `train/dataset_export.py`, `train/train_symbols.py`, testy, fix `labeler/export.py` |
-| **Deliverable (Filip RTX 2080)** | `python -m train.dataset_export` + `train_symbols` → `best.pt` |
-| **Typ** | Implementacja kodu (ZW) + trening GPU (Filip) |
+| **Prompt** | [`sync/prompts/008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) |
+| **Deliverable (Claude ZW)** | `config/symbol-reference.yaml`, moduł ekstrakcji QET, cropy atlasu, testy |
+| **Deliverable (Filip)** | Biblioteka QET lokalnie (`data/atlas/qet/`), review cropów |
+| **Typ** | Implementacja + pytest (bez cloud API) |
 | **Model** | Sonnet, effort **High** |
 
-### Podział maszyn — OBOWIĄZKOWO
+### Podział maszyn
 
 | PC | Co robisz |
 |----|-----------|
-| **ZW (Claude)** | Kod + pytest. **Bez pełnego treningu** — brak `data/schemagen.db` i PNG w gicie |
-| **Filip (RTX 2080)** | Po pull committa Claude: export + train lokalnie |
+| **ZW (Claude)** | Kod 008a + pytest. **Bez** pełnego treningu YOLO. |
+| **Filip (RTX 2080)** | QET lokalnie, ewent. re-train po nowych klasach/danych |
 
 ### Kroki Claude (ZW)
 
-1. `sync/filip-to-zw.md` + `005-train-symbols.md`
-2. Implementacja wg promptu
-3. `pytest backend/tests labeler/tests train/tests`
-4. `sync/zw-to-filip.md` — **sekcja komend dla Filipa (PowerShell)**
-5. `sync/commit-message.txt` = `[Claude] train: dataset export + YOLO train code M0 (prompt 005)`
-
-### Kroki Filip (po commicie Claude)
-
-```powershell
-cd C:\Users\Filip\Desktop\Cursor\SchemaGen
-pip install -e ".[gpu]"
-.venv\Scripts\python.exe -m train.dataset_export
-.venv\Scripts\python.exe -m train.train_symbols --epochs 30 --batch 8
-```
+1. `sync/filip-to-zw.md` + `008-symbol-atlas-extract.md`
+2. Implementacja fazy **008a tylko QET**
+3. `pytest backend/tests labeler/tests`
+4. `sync/zw-to-filip.md` — pliki + instrukcja dla Filipa (ścieżka QET, licencja GPL)
+5. `sync/commit-message.txt` = `[Claude] atlas: QET extract → symbol-reference.yaml (prompt 008a)`
 
 ### Czego NIE robic
 
 - Pełny trening YOLO na PC ZW
-- Atlas 008a w tej samej sesji (chyba że 005 done + Filip każe)
+- 003/004 pipeline w tej samej sesji (chyba że Filip każe)
 - Cloud API
+- **006/001 ponownie** — DONE; nie dotykaj bez review Cursor
 
 ---
 
-## Dataset (tylko u Filipa — nie w gicie)
+## BUILD M0 — zamknięty u Filipa
 
-9 stron, ~394 bboxy w `data/schemagen.db`. Eksport batch = część 005.
+Trening GPU, export ONNX i smoke inferencji wykonane lokalnie. Szczegóły: [`sync/PLAN-TYMCZASOWY.md`](PLAN-TYMCZASOWY.md).
+
+**Venv:** `.venv311` (Py 3.11 + torch cu121). **Nie** `.venv` (Py 3.14 CPU).
 
 ---
 
 ## Commit
 
-Jedna linia w `sync/commit-message.txt`, autor `[Claude]`.
+Jedna linia w `sync/commit-message.txt`, autor `[Claude]` lub `[Cursor]`.
