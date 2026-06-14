@@ -5,6 +5,7 @@
 
 # Python
 .venv/
+.venv*/
 __pycache__/
 *.py[cod]
 .mypy_cache/
@@ -40,6 +41,13 @@ data/labeled/*
 !data/labeled/.gitkeep
 data/schemagen.db
 data/output/
+data/runs/
+data/models/*.pt
+
+# YOLO / ultralytics (pobierane lokalnie)
+yolov8n.pt
+yolo26n.pt
+yolo*.pt
 
 # EPLAN legacy output
 eplan_output/

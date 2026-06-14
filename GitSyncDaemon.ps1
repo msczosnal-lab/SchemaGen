@@ -118,11 +118,25 @@ do {
 
         $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
         if ($ahead -gt 0) {
-            & git -C $RepoPath push origin $Branch 2>&1 | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                Log "[PUSH] wyslano $ahead commit(ow) do origin."
-            } else {
-                Log "[INFO] push odrzucony (wyscig) - nastepny cykl scali."
+            & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
+            $behindNow = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
+            if ($behindNow -gt 0) {
+                & git -C $RepoPath rebase "origin/$Branch" 2>&1 | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    & git -C $RepoPath rebase --abort 2>&1 | Out-Null
+                    Log "[KONFLIKT] rebase przed push przerwany - scal recznie."
+                    if ($Once) { break } else { Start-Sleep -Seconds $IntervalSec; continue }
+                }
+                Log "[PULL] zintegrowano $behindNow commit(ow) przed push."
+            }
+            $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
+            if ($ahead -gt 0) {
+                & git -C $RepoPath push origin $Branch 2>&1 | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Log "[PUSH] wyslano $ahead commit(ow) do origin."
+                } else {
+                    Log "[INFO] push odrzucony (wyscig) - nastepny cykl scali."
+                }
             }
         }
 
