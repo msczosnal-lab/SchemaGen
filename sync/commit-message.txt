@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Claude] recognize: ONNX export + symbol detector inference (prompts 006+001)
