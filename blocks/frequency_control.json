@@ -1,0 +1,15 @@
+{
+  "name": "frequency_control",
+  "layout_width": 240,
+  "potentials": ["L1", "L2", "L3", "PE", "2L1"],
+  "components": [
+    {"id": "U1", "type": "inverter", "tag": "-U1", "bbox": [20, 30, 120, 130]},
+    {"id": "M1", "type": "motor", "tag": "=MACHINE+CABINET-M1", "bbox": [140, 40, 220, 120]}
+  ],
+  "connections": [
+    {"from": "U1:U", "to": "M1:U", "potential": "U", "kind": "power"},
+    {"from": "U1:V", "to": "M1:V", "potential": "V", "kind": "power"},
+    {"from": "U1:W", "to": "M1:W", "potential": "W", "kind": "power"},
+    {"from": "U1:PE", "to": "M1:PE", "potential": "PE", "kind": "pe"}
+  ]
+}

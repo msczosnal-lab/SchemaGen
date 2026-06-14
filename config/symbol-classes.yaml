@@ -1,0 +1,10 @@
+classes:
+  - motor
+  - contactor
+  - inverter
+  - fuse
+  - relay
+  - terminal
+  - text_label
+  - pe
+  - disconnect

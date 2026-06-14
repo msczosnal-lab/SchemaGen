@@ -1,0 +1,13 @@
+{
+  "name": "400vac_supply",
+  "layout_width": 220,
+  "potentials": ["L1", "L2", "L3", "PE", "2L1"],
+  "components": [
+    {"id": "F1", "type": "fuse", "tag": "-F1", "bbox": [20, 40, 80, 100]},
+    {"id": "Q1", "type": "contactor", "tag": "-Q1", "bbox": [100, 40, 180, 120]}
+  ],
+  "connections": [
+    {"from": "F1:2", "to": "Q1:1", "potential": "L1", "kind": "power"},
+    {"from": "Q1:2", "to": "BUS:L1", "potential": "L1", "kind": "power"}
+  ]
+}

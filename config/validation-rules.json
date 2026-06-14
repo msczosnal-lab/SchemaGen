@@ -1,6 +1,9 @@
 {
-  "required_potentials": ["PE", "2L1"],
+  "required_potentials": ["PE", "2L1", "L1", "L2", "L3"],
   "required_connection_markers": ["U", "V", "W"],
   "motor_tag": "=MACHINE+CABINET-M1",
-  "notes": "Dostosuj reguły po pierwszym eksporcie CSV z Hello_world.elk"
+  "expected_components_for_intent": {
+    "Frequency Converter": ["inverter", "motor", "fuse"]
+  },
+  "notes": "Reguly walidacji SchemaModel — offline, bez EPLAN CSV"
 }

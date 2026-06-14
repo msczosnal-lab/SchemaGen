@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SchemaModel",
+  "type": "object",
+  "required": ["meta", "components", "connections"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "page": { "type": "integer" },
+        "model_version": { "type": "string" },
+        "pages": { "type": "integer" }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "tag": { "type": "string" },
+          "bbox": { "type": "array", "items": { "type": "number" } },
+          "confidence": { "type": "number" },
+          "source": { "enum": ["yolo", "ocr", "manual", "block"] }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "potential": { "type": "string" },
+          "kind": { "type": "string" }
+        }
+      }
+    },
+    "potentials": { "type": "array", "items": { "type": "string" } },
+    "blocks": { "type": "array", "items": { "type": "string" } },
+    "user_intent": { "type": "object" }
+  }
+}

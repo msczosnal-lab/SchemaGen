@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "source": "fixture:drive_frequency_converter",
+    "page": 0,
+    "model_version": "manual-gt-v1",
+    "pages": 1
+  },
+  "components": [
+    {"id": "F1", "type": "fuse", "tag": "-F1", "bbox": [20, 40, 80, 100], "source": "manual"},
+    {"id": "U1", "type": "inverter", "tag": "-U1", "bbox": [120, 30, 220, 130], "source": "manual"},
+    {"id": "M1", "type": "motor", "tag": "=MACHINE+CABINET-M1", "bbox": [260, 40, 340, 120], "source": "manual"}
+  ],
+  "connections": [
+    {"from": "F1:2", "to": "U1:L1", "potential": "L1", "kind": "power"},
+    {"from": "U1:U", "to": "M1:U", "potential": "U", "kind": "power"},
+    {"from": "U1:V", "to": "M1:V", "potential": "V", "kind": "power"},
+    {"from": "U1:W", "to": "M1:W", "potential": "W", "kind": "power"},
+    {"from": "U1:PE", "to": "M1:PE", "potential": "PE", "kind": "pe"}
+  ],
+  "potentials": ["PE", "2L1", "L1", "L2", "L3", "U", "V", "W"],
+  "blocks": ["400vac_supply", "frequency_control"],
+  "user_intent": {
+    "drive_type": "Frequency Converter",
+    "power_kw": 1.5,
+    "control": "Frequency Converter"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "page_id": "page1_expected",
+  "image_path": "page1_expected.png",
+  "image_width": 400,
+  "image_height": 300,
+  "bboxes": [
+    {"id": "M1", "class_name": "motor", "x": 260, "y": 40, "width": 80, "height": 80, "tag": "=MACHINE+CABINET-M1"},
+    {"id": "U1", "class_name": "inverter", "x": 120, "y": 30, "width": 100, "height": 100, "tag": "-U1"}
+  ],
+  "texts": [],
+  "connections": [
+    {"id": "c1", "from": "U1:U", "to": "M1:U", "kind": "power"}
+  ]
+}

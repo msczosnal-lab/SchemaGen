@@ -1,0 +1,14 @@
+{
+  "name": "start_stop",
+  "layout_width": 180,
+  "potentials": ["2L1", "0V"],
+  "components": [
+    {"id": "S1", "type": "relay", "tag": "-K1", "bbox": [20, 50, 80, 110]},
+    {"id": "SB1", "type": "terminal", "tag": "-SB1", "bbox": [100, 40, 150, 80]},
+    {"id": "SB2", "type": "terminal", "tag": "-SB2", "bbox": [100, 90, 150, 130]}
+  ],
+  "connections": [
+    {"from": "SB1:1", "to": "S1:A1", "potential": "2L1", "kind": "control"},
+    {"from": "SB2:1", "to": "S1:A2", "potential": "0V", "kind": "control"}
+  ]
+}
