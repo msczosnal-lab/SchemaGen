@@ -46,6 +46,21 @@
 - **Dlaczego wybrałem:** uzupełnia IEC 60617 o PLC/IO/sieci i aparaturę przemysłową (profil WRT01)
 - **Notatki:** **8732 symbole** (pobrane 2026-06-14), format **.elmt / XML**, licencja **GNU/GPL**. Pełny raport: `docs/qet-library-report.md`. PL tylko ~34% plików. **GE Vernova: brak; Phoenix Contact: 13 (rdzeń brak)** → warstwa producenta osobno.
 
+### EPLAN Electric P8 — dane lokalne (instalacja)
+- **Typ:** biblioteka symboli + makra producentów + baza artykułów
+- **URL / ścieżka:** `C:\Users\Public\EPLAN\Data\`
+- **Język:** PL (interfejs), symbole IEC
+- **Standard:** **IEC** (głównie), też GOST, GB, NFPA, PID
+- **Dlaczego wybrałem:** lokalna baza symboli tego samego typu co schematy projektowe EPLAN
+- **Notatki (przeszukanie Cursor 2026-06-14):**
+  - `Symbole\Schemagen\` — **604 pliki**, **22 biblioteki `.sdb`**: `IEC_symbol.sdb` (~26 MB), `IEC_single_symbol.sdb`, topologia IEC, SPECIAL, GRAPHICS (~200 MB łącznie)
+  - Format `.eod`/`.eox` = **binarny EPLAN** — nie do runtime Pythona bez eksportera
+  - `Makra\Schemagen\` — **854 makra `.ema` (XML)**: Siemens 90, **PXC/Phoenix 61**, Rittal 279, A-B 33, FESTO 48, EPLAN_Macro 135
+  - `Artykuły\Schemagen\EPLAN_parts.adb` — baza części (binary)
+  - `Definicja funkcji\Schemagen\` — FctDef (semantyka funkcji)
+  - **Luka WRT01:** brak makr GE Vernova; Phoenix = numery katalogowe PXC
+  - **Ekstrakcja:** batch export z EPLAN P8 → PNG/SVG do `data/symbol-atlas/eplan-iec/`; `.ema` → metadane XML
+
 ---
 
 ## Aparatura WRT01 (od Filipa, 2026-06-14)
