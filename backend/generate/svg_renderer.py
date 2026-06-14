@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import svgwrite
+
+from backend.models.schema import SchemaModel
 from backend.paths import BLOCKS
 
 
