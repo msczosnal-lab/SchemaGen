@@ -365,6 +365,8 @@ function bindRowTextarea(textarea, header, i) {
     }
   });
 }
+
+function selectBbox(idx, expand = true) {
   selectedIdx = idx;
   if (expand) expandedIdx = idx;
   renderAnnotationList();
