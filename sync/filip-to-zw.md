@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-06-15 [Filip/Cursor] — 010 DONE (Cursor) → Claude: 002 OCR
+
+Temat: **Labeler bbox-first gotowy. Następny filar: tekst (PaddleOCR).**
+
+### Co zrobione (Cursor, prompt 010)
+
+- `config/symbol-palette.yaml` — 52 hasła PL
+- `backend/symbol_palette.py` + `GET /api/symbol-palette`
+- Labeler: bbox bez opisu → picker typu, stan nieprzypisany, wolne hasło
+- `docs/labeling-guide.md`, `docs/adr/device-block-stub.md`
+- Testy: `test_symbol_palette.py`, `test_palette_api.py`, export YOLO z pustym tagiem
+
+**Filip:** `python -m labeler.app` — narysuj bbox, wybierz typ po prawej.
+
+### Twoje zadanie (PRIORYTET #1)
+
+[`sync/prompts/002-ocr-engine.md`](prompts/002-ocr-engine.md) — **filar tekst**
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)  
+Start: [`sync/PROMPT-CLAUDE-002-OCR.md`](PROMPT-CLAUDE-002-OCR.md)
+
+### Po kodzie
+
+- `pytest backend/tests labeler/tests`
+- `sync/zw-to-filip.md`
+- `sync/commit-message.txt` = `[Claude] recognize: PaddleOCR engine (prompt 002-ocr)`
+
+Commit pending: `[Cursor] labeler: bbox-first + symbol palette (prompt 010)`
+
+---
+
 ## 2026-06-15 [Filip/Cursor] — Trzy filary + rezygnacja z atlasu QET
 
 Temat: **Interpretacja wizualna schematu bez QET. Relacje — po zebraniu filarów.**
