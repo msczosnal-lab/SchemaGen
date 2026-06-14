@@ -14,7 +14,9 @@ canvas { background: #fff; border: 1px solid #666; max-width: 100%; cursor: cros
 ul { list-style: none; padding: 0; margin: 0; }
 #page-list li { padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; }
 #page-list li.active { outline: 2px solid #4a9eff; }
-#save-btn, #export-btn { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
+#save-btn, #save-all-btn, #export-btn { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
+#save-all-btn { background: #2ecc71; }
+#save-status { margin-top: 8px; min-height: 1.2em; }
 #hint { color: #aaa; font-size: 0.9rem; }
 .muted { color: #888; font-size: 0.85rem; margin: 4px 0 8px; }
 #bbox-editor { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #444; }

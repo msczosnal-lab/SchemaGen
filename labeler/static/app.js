@@ -43,6 +43,182 @@ const classHint = document.getElementById("class-hint");
 const pagePrevBtn = document.getElementById("page-prev");
 const pageNextBtn = document.getElementById("page-next");
 const pagePositionEl = document.getElementById("page-position");
+const saveBtn = document.getElementById("save-btn");
+const saveAllBtn = document.getElementById("save-all-btn");
+const saveStatusEl = document.getElementById("save-status");
+
+const DRAFT_PREFIX = "schemagen:draft:";
+const pageCache = new Map();
+const dirtyPages = new Set();
+
+function draftKey(pageId) {
+  return `${DRAFT_PREFIX}${pageId}`;
+}
+
+function capturePageState() {
+  return {
+    bboxes: JSON.parse(JSON.stringify(bboxes)),
+    nextSeq,
+    image_width: bgImage ? bgImage.naturalWidth : canvas.width,
+    image_height: bgImage ? bgImage.naturalHeight : canvas.height,
+    updatedAt: Date.now(),
+  };
+}
+
+function persistPageDraft(pageId = currentPageId) {
+  if (!pageId) return;
+  const state = pageId === currentPageId ? capturePageState() : pageCache.get(pageId);
+  if (!state) return;
+  pageCache.set(pageId, state);
+  try {
+    localStorage.setItem(draftKey(pageId), JSON.stringify(state));
+  } catch (err) {
+    console.warn("localStorage:", err);
+  }
+}
+
+function loadLocalDraft(pageId) {
+  try {
+    const raw = localStorage.getItem(draftKey(pageId));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function applyPageState(state) {
+  bboxes = state?.bboxes ? JSON.parse(JSON.stringify(state.bboxes)) : [];
+  sortBboxesNewestFirst();
+  ensureSeqNumbers();
+}
+
+function markPageDirty(pageId = currentPageId) {
+  if (!pageId) return;
+  dirtyPages.add(pageId);
+  if (pageId === currentPageId) persistPageDraft(pageId);
+  updateSaveStatus();
+}
+
+function updateSaveStatus() {
+  if (!saveBtn || !saveStatusEl) return;
+  const n = bboxes.length;
+  const dirty = currentPageId && dirtyPages.has(currentPageId);
+  saveBtn.textContent = dirty ? `Zapisz strone (${n})*` : `Zapisz strone (${n})`;
+  saveBtn.classList.toggle("dirty", !!dirty);
+  const cached = pageCache.size;
+  const dirtyCount = dirtyPages.size;
+  if (dirtyCount > 0) {
+    saveStatusEl.textContent = `Niezapisane: ${dirtyCount} str. — zmiana strony tez zapisuje lokalnie.`;
+  } else if (cached > 0) {
+    saveStatusEl.textContent = "Wszystko zapisane w bazie.";
+  } else {
+    saveStatusEl.textContent = "";
+  }
+}
+
+function buildSavePayload(pageId, state) {
+  return {
+    record: {
+      page_id: pageId,
+      image_path: `${pageId}.png`,
+      image_width: state.image_width || 0,
+      image_height: state.image_height || 0,
+      bboxes: state.bboxes.map((b) => ({
+        id: b.id,
+        class_name: b.class_name || DEFAULT_CLASS,
+        x: b.x,
+        y: b.y,
+        width: b.width,
+        height: b.height,
+        tag: (b.tag || "").trim(),
+        seq: b.seq || 0,
+        semantic_group: b.semantic_group || "",
+        color_ref: b.color_ref || "",
+      })),
+      lines: [],
+      texts: [],
+      connections: [],
+    },
+  };
+}
+
+async function savePageToServer(pageId, { silent = false } = {}) {
+  if (!pageId) return false;
+  if (pageId === currentPageId) persistPageDraft(pageId);
+  const state = pageCache.get(pageId) || (pageId === currentPageId ? capturePageState() : null);
+  if (!state) return false;
+  try {
+    const res = await fetchJson("/api/annotations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildSavePayload(pageId, state)),
+    });
+    dirtyPages.delete(pageId);
+    updateSaveStatus();
+    if (!silent) {
+      saveStatusEl.textContent = `Zapisano ${pageId}: ${res.bbox_count ?? state.bboxes.length} bbox`;
+      document.getElementById("hint").textContent = `Zapisano ✓ ${pageId}`;
+    }
+    return true;
+  } catch (err) {
+    if (!silent) {
+      alert(`Blad zapisu (${pageId}): ${err.message}`);
+      saveStatusEl.textContent = `Blad zapisu ${pageId} — dane sa w localStorage`;
+    }
+    return false;
+  }
+}
+
+async function flushCurrentPage() {
+  if (!currentPageId) return;
+  persistPageDraft(currentPageId);
+  if (dirtyPages.has(currentPageId)) {
+    await savePageToServer(currentPageId, { silent: true });
+  }
+}
+
+async function saveAllPages() {
+  if (currentPageId) persistPageDraft(currentPageId);
+  const ids = new Set([...pageCache.keys(), ...(currentPageId ? [currentPageId] : [])]);
+  let ok = 0;
+  let fail = 0;
+  for (const pageId of ids) {
+    if (await savePageToServer(pageId, { silent: true })) ok += 1;
+    else fail += 1;
+  }
+  await loadElementCatalog();
+  saveStatusEl.textContent = fail
+    ? `Zapisano ${ok} str., bledy: ${fail} (szkice w localStorage)`
+    : `Zapisano wszystkie strony (${ok})`;
+  updateSaveStatus();
+}
+
+function scanLocalDrafts() {
+  const drafts = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(DRAFT_PREFIX)) continue;
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      drafts.push({
+        pageId: key.slice(DRAFT_PREFIX.length),
+        count: data.bboxes?.length || 0,
+        updatedAt: data.updatedAt || 0,
+      });
+    } catch {
+      /* skip */
+    }
+  }
+  return drafts;
+}
+
+function reportRecoveryHints() {
+  const drafts = scanLocalDrafts();
+  const total = drafts.reduce((s, d) => s + d.count, 0);
+  if (total === 0) return;
+  saveStatusEl.textContent =
+    `Lokalne szkice: ${drafts.length} str., ${total} bbox (localStorage). Otworz strone aby wczytac.`;
+}
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
