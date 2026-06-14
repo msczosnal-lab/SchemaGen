@@ -4,17 +4,16 @@
 
 ---
 
-## Stan (2026-06-14 wieczór)
+## Stan (2026-06-15)
 
 | Prompt | Status |
 |--------|--------|
-| **005-train-symbols** | ✅ kod w repo; trening + ONNX u Filipa DONE (mAP50≈0.085) |
-| **006-export-onnx** | ✅ zaimplementowany |
-| **001-symbol-detector** | ✅ zaimplementowany; smoke OK (CPU) |
-| **008-symbol-atlas-extract (QET)** | **PRIORYTET #1 — następny kod u Claude** |
-| **002-labeler-lines-colors** | OPEN |
-| **003-line-tracer / 004-graph-builder** | OPEN — po atlasie + danych |
-| **009-bbox-symbol-id** | po 008a |
+| **005–006, 001 recognize** | ✅ BUILD M0 (trening + ONNX u Filipa) |
+| **008a QET atlas** | ✅ kod w repo; kurator TAK/NIE **wstrzymany** (faza 2) |
+| **010-labeler-bbox-first-palette** | **PRIORYTET #1 — następny kod u Claude** |
+| **002-labeler-lines-colors** | OPEN — po 010 |
+| **003-line-tracer / 004-graph-builder** | OPEN — po dużej bazie bbox |
+| **009-bbox-symbol-id** | wchłonięty przez **010** (picker w labelerze) |
 
 ---
 
@@ -22,41 +21,43 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Prompt** | [`sync/prompts/008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) |
-| **Deliverable (Claude ZW)** | `config/symbol-reference.yaml`, moduł ekstrakcji QET, cropy atlasu, testy |
-| **Deliverable (Filip)** | Biblioteka QET lokalnie (`data/atlas/qet/`), review cropów |
+| **Prompt** | [`sync/prompts/010-labeler-bbox-first-palette.md`](prompts/010-labeler-bbox-first-palette.md) |
+| **Deliverable (Claude ZW)** | `config/symbol-palette.yaml`, `backend/atlas/palette.py`, labeler bbox-first + picker, testy, docs |
+| **Deliverable (Filip)** | Oznaczanie bboxów na wielu schematach; re-train YOLO po zebraniu danych |
 | **Typ** | Implementacja + pytest (bez cloud API) |
 | **Model** | Sonnet, effort **High** |
+| **Start** | [`sync/PROMPT-CLAUDE-010.md`](PROMPT-CLAUDE-010.md) |
 
-### Podział maszyn
+### Etap 1 — założenia (Filip)
 
-| PC | Co robisz |
-|----|-----------|
-| **ZW (Claude)** | Kod 008a + pytest. **Bez** pełnego treningu YOLO. |
-| **Filip (RTX 2080)** | QET lokalnie, ewent. re-train po nowych klasach/danych |
+- Skrypt ma **widzieć elementy** na schemacie (YOLO `element`).
+- **Najpierw bbox, potem hasło** z palety (nie odwrotnie).
+- Hasła = **typ urządzenia** (krótko); wyjątki ręcznie.
+- Tagi `-K1`, połączenia, terminale złożonych urządzeń — **później**.
 
 ### Kroki Claude (ZW)
 
-1. `sync/filip-to-zw.md` + `008-symbol-atlas-extract.md`
-2. Implementacja fazy **008a tylko QET**
+1. `sync/filip-to-zw.md` + `010-labeler-bbox-first-palette.md`
+2. Implementacja palety + odwrócony workflow labelera
 3. `pytest backend/tests labeler/tests`
-4. `sync/zw-to-filip.md` — pliki + instrukcja dla Filipa (ścieżka QET, licencja GPL)
-5. `sync/commit-message.txt` = `[Claude] atlas: QET extract → symbol-reference.yaml (prompt 008a)`
+4. `sync/zw-to-filip.md` — instrukcja pickera dla Filipa
+5. `sync/commit-message.txt` = `[Claude] labeler: bbox-first + symbol palette (prompt 010)`
 
 ### Czego NIE robic
 
+- Kurator atlasu QET, cropy w pickerze
+- Multi-class YOLO, line tracer, GraphBuilder
 - Pełny trening YOLO na PC ZW
-- 003/004 pipeline w tej samej sesji (chyba że Filip każe)
 - Cloud API
-- **006/001 ponownie** — DONE; nie dotykaj bez review Cursor
+- **008/006/001 ponownie** bez `## Poprawka` od Cursor
 
 ---
 
 ## BUILD M0 — zamknięty u Filipa
 
-Trening GPU, export ONNX i smoke inferencji wykonane lokalnie. Szczegóły: [`sync/PLAN-TYMCZASOWY.md`](PLAN-TYMCZASOWY.md).
+Trening GPU, export ONNX, smoke inferencji. **Venv:** `.venv311` (Py 3.11 + torch cu121).
 
-**Venv:** `.venv311` (Py 3.11 + torch cu121). **Nie** `.venv` (Py 3.14 CPU).
+Filip buduje **dużą bazę bboxów** z `data/raw/` + PDF z `sync/sources/` — to główny sygnał dla detekcji.
 
 ---
 
