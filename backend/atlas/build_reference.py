@@ -287,7 +287,7 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     mode = "[DRY-RUN] " if args.dry_run else ""
-    print(f"{mode}Zbudowano {len(symbols)} symboli → {args.out}")
+    print(f"{mode}Zbudowano {len(symbols)} symboli -> {args.out}")
 
 
 if __name__ == "__main__":
