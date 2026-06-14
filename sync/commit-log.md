@@ -8,3 +8,4 @@
 | 2026-06-14 04:46 | Cursor | 0beb448 | [Cursor] sync: handoff sesja 2026-06-14, prompt 001 DONE |
 | 2026-06-14 13:03 | Claude | 20392b1 | [Claude] labeler: bbox hierarchy + spatial relations (prompt 003) |
 | 2026-06-14 17:22 | Claude | dd8eceb | [Claude] docs: knowledge sources analysis (prompt 007) |
+| 2026-06-14 17:33 | Cursor | 49bf0bb | [Cursor] sync: akceptacja 007, prompt 008a QET atlas, handoff Claude |
