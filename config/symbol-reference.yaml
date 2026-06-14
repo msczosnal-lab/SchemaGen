@@ -1,6 +1,6 @@
 meta:
   version: 1
-  generated_at: '2026-06-14T21:16:56.046317+00:00'
+  generated_at: '2026-06-14T21:23:40.260116+00:00'
   sources:
   - id: qet
     type: gpl_lib
@@ -8,653 +8,1120 @@ meta:
     license: GNU/GPL — atrybucja w README/docs
   tag_standard: IEC 81346-1
 symbols:
-- id: coming_arrow
+- id: porte_fusible
   yolo_class: element
   iec_ref: null
-  default_description: Coming arrow
-  atlas_crop: data/atlas/crops/coming_arrow.png
+  default_description: Porte fusible
+  atlas_crop: data/atlas/crops/porte_fusible.png
   source_refs:
-  - qet:10_electric/10_allpole/100_folio_referencing/01coming_arrow.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/poj_odpinac.elmt
+  tag_prefix: F
+- id: porte_fusible_2p
+  yolo_class: element
+  iec_ref: null
+  default_description: Porte fusible 2p
+  atlas_crop: data/atlas/crops/porte_fusible_2p.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/poj_odpinac_2p.elmt
+  tag_prefix: F
+- id: porte_fusible_3p
+  yolo_class: element
+  iec_ref: null
+  default_description: Porte Fusible 3p
+  atlas_crop: data/atlas/crops/porte_fusible_3p.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/poj_odpinac_3p.elmt
+  tag_prefix: F
+- id: fuse_1p
+  yolo_class: element
+  iec_ref: null
+  default_description: Fuse 1p
+  atlas_crop: data/atlas/crops/fuse_1p.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/pojistka1p.elmt
+  tag_prefix: F
+- id: fuse_2p
+  yolo_class: element
+  iec_ref: null
+  default_description: Fuse 2p
+  atlas_crop: data/atlas/crops/fuse_2p.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/pojistka2p.elmt
+  tag_prefix: F
+- id: fuse_3p
+  yolo_class: element
+  iec_ref: null
+  default_description: Fuse 3p
+  atlas_crop: data/atlas/crops/fuse_3p.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/pojistka3p.elmt
+  tag_prefix: F
+- id: switchfuse_pn
+  yolo_class: element
+  iec_ref: null
+  default_description: switchfuse P+N
+  atlas_crop: data/atlas/crops/switchfuse_pn.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/porte_fusible_bi.elmt
   aliases_pl:
-  - Wejście adresowe
-- id: going_arrow
+  - Odłącznik bezpiecznikowy
+  tag_prefix: F
+- id: switchfuses
   yolo_class: element
   iec_ref: null
-  default_description: Going arrow
-  atlas_crop: data/atlas/crops/going_arrow.png
+  default_description: switchfuses
+  atlas_crop: data/atlas/crops/switchfuses.png
   source_refs:
-  - qet:10_electric/10_allpole/100_folio_referencing/02going_arrow.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/sec_fus4.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/sec_fus5.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/sectionneur_3_fusibles+neutre.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/sectionneur_3_fusibles.elmt
   aliases_pl:
-  - Wyjście adresowe
-- id: multi_wire_cable_previous_folio_horizontal
+  - Odłącznik bezpiecznikowy
+  tag_prefix: F
+- id: fuse_disconnector
   yolo_class: element
   iec_ref: null
-  default_description: Multi wire cable previous folio horizontal
-  atlas_crop: data/atlas/crops/multi_wire_cable_previous_folio_horizontal.png
+  default_description: Fuse-disconnector
+  atlas_crop: data/atlas/crops/fuse_disconnector.png
   source_refs:
-  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_from_h.elmt
-- id: multi_wire_cable_previous_folio_vertical
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable previous folio vertical
-  atlas_crop: data/atlas/crops/multi_wire_cable_previous_folio_vertical.png
-  source_refs:
-  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_from_v.elmt
-- id: multi_wire_cable_next_folio_horizontal
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable next folio horizontal
-  atlas_crop: data/atlas/crops/multi_wire_cable_next_folio_horizontal.png
-  source_refs:
-  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_next_h.elmt
-- id: multi_wire_cable_next_folio_vertical
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable next folio vertical
-  atlas_crop: data/atlas/crops/multi_wire_cable_next_folio_vertical.png
-  source_refs:
-  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_next_v.elmt
-- id: three_pole_source_pen
-  yolo_class: element
-  iec_ref: null
-  default_description: Three-pole source + PEN
-  atlas_crop: data/atlas/crops/three_pole_source_pen.png
-  source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/3_pen_pravy.elmt
-  - qet:10_electric/10_allpole/110_network_supplies/src_3p_pen.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/10_fuses/sectionneur_fusible_bi.elmt
   aliases_pl:
-  - Linia trójfazowa (PEN)
-- id: three_pole_source_n_pe
+  - Odłącznik bezpiecznikowy
+  tag_prefix: F
+- id: circuit_breaker
   yolo_class: element
   iec_ref: null
-  default_description: Three-pole source + N + PE
-  atlas_crop: data/atlas/crops/three_pole_source_n_pe.png
+  default_description: Circuit-breaker
+  atlas_crop: data/atlas/crops/circuit_breaker.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/3f_n_pe_pravy.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_1f.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_1fn.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_2f.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_2f2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_3fn.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_4fn.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjoncteur2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjoncteur4.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjoncteur5.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/jistic_3p.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/disjoncteur_differentiel_ph_n.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/interdiff_40a.elmt
   aliases_pl:
-  - Linia trójfazowa (PEN)
-- id: ground
+  - Wyłącznik
+  tag_prefix: QF
+- id: circuit_breaker_3p
   yolo_class: element
   iec_ref: null
-  default_description: Ground
-  atlas_crop: data/atlas/crops/ground.png
+  default_description: Circuit-breaker 3p
+  atlas_crop: data/atlas/crops/circuit_breaker_3p.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/ground1.elmt
-  - qet:10_electric/10_allpole/110_network_supplies/terre.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_3f.elmt
   aliases_pl:
-  - Masa
-- id: chassis
+  - Wyłącznik
+  tag_prefix: QF
+- id: circuit_breaker_1_poles
   yolo_class: element
   iec_ref: null
-  default_description: Chassis
-  atlas_crop: data/atlas/crops/chassis.png
+  default_description: Circuit breaker 1-poles
+  atlas_crop: data/atlas/crops/circuit_breaker_1_poles.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/masse.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct_m_1f.elmt
+  tag_prefix: QF
+- id: circuit_breaker_3_poles
+  yolo_class: element
+  iec_ref: null
+  default_description: Circuit breaker 3-poles
+  atlas_crop: data/atlas/crops/circuit_breaker_3_poles.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct_m_3f.elmt
+  tag_prefix: QF
+- id: magneto_thermal_circuit_breaker1pn
+  yolo_class: element
+  iec_ref: null
+  default_description: Magneto-thermal circuit breaker1P+N
+  atlas_crop: data/atlas/crops/magneto_thermal_circuit_breaker1pn.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/dis_mag_term_2f-1.elmt
   aliases_pl:
-  - Masa
-- id: single_pole_source_pe_n
+  - Wyłącznik silnikowy
+  tag_prefix: QF
+- id: magneto_thermal_circuit_breaker_gv_2p
   yolo_class: element
   iec_ref: null
-  default_description: Single-pole source + PE +N
-  atlas_crop: data/atlas/crops/single_pole_source_pe_n.png
+  default_description: Magneto-thermal circuit breaker GV 2P
+  atlas_crop: data/atlas/crops/magneto_thermal_circuit_breaker_gv_2p.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_1p_pe_n.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/dis_mag_term_2f-2.elmt
+  tag_prefix: QF
+- id: magneto_thermal_circuit_breaker_gv
+  yolo_class: element
+  iec_ref: null
+  default_description: Magneto-thermal circuit breaker GV
+  atlas_crop: data/atlas/crops/magneto_thermal_circuit_breaker_gv.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/dis_mag_term_3f-1.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/dis_mag_term_3f-2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/dis_mag_term_4f-2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/disjoncteur_magneto-thermique.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/gv2p.elmt
   aliases_pl:
-  - Linia jednofazowa (trójprzewodowa)
-- id: single_pole_source_pen
+  - Wyłącznik silnikowy
+  tag_prefix: QF
+- id: magneto_thermal_circuit_breaker
   yolo_class: element
   iec_ref: null
-  default_description: Single-pole source +PEN
-  atlas_crop: data/atlas/crops/single_pole_source_pen.png
+  default_description: Magneto-thermal circuit breaker
+  atlas_crop: data/atlas/crops/magneto_thermal_circuit_breaker.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_1p_pen.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/dis_mag_term_4f-1.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff6.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff8.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff9.elmt
   aliases_pl:
-  - Linia jednofazowa (TN-C)
-- id: single_pole_source_neutral
+  - Wyłącznik silnikowy
+  tag_prefix: QF
+- id: motor_circuit_breaker
   yolo_class: element
   iec_ref: null
-  default_description: Single-pole source + neutral
-  atlas_crop: data/atlas/crops/single_pole_source_neutral.png
+  default_description: Motor circuit breaker
+  atlas_crop: data/atlas/crops/motor_circuit_breaker.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_1pn.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/fa4202_disjoncteur_moteur_3p.elmt
   aliases_pl:
-  - Linia jednofazowa (dwuprzewodowa)
-- id: three_pole_source
+  - Wyłącznik silnikowy
+  tag_prefix: QF
+- id: motor_circuit_breaker_with_neutral
   yolo_class: element
   iec_ref: null
-  default_description: Three-pole source
-  atlas_crop: data/atlas/crops/three_pole_source.png
+  default_description: Motor circuit breaker with neutral
+  atlas_crop: data/atlas/crops/motor_circuit_breaker_with_neutral.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_3p.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/fa4213_disjoncteur_moteur_3p_n.elmt
   aliases_pl:
-  - Linia trójfazowa (trójprzewodowa)
-- id: three_pole_source_pe_n
+  - Wyłącznik silnikowy
+  tag_prefix: QF
+- id: interrupteur_sectionneur_tetra
   yolo_class: element
   iec_ref: null
-  default_description: Three-pole source + PE +N
-  atlas_crop: data/atlas/crops/three_pole_source_pe_n.png
+  default_description: Interrupteur sectionneur TETRA
+  atlas_crop: data/atlas/crops/interrupteur_sectionneur_tetra.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_3p_pe_n.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/01_intersectiotetra.elmt
+  tag_prefix: QS
+- id: four_pole_switch_disconnector
+  yolo_class: element
+  iec_ref: null
+  default_description: Four pole switch disconnector
+  atlas_crop: data/atlas/crops/four_pole_switch_disconnector.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/inter-sectionneur_tetra.elmt
+  tag_prefix: QS
+- id: interrupteur_sectionneur_triphasé
+  yolo_class: element
+  iec_ref: null
+  default_description: Interrupteur sectionneur triphasé
+  atlas_crop: data/atlas/crops/interrupteur_sectionneur_triphasé.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/inter_sectionneur_tri.elmt
+  tag_prefix: QS
+- id: interrupteur_sectionneur_biphasé
+  yolo_class: element
+  iec_ref: null
+  default_description: Interrupteur sectionneur biphasé
+  atlas_crop: data/atlas/crops/interrupteur_sectionneur_biphasé.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/interrupteur_sectionneur_biphase.elmt
+  tag_prefix: QS
+- id: itcv
+  yolo_class: element
+  iec_ref: null
+  default_description: itcv
+  atlas_crop: data/atlas/crops/itcv.png
+  source_refs:
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/itcv.elmt
   aliases_pl:
-  - Linia trójfazowa (pięcioprzewodowa)
-- id: three_pole_source_neutral
+  - Rozłącznik
+  tag_prefix: QS
+- id: disconnecting_switch
   yolo_class: element
   iec_ref: null
-  default_description: Three-pole source + neutral
-  atlas_crop: data/atlas/crops/three_pole_source_neutral.png
+  default_description: Disconnecting switch
+  atlas_crop: data/atlas/crops/disconnecting_switch.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_3pn.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/sectionneur4-2.elmt
   aliases_pl:
-  - Linia trójfazowa (czteroprzewodowa)
-- id: three_pole_source_pe
+  - Rozłącznik
+  tag_prefix: QS
+- id: break_isolator
   yolo_class: element
   iec_ref: null
-  default_description: Three-pole source + PE
-  atlas_crop: data/atlas/crops/three_pole_source_pe.png
+  default_description: break isolator
+  atlas_crop: data/atlas/crops/break_isolator.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_3ppe.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/sectionneur4.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/sectionneur_general.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/20_disconnecting_switches/sectionneur_monophase.elmt
   aliases_pl:
-  - Linia trójfazowa (czteroprzewodowa)
-- id: neutral_source
+  - Odłącznik
+- id: thermal_relay
   yolo_class: element
   iec_ref: null
-  default_description: Neutral source
-  atlas_crop: data/atlas/crops/neutral_source.png
+  default_description: Thermal relay
+  atlas_crop: data/atlas/crops/thermal_relay.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_n.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/30_thermal_relays/relais_mono.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/30_thermal_relays/relais_therm4.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/30_thermal_relays/relais_therm4_1.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/30_thermal_relays/relais_therm4_1_wide.elmt
   aliases_pl:
-  - Przewód neutralny
-- id: phase_source
+  - Przekaźnik termiczny
+  tag_prefix: KA
+- id: thermal_relay_wide
   yolo_class: element
   iec_ref: null
-  default_description: Phase source
-  atlas_crop: data/atlas/crops/phase_source.png
+  default_description: Thermal relay wide
+  atlas_crop: data/atlas/crops/thermal_relay_wide.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_p.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/30_thermal_relays/relais_therm4_wide.elmt
   aliases_pl:
-  - Przewód liniowy
-- id: distribution_point_tn_c_tn_s
+  - Przekaźnik termiczny
+  tag_prefix: KA
+- id: residual_circuit_breaker_with_overload
   yolo_class: element
   iec_ref: null
-  default_description: Distribution point TN-C >TN-S
-  atlas_crop: data/atlas/crops/distribution_point_tn_c_tn_s.png
+  default_description: Residual Circuit Breaker with Overload
+  atlas_crop: data/atlas/crops/residual_circuit_breaker_with_overload.png
   source_refs:
-  - qet:10_electric/10_allpole/110_network_supplies/src_tnc_tns.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/ddr2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/ddr3.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/ddr4.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/ddr5.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/ddr6.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff_1f-1.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff_1f-2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff_3f-1.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff_3f-2.elmt
   aliases_pl:
-  - Linia trójfazowa (TN-C-S)
-- id: connection
+  - Wyłącznik różnicowoprądowy
+  tag_prefix: QF
+- id: differential_switch
   yolo_class: element
   iec_ref: null
-  default_description: connection
-  atlas_crop: data/atlas/crops/connection.png
+  default_description: Differential switch
+  atlas_crop: data/atlas/crops/differential_switch.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/bod.elmt
-- id: combine
-  yolo_class: element
-  iec_ref: null
-  default_description: Combine
-  atlas_crop: data/atlas/crops/combine.png
-  source_refs:
-  - qet:10_electric/10_allpole/114_connections/combine.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff3.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff4.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/interrupteur_differentiel.elmt
   aliases_pl:
-  - Połączenie 1
-- id: corner
+  - Rozłącznik różnicowoprądowy
+  tag_prefix: QS
+- id: disjoncteur_differentiel_1pn
   yolo_class: element
   iec_ref: null
-  default_description: Corner
-  atlas_crop: data/atlas/crops/corner.png
+  default_description: Disjoncteur differentiel 1P+N
+  atlas_crop: data/atlas/crops/disjoncteur_differentiel_1pn.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/corner.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff5.elmt
   aliases_pl:
-  - Narożnik
-- id: cross
+  - Wyłącznik z wbudowanym modułem różnicowoprądowym
+  tag_prefix: QF
+- id: disjoncteur_differentiel_2p
   yolo_class: element
   iec_ref: null
-  default_description: Cross
-  atlas_crop: data/atlas/crops/cross.png
+  default_description: Disjoncteur differentiel 2P
+  atlas_crop: data/atlas/crops/disjoncteur_differentiel_2p.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/cross.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/int_diff7.elmt
   aliases_pl:
-  - Połączenie 2
-- id: jump
+  - Wyłącznik z wbudowanym modułem różnicowoprądowym
+  tag_prefix: QF
+- id: residual_current_circuit_breaker_with_circuit_breaker
   yolo_class: element
   iec_ref: null
-  default_description: Jump
-  atlas_crop: data/atlas/crops/jump.png
+  default_description: Residual current circuit breaker with circuit breaker
+  atlas_crop: data/atlas/crops/residual_current_circuit_breaker_with_circuit_breaker.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/jump.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/50_residual_current_circuit_breaker/rcbo_01.elmt
   aliases_pl:
-  - Brak połączenia
-- id: connecteur_pour_quatre_fils
+  - Wyłącznik różnicowoprądowy z wyłącznikiem
+  tag_prefix: QF
+- id: spark_gap
   yolo_class: element
   iec_ref: null
-  default_description: Connecteur pour quatre fils
-  atlas_crop: data/atlas/crops/connecteur_pour_quatre_fils.png
+  default_description: Spark-gap
+  atlas_crop: data/atlas/crops/spark_gap.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/lphd.elmt
-- id: splice
-  yolo_class: element
-  iec_ref: null
-  default_description: Splice
-  atlas_crop: data/atlas/crops/splice.png
-  source_refs:
-  - qet:10_electric/10_allpole/114_connections/splice.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/eclateur.elmt
   aliases_pl:
-  - Połączenie 3
-- id: thru_left
+  - Iskiernik
+- id: metal_oxide_varistor
   yolo_class: element
   iec_ref: null
-  default_description: Thru left
-  atlas_crop: data/atlas/crops/thru_left.png
+  default_description: Metal-Oxide Varistor
+  atlas_crop: data/atlas/crops/metal_oxide_varistor.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/thruleft.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/mov.elmt
   aliases_pl:
-  - Połączenie 4
-- id: thru_right
+  - Warystor
+- id: surge_protection
   yolo_class: element
   iec_ref: null
-  default_description: Thru right
-  atlas_crop: data/atlas/crops/thru_right.png
+  default_description: Surge protection
+  atlas_crop: data/atlas/crops/surge_protection.png
   source_refs:
-  - qet:10_electric/10_allpole/114_connections/thruright.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/parafoudre-2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/parafoudre4.elmt
   aliases_pl:
-  - Połączenie 5
-- id: cable_2_phasesterre
+  - Ogranicznik przepięć
+- id: surge_protector
   yolo_class: element
   iec_ref: null
-  default_description: Cable 2 phases+terre
-  atlas_crop: data/atlas/crops/cable_2_phasesterre.png
+  default_description: Surge protector
+  atlas_crop: data/atlas/crops/surge_protector.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/cable.elmt
-  - qet:10_electric/10_allpole/120_cables_wiring/cable2.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/parafoudre.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/parafoudre_3.elmt
   aliases_pl:
-  - Oznaczenie przewodu czterożyłowego
-- id: cable_3_phasesterre
+  - Ogranicznik przepięć
+- id: protective_gas_discharge_tube
   yolo_class: element
   iec_ref: null
-  default_description: Cable 3 phases+terre
-  atlas_crop: data/atlas/crops/cable_3_phasesterre.png
+  default_description: Protective gas discharge tube
+  atlas_crop: data/atlas/crops/protective_gas_discharge_tube.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/cable1.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/tube_a_gaz.elmt
   aliases_pl:
-  - Oznaczenie przewodu czterożyłowego
-- id: cable_4g
+  - Odgromnik gazowyładowczy dwuelektrodowy
+- id: symmetric_protective_gas_discharge_tube
   yolo_class: element
   iec_ref: null
-  default_description: Cable 4G
-  atlas_crop: data/atlas/crops/cable_4g.png
+  default_description: Symmetric protective gas discharge tube
+  atlas_crop: data/atlas/crops/symmetric_protective_gas_discharge_tube.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/cable3.elmt
-  - qet:10_electric/10_allpole/120_cables_wiring/kabel4g.elmt
+  - qet:10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/tube_a_gaz_limiteur_de_tension.elmt
   aliases_pl:
-  - Przewód czterożyłowy
-- id: cable_5g
+  - Odgromnik gazowyładowczy trójelektrodowy
+- id: coil
   yolo_class: element
   iec_ref: null
-  default_description: Cable 5G
-  atlas_crop: data/atlas/crops/cable_5g.png
+  default_description: Coil
+  atlas_crop: data/atlas/crops/coil.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/cable5.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine3.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine_ka_a_remanence.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine_ka_a_verrouillage_mecanique.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/relbistable.elmt
   aliases_pl:
-  - Przewód pięciożyłowy
-- id: cable_3g
+  - Cewka
+- id: coil_with_onoff_delay
   yolo_class: element
   iec_ref: null
-  default_description: Cable 3G
-  atlas_crop: data/atlas/crops/cable_3g.png
+  default_description: Coil with on/off delay
+  atlas_crop: data/atlas/crops/coil_with_onoff_delay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/cable6.elmt
-  - qet:10_electric/10_allpole/120_cables_wiring/kabel3g.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine_tempo_repos-travail.elmt
   aliases_pl:
-  - Przewód trójżyłowy
-- id: cable_3_wires
+  - Cewka przekaźnika działającego ze zwłoką przy wzbudzeniu i odwzbudzeniu
+  tag_prefix: KA
+- id: coil_with_off_delay
   yolo_class: element
   iec_ref: null
-  default_description: Cable 3 wires
-  atlas_crop: data/atlas/crops/cable_3_wires.png
+  default_description: Coil with off delay
+  atlas_crop: data/atlas/crops/coil_with_off_delay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/cable_3wires.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine_tempo_repos.elmt
   aliases_pl:
-  - Oznaczenie przewodu trójżyłowego
-- id: screen
+  - Cewka przekaźnika działająca z opóźnieniem przy odwzbudzeniu
+  tag_prefix: KA
+- id: coil_with_on_delay
   yolo_class: element
   iec_ref: null
-  default_description: Screen
-  atlas_crop: data/atlas/crops/screen.png
+  default_description: Coil with on delay
+  atlas_crop: data/atlas/crops/coil_with_on_delay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/ecran_3p.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine_tempo_travail.elmt
   aliases_pl:
-  - Ekran 3
-- id: wire_of_cable
+  - Cewka przekaźnika działająca ze zwłoką przy wzbudzeniu
+  tag_prefix: KA
+- id: timer
   yolo_class: element
   iec_ref: null
-  default_description: Wire of cable
-  atlas_crop: data/atlas/crops/wire_of_cable.png
+  default_description: Timer
+  atlas_crop: data/atlas/crops/timer.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/fil_de_cable.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/casak.elmt
+- id: ac_relais
+  yolo_class: element
+  iec_ref: null
+  default_description: AC Relais
+  atlas_crop: data/atlas/crops/ac_relais.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_courant_alter.elmt
   aliases_pl:
-  - Połączenie przewodu
-- id: wiring
+  - Przekaźnik prądu przemiennego
+  tag_prefix: KA
+- id: dc_relais
   yolo_class: element
   iec_ref: null
-  default_description: Wiring
-  atlas_crop: data/atlas/crops/wiring.png
+  default_description: DC Relais
+  atlas_crop: data/atlas/crops/dc_relais.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/filerie.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_courant_continue.elmt
   aliases_pl:
-  - Oznaczenie przewodu
-- id: cable_7g
+  - Przekaźnik prądu przemiennego
+  tag_prefix: KA
+- id: electronic_relay
   yolo_class: element
   iec_ref: null
-  default_description: Cable 7G
-  atlas_crop: data/atlas/crops/cable_7g.png
+  default_description: Electronic relay
+  atlas_crop: data/atlas/crops/electronic_relay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/kabel7g.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_electronique.elmt
   aliases_pl:
-  - Oznaczenie przewodu czterożyłowego
-- id: cable_8g
+  - Przekaźnik elektroniczny
+  tag_prefix: KA
+- id: relay_insensitive_to_ac
   yolo_class: element
   iec_ref: null
-  default_description: Cable 8G
-  atlas_crop: data/atlas/crops/cable_8g.png
+  default_description: Relay insensitive to AC
+  atlas_crop: data/atlas/crops/relay_insensitive_to_ac.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/kabel8g.elmt
-- id: multi_wire_cable_2_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 2-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_demux.elmt
-- id: multi_wire_cable_2_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 2-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_demux_40px.elmt
-- id: multi_wire_cable_2_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 2-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_mux.elmt
-- id: multi_wire_cable_2_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 2-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_mux_40px.elmt
-- id: multi_wire_cable_3_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 3-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_demux.elmt
-- id: multi_wire_cable_3_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 3-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_demux_40px.elmt
-- id: multi_wire_cable_3_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 3-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_mux.elmt
-- id: multi_wire_cable_3_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 3-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_mux_40px.elmt
-- id: multi_wire_cable_4_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 4-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_demux.elmt
-- id: multi_wire_cable_4_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 4-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_demux_40px.elmt
-- id: multi_wire_cable_4_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 4-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_mux.elmt
-- id: multi_wire_cable_4_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 4-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_mux_40px.elmt
-- id: multi_wire_cable_5_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 5-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_demux.elmt
-- id: multi_wire_cable_5_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 5-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_demux_40px.elmt
-- id: multi_wire_cable_5_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 5-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_mux.elmt
-- id: multi_wire_cable_5_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 5-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_mux_40px.elmt
-- id: multi_wire_cable_6_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 6-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_demux.elmt
-- id: multi_wire_cable_6_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 6-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_demux_40px.elmt
-- id: multi_wire_cable_6_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 6-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_mux.elmt
-- id: multi_wire_cable_6_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 6-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_mux_40px.elmt
-- id: multi_wire_cable_7_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 7-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07_mux_40px.elmt
-- id: multi_wire_cable_7_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 7-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07p_demux.elmt
-- id: multi_wire_cable_7_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 7-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07p_demux_40px.elmt
-- id: multi_wire_cable_7_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 7-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07p_mux.elmt
-- id: multi_wire_cable_8_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 8-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_demux.elmt
-- id: multi_wire_cable_8_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 8-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_demux_40px.elmt
-- id: multi_wire_cable_8_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 8-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_mux.elmt
-- id: multi_wire_cable_8_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 8-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_mux_40px.elmt
-- id: multi_wire_cable_9_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 9-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_demux.elmt
-- id: multi_wire_cable_9_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 9-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_demux_40px.elmt
-- id: multi_wire_cable_9_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 9-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_mux.elmt
-- id: multi_wire_cable_9_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 9-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_mux_40px.elmt
-- id: multi_wire_cable_10_pole_demux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 10-pole Demux
-  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_demux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_demux.elmt
-- id: multi_wire_cable_10_pole_demux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 10-pole Demux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_demux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_demux_40px.elmt
-- id: multi_wire_cable_10_pole_mux
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 10-pole Mux
-  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_mux.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_mux.elmt
-- id: multi_wire_cable_10_pole_mux_40px
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable 10-pole Mux 40px
-  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_mux_40px.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_mux_40px.elmt
-- id: multi_wire_cable_designation
-  yolo_class: element
-  iec_ref: null
-  default_description: Multi wire cable designation
-  atlas_crop: data/atlas/crops/multi_wire_cable_designation.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_designation.elmt
-- id: wiring_section
-  yolo_class: element
-  iec_ref: null
-  default_description: Wiring section
-  atlas_crop: data/atlas/crops/wiring_section.png
-  source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/nomenclature_section.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_insens_au_courant_alter.elmt
   aliases_pl:
-  - Pole przekróju przewodu
-- id: section_1_conducteur
+  - Przekaźnik niewrażliwy na prąd przemienny
+  tag_prefix: KA
+- id: polarized_relay
   yolo_class: element
   iec_ref: null
-  default_description: Section 1 conducteur
-  atlas_crop: data/atlas/crops/section_1_conducteur.png
+  default_description: Polarized relay
+  atlas_crop: data/atlas/crops/polarized_relay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/section1conducteur.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_polarise.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/relais_polarise_retournant.elmt
   aliases_pl:
-  - Oznaczenie pola przekroju przewodu jednożyłowego
-- id: section_2_conducteurs
+  - Przekaźnik spolaryzowany
+  tag_prefix: KA
+- id: fast_relay
   yolo_class: element
   iec_ref: null
-  default_description: Section 2 conducteurs
-  atlas_crop: data/atlas/crops/section_2_conducteurs.png
+  default_description: Fast relay
+  atlas_crop: data/atlas/crops/fast_relay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/section2-1conducteurs.elmt
-  - qet:10_electric/10_allpole/120_cables_wiring/section2conducteurs.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_rapides.elmt
   aliases_pl:
-  - Oznaczenie pola przekroju przewodu dwużyłowego
-- id: section_3_conducteurs
+  - Przekaźnik szybki
+  tag_prefix: KA
+- id: remanence_relay
   yolo_class: element
   iec_ref: null
-  default_description: Section 3 conducteurs
-  atlas_crop: data/atlas/crops/section_3_conducteurs.png
+  default_description: Remanence relay
+  atlas_crop: data/atlas/crops/remanence_relay.png
   source_refs:
-  - qet:10_electric/10_allpole/120_cables_wiring/section3.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_remanence.elmt
   aliases_pl:
-  - Oznaczenie pola przekroju przewodu trójżyłowego
+  - Przekaźnik remanencyjny
+  tag_prefix: KA
+- id: relay_delay_rest
+  yolo_class: element
+  iec_ref: null
+  default_description: Relay delay rest
+  atlas_crop: data/atlas/crops/relay_delay_rest.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_repos_retardee.elmt
+  aliases_pl:
+  - Przekaźnik działający ze zwłoką przy odwzbudzeniu
+  tag_prefix: KA
+- id: relay_delay_at_activation_and_rest
+  yolo_class: element
+  iec_ref: null
+  default_description: Relay delay at activation and rest
+  atlas_crop: data/atlas/crops/relay_delay_at_activation_and_rest.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_repos_travail_retardee.elmt
+  aliases_pl:
+  - Przekaźnik działający ze zwłoką przy odwzbudzeniu
+  tag_prefix: KA
+- id: thermal_overload_relay
+  yolo_class: element
+  iec_ref: null
+  default_description: Thermal overload relay
+  atlas_crop: data/atlas/crops/thermal_overload_relay.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_thermique.elmt
+  aliases_pl:
+  - Przekaźnik nadprądowy cieplny
+  tag_prefix: KA
+- id: relay_operating_delay_at_excitation
+  yolo_class: element
+  iec_ref: null
+  default_description: Relay operating delay at excitation
+  atlas_crop: data/atlas/crops/relay_operating_delay_at_excitation.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_travail_retardee.elmt
+  aliases_pl:
+  - Przekaźnik działający ze zwłoką przy wzbudzeniu
+  tag_prefix: KA
+- id: relay_with_mechanical_interlock
+  yolo_class: element
+  iec_ref: null
+  default_description: Relay with mechanical interlock
+  atlas_crop: data/atlas/crops/relay_with_mechanical_interlock.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/comm_verr_mecanique.elmt
+  aliases_pl:
+  - Przekaźnik z blokadą mechaniczną
+  tag_prefix: KA
+- id: flasher_relay
+  yolo_class: element
+  iec_ref: null
+  default_description: Flasher relay
+  atlas_crop: data/atlas/crops/flasher_relay.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/relais_clignoteur.elmt
+  aliases_pl:
+  - Przekaźnik migowy (cykliczny)
+  tag_prefix: KA
+- id: solid_state_relay
+  yolo_class: element
+  iec_ref: null
+  default_description: Solid State relay
+  atlas_crop: data/atlas/crops/solid_state_relay.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/relais_statique.elmt
+  aliases_pl:
+  - Przekaźnik statyczny
+  tag_prefix: KA
+- id: relay_focus_rest_delayed_withe_external_command
+  yolo_class: element
+  iec_ref: null
+  default_description: Relay Focus rest delayed withe external command
+  atlas_crop: data/atlas/crops/relay_focus_rest_delayed_withe_external_command.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/relais_tempo_retard_commande_externe.elmt
+  aliases_pl:
+  - Przekaźnik z opuźnionym powrotem, z wejściem sterującym
+  tag_prefix: KA
+- id: remote_controlled_switch
+  yolo_class: element
+  iec_ref: null
+  default_description: Remote controlled switch
+  atlas_crop: data/atlas/crops/remote_controlled_switch.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/telerupteur.elmt
+  aliases_pl:
+  - Łącznik zdalnie sterowany
+  tag_prefix: SA
+- id: timed_relay
+  yolo_class: element
+  iec_ref: null
+  default_description: Timed relay
+  atlas_crop: data/atlas/crops/timed_relay.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/tempo_programmable.elmt
+  tag_prefix: KA
+- id: timer_t_816
+  yolo_class: element
+  iec_ref: null
+  default_description: Timer T 816
+  atlas_crop: data/atlas/crops/timer_t_816.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/timer816.elmt
+- id: timer_tmr48
+  yolo_class: element
+  iec_ref: null
+  default_description: Timer TMR48
+  atlas_crop: data/atlas/crops/timer_tmr48.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/01_coils/tmr48.elmt
+- id: simple_contact
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact
+  atlas_crop: data/atlas/crops/simple_contact.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/con_simple.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/contnonc.elmt
+  aliases_pl:
+  - Zestyk zwierny
+- id: simple_contact_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (NC)
+  atlas_crop: data/atlas/crops/simple_contact_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/con_simple_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny
+- id: mirror_contact_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Mirror contact NC
+  atlas_crop: data/atlas/crops/mirror_contact_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/mirror_switch_nc.elmt
+  aliases_pl:
+  - Zestyk lustrzany rozwierny
+- id: contact_power_contactor
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact power contactor
+  atlas_crop: data/atlas/crops/contact_power_contactor.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss1.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss4.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss6.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/contact_puissance_2ph.elmt
+  aliases_pl:
+  - Stycznik
+  tag_prefix: KM
+- id: contactor_1_changeover_3_poles
+  yolo_class: element
+  iec_ref: null
+  default_description: Contactor 1 changeover 3 poles
+  atlas_crop: data/atlas/crops/contactor_1_changeover_3_poles.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_3P_inv.elmt
+  tag_prefix: KM
+- id: contactor_2_changeover_3_poles
+  yolo_class: element
+  iec_ref: null
+  default_description: Contactor 2 changeover 3 poles
+  atlas_crop: data/atlas/crops/contactor_2_changeover_3_poles.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_3P_inv2.elmt
+  tag_prefix: KM
+- id: contactor_1_changeover_4_poles
+  yolo_class: element
+  iec_ref: null
+  default_description: Contactor 1 changeover 4 poles
+  atlas_crop: data/atlas/crops/contactor_1_changeover_4_poles.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_4P_inv.elmt
+  tag_prefix: KM
+- id: contactor_2_changeover_4_poles
+  yolo_class: element
+  iec_ref: null
+  default_description: Contactor 2 changeover 4 poles
+  atlas_crop: data/atlas/crops/contactor_2_changeover_4_poles.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_4P_inv2.elmt
+  tag_prefix: KM
+- id: contact_power_contactor_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact power contactor (NC)
+  atlas_crop: data/atlas/crops/contact_power_contactor_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_nf1.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_nf4.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss_nf6.elmt
+  aliases_pl:
+  - Stycznik
+  tag_prefix: KM
+- id: simple_contact_nc_switch_off_delay_timer
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (NC / switch-off delay timer)
+  atlas_crop: data/atlas/crops/simple_contact_nc_switch_off_delay_timer.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/con_simple_nf_tmp_r.elmt
+  aliases_pl:
+  - Zestyk rozwierny działający z opóźnieniem
+  tag_prefix: SA
+- id: simple_contact_nc_switch_on_delay_timer
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (NC / switch-on delay timer)
+  atlas_crop: data/atlas/crops/simple_contact_nc_switch_on_delay_timer.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/con_simple_nf_tmp_t.elmt
+  aliases_pl:
+  - Zestyk rozwierny działający z opóźnieniem
+  tag_prefix: SA
+- id: simple_contact_switch_on_delay_timer
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (switch-on delay timer)
+  atlas_crop: data/atlas/crops/simple_contact_switch_on_delay_timer.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/con_simple_tmp_r.elmt
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/con_simple_tmp_t.elmt
+  aliases_pl:
+  - Zestyk zwierny działający z opóźnieniem
+  tag_prefix: SA
+- id: timed_switch_rest
+  yolo_class: element
+  iec_ref: null
+  default_description: Timed switch rest
+  atlas_crop: data/atlas/crops/timed_switch_rest.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/inverseur_tempo_repos.elmt
+  tag_prefix: SA
+- id: timed_switch_work
+  yolo_class: element
+  iec_ref: null
+  default_description: timed switch work
+  atlas_crop: data/atlas/crops/timed_switch_work.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/inverseur_tempo_travail.elmt
+  tag_prefix: SA
+- id: timed_switch_rest_and_work
+  yolo_class: element
+  iec_ref: null
+  default_description: Timed switch rest and work
+  atlas_crop: data/atlas/crops/timed_switch_rest_and_work.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/inverseur_tempo_travail_repos.elmt
+  tag_prefix: SA
+- id: simple_contact_nc_switch_on_and_off_delay_timer
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (NC / switch-on and off delay timer)
+  atlas_crop: data/atlas/crops/simple_contact_nc_switch_on_and_off_delay_timer.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/tempo_nc_travail_repos.elmt
+  tag_prefix: SA
+- id: simple_contact_switch_on_and_off_delay_timer
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (switch-on and off delay timer)
+  atlas_crop: data/atlas/crops/simple_contact_switch_on_and_off_delay_timer.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/tempo_no_travail_repos.elmt
+  tag_prefix: SA
+- id: contact_temporisé
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact temporisé
+  atlas_crop: data/atlas/crops/contact_temporisé.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/11_delayed_contacts/zpozdeny_odpad.elmt
+- id: thermal_relay_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Thermal relay NO
+  atlas_crop: data/atlas/crops/thermal_relay_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/act_termique_no_esclave.elmt
+  aliases_pl:
+  - Zestyk zwierny przekaźnika cieplnego
+  tag_prefix: KA
+- id: thermal_relay_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Thermal relay NC
+  atlas_crop: data/atlas/crops/thermal_relay_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/act_thermique_nf_esclave.elmt
+  aliases_pl:
+  - Zestyk rozwierny przekaźnika cieplnego
+  tag_prefix: KA
+- id: fuse_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Fuse NO
+  atlas_crop: data/atlas/crops/fuse_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/contact_fusible_no_esclave.elmt
+  aliases_pl:
+  - Bezpiecznik wybijakowy z odzielnym zestykiem sygnalizacyjnym
+  tag_prefix: F
+- id: fuse_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Fuse NC
+  atlas_crop: data/atlas/crops/fuse_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/contact_fusile_nc_esclave.elmt
+  aliases_pl:
+  - Bezpiecznik wybijakowy z odzielnym zestykiem sygnalizacyjnym
+  tag_prefix: F
+- id: contact_nf_disjoncteur_magnéto_thermique_gv
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NF disjoncteur magnéto-thermique GV
+  atlas_crop: data/atlas/crops/contact_nf_disjoncteur_magnéto_thermique_gv.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/contact_gv_nf.elmt
+  tag_prefix: QF
+- id: contact_no_disjoncteur_magnéto_thermique_gv
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO disjoncteur magnéto-thermique GV
+  atlas_crop: data/atlas/crops/contact_no_disjoncteur_magnéto_thermique_gv.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/contact_gv_no.elmt
+  tag_prefix: QF
+- id: contact_thermal_relay_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact thermal relay (NC)
+  atlas_crop: data/atlas/crops/contact_thermal_relay_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/contact_relais_nf_esclave.elmt
+  aliases_pl:
+  - Zestyk rozwierny przekaźnika cieplnego
+  tag_prefix: KA
+- id: contact_thermal_relay_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact thermal relay (NO)
+  atlas_crop: data/atlas/crops/contact_thermal_relay_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/contact_relais_no_esclave.elmt
+  aliases_pl:
+  - Zestyk zwierny przekaźnika cieplnego
+  tag_prefix: KA
+- id: electronic_switching_device_with_nc_contact
+  yolo_class: element
+  iec_ref: null
+  default_description: Electronic switching device with NC contact
+  atlas_crop: data/atlas/crops/electronic_switching_device_with_nc_contact.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_a_semi_cond_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny sterowany elektronicznie
+  tag_prefix: SA
+- id: electronic_switching_device_with_no_contact
+  yolo_class: element
+  iec_ref: null
+  default_description: Electronic switching device with N/O contact
+  atlas_crop: data/atlas/crops/electronic_switching_device_with_no_contact.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_a_semi_cond_no.elmt
+  aliases_pl:
+  - Zestyk zwierny sterowany elektronicznie
+  tag_prefix: SA
+- id: electronic_switching_device_with_nonc_contact
+  yolo_class: element
+  iec_ref: null
+  default_description: Electronic switching device with NO/NC contact
+  atlas_crop: data/atlas/crops/electronic_switching_device_with_nonc_contact.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_a_semi_cond_no_nf.elmt
+  aliases_pl:
+  - Zestyk przełączny sterowany elektronicznie
+  tag_prefix: SA
+- id: normally_open_counter
+  yolo_class: element
+  iec_ref: null
+  default_description: Normally open counter
+  atlas_crop: data/atlas/crops/normally_open_counter.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_comptage_no.elmt
+  aliases_pl:
+  - Zestyk zwierny licznika
+- id: electromagnetic_relay_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Electromagnetic relay NC
+  atlas_crop: data/atlas/crops/electromagnetic_relay_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_electromagnetique_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny przekaźnika elektromagnetycznego
+  tag_prefix: KA
+- id: electromagnetic_relay_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Electromagnetic relay NO
+  atlas_crop: data/atlas/crops/electromagnetic_relay_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_electromagnetique_no.elmt
+  aliases_pl:
+  - Zestyk zwierny przekażnika elektromagnetycznego
+  tag_prefix: KA
+- id: contact_nc_pneumatically_or_hydraulically_controlled_two_way
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NC pneumatically or hydraulically controlled, two-way
+  atlas_crop: data/atlas/crops/contact_nc_pneumatically_or_hydraulically_controlled_two_way.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_double_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny sterowany pneumatycznie lub hydraulicznie, dwukierunkowy
+- id: contact_no_pneumatically_or_hydraulically_controlled_two_way
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO pneumatically or hydraulically controlled, two-way
+  atlas_crop: data/atlas/crops/contact_no_pneumatically_or_hydraulically_controlled_two_way.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_double_no.elmt
+  aliases_pl:
+  - Zestyk zwierny sterowany pneumatycznie lub hydraulicznie, dwukierunkowy
+- id: contact_ncno_pneumatically_or_hydraulically_controlled_two_way
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NC/NO pneumatically or hydraulically controlled, two-way
+  atlas_crop: data/atlas/crops/contact_ncno_pneumatically_or_hydraulically_controlled_two_way.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_double_no_nf.elmt
+  aliases_pl:
+  - Zestyk przełączny sterowany pneumatycznie lub hydraulicznie, dwukierunkowy
+- id: contact_nc_pneumatically_or_hydraulically_controlled
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NC pneumatically or hydraulically controlled
+  atlas_crop: data/atlas/crops/contact_nc_pneumatically_or_hydraulically_controlled.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_simple_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny sterowany pneumatycznie lub hedraulicznie, jednokierunkowy
+- id: contact_no_pneumatically_or_hydraulically_controlled
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO pneumatically or hydraulically controlled
+  atlas_crop: data/atlas/crops/contact_no_pneumatically_or_hydraulically_controlled.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_simple_no-2.elmt
+  aliases_pl:
+  - Zestyk zwierny sterowany pneumatycznie lub hydraulicznie, jednokierunkowy
+- id: contact_no_pneumatically_or_hydraulically_controlled_one_way
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO pneumatically or hydraulically controlled, one-way
+  atlas_crop: data/atlas/crops/contact_no_pneumatically_or_hydraulically_controlled_one_way.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_simple_no.elmt
+  aliases_pl:
+  - Zestyk zwierny sterowany pneumatycznie lub hydraulicznie, jednokierunkowy
+- id: contact_nonc_pneumatically_or_hydraulically_controlled_one_way
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO/NC pneumatically or hydraulically controlled, one-way
+  atlas_crop: data/atlas/crops/contact_nonc_pneumatically_or_hydraulically_controlled_one_way.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/act_hydr_simple_no_nf.elmt
+  aliases_pl:
+  - Zestyk przełączny sterowany pneumatycznie lub hydraulicznie, jednokierunkowy
+- id: contact_nc_controlled_clock
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NC-controlled clock
+  atlas_crop: data/atlas/crops/contact_nc_controlled_clock.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/comm_par_horl_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny sterowany zegarem
+- id: contact_no_controlled_clock
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO-controlled clock
+  atlas_crop: data/atlas/crops/contact_no_controlled_clock.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/comm_par_horl_no.elmt
+  aliases_pl:
+  - Zestyk zwierny zegara sterującego
+- id: contact_ncno_controlled_clock
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NC/NO-controlled clock
+  atlas_crop: data/atlas/crops/contact_ncno_controlled_clock.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/comm_par_horl_no_nf.elmt
+  aliases_pl:
+  - Zestyk przełączny sterowany zegarem
+- id: contact_motorized_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact Motorized NC
+  atlas_crop: data/atlas/crops/contact_motorized_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/comm_par_mot_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny sterowany silnikiem
+  tag_prefix: M
+- id: contact_motorized_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact Motorized NO
+  atlas_crop: data/atlas/crops/contact_motorized_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/comm_par_mot_no.elmt
+  aliases_pl:
+  - Zestyk zwierny sterowany silnikiem
+  tag_prefix: M
+- id: contact_motorized_ncno
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact Motorized NC/NO
+  atlas_crop: data/atlas/crops/contact_motorized_ncno.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/comm_par_mot_no_nf.elmt
+  aliases_pl:
+  - Zestyk przełączny sterowany silnikiem
+  tag_prefix: M
+- id: centrifugal_contact_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Centrifugal contact (NC)
+  atlas_crop: data/atlas/crops/centrifugal_contact_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/con_centrifuge_nf.elmt
+  aliases_pl:
+  - Zestyk rozwierny łącznika odśrodkowego
+- id: centrifugal_contact_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Centrifugal contact (No)
+  atlas_crop: data/atlas/crops/centrifugal_contact_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/con_centrifuge_no.elmt
+  aliases_pl:
+  - Zestyk zwierny łącznika odśrodkowego
+- id: simple_contact_tight
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (tight)
+  atlas_crop: data/atlas/crops/simple_contact_tight.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/con_simple_etanche.elmt
+  aliases_pl:
+  - Zetyk zwierny (szczelny)
+- id: simple_contact_nc_tight
+  yolo_class: element
+  iec_ref: null
+  default_description: Simple contact (NC / tight)
+  atlas_crop: data/atlas/crops/simple_contact_nc_tight.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/con_simple_nf_etanche.elmt
+  aliases_pl:
+  - Zestyk rozwierny (szczelny)
+- id: contact_nc_circuit_breaker_magneto_thermal_gv
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NC circuit-breaker magneto-thermal GV
+  atlas_crop: data/atlas/crops/contact_nc_circuit_breaker_magneto_thermal_gv.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/contact_gv_nf.elmt
+  tag_prefix: QF
+- id: contact_no_circuit_breaker_magneto_thermal_gv
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact NO circuit-breaker magneto-thermal GV
+  atlas_crop: data/atlas/crops/contact_no_circuit_breaker_magneto_thermal_gv.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/contact_gv_no.elmt
+  tag_prefix: QF
+- id: contact_relais_thermique_no
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact relais thermique (NO)
+  atlas_crop: data/atlas/crops/contact_relais_thermique_no.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/contact_relais.elmt
+  tag_prefix: KA
+- id: contact_relais_thermique_nc
+  yolo_class: element
+  iec_ref: null
+  default_description: Contact relais thermique (NC)
+  atlas_crop: data/atlas/crops/contact_relais_thermique_nc.png
+  source_refs:
+  - qet:10_electric/10_allpole/310_relays_contactors_contacts/03_contacts/contact_relais_nf.elmt
+  tag_prefix: KA
 - id: terminal_strip_label
   yolo_class: element
   iec_ref: null
@@ -692,281 +1159,4 @@ symbols:
   atlas_crop: data/atlas/crops/discontinuation_terminal_strip.png
   source_refs:
   - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0151.elmt
-  tag_prefix: X
-- id: terminal_double_level_feed_through
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal double-level (feed-through)
-  atlas_crop: data/atlas/crops/terminal_double_level_feed_through.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0211.elmt
-  tag_prefix: X
-- id: insertion_bridge
-  yolo_class: element
-  iec_ref: null
-  default_description: Insertion bridge
-  atlas_crop: data/atlas/crops/insertion_bridge.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0501.elmt
-- id: insertion_bridge_double_width
-  yolo_class: element
-  iec_ref: null
-  default_description: Insertion bridge (double width)
-  atlas_crop: data/atlas/crops/insertion_bridge_double_width.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0502.elmt
-- id: connector_25_pins
-  yolo_class: element
-  iec_ref: null
-  default_description: Connector 25 pins
-  atlas_crop: data/atlas/crops/connector_25_pins.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0901.elmt
-- id: device_connection_on_bottom
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on bottom)
-  atlas_crop: data/atlas/crops/device_connection_on_bottom.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0001.elmt
-- id: device_connection_on_top
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on top)
-  atlas_crop: data/atlas/crops/device_connection_on_top.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0002.elmt
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0001.elmt
-- id: device_connection_on_bottom_beginning
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on bottom) - beginning
-  atlas_crop: data/atlas/crops/device_connection_on_bottom_beginning.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0011.elmt
-- id: device_connection_on_bottom_middle
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on bottom) - middle
-  atlas_crop: data/atlas/crops/device_connection_on_bottom_middle.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0012.elmt
-- id: device_connection_on_bottom_end
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on bottom) - end
-  atlas_crop: data/atlas/crops/device_connection_on_bottom_end.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0013.elmt
-- id: device_connection_on_top_beginning
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on top) - beginning
-  atlas_crop: data/atlas/crops/device_connection_on_top_beginning.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0011.elmt
-- id: device_connection_on_top_middle
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on top) - middle
-  atlas_crop: data/atlas/crops/device_connection_on_top_middle.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0012.elmt
-- id: device_connection_on_top_end
-  yolo_class: element
-  iec_ref: null
-  default_description: Device (connection on top) - end
-  atlas_crop: data/atlas/crops/device_connection_on_top_end.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0013.elmt
-- id: cable_tag
-  yolo_class: element
-  iec_ref: null
-  default_description: Cable tag
-  atlas_crop: data/atlas/crops/cable_tag.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0001.elmt
-- id: cable_wire_towards_top
-  yolo_class: element
-  iec_ref: null
-  default_description: Cable wire towards top
-  atlas_crop: data/atlas/crops/cable_wire_towards_top.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0010.elmt
-- id: cable_wire_towards_bottom
-  yolo_class: element
-  iec_ref: null
-  default_description: Cable wire towards bottom
-  atlas_crop: data/atlas/crops/cable_wire_towards_bottom.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0011.elmt
-- id: wire_definition
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire definition
-  atlas_crop: data/atlas/crops/wire_definition.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0101.elmt
-- id: cable
-  yolo_class: element
-  iec_ref: null
-  default_description: Cable
-  atlas_crop: data/atlas/crops/cable.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/cable.elmt
-- id: distributor
-  yolo_class: element
-  iec_ref: null
-  default_description: distributor
-  atlas_crop: data/atlas/crops/distributor.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/repartiteur.elmt
-  aliases_pl:
-  - Łączówka
-- id: terminal_12g1
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal 12G1
-  atlas_crop: data/atlas/crops/terminal_12g1.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_12g1.elmt
-  aliases_pl:
-  - Listwa zaciskowa 12G
-  tag_prefix: X
-- id: terminal_19g1
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal_19G1
-  atlas_crop: data/atlas/crops/terminal_19g1.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_19g1.elmt
-  aliases_pl:
-  - Listwa zaciskowa 19G
-  tag_prefix: X
-- id: terminal_3g1
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal_3G1
-  atlas_crop: data/atlas/crops/terminal_3g1.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_3g1.elmt
-  aliases_pl:
-  - Listwa zaciskowa 3G
-  tag_prefix: X
-- id: terminal_4g1
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal_4G1
-  atlas_crop: data/atlas/crops/terminal_4g1.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_4g1.elmt
-  aliases_pl:
-  - Listwa zaciskowa 4G
-  tag_prefix: X
-- id: terminal_5g1
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal_5G1
-  atlas_crop: data/atlas/crops/terminal_5g1.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_5g1.elmt
-  aliases_pl:
-  - Listwa zaciskowa 5G
-  tag_prefix: X
-- id: terminal_7g1
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal_7G1
-  atlas_crop: data/atlas/crops/terminal_7g1.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_7g1.elmt
-  aliases_pl:
-  - Listwa zaciskowa 7G
-  tag_prefix: X
-- id: wire_connector_2_port
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector 2-Port
-  atlas_crop: data/atlas/crops/wire_connector_2_port.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-2-port.elmt
-- id: wire_connector_3_port
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector 3-Port
-  atlas_crop: data/atlas/crops/wire_connector_3_port.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-3-port.elmt
-- id: wire_connector_4_port
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector 4-Port
-  atlas_crop: data/atlas/crops/wire_connector_4_port.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-4-port.elmt
-- id: wire_connector_5_port
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector 5-Port
-  atlas_crop: data/atlas/crops/wire_connector_5_port.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-5-port.elmt
-- id: wire_connector_8_port
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector 8-Port
-  atlas_crop: data/atlas/crops/wire_connector_8_port.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-8-port.elmt
-- id: wire_connector_splitter_2_input_4_output
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector Splitter 2 Input-4 Output
-  atlas_crop: data/atlas/crops/wire_connector_splitter_2_input_4_output.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-splitter-2-input-4-output.elmt
-- id: wire_connector_splitter_2_input_6_output
-  yolo_class: element
-  iec_ref: null
-  default_description: Wire Connector Splitter 2 Input-6 Output
-  atlas_crop: data/atlas/crops/wire_connector_splitter_2_input_6_output.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-splitter-2-input-6-output.elmt
-- id: ground_bar
-  yolo_class: element
-  iec_ref: null
-  default_description: Ground bar
-  atlas_crop: data/atlas/crops/ground_bar.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/barette_de_terre.elmt
-  aliases_pl:
-  - Złącze gniazdowe dwuprzerwowe
-- id: bar_interconnection_tn
-  yolo_class: element
-  iec_ref: null
-  default_description: Bar interconnection TN
-  atlas_crop: data/atlas/crops/bar_interconnection_tn.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/barre_interconnexion_tn.elmt
-  aliases_pl:
-  - Oddzielacz w stanie zamknięcia
-- id: terminal_strip_closed
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal strip, closed
-  atlas_crop: data/atlas/crops/terminal_strip_closed.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/barrette_connexion_f.elmt
-  aliases_pl:
-  - Oddzielacz w stanie zamknięcia
-  tag_prefix: X
-- id: terminal_block
-  yolo_class: element
-  iec_ref: null
-  default_description: Terminal block
-  atlas_crop: data/atlas/crops/terminal_block.png
-  source_refs:
-  - qet:10_electric/10_allpole/130_terminals_terminal_strips/borne_2.elmt
-  aliases_pl:
-  - Zacisk
   tag_prefix: X
