@@ -39,3 +39,13 @@ raise NotImplementedError("COWORK: opis")
 - `docs/project-context.txt`
 - `docs/claude-cowork-instructions.md`
 - `docs/eplan-kb/` — tylko archiwum (nie uzywac w runtime)
+
+## Commit etapu (Cursor)
+
+Po akceptacji kamienia milowego:
+
+1. `sync/commit-message.txt` = `[Cursor] <opis etapu>`
+2. Wpis w `sync/filip-to-zw.md`: Commit pending
+3. GitSync `-MachineTag Cursor` zacommituje w <=10 s
+
+Czytaj `sync/commit-log.md` dla historii etapow.

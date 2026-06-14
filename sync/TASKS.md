@@ -15,4 +15,5 @@
 | 9 | 2026-06-14 | Cursor | DONE | Pivot Faza 0: archiwum EPLAN + szkielet backend/labeler/train | obaj |
 | 10 | 2026-06-14 | ZW | OPEN | Cowork: sync/prompts/001-labeler-canvas.md — canvas bbox | ZW |
 | 11 | 2026-06-14 | Filip | OPEN | Oznacz 3-5 stron schematu w labelerze (data/raw/) | Filip |
-| 12 | 2026-06-14 | ZW | OPEN | Cowork: 001-symbol-detector + train po danych od Filipa | ZW |
+| 12 | 2026-06-14 | Claude | OPEN | Cowork: 001-symbol-detector + train po danych od Filipa | Claude |
+| 13 | 2026-06-14 | Cursor | DONE | GitSync: commit-message.txt + tagi Cursor/Claude | obaj |

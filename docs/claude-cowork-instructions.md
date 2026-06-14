@@ -55,3 +55,29 @@ sync/prompts/     — twoje zadania
 pytest backend/tests labeler/tests
 python -m backend.cli validate schema/fixtures/page1_expected.json
 ```
+
+## Commit etapu (GitSync)
+
+Po zakonczonym prompcie + pytest OK:
+
+1. Wpis w `sync/zw-to-filip.md` (status)
+2. `sync/commit-message.txt` = jedna linia, np. `[Claude] labeler: canvas bbox (prompt 001)`
+3. GitSync na PC ZW: `Start-GitSync.cmd Claude` — commit w <=10 s
+
+**Przed zapisem** sprawdz `commit-message.txt` — jesli niepusty i autor to Cursor, **nie nadpisuj**; napisz w `zw-to-filip.md`.
+
+**Checklist konca sesji:**
+```
+1. pytest OK
+2. zw-to-filip.md
+3. commit-message.txt = "[Claude] ..."
+4. Nie edytuj pliku, ktory Cursor reviewuje rownolegle
+```
+
+## Model i effort (rekomendacja)
+
+| Zadanie | Model | Effort |
+|---------|-------|--------|
+| canvas JS, export, proste moduly | Sonnet | High |
+| ONNX, graph builder, integracje | Opus | High / Ultra |
+| Poprawka po review Cursor | Sonnet | Medium |
