@@ -168,28 +168,33 @@ async function loadElementCatalog() {
   });
 }
 
-function syncTagEditor() {
-  tagInput.disabled = false;
-  if (selectedIdx >= 0 && bboxes[selectedIdx]) {
-    tagInput.value = bboxes[selectedIdx].tag || "";
-    editorHint.textContent = `Edycja zaznaczonego (#${selectedIdx + 1})`;
-    classHint.textContent = "Zmien opis — aktualizuje zaznaczony bbox.";
-    return;
-  }
+function syncNewTagEditor() {
   tagInput.value = pendingTag;
-  editorHint.textContent = "Wpisz opis, potem narysuj bbox na schemacie.";
-  classHint.textContent = "Kliknij istniejacy bbox, aby edytowac opis.";
+  editorHint.textContent = "Wpisz opis nastepnego elementu, potem narysuj bbox.";
 }
 
-function onTagInputChange(value) {
-  const text = value; // keep spaces while typing
-  if (selectedIdx >= 0 && bboxes[selectedIdx]) {
-    bboxes[selectedIdx].tag = text.trim();
-    redraw();
-    renderAnnotationList();
-    return;
-  }
-  pendingTag = text;
+function clearNewTagEditor() {
+  pendingTag = "";
+  tagInput.value = "";
+  syncNewTagEditor();
+}
+
+function onNewTagInput(value) {
+  pendingTag = value;
+}
+
+function normalizeBboxesForSave() {
+  return bboxes.map((b) => ({
+    id: b.id,
+    class_name: b.class_name || DEFAULT_CLASS,
+    x: b.x,
+    y: b.y,
+    width: b.width,
+    height: b.height,
+    tag: (b.tag || "").trim(),
+    semantic_group: b.semantic_group || "",
+    color_ref: b.color_ref || "",
+  }));
 }
 
 async function selectPage(pageId) {
@@ -199,6 +204,7 @@ async function selectPage(pageId) {
   originX = 0;
   originY = 0;
   selectedIdx = -1;
+  pendingTag = "";
 
   bgImage = await new Promise((resolve, reject) => {
     const img = new Image();
@@ -221,7 +227,7 @@ async function selectPage(pageId) {
   redraw();
   renderAnnotationList();
   renderPageList();
-  syncTagEditor();
+  clearNewTagEditor();
   updatePageNav();
   const idx = currentPageIndex();
   const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
@@ -233,14 +239,61 @@ async function selectPage(pageId) {
 
 function renderAnnotationList() {
   const list = document.getElementById("annotation-list");
+  const focusedIdx = document.activeElement?.dataset?.idx;
   list.innerHTML = "";
+  if (!bboxes.length) {
+    const empty = document.createElement("li");
+    empty.className = "muted";
+    empty.textContent = "Brak elementow — wpisz opis i narysuj bbox.";
+    empty.style.background = "transparent";
+    empty.style.cursor = "default";
+    list.appendChild(empty);
+    return;
+  }
   bboxes.forEach((b, i) => {
-    const li = document.createElement("li");
-    li.textContent = b.tag || "(bez opisu)";
-    if (i === selectedIdx) li.classList.add("active");
-    li.onclick = () => { selectedIdx = i; redraw(); renderAnnotationList(); syncTagEditor(); };
-    list.appendChild(li);
+    const row = document.createElement("li");
+    row.className = "annotation-row";
+    if (i === selectedIdx) row.classList.add("active");
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "row-tag";
+    input.dataset.idx = String(i);
+    input.value = b.tag || "";
+    input.placeholder = `#${i + 1} — opis elementu`;
+    input.addEventListener("mousedown", (e) => e.stopPropagation());
+    input.addEventListener("focus", () => {
+      selectedIdx = i;
+      list.querySelectorAll(".annotation-row").forEach((el, j) => {
+        el.classList.toggle("active", j === i);
+      });
+      redraw();
+    });
+    input.addEventListener("input", (e) => {
+      bboxes[i].tag = e.target.value;
+      redraw();
+    });
+
+    row.appendChild(input);
+    row.addEventListener("click", () => {
+      selectedIdx = i;
+      renderAnnotationList();
+      redraw();
+      row.querySelector("input")?.focus();
+    });
+    list.appendChild(row);
+
+    if (focusedIdx === String(i)) {
+      input.focus();
+      input.selectionStart = input.selectionEnd = input.value.length;
+    }
   });
+}
+
+function selectBbox(idx) {
+  selectedIdx = idx;
+  renderAnnotationList();
+  redraw();
 }
 
 // ── bbox drawing ──────────────────────────────────────────────────────────────
@@ -255,18 +308,15 @@ canvas.addEventListener("mousedown", (e) => {
     (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
   );
   if (hit >= 0) {
-    selectedIdx = hit;
-    redraw();
-    renderAnnotationList();
-    syncTagEditor();
+    selectBbox(hit);
     return;
   }
 
-  // Start drawing — zachowaj opis jako pending dla nowego bbox
   pendingTag = tagInput.value;
   drawing = true;
   selectedIdx = -1;
-  syncTagEditor();
+  list.querySelectorAll(".annotation-row").forEach((el) => el.classList.remove("active"));
+  redraw();
   startX = pt.x;
   startY = pt.y;
 });

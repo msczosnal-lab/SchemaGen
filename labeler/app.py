@@ -74,7 +74,7 @@ class AnnotationPayload(BaseModel):
 
 
 @app.post("/api/annotations")
-def post_annotations(body: AnnotationPayload) -> dict[str, str]:
+def post_annotations(body: AnnotationPayload) -> dict:
     record = body.record
     save_annotation(record.page_id, record.model_dump())
     upsert_page(record.page_id, record.image_path, status="labeled")

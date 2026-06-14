@@ -13,12 +13,12 @@
   <main class="layout">
     <aside id="pages-panel">
       <div id="bbox-editor">
-        <h2>Co oznaczasz?</h2>
-        <p id="editor-hint">Wpisz opis, potem narysuj bbox.</p>
-        <label for="tag-input">Opis elementu</label>
-        <input id="tag-input" type="text" list="element-suggestions" placeholder="np. Stycznik -K1, Zasilanie 400V L1" autocomplete="off" />
+        <h2>Nowy element</h2>
+        <p id="editor-hint">Wpisz opis, narysuj bbox — pole sie wyczysci.</p>
+        <label for="tag-input">Opis (nastepny bbox)</label>
+        <input id="tag-input" type="text" list="element-suggestions" placeholder="np. Stycznik -K1" autocomplete="off" />
         <datalist id="element-suggestions"></datalist>
-        <p id="class-hint" class="muted">Podpowiedzi z katalogu po zapisie strony.</p>
+        <p id="class-hint" class="muted">Edycja istniejacych — lista po prawej.</p>
       </div>
       <h2>Strony</h2>
       <ul id="page-list"></ul>
@@ -30,15 +30,15 @@
         <button id="page-next" type="button" title="Następna strona (→)">→</button>
       </div>
       <canvas id="canvas" width="800" height="600"></canvas>
-      <p id="hint">Wpisz opis → narysuj bbox → Zapisz</p>
+      <p id="hint">Opis → bbox → edycja po prawej → Zapisz</p>
     </section>
     <aside id="annotations-panel">
-      <h2>Na tej stronie</h2>
+      <h2>Elementy na stronie</h2>
       <ul id="annotation-list"></ul>
       <button id="save-btn" type="button">Zapisz</button>
       <button id="export-btn" type="button">Eksport YOLO + JSON</button>
     </aside>
   </main>
-  <script src="/static/app.js?v=3"></script>
+  <script src="/static/app.js?v=4"></script>
 </body>
 </html>

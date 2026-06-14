@@ -12,7 +12,19 @@ aside { padding: 12px; border-right: 1px solid #444; overflow: auto; }
 canvas { background: #fff; border: 1px solid #666; max-width: 100%; cursor: crosshair; }
 ul { list-style: none; padding: 0; }
 li { padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; }
-li.active { outline: 2px solid #4a9eff; }
+li.annotation-row { padding: 4px; cursor: default; }
+li.annotation-row.active { outline: 2px solid #4a9eff; }
+li.annotation-row input.row-tag {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #eee;
+  font-size: 0.9rem;
+  cursor: text;
+}
+li.annotation-row input.row-tag:focus { border-color: #4a9eff; outline: none; }
 button { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
 #hint { color: #aaa; font-size: 0.9rem; }
 .muted { color: #888; font-size: 0.85rem; margin: 4px 0 8px; }
