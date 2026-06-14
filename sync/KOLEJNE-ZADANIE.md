@@ -1,6 +1,7 @@
 # KOLEJNE ZADANIE — wczytaj ten plik po wiadomosci od Filipa
 
-> **Filip pisze:** „kolejne zadanie” → czytasz ten plik + `sync/filip-to-zw.md` + aktywny prompt.
+> **Filip pisze:** „kolejne zadanie” → czytasz ten plik + `sync/filip-to-zw.md` + aktywny prompt.  
+> **Gotowy prompt do wklejenia:** [`sync/PROMPT-CLAUDE-005.md`](PROMPT-CLAUDE-005.md)
 
 ---
 
@@ -8,11 +9,8 @@
 
 | Prompt | Status |
 |--------|--------|
-| **001-labeler-canvas** | DONE |
-| **003-labeler-bbox-hierarchy** | DONE |
-| **007-sources-analysis** | DONE — akceptacja Filipa |
-| **005-train-symbols (BUILD M0)** | **PRIORYTET #1** |
-| **008-symbol-atlas-extract (QET)** | OPEN — po 005 lub równolegle |
+| **005-train-symbols (BUILD M0)** | **PRIORYTET #1 — kod u Claude, trening u Filipa** |
+| **008-symbol-atlas-extract (QET)** | OPEN — po 005 |
 | **002-labeler-lines-colors** | OPEN |
 | **009-bbox-symbol-id** | po 008a |
 
@@ -23,50 +21,49 @@
 | Pole | Wartosc |
 |------|---------|
 | **Prompt** | [`sync/prompts/005-train-symbols.md`](prompts/005-train-symbols.md) |
-| **Deliverable** | `train/dataset_export.py`, `train/train_symbols.py`, pierwszy `best.pt` |
-| **Typ** | Implementacja + uruchomienie treningu offline |
+| **Deliverable (Claude ZW)** | `train/dataset_export.py`, `train/train_symbols.py`, testy, fix `labeler/export.py` |
+| **Deliverable (Filip RTX 2080)** | `python -m train.dataset_export` + `train_symbols` → `best.pt` |
+| **Typ** | Implementacja kodu (ZW) + trening GPU (Filip) |
 | **Model** | Sonnet, effort **High** |
 
-### Dataset (gotowy w SQLite — NIE w data/labeled/)
+### Podział maszyn — OBOWIĄZKOWO
 
-9 stron, ~394 bboxy: p013(75), p014(99), p015(152), p016–p018, p021–p023.  
-Eksport batch = część zadania 005.
+| PC | Co robisz |
+|----|-----------|
+| **ZW (Claude)** | Kod + pytest. **Bez pełnego treningu** — brak `data/schemagen.db` i PNG w gicie |
+| **Filip (RTX 2080)** | Po pull committa Claude: export + train lokalnie |
 
-### Kroki
+### Kroki Claude (ZW)
 
-1. Przeczytaj `sync/filip-to-zw.md` (wpis BUILD M0)
-2. `pip install -e ".[gpu]"` jeśli brak torch/ultralytics
-3. Zaimplementuj **005** wg promptu
-4. `python -m train.dataset_export`
-5. `python -m train.train_symbols --epochs 30 --batch 8`
-6. `pytest backend/tests labeler/tests train/tests`
-7. Wpis w `sync/zw-to-filip.md`
-8. `sync/commit-message.txt` = `[Claude] train: dataset export + YOLOv8n symbols M0 (prompt 005)`
+1. `sync/filip-to-zw.md` + `005-train-symbols.md`
+2. Implementacja wg promptu
+3. `pytest backend/tests labeler/tests train/tests`
+4. `sync/zw-to-filip.md` — **sekcja komend dla Filipa (PowerShell)**
+5. `sync/commit-message.txt` = `[Claude] train: dataset export + YOLO train code M0 (prompt 005)`
 
-### Czego NIE robic w 005
+### Kroki Filip (po commicie Claude)
 
-- Atlas QET (008a) — osobne zadanie
-- ONNX (006) — następne po best.pt
+```powershell
+cd C:\Users\Filip\Desktop\Cursor\SchemaGen
+pip install -e ".[gpu]"
+.venv\Scripts\python.exe -m train.dataset_export
+.venv\Scripts\python.exe -m train.train_symbols --epochs 30 --batch 8
+```
+
+### Czego NIE robic
+
+- Pełny trening YOLO na PC ZW
+- Atlas 008a w tej samej sesji (chyba że 005 done + Filip każe)
 - Cloud API
 
 ---
 
-## Zadanie wtórne (po 005 lub równolegle)
+## Dataset (tylko u Filipa — nie w gicie)
 
-| Prompt | Plik |
-|--------|------|
-| **008a QET atlas** | [`008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) |
-
----
-
-## Kontekst
-
-- Filip oznaczył **9 stron** ogólniej (krótsze tagi) — **STOP bboxów** do wyniku buildu
-- WRT01 PNG: `data/raw/SchematWRT01_p*.png`
-- RTX 2080, batch≤8
+9 stron, ~394 bboxy w `data/schemagen.db`. Eksport batch = część 005.
 
 ---
 
 ## Commit
 
-Jedna linia w `sync/commit-message.txt`, autor `[Claude]`. Nie nadpisuj jesli jest `[Cursor]` i niepusty.
+Jedna linia w `sync/commit-message.txt`, autor `[Claude]`.

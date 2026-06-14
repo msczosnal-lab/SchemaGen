@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-06-14 [Filip/Cursor] — BUILD M0: podział GPU
+
+Temat: **005 = kod u Claude (ZW), trening u Filipa (RTX 2080)**
+
+**Claude (PC ZW):** tylko implementacja — `dataset_export`, `train_symbols`, testy pytest. **Nie uruchamiaj** pełnego treningu (brak datasetu w gicie; słabszy PC).
+
+**Filip (RTX 2080):** po Twoim commicie — export + train lokalnie (komendy w `zw-to-filip.md`).
+
+Gotowy prompt startowy: [`sync/PROMPT-CLAUDE-005.md`](PROMPT-CLAUDE-005.md)
+
+---
+
 ## 2026-06-14 [Filip] — BUILD M0: pierwszy trening YOLO
 
 Temat: **Dataset gotowy w SQLite — priorytet = prompt 005, nie dalsze bboxy**
@@ -27,15 +39,15 @@ W `data/labeled/` jest tylko stary eksport p013 — **batch eksport = część 0
 - `train/dataset_export.py` — SQLite → YOLO train/val + PNG z `data/raw/`  
 - `train/train_symbols.py` — ultralytics YOLOv8n (batch≤8)  
 - fix: `labeler/export.py` kopiuje PNG przy eksporcie  
-- `pip install -e ".[gpu]"` jeśli brak torch  
+- **pytest tylko** — trening GPU = instrukcja dla Filipa, nie wykonuj na ZW  
 
-**Handoff:** [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md) — 005 przed 008a
+**Handoff:** [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
 
-Po buildzie:
-- wpis w `sync/zw-to-filip.md` (metryki, ścieżka best.pt)
-- `sync/commit-message.txt` = `[Claude] train: dataset export + YOLOv8n symbols M0 (prompt 005)`
+Po kodzie:
+- wpis w `sync/zw-to-filip.md` (pliki + komendy PowerShell dla Filipa)
+- `sync/commit-message.txt` = `[Claude] train: dataset export + YOLO train code M0 (prompt 005)`
 
-**008a QET** — po 005 lub równolegle. **Filip: nie oznaczaj więcej stron** do wyniku buildu.
+**008a QET** — po 005. **Filip: nie oznaczaj więcej stron** do wyniku buildu.
 
 ---
 

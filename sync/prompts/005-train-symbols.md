@@ -30,12 +30,23 @@ Klasa YOLO: jedna — `element` ([`config/symbol-classes.yaml`](../../config/sym
 
 ## Cel
 
-Pierwszy działający trening offline:
+Kod pierwszego treningu offline (Filip odpala GPU u siebie):
 
 1. Batch eksport SQLite → struktura YOLO train/val
 2. Implementacja `train_symbols.train()` (ultralytics)
-3. Uruchomienie treningu na RTX 2080 (batch≤8)
-4. Zapis metryk + ścieżki `best.pt`
+3. Testy jednostkowe + instrukcja uruchomienia dla Filipa (RTX 2080)
+4. **NIE** pełny trening na PC ZW — brak datasetu w gicie, słabe GPU/CPU
+
+## Podział maszyn (OBOWIĄZKOWE)
+
+| PC | Rola |
+|----|------|
+| **ZW (Claude Cowork)** | Implementacja kodu, `pytest`, commit. Smoke test exportu **tylko jeśli masz lokalnie** `data/schemagen.db` — inaczej testy na mock/fixture. |
+| **Filip (RTX 2080, 8 GB)** | `pip install -e ".[gpu]"`, `python -m train.dataset_export`, `python -m train.train_symbols --epochs 30 --batch 8` |
+
+Dane (`data/schemagen.db`, `data/raw/*.png`) są w `.gitignore` — **na ZW ich nie ma**. W `sync/zw-to-filip.md` podaj Filipowi gotowe komendy PowerShell.
+
+**Nie commituj:** `best.pt`, `data/runs/`, ciężkie wagi — tylko kod + ewent. `symbols_v1_train_summary.json` po treningu u Filipa (opcjonalnie, lokalnie).
 
 ## 1. `train/dataset_export.py` (nowy)
 
@@ -80,7 +91,7 @@ Usuń stub. Implementuj:
 def train(data_yaml=None, epochs=50, batch=8, imgsz=640, device=0, name="symbols_v1") -> dict
 ```
 
-- Wymaga: `pip install -e ".[gpu]"` (torch, ultralytics) — **zainstaluj w venv jeśli brak**
+- Wymaga u Filipa: `pip install -e ".[gpu]"` (torch, ultralytics) — **nie instaluj ciężkiego GPU stacku na ZW jeśli niepotrzebny**
 - Model startowy: `yolov8n.pt` (auto-download ultralytics)
 - Config: [`train/configs/symbols.yaml`](../../train/configs/symbols.yaml) — epochs 50, batch 8, device 0
 - Output run: `data/runs/symbols_v1/` (weights/best.pt)
@@ -91,7 +102,8 @@ CLI: `python -m train.train_symbols --epochs 30 --batch 8`
 ## 4. Testy
 
 - `train/tests/test_dataset_export.py` — mock SQLite lub fixture JSON → sprawdź strukturę katalogów
-- Po treningu: raport w `sync/zw-to-filip.md` (liczba stron, mAP jeśli dostępne, ścieżka best.pt)
+- **Nie uruchamiaj** pełnego treningu 30–50 epok na PC ZW
+- W `sync/zw-to-filip.md`: sekcja **„Uruchomienie u Filipa (RTX 2080)”** z komendami; metryki mAP dopisze Filip po swoim treningu
 
 ## Zakazy
 
@@ -106,8 +118,8 @@ CLI: `python -m train.train_symbols --epochs 30 --batch 8`
 ## Po ukończeniu
 
 1. `pytest backend/tests labeler/tests train/tests`
-2. Wpis w `sync/zw-to-filip.md` — wynik treningu, jak powtórzyć
-3. `sync/commit-message.txt` = `[Claude] train: dataset export + YOLOv8n symbols M0 (prompt 005)`
+2. Wpis w `sync/zw-to-filip.md` — pliki, pytest, **komendy dla Filipa** (bez best.pt z ZW)
+3. `sync/commit-message.txt` = `[Claude] train: dataset export + YOLO train code M0 (prompt 005)`
 
 ## Następny krok (osobny prompt)
 

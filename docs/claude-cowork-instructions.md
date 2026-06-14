@@ -54,6 +54,12 @@ sync/KOLEJNE-ZADANIE.md — co robic teraz
 2. **Kolory semantyczne** — `config/semantic-colors.yaml`; rozpoznawanie i walidacja po kolorze grupy obiektu
 3. Linie `device_stroke`, `crossing`, `frame` **nigdy** nie stają się Connection
 
+## Trening YOLO (BUILD M0+)
+
+- **Implementacja kodu:** Claude (PC ZW) — `train/dataset_export.py`, `train/train_symbols.py`
+- **Uruchomienie treningu GPU:** **tylko Filip (RTX 2080)** — `data/schemagen.db` i PNG nie są w gicie
+- Claude **nie** odpala pełnego `train_symbols` z epokami na ZW
+
 ## Zasady kodu
 
 - Python 3.11+, type hints
