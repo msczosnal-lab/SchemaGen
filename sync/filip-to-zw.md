@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-06-14 [Filip/Cursor] — BUILD M0 DONE + priorytet 008a
+
+Temat: **Trening + ONNX + inferencja u Filipa zamknięte. Następne zadanie Claude = 008a (QET atlas).**
+
+### Co zrobione lokalnie (Filip, RTX 2080)
+
+- Odbudowa **`.venv311`** (Py 3.11, torch cu121) — `.venv` (Py 3.14 CPU) **nie używać** do GPU.
+- `train_symbols` 30 epok → `data/runs/symbols_v1/weights/best.pt`, mAP50 ≈ **0.085**
+- `export_onnx` → `data/models/symbols_v1.onnx`, `registry.json` active=symbols_v1
+- Smoke inferencji: **5 detekcji** na p013 przy `conf=0.05` (0 przy domyślnym 0.25 — słaby model, pipeline OK)
+- onnxruntime CUDA: brak `cublasLt64_12.dll` → fallback CPU (wystarczy na teraz)
+
+Plan sesji: [`sync/PLAN-TYMCZASOWY.md`](PLAN-TYMCZASOWY.md)
+
+### Twoje zadanie (PRIORYTET #1)
+
+[`sync/prompts/008-symbol-atlas-extract.md`](prompts/008-symbol-atlas-extract.md) — **faza 1 tylko QET**
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+### Reguły po BUILD M0
+
+- **Nie** implementuj ponownie 005/006/001 bez `## Poprawka` od Cursor.
+- **Nie** zakładaj, że Filip ma `best.pt` — pytaj / czytaj `filip-to-zw.md`.
+- **Nie** cytuj metryk treningu bez `symbols_v1_train_summary.json` od Filipa.
+- Pełny trening YOLO = tylko u Filipa.
+
+Commit pending: `[Cursor] sync: BUILD M0 done, handoff 008a + PLAN-TYMCZASOWY`
+
+---
+
 ## 2026-06-14 [Filip/Cursor] — BUILD M0: podział GPU
 
 Temat: **005 = kod u Claude (ZW), trening u Filipa (RTX 2080)**
