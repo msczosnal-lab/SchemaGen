@@ -99,14 +99,51 @@ function redraw() {
 
 async function loadPages() {
   const pages = await fetchJson("/api/pages");
+  pagesMeta = [...pages].sort((a, b) =>
+    (a.id || "").localeCompare(b.id || "", undefined, { numeric: true })
+  );
+  pageIds = pagesMeta.map((p) => p.id);
+  renderPageList();
+  updatePageNav();
+}
+
+function renderPageList() {
   const list = document.getElementById("page-list");
   list.innerHTML = "";
-  pages.forEach((p) => {
+  pagesMeta.forEach((p) => {
     const li = document.createElement("li");
     li.textContent = p.filename || p.id;
+    if (p.id === currentPageId) li.classList.add("active");
     li.onclick = () => selectPage(p.id);
     list.appendChild(li);
   });
+}
+
+function currentPageIndex() {
+  return pageIds.indexOf(currentPageId);
+}
+
+function updatePageNav() {
+  const idx = currentPageIndex();
+  const total = pageIds.length;
+  if (total === 0 || idx < 0) {
+    pagePositionEl.textContent = "— / —";
+    pagePrevBtn.disabled = true;
+    pageNextBtn.disabled = true;
+    return;
+  }
+  pagePositionEl.textContent = `${idx + 1} / ${total}`;
+  pagePrevBtn.disabled = idx <= 0;
+  pageNextBtn.disabled = idx >= total - 1;
+}
+
+async function navigatePage(delta) {
+  if (!pageIds.length) return;
+  let idx = currentPageIndex();
+  if (idx < 0) idx = delta > 0 ? -1 : 0;
+  idx += delta;
+  if (idx < 0 || idx >= pageIds.length) return;
+  await selectPage(pageIds[idx]);
 }
 
 async function loadClasses() {
@@ -196,9 +233,13 @@ async function selectPage(pageId) {
 
   redraw();
   renderAnnotationList();
+  renderPageList();
   syncTagEditor();
+  updatePageNav();
+  const idx = currentPageIndex();
+  const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
   document.getElementById("hint").textContent =
-    `Strona: ${pageId} — rysuj bbox | scroll=zoom | Del=usuń | opis po zaznaczeniu`;
+    `Strona ${pos}: ${pageId} — ←/→ | scroll=zoom | Del=usuń | opis po zaznaczeniu`;
 }
 
 // ── annotation list ───────────────────────────────────────────────────────────
@@ -297,6 +338,20 @@ canvas.addEventListener("wheel", (e) => {
 // ── keyboard ──────────────────────────────────────────────────────────────────
 
 document.addEventListener("keydown", (e) => {
+  if (e.target === tagInput) {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") return;
+    return;
+  }
+  if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    navigatePage(-1);
+    return;
+  }
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    navigatePage(1);
+    return;
+  }
   const n = parseInt(e.key, 10);
   if (n >= 1 && n <= 9 && n <= classes.length) {
     setActiveClass(n - 1);
@@ -314,6 +369,9 @@ document.addEventListener("keydown", (e) => {
 
 tagInput.addEventListener("input", (e) => updateSelectedTag(e.target.value));
 tagInput.addEventListener("change", (e) => updateSelectedTag(e.target.value));
+
+pagePrevBtn.addEventListener("click", () => navigatePage(-1));
+pageNextBtn.addEventListener("click", () => navigatePage(1));
 
 // ── save / export ─────────────────────────────────────────────────────────────
 
