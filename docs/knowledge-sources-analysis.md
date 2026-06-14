@@ -158,25 +158,27 @@ symbols:
 - `config/element-catalog.yaml` — **instancje** z labelera (`-11` na p013). Łączyć przez `symbol_id` → wpis w `symbol-reference.yaml`.
 - `config/symbol-classes.yaml` — klasa YOLO `element`. `symbol-reference.yaml.symbols[].yolo_class` musi się zgadzać.
 - `blocks/*.json` — szablony **obwodów** (RUPS1…), nie pojedyncze symbole. Bez zmian; symbol-reference działa o poziom niżej.
-- `archive/eplan-era-2026-06.zip` — **potencjalnie najlepsze źródło atlasu**: zawiera realne symbole EPLAN tego samego języka co WRT01. Warto **jednorazowo, offline** ocenić ekstrakcję crop-ów symboli + nazw do `data/atlas/` i `symbol-reference.yaml`. **Nie** rozpakowywać do runtime. (Decyzja: osobny prompt — patrz niżej.)
+  `default_description` w przykładzie ciągniemy z **IEC 60617** (źródło 2), `aliases_pl` ze słownika PL (źródło 1), `atlas_crop` = crop z `IEC60617.pdf`.
+- `archive/eplan-era-2026-06.zip` — **schodzi na drugi plan**. Atlas normatywny (IEC 60617) już mamy. EPLAN warto wykorzystać dopiero gdyby brakowało konkretnych symboli aparatury producenckiej z WRT01 — wtedy jednorazowo, offline.
 
 ---
 
 ## Rekomendacje i następne kroki — „Co robimy"
 
-1. **Bbox-y na WRT01: TAK, kontynuować.** Schematu nic nie zastąpi (pozycje, tagi, topologia). Cel rundy: dokończyć 3 oznaczone (p013–p015), potem dobrać 5–10 reprezentatywnych stron pod różnorodność typów, nie wszystkie 77 na raz.
-2. **Priorytet źródła #1: atlas symboli, NIE ten blog.** ControlByte zostaje jako glosariusz pojęć. Realny priorytet = **IEC 60617 / PN-EN 60617** lub **ekstrakcja symboli z `archive/eplan-era-2026-06.zip`** (ten sam język co WRT01 — prawdopodobnie najszybsza droga do atlasu zgodnego 1:1).
-3. **Skrócony workflow labelera.** Filip wpisuje tylko **tag instancji** (np. `-11`) + wskazuje **symbol_id** z listy; opis/typ ciągniemy z `symbol-reference.yaml`. Eliminuje ręczne przepisywanie opisów.
-4. **Co odkładamy.** Pełne ręczne rysowanie linii — czekamy na auto-tracer (prompt 003-line-tracer). Streszczanie wideo w runtime — odpada (offline). Encyklopedyczne opisy w bboxach — zastąpione katalogiem.
+1. **Bbox-y na WRT01: TAK, kontynuować.** Schematu nic nie zastąpi (pozycje, tagi, topologia). Cel: dokończyć 3 oznaczone (p013–p015), potem 5–10 reprezentatywnych stron pod różnorodność typów — nie wszystkie 77 naraz.
+2. **Priorytet #1 = IEC 60617 (źródło 2).** Atlas jest w ręku — droga to **layout-aware ekstrakcja** (parowanie crop ↔ opis ↔ komentarz) → `config/symbol-reference.yaml` + crop-y PNG do `data/atlas/`. ControlByte zostaje jako słownik PL pojęć i kontrola terminologii.
+3. **Skrócony workflow labelera.** Filip wpisuje tylko **tag instancji** (np. `-11`) + wskazuje **symbol_id** z listy z atlasu; opis/typ ciągnie się z `symbol-reference.yaml`. Koniec ręcznego przepisywania opisów.
+4. **Co odkładamy.** Pełne ręczne rysowanie linii — czekamy na auto-tracer (003-line-tracer). EPLAN z archiwum — tylko gdy zabraknie symboli producenckich. Streszczanie wideo w runtime — odpada (offline). Encyklopedyczne opisy w bboxach — zastąpione katalogiem.
 5. **Następny prompt implementacyjny (propozycja dla Cursor):**
-   - **008-eplan-atlas-probe** *(research/offline)* — ocena `archive/eplan-era-2026-06.zip`: ile symboli, jaki format, czy da się wyciąć crop + nazwa → szkic `data/atlas/` + `config/symbol-reference.yaml`. Bez runtime API.
-   - następnie **009-symbol-reference + bbox→symbol_id** — labeler wybiera `symbol_id`, katalog dostarcza opis/typ.
+   - **008-iec60617-atlas-extract** *(implementacja, offline)* — layout-aware ekstrakcja `data/raw/IEC60617.pdf`: pozycje grafik + bboxy tekstu → parowanie po wierszu tabeli → `data/atlas/<id>.png` + `config/symbol-reference.yaml` (id, iec_ref, default_description EN, aliases_pl, atlas_crop). Rozwiązuje [RYZYKO] alignmentu. Bez cloud API.
+   - następnie **009-bbox→symbol_id w labelerze** — wybór `symbol_id` z atlasu przy bboxie; katalog dostarcza opis/typ.
 
 ---
 
 ## Otwarte pytania do Filipa
 
-1. **Atlas:** wolisz, żebym najpierw ocenił `archive/eplan-era-2026-06.zip` jako źródło symboli (runda 2 = prompt 008), czy dorzucisz zewnętrzny atlas IEC 60617 (PDF/obrazy)?
-2. **Zakres bbox:** zostajemy na p013–p015, czy dobieramy kolejne strony pod różnorodność typów (które stacje/obwody są najważniejsze)?
-3. **Więcej źródeł do oceny w tej rundzie?** (np. norma PN-EN 60617, karty katalogowe producentów aparatury z WRT01 — Finder, Schneider, Eaton)
-4. **`tag_prefix`:** czy WRT01 trzyma konwencję członów literowych (`-F` bezpiecznik, `-K` przekaźnik/stycznik, `-M` silnik, `-Q` wyłącznik)? To zdeterminuje regułę walidacji tag → typ.
+1. **Ekstrakcja atlasu:** akceptujesz prompt **008-iec60617-atlas-extract** (parowanie symbol↔opis + `symbol-reference.yaml`) jako następny krok implementacyjny dla Cursor?
+2. **Aliasy PL:** dla ~533 symboli opisy są EN. Tłumaczymy **wszystkie**, czy tylko podzbiór realnie występujący na WRT01 (szybciej, mniej szumu)? Sugeruję podzbiór.
+3. **Zakres bbox:** zostajemy na p013–p015, czy dobieramy kolejne strony pod różnorodność typów? Które stacje/obwody są najważniejsze?
+4. **`tag_prefix`:** czy WRT01 trzyma konwencję członów literowych (`-F` bezpiecznik, `-K` przekaźnik/stycznik, `-M` silnik, `-Q` wyłącznik)? Zdeterminuje regułę walidacji tag → typ.
+5. **[do potwierdzenia] Licencja IEC 60617** — czy crop-y symboli mogą trafić do repo (zwł. jeśli publiczne)? Jeśli nie — trzymamy atlas tylko lokalnie (`data/raw`, `data/atlas` w `.gitignore`).
