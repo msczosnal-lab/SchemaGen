@@ -348,30 +348,6 @@ function parentSeqOf(b) {
   return p ? p.seq || "?" : null;
 }
 
-function treeOrderedIndices() {
-  const childrenOf = new Map();
-  bboxes.forEach((b, i) => {
-    const key = b.parent_id || "";
-    if (!childrenOf.has(key)) childrenOf.set(key, []);
-    childrenOf.get(key).push(i);
-  });
-  for (const arr of childrenOf.values()) {
-    arr.sort((a, b) => (bboxes[a].seq || 0) - (bboxes[b].seq || 0));
-  }
-  const order = [];
-  const visit = (key) => {
-    for (const i of childrenOf.get(key) || []) {
-      order.push(i);
-      visit(bboxes[i].id);
-    }
-  };
-  visit("");
-  bboxes.forEach((b, i) => {
-    if (!order.includes(i)) order.push(i);
-  });
-  return order;
-}
-
 /** Indeksy do listy UI: najnowsze na gorze (seq malejaco), nie drzewo DFS. */
 function listDisplayIndices() {
   return bboxes
