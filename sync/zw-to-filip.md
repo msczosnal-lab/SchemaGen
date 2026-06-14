@@ -5,6 +5,41 @@
 
 ---
 
+## 2026-06-14 [ZW] — Prompty 006 + 001: export ONNX + inferencja symboli
+
+Temat: **best.pt → ONNX + detektor YOLOv8 ONNX (offline).** Kod + pytest na ZW; export i inferencja GPU u Ciebie. Bazuje na BUILD M0 (mAP50≈0.04, 17 epok — overfit przy 9 stronach, zgodnie z przewidywaniem).
+
+### Co zrobione (kod)
+
+- **`train/export_onnx.py`** — `export_onnx()`: best.pt → ONNX (opset 12, zgodny z onnxruntime-gpu 1.17), kopia do `data/models/symbols_v1.onnx` + wpis do `registry.json` (`register_model`). Leniwy import ultralytics. CLI `--weights/--version/--opset/--imgsz`.
+- **`backend/recognize/symbol_detector.py`** — `OnnxSymbolDetector.detect()`: session `["CUDAExecutionProvider","CPUExecutionProvider"]`, preprocess przez `resize_for_yolo` (BGR→RGB, CHW, /255), parsowanie wyjścia YOLOv8 `(1,4+nc,N)`, próg confidence, **NMS** (`cv2.dnn.NMSBoxes`), mapowanie bboxów z 640 → piksele oryginału, `class_id→class_name`. Leniwy import onnxruntime.
+- **`backend/tests/test_symbol_detector.py`** — 3 testy (fake session, bez onnxruntime): mapowanie współrzędnych, filtr confidence, fallback nazwy klasy.
+- **`train/tests/test_export_onnx.py`** — 2 testy: guard braku wag + zapis registry.
+
+### Testy (PC ZW)
+
+```
+pytest backend/tests labeler/tests train/tests   →  35 passed
+python -m backend.cli validate schema/fixtures/page1_expected.json  →  approved: true
+```
+
+> `*.onnx`, `best.pt`, `data/runs/` **NIE** w repo. Pipeline (`OfflineRecognizer`) czyta aktywny model z `registry.json` → po Twoim eksporcie sam podłączy `symbols_v1.onnx`.
+
+### Uruchomienie u Filipa (RTX 2080, PowerShell)
+
+```powershell
+# 1. Export wytrenowanych wag do ONNX (uzywa data/runs/symbols_v1/weights/best.pt)
+.venv\Scripts\python.exe -m train.export_onnx
+#    → data/models/symbols_v1.onnx + aktualizacja data/models/registry.json (active=symbols_v1)
+
+# 2. Smoke test inferencji na stronie spoza treningu (np. p016/p019 — walidacja generalizacji)
+.venv\Scripts\python.exe -c "from backend.recognize.symbol_detector import OnnxSymbolDetector; d=OnnxSymbolDetector('data/models/symbols_v1.onnx', {'element':0}); print(len(d.detect('data/raw/SchematWRT01_p016.png')), 'detekcji')"
+```
+
+Przy mAP50≈0.04 spodziewaj się **mało/żadnych** trafień na stronach spoza treningu — to oczekiwane. Cel tego kroku: potwierdzić, że ścieżka ONNX→inferencja działa end-to-end. Realny skok jakości dopiero po doznaczeniu stron lub atlasie (008a). Daj znać ile detekcji wyszło na p016/p019.
+
+---
+
 ## 2026-06-14 [ZW] — Prompt 005 (BUILD M0): dataset export + kod treningu YOLO
 
 Temat: **Kod eksportu datasetu (SQLite→YOLO) + trening YOLOv8n.** Implementacja + pytest na PC ZW. **Pełny trening GPU robisz Ty (RTX 2080).**
