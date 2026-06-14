@@ -44,6 +44,15 @@ class Component(BaseModel):
     page: int = 0
     semantic_group: str = ""
     color_ref: str = ""
+    parent_id: str = ""
+    depth: int = 0
+    rel_bbox: list[float] = Field(default_factory=list)
+
+
+class SpatialRelation(BaseModel):
+    from_id: str
+    to_id: str
+    relation: Literal["contains", "left_of", "right_of", "above", "below"]
 
 
 class GraphicLine(BaseModel):
@@ -75,6 +84,7 @@ class SchemaModel(BaseModel):
     components: list[Component] = Field(default_factory=list)
     graphic_lines: list[GraphicLine] = Field(default_factory=list)
     connections: list[Connection] = Field(default_factory=list)
+    spatial_relations: list[SpatialRelation] = Field(default_factory=list)
     potentials: list[str] = Field(default_factory=list)
     blocks: list[str] = Field(default_factory=list)
     annotations: list[str] = Field(default_factory=list)
