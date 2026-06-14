@@ -2,8 +2,8 @@
 
 **Data:** 2026-06-14
 **Autor:** Claude (ZW) + Filip
-**Wersja:** 3 (runda 3 — 3 źródła; doszedł QElectroTech)
-**Profil WRT01 (Filip):** dominują **PLC/IO/sieci** + **aparatura producentów**
+**Wersja:** 4 (runda 4 — werdykt o archiwum EPLAN + strategia treningu Siemens-first)
+**Profil WRT01 (Filip):** sterowniki **GE Vernova**, złączki/IO **Phoenix Contact**; trening na komponentach **Siemens**
 **Prompt:** `sync/prompts/007-sources-analysis.md`
 
 ---
