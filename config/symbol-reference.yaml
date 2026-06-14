@@ -1,47 +1,972 @@
 meta:
   version: 1
-  generated_at: '2026-06-14T00:00:00+00:00'
+  generated_at: '2026-06-14T21:16:56.046317+00:00'
   sources:
-    - id: qet
-      type: gpl_lib
-      ref: data/atlas/qet
-      license: GNU/GPL — atrybucja w README/docs
+  - id: qet
+    type: gpl_lib
+    ref: data/atlas/qet
+    license: GNU/GPL — atrybucja w README/docs
   tag_standard: IEC 81346-1
-  note: >
-    Seed (3 fixture-symbole). Pelny atlas (>=80 wpisow) generuje sie przez:
-    python -m backend.atlas.build_reference --qet-dir data/atlas/qet
-    (wymaga lokalnego klonu QET — patrz docs/atlas-setup.md)
-
 symbols:
-  - id: fuse
-    yolo_class: element
-    iec_ref: null
-    default_description: Fuse
-    aliases_pl:
-      - bezpiecznik
-    tag_prefix: F
-    atlas_crop: data/atlas/crops/fuse.png
-    source_refs:
-      - qet:10_electric/10_allpole/fuse.elmt
-
-  - id: contactor
-    yolo_class: element
-    iec_ref: null
-    default_description: Contactor
-    aliases_pl:
-      - stycznik
-    tag_prefix: KM
-    atlas_crop: data/atlas/crops/contactor.png
-    source_refs:
-      - qet:10_electric/10_allpole/contactor.elmt
-
-  - id: terminal_block
-    yolo_class: element
-    iec_ref: null
-    default_description: Terminal block
-    aliases_pl:
-      - listwa zaciskowa
-    tag_prefix: X
-    atlas_crop: data/atlas/crops/terminal_block.png
-    source_refs:
-      - qet:10_electric/10_allpole/terminal_block.elmt
+- id: coming_arrow
+  yolo_class: element
+  iec_ref: null
+  default_description: Coming arrow
+  atlas_crop: data/atlas/crops/coming_arrow.png
+  source_refs:
+  - qet:10_electric/10_allpole/100_folio_referencing/01coming_arrow.elmt
+  aliases_pl:
+  - Wejście adresowe
+- id: going_arrow
+  yolo_class: element
+  iec_ref: null
+  default_description: Going arrow
+  atlas_crop: data/atlas/crops/going_arrow.png
+  source_refs:
+  - qet:10_electric/10_allpole/100_folio_referencing/02going_arrow.elmt
+  aliases_pl:
+  - Wyjście adresowe
+- id: multi_wire_cable_previous_folio_horizontal
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable previous folio horizontal
+  atlas_crop: data/atlas/crops/multi_wire_cable_previous_folio_horizontal.png
+  source_refs:
+  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_from_h.elmt
+- id: multi_wire_cable_previous_folio_vertical
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable previous folio vertical
+  atlas_crop: data/atlas/crops/multi_wire_cable_previous_folio_vertical.png
+  source_refs:
+  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_from_v.elmt
+- id: multi_wire_cable_next_folio_horizontal
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable next folio horizontal
+  atlas_crop: data/atlas/crops/multi_wire_cable_next_folio_horizontal.png
+  source_refs:
+  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_next_h.elmt
+- id: multi_wire_cable_next_folio_vertical
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable next folio vertical
+  atlas_crop: data/atlas/crops/multi_wire_cable_next_folio_vertical.png
+  source_refs:
+  - qet:10_electric/10_allpole/100_folio_referencing/m_cable_folio_next_v.elmt
+- id: three_pole_source_pen
+  yolo_class: element
+  iec_ref: null
+  default_description: Three-pole source + PEN
+  atlas_crop: data/atlas/crops/three_pole_source_pen.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/3_pen_pravy.elmt
+  - qet:10_electric/10_allpole/110_network_supplies/src_3p_pen.elmt
+  aliases_pl:
+  - Linia trójfazowa (PEN)
+- id: three_pole_source_n_pe
+  yolo_class: element
+  iec_ref: null
+  default_description: Three-pole source + N + PE
+  atlas_crop: data/atlas/crops/three_pole_source_n_pe.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/3f_n_pe_pravy.elmt
+  aliases_pl:
+  - Linia trójfazowa (PEN)
+- id: ground
+  yolo_class: element
+  iec_ref: null
+  default_description: Ground
+  atlas_crop: data/atlas/crops/ground.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/ground1.elmt
+  - qet:10_electric/10_allpole/110_network_supplies/terre.elmt
+  aliases_pl:
+  - Masa
+- id: chassis
+  yolo_class: element
+  iec_ref: null
+  default_description: Chassis
+  atlas_crop: data/atlas/crops/chassis.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/masse.elmt
+  aliases_pl:
+  - Masa
+- id: single_pole_source_pe_n
+  yolo_class: element
+  iec_ref: null
+  default_description: Single-pole source + PE +N
+  atlas_crop: data/atlas/crops/single_pole_source_pe_n.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_1p_pe_n.elmt
+  aliases_pl:
+  - Linia jednofazowa (trójprzewodowa)
+- id: single_pole_source_pen
+  yolo_class: element
+  iec_ref: null
+  default_description: Single-pole source +PEN
+  atlas_crop: data/atlas/crops/single_pole_source_pen.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_1p_pen.elmt
+  aliases_pl:
+  - Linia jednofazowa (TN-C)
+- id: single_pole_source_neutral
+  yolo_class: element
+  iec_ref: null
+  default_description: Single-pole source + neutral
+  atlas_crop: data/atlas/crops/single_pole_source_neutral.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_1pn.elmt
+  aliases_pl:
+  - Linia jednofazowa (dwuprzewodowa)
+- id: three_pole_source
+  yolo_class: element
+  iec_ref: null
+  default_description: Three-pole source
+  atlas_crop: data/atlas/crops/three_pole_source.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_3p.elmt
+  aliases_pl:
+  - Linia trójfazowa (trójprzewodowa)
+- id: three_pole_source_pe_n
+  yolo_class: element
+  iec_ref: null
+  default_description: Three-pole source + PE +N
+  atlas_crop: data/atlas/crops/three_pole_source_pe_n.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_3p_pe_n.elmt
+  aliases_pl:
+  - Linia trójfazowa (pięcioprzewodowa)
+- id: three_pole_source_neutral
+  yolo_class: element
+  iec_ref: null
+  default_description: Three-pole source + neutral
+  atlas_crop: data/atlas/crops/three_pole_source_neutral.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_3pn.elmt
+  aliases_pl:
+  - Linia trójfazowa (czteroprzewodowa)
+- id: three_pole_source_pe
+  yolo_class: element
+  iec_ref: null
+  default_description: Three-pole source + PE
+  atlas_crop: data/atlas/crops/three_pole_source_pe.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_3ppe.elmt
+  aliases_pl:
+  - Linia trójfazowa (czteroprzewodowa)
+- id: neutral_source
+  yolo_class: element
+  iec_ref: null
+  default_description: Neutral source
+  atlas_crop: data/atlas/crops/neutral_source.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_n.elmt
+  aliases_pl:
+  - Przewód neutralny
+- id: phase_source
+  yolo_class: element
+  iec_ref: null
+  default_description: Phase source
+  atlas_crop: data/atlas/crops/phase_source.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_p.elmt
+  aliases_pl:
+  - Przewód liniowy
+- id: distribution_point_tn_c_tn_s
+  yolo_class: element
+  iec_ref: null
+  default_description: Distribution point TN-C >TN-S
+  atlas_crop: data/atlas/crops/distribution_point_tn_c_tn_s.png
+  source_refs:
+  - qet:10_electric/10_allpole/110_network_supplies/src_tnc_tns.elmt
+  aliases_pl:
+  - Linia trójfazowa (TN-C-S)
+- id: connection
+  yolo_class: element
+  iec_ref: null
+  default_description: connection
+  atlas_crop: data/atlas/crops/connection.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/bod.elmt
+- id: combine
+  yolo_class: element
+  iec_ref: null
+  default_description: Combine
+  atlas_crop: data/atlas/crops/combine.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/combine.elmt
+  aliases_pl:
+  - Połączenie 1
+- id: corner
+  yolo_class: element
+  iec_ref: null
+  default_description: Corner
+  atlas_crop: data/atlas/crops/corner.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/corner.elmt
+  aliases_pl:
+  - Narożnik
+- id: cross
+  yolo_class: element
+  iec_ref: null
+  default_description: Cross
+  atlas_crop: data/atlas/crops/cross.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/cross.elmt
+  aliases_pl:
+  - Połączenie 2
+- id: jump
+  yolo_class: element
+  iec_ref: null
+  default_description: Jump
+  atlas_crop: data/atlas/crops/jump.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/jump.elmt
+  aliases_pl:
+  - Brak połączenia
+- id: connecteur_pour_quatre_fils
+  yolo_class: element
+  iec_ref: null
+  default_description: Connecteur pour quatre fils
+  atlas_crop: data/atlas/crops/connecteur_pour_quatre_fils.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/lphd.elmt
+- id: splice
+  yolo_class: element
+  iec_ref: null
+  default_description: Splice
+  atlas_crop: data/atlas/crops/splice.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/splice.elmt
+  aliases_pl:
+  - Połączenie 3
+- id: thru_left
+  yolo_class: element
+  iec_ref: null
+  default_description: Thru left
+  atlas_crop: data/atlas/crops/thru_left.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/thruleft.elmt
+  aliases_pl:
+  - Połączenie 4
+- id: thru_right
+  yolo_class: element
+  iec_ref: null
+  default_description: Thru right
+  atlas_crop: data/atlas/crops/thru_right.png
+  source_refs:
+  - qet:10_electric/10_allpole/114_connections/thruright.elmt
+  aliases_pl:
+  - Połączenie 5
+- id: cable_2_phasesterre
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 2 phases+terre
+  atlas_crop: data/atlas/crops/cable_2_phasesterre.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/cable.elmt
+  - qet:10_electric/10_allpole/120_cables_wiring/cable2.elmt
+  aliases_pl:
+  - Oznaczenie przewodu czterożyłowego
+- id: cable_3_phasesterre
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 3 phases+terre
+  atlas_crop: data/atlas/crops/cable_3_phasesterre.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/cable1.elmt
+  aliases_pl:
+  - Oznaczenie przewodu czterożyłowego
+- id: cable_4g
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 4G
+  atlas_crop: data/atlas/crops/cable_4g.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/cable3.elmt
+  - qet:10_electric/10_allpole/120_cables_wiring/kabel4g.elmt
+  aliases_pl:
+  - Przewód czterożyłowy
+- id: cable_5g
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 5G
+  atlas_crop: data/atlas/crops/cable_5g.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/cable5.elmt
+  aliases_pl:
+  - Przewód pięciożyłowy
+- id: cable_3g
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 3G
+  atlas_crop: data/atlas/crops/cable_3g.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/cable6.elmt
+  - qet:10_electric/10_allpole/120_cables_wiring/kabel3g.elmt
+  aliases_pl:
+  - Przewód trójżyłowy
+- id: cable_3_wires
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 3 wires
+  atlas_crop: data/atlas/crops/cable_3_wires.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/cable_3wires.elmt
+  aliases_pl:
+  - Oznaczenie przewodu trójżyłowego
+- id: screen
+  yolo_class: element
+  iec_ref: null
+  default_description: Screen
+  atlas_crop: data/atlas/crops/screen.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/ecran_3p.elmt
+  aliases_pl:
+  - Ekran 3
+- id: wire_of_cable
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire of cable
+  atlas_crop: data/atlas/crops/wire_of_cable.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/fil_de_cable.elmt
+  aliases_pl:
+  - Połączenie przewodu
+- id: wiring
+  yolo_class: element
+  iec_ref: null
+  default_description: Wiring
+  atlas_crop: data/atlas/crops/wiring.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/filerie.elmt
+  aliases_pl:
+  - Oznaczenie przewodu
+- id: cable_7g
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 7G
+  atlas_crop: data/atlas/crops/cable_7g.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/kabel7g.elmt
+  aliases_pl:
+  - Oznaczenie przewodu czterożyłowego
+- id: cable_8g
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable 8G
+  atlas_crop: data/atlas/crops/cable_8g.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/kabel8g.elmt
+- id: multi_wire_cable_2_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 2-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_demux.elmt
+- id: multi_wire_cable_2_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 2-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_demux_40px.elmt
+- id: multi_wire_cable_2_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 2-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_mux.elmt
+- id: multi_wire_cable_2_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 2-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_2_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_02p_mux_40px.elmt
+- id: multi_wire_cable_3_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 3-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_demux.elmt
+- id: multi_wire_cable_3_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 3-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_demux_40px.elmt
+- id: multi_wire_cable_3_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 3-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_mux.elmt
+- id: multi_wire_cable_3_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 3-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_3_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_03p_mux_40px.elmt
+- id: multi_wire_cable_4_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 4-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_demux.elmt
+- id: multi_wire_cable_4_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 4-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_demux_40px.elmt
+- id: multi_wire_cable_4_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 4-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_mux.elmt
+- id: multi_wire_cable_4_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 4-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_4_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_04p_mux_40px.elmt
+- id: multi_wire_cable_5_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 5-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_demux.elmt
+- id: multi_wire_cable_5_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 5-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_demux_40px.elmt
+- id: multi_wire_cable_5_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 5-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_mux.elmt
+- id: multi_wire_cable_5_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 5-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_5_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_05p_mux_40px.elmt
+- id: multi_wire_cable_6_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 6-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_demux.elmt
+- id: multi_wire_cable_6_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 6-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_demux_40px.elmt
+- id: multi_wire_cable_6_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 6-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_mux.elmt
+- id: multi_wire_cable_6_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 6-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_6_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_06p_mux_40px.elmt
+- id: multi_wire_cable_7_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 7-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07_mux_40px.elmt
+- id: multi_wire_cable_7_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 7-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07p_demux.elmt
+- id: multi_wire_cable_7_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 7-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07p_demux_40px.elmt
+- id: multi_wire_cable_7_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 7-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_7_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_07p_mux.elmt
+- id: multi_wire_cable_8_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 8-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_demux.elmt
+- id: multi_wire_cable_8_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 8-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_demux_40px.elmt
+- id: multi_wire_cable_8_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 8-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_mux.elmt
+- id: multi_wire_cable_8_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 8-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_8_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_08p_mux_40px.elmt
+- id: multi_wire_cable_9_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 9-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_demux.elmt
+- id: multi_wire_cable_9_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 9-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_demux_40px.elmt
+- id: multi_wire_cable_9_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 9-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_mux.elmt
+- id: multi_wire_cable_9_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 9-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_9_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_09p_mux_40px.elmt
+- id: multi_wire_cable_10_pole_demux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 10-pole Demux
+  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_demux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_demux.elmt
+- id: multi_wire_cable_10_pole_demux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 10-pole Demux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_demux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_demux_40px.elmt
+- id: multi_wire_cable_10_pole_mux
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 10-pole Mux
+  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_mux.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_mux.elmt
+- id: multi_wire_cable_10_pole_mux_40px
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable 10-pole Mux 40px
+  atlas_crop: data/atlas/crops/multi_wire_cable_10_pole_mux_40px.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_10p_mux_40px.elmt
+- id: multi_wire_cable_designation
+  yolo_class: element
+  iec_ref: null
+  default_description: Multi wire cable designation
+  atlas_crop: data/atlas/crops/multi_wire_cable_designation.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/m_cable_designation.elmt
+- id: wiring_section
+  yolo_class: element
+  iec_ref: null
+  default_description: Wiring section
+  atlas_crop: data/atlas/crops/wiring_section.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/nomenclature_section.elmt
+  aliases_pl:
+  - Pole przekróju przewodu
+- id: section_1_conducteur
+  yolo_class: element
+  iec_ref: null
+  default_description: Section 1 conducteur
+  atlas_crop: data/atlas/crops/section_1_conducteur.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/section1conducteur.elmt
+  aliases_pl:
+  - Oznaczenie pola przekroju przewodu jednożyłowego
+- id: section_2_conducteurs
+  yolo_class: element
+  iec_ref: null
+  default_description: Section 2 conducteurs
+  atlas_crop: data/atlas/crops/section_2_conducteurs.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/section2-1conducteurs.elmt
+  - qet:10_electric/10_allpole/120_cables_wiring/section2conducteurs.elmt
+  aliases_pl:
+  - Oznaczenie pola przekroju przewodu dwużyłowego
+- id: section_3_conducteurs
+  yolo_class: element
+  iec_ref: null
+  default_description: Section 3 conducteurs
+  atlas_crop: data/atlas/crops/section_3_conducteurs.png
+  source_refs:
+  - qet:10_electric/10_allpole/120_cables_wiring/section3.elmt
+  aliases_pl:
+  - Oznaczenie pola przekroju przewodu trójżyłowego
+- id: terminal_strip_label
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal strip label
+  atlas_crop: data/atlas/crops/terminal_strip_label.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0101.elmt
+  aliases_pl:
+  - Etykieta listwy zaciskowej
+  tag_prefix: X
+- id: terminal_feed_through
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal (feed-through)
+  atlas_crop: data/atlas/crops/terminal_feed_through.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0111.elmt
+  aliases_pl:
+  - Zacisk
+  tag_prefix: X
+- id: terminal_grounding
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal (Grounding)
+  atlas_crop: data/atlas/crops/terminal_grounding.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0121.elmt
+  aliases_pl:
+  - Zacisk uziemiający
+  tag_prefix: X
+- id: discontinuation_terminal_strip
+  yolo_class: element
+  iec_ref: null
+  default_description: Discontinuation terminal strip
+  atlas_crop: data/atlas/crops/discontinuation_terminal_strip.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0151.elmt
+  tag_prefix: X
+- id: terminal_double_level_feed_through
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal double-level (feed-through)
+  atlas_crop: data/atlas/crops/terminal_double_level_feed_through.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0211.elmt
+  tag_prefix: X
+- id: insertion_bridge
+  yolo_class: element
+  iec_ref: null
+  default_description: Insertion bridge
+  atlas_crop: data/atlas/crops/insertion_bridge.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0501.elmt
+- id: insertion_bridge_double_width
+  yolo_class: element
+  iec_ref: null
+  default_description: Insertion bridge (double width)
+  atlas_crop: data/atlas/crops/insertion_bridge_double_width.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0502.elmt
+- id: connector_25_pins
+  yolo_class: element
+  iec_ref: null
+  default_description: Connector 25 pins
+  atlas_crop: data/atlas/crops/connector_25_pins.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-10-0901.elmt
+- id: device_connection_on_bottom
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on bottom)
+  atlas_crop: data/atlas/crops/device_connection_on_bottom.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0001.elmt
+- id: device_connection_on_top
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on top)
+  atlas_crop: data/atlas/crops/device_connection_on_top.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0002.elmt
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0001.elmt
+- id: device_connection_on_bottom_beginning
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on bottom) - beginning
+  atlas_crop: data/atlas/crops/device_connection_on_bottom_beginning.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0011.elmt
+- id: device_connection_on_bottom_middle
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on bottom) - middle
+  atlas_crop: data/atlas/crops/device_connection_on_bottom_middle.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0012.elmt
+- id: device_connection_on_bottom_end
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on bottom) - end
+  atlas_crop: data/atlas/crops/device_connection_on_bottom_end.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-20-0013.elmt
+- id: device_connection_on_top_beginning
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on top) - beginning
+  atlas_crop: data/atlas/crops/device_connection_on_top_beginning.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0011.elmt
+- id: device_connection_on_top_middle
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on top) - middle
+  atlas_crop: data/atlas/crops/device_connection_on_top_middle.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0012.elmt
+- id: device_connection_on_top_end
+  yolo_class: element
+  iec_ref: null
+  default_description: Device (connection on top) - end
+  atlas_crop: data/atlas/crops/device_connection_on_top_end.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-21-0013.elmt
+- id: cable_tag
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable tag
+  atlas_crop: data/atlas/crops/cable_tag.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0001.elmt
+- id: cable_wire_towards_top
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable wire towards top
+  atlas_crop: data/atlas/crops/cable_wire_towards_top.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0010.elmt
+- id: cable_wire_towards_bottom
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable wire towards bottom
+  atlas_crop: data/atlas/crops/cable_wire_towards_bottom.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0011.elmt
+- id: wire_definition
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire definition
+  atlas_crop: data/atlas/crops/wire_definition.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/90-30-0101.elmt
+- id: cable
+  yolo_class: element
+  iec_ref: null
+  default_description: Cable
+  atlas_crop: data/atlas/crops/cable.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/cable.elmt
+- id: distributor
+  yolo_class: element
+  iec_ref: null
+  default_description: distributor
+  atlas_crop: data/atlas/crops/distributor.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/repartiteur.elmt
+  aliases_pl:
+  - Łączówka
+- id: terminal_12g1
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal 12G1
+  atlas_crop: data/atlas/crops/terminal_12g1.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_12g1.elmt
+  aliases_pl:
+  - Listwa zaciskowa 12G
+  tag_prefix: X
+- id: terminal_19g1
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal_19G1
+  atlas_crop: data/atlas/crops/terminal_19g1.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_19g1.elmt
+  aliases_pl:
+  - Listwa zaciskowa 19G
+  tag_prefix: X
+- id: terminal_3g1
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal_3G1
+  atlas_crop: data/atlas/crops/terminal_3g1.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_3g1.elmt
+  aliases_pl:
+  - Listwa zaciskowa 3G
+  tag_prefix: X
+- id: terminal_4g1
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal_4G1
+  atlas_crop: data/atlas/crops/terminal_4g1.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_4g1.elmt
+  aliases_pl:
+  - Listwa zaciskowa 4G
+  tag_prefix: X
+- id: terminal_5g1
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal_5G1
+  atlas_crop: data/atlas/crops/terminal_5g1.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_5g1.elmt
+  aliases_pl:
+  - Listwa zaciskowa 5G
+  tag_prefix: X
+- id: terminal_7g1
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal_7G1
+  atlas_crop: data/atlas/crops/terminal_7g1.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/90_terminal_strips_diagram/terminal_7g1.elmt
+  aliases_pl:
+  - Listwa zaciskowa 7G
+  tag_prefix: X
+- id: wire_connector_2_port
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector 2-Port
+  atlas_crop: data/atlas/crops/wire_connector_2_port.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-2-port.elmt
+- id: wire_connector_3_port
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector 3-Port
+  atlas_crop: data/atlas/crops/wire_connector_3_port.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-3-port.elmt
+- id: wire_connector_4_port
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector 4-Port
+  atlas_crop: data/atlas/crops/wire_connector_4_port.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-4-port.elmt
+- id: wire_connector_5_port
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector 5-Port
+  atlas_crop: data/atlas/crops/wire_connector_5_port.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-5-port.elmt
+- id: wire_connector_8_port
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector 8-Port
+  atlas_crop: data/atlas/crops/wire_connector_8_port.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-8-port.elmt
+- id: wire_connector_splitter_2_input_4_output
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector Splitter 2 Input-4 Output
+  atlas_crop: data/atlas/crops/wire_connector_splitter_2_input_4_output.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-splitter-2-input-4-output.elmt
+- id: wire_connector_splitter_2_input_6_output
+  yolo_class: element
+  iec_ref: null
+  default_description: Wire Connector Splitter 2 Input-6 Output
+  atlas_crop: data/atlas/crops/wire_connector_splitter_2_input_6_output.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/95_terminals_spring_box/wire-connector-splitter-2-input-6-output.elmt
+- id: ground_bar
+  yolo_class: element
+  iec_ref: null
+  default_description: Ground bar
+  atlas_crop: data/atlas/crops/ground_bar.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/barette_de_terre.elmt
+  aliases_pl:
+  - Złącze gniazdowe dwuprzerwowe
+- id: bar_interconnection_tn
+  yolo_class: element
+  iec_ref: null
+  default_description: Bar interconnection TN
+  atlas_crop: data/atlas/crops/bar_interconnection_tn.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/barre_interconnexion_tn.elmt
+  aliases_pl:
+  - Oddzielacz w stanie zamknięcia
+- id: terminal_strip_closed
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal strip, closed
+  atlas_crop: data/atlas/crops/terminal_strip_closed.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/barrette_connexion_f.elmt
+  aliases_pl:
+  - Oddzielacz w stanie zamknięcia
+  tag_prefix: X
+- id: terminal_block
+  yolo_class: element
+  iec_ref: null
+  default_description: Terminal block
+  atlas_crop: data/atlas/crops/terminal_block.png
+  source_refs:
+  - qet:10_electric/10_allpole/130_terminals_terminal_strips/borne_2.elmt
+  aliases_pl:
+  - Zacisk
+  tag_prefix: X
