@@ -417,7 +417,7 @@ function onNewTagInput(value) {
 }
 
 function normalizeBboxesForSave() {
-  return bboxes.map((b) => ({
+  return capturePageState().bboxes.map((b) => ({
     id: b.id,
     class_name: b.class_name || DEFAULT_CLASS,
     x: b.x,
@@ -433,12 +433,20 @@ function normalizeBboxesForSave() {
 
 async function selectPage(pageId) {
   if (!pageId) return;
+  if (currentPageId && currentPageId !== pageId) {
+    persistPageDraft(currentPageId);
+    if (dirtyPages.has(currentPageId)) {
+      await savePageToServer(currentPageId, { silent: true });
+    }
+  }
+
   currentPageId = pageId;
   scale = 1;
   originX = 0;
   originY = 0;
   selectedIdx = -1;
   expandedIdx = -1;
+  focusTextareaIdx = null;
   pendingTag = "";
 
   bgImage = await new Promise((resolve, reject) => {
@@ -452,14 +460,25 @@ async function selectPage(pageId) {
     img.src = `/api/pages/${pageId}/image?t=${Date.now()}`;
   });
 
+  let serverBboxes = [];
   try {
     const ann = await fetchJson(`/api/annotations/${pageId}`);
-    bboxes = ann.bboxes || [];
+    serverBboxes = ann.bboxes || [];
+  } catch {
+    serverBboxes = [];
+  }
+
+  const cached = pageCache.get(pageId) || loadLocalDraft(pageId);
+  if (cached?.bboxes?.length >= serverBboxes.length) {
+    applyPageState(cached);
+    if (cached.bboxes.length > serverBboxes.length) {
+      dirtyPages.add(pageId);
+    }
+  } else {
+    bboxes = serverBboxes;
     sortBboxesNewestFirst();
     ensureSeqNumbers();
-  } catch {
-    bboxes = [];
-    nextSeq = 1;
+    persistPageDraft(pageId);
   }
 
   redraw();
@@ -467,10 +486,11 @@ async function selectPage(pageId) {
   renderPageList();
   clearNewTagEditor();
   updatePageNav();
+  updateSaveStatus();
   const idx = currentPageIndex();
   const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
   document.getElementById("hint").textContent =
-    `Strona ${pos}: ${pageId} — przeciagnij = nowy bbox | klik = zaznacz | ←/→ strony`;
+    `Strona ${pos}: ${pageId} — zmiana strony auto-zapisuje | Ctrl+S = zapisz`;
 }
 
 function toggleAccordion(i) {
@@ -565,6 +585,7 @@ function removeBboxAt(idx) {
   selectedIdx = -1;
   expandedIdx = -1;
   focusTextareaIdx = null;
+  markPageDirty();
   renderAnnotationList();
   redraw();
 }
@@ -573,6 +594,7 @@ function bindRowTextarea(textarea, i) {
   textarea.addEventListener("mousedown", (e) => e.stopPropagation());
   textarea.addEventListener("input", (e) => {
     bboxes[i].tag = e.target.value;
+    markPageDirty();
     redraw();
   });
 }
@@ -667,6 +689,7 @@ canvas.addEventListener("mouseup", (e) => {
   selectedIdx = -1;
   expandedIdx = -1;
   focusTextareaIdx = null;
+  markPageDirty();
   redraw();
   renderAnnotationList();
   clearNewTagEditor();
@@ -688,7 +711,18 @@ canvas.addEventListener("wheel", (e) => {
 // ── keyboard ──────────────────────────────────────────────────────────────────
 
 document.addEventListener("keydown", (e) => {
-  if (isTextField(e.target)) return;
+  if (isTextField(e.target)) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      savePageToServer(currentPageId);
+    }
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+    e.preventDefault();
+    savePageToServer(currentPageId);
+    return;
+  }
   if (e.key === "ArrowLeft") {
     e.preventDefault();
     navigatePage(-1);
@@ -711,6 +745,7 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
 async function init() {
   await loadPages();
+  reportRecoveryHints();
   if (pageIds.length && currentPageId == null) {
     await selectPage(pageIds[0]);
   } else {
@@ -718,40 +753,38 @@ async function init() {
   }
   await loadElementCatalog();
   clearNewTagEditor();
+  updateSaveStatus();
 }
 
-document.getElementById("save-btn").addEventListener("click", async () => {
+window.addEventListener("beforeunload", (e) => {
+  if (currentPageId) persistPageDraft(currentPageId);
+  if (dirtyPages.size > 0) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
+saveBtn?.addEventListener("click", async () => {
   if (!currentPageId) {
     alert("Wybierz strone z listy.");
     return;
   }
-  const saveBtn = document.getElementById("save-btn");
   saveBtn.disabled = true;
+  persistPageDraft(currentPageId);
   try {
-    const payload = {
-      record: {
-        page_id: currentPageId,
-        image_path: `${currentPageId}.png`,
-        image_width: bgImage ? bgImage.naturalWidth : canvas.width,
-        image_height: bgImage ? bgImage.naturalHeight : canvas.height,
-        bboxes: normalizeBboxesForSave(),
-        lines: [],
-        texts: [],
-        connections: [],
-      },
-    };
-    await fetchJson("/api/annotations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    await loadElementCatalog();
-    document.getElementById("hint").textContent = "Zapisano ✓ (katalog uaktualniony)";
-  } catch (err) {
-    alert(`Blad zapisu: ${err.message}`);
-    document.getElementById("hint").textContent = "Blad zapisu — sprawdz konsole.";
+    const ok = await savePageToServer(currentPageId);
+    if (ok) await loadElementCatalog();
   } finally {
     saveBtn.disabled = false;
+  }
+});
+
+saveAllBtn?.addEventListener("click", async () => {
+  saveAllBtn.disabled = true;
+  try {
+    await saveAllPages();
+  } finally {
+    saveAllBtn.disabled = false;
   }
 });
 
