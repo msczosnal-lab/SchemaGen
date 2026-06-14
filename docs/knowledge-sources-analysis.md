@@ -193,21 +193,28 @@ Propozycja (do akceptacji Cursor — **nie implementować w 007**). Rozdzielamy 
 meta:
   standard: "IEC 60617 / PN-EN 60617"   # atlas symboli
   tag_standard: "IEC 81346-1"           # =FUNKCJA +LOKALIZACJA -ELEMENT
+  sources:                              # warstwy atlasu
+    - {id: iec60617,  type: norm,   ref: "data/raw/IEC60617.pdf"}
+    - {id: qet,       type: gpl_lib, ref: "qelectrotech-elements"}
+    - {id: eplan_era, type: vendor, ref: "archive/eplan-era-2026-06.zip"}
 symbols:
-  - id: fuse_disconnector
-    iec_ref: "IEC 60617 S00289"          # ref do normy/atlasu
-    yolo_class: element                  # spójne z config/symbol-classes.yaml
+  - id: fuse_disconnector              # kanoniczny symbol_id (dedup między źródłami)
+    iec_ref: "IEC 60617 S00289"
+    yolo_class: element                # spójne z config/symbol-classes.yaml
     aliases_pl: ["rozłącznik bezpiecznikowy", "bezpiecznik"]
-    tag_prefix: "F"                       # typowy człon -F..
-    default_description: "<z atlasu, NIE z blogu>"
-    atlas_crop: "data/atlas/fuse_disconnector.png"   # opcjonalny crop do treningu
-    source_refs: ["controlbyte#oznaczenia"]          # skąd pojęcie, nie kształt
-  - id: contactor
-    iec_ref: "..."
+    tag_prefix: "F"                     # typowy człon -F..
+    default_description: "<z IEC 60617 / QET>"
+    atlas_crop: "data/atlas/fuse_disconnector.png"
+    source_refs: ["iec60617#p17", "qet#electric/fuse"]   # skąd kształt+opis
+  - id: plc_io_module                  # przykład: pokrywa QET/producent, nie IEC
+    iec_ref: null
     yolo_class: element
-    aliases_pl: ["stycznik"]
-    tag_prefix: "K"
-    default_description: "..."
+    aliases_pl: ["moduł we/wy PLC", "karta IO"]
+    tag_prefix: "A"
+    product_type: "6ES7..."            # oznaczenie handlowe ≠ symbol graficzny
+    default_description: "<z QET / biblioteki producenta>"
+    atlas_crop: "data/atlas/plc_io_module.png"
+    source_refs: ["qet#plc", "eplan_era#siemens"]
 ```
 
 **Relacja do istniejących plików:**
