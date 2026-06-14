@@ -305,22 +305,8 @@ function renderAnnotationList() {
     textarea.dataset.idx = String(i);
     textarea.rows = 5;
     textarea.value = b.tag || "";
-    textarea.placeholder = "Pelny opis elementu…";
-    textarea.addEventListener("mousedown", (e) => e.stopPropagation());
-    textarea.addEventListener("focus", () => {
-      selectedIdx = i;
-      expandedIdx = i;
-      list.querySelectorAll(".annotation-accordion").forEach((el, j) => {
-        el.classList.toggle("active", j === i);
-        el.classList.toggle("expanded", j === i);
-      });
-      redraw();
-    });
-    textarea.addEventListener("input", (e) => {
-      bboxes[i].tag = e.target.value;
-      header.querySelector(".accordion-title").textContent = summaryTag(e.target.value, i);
-      redraw();
-    });
+    textarea.placeholder = "Opis… Pusty + klik poza pole lub Enter = usuwa bbox";
+    bindRowTextarea(textarea, header, i);
 
     body.appendChild(textarea);
     row.appendChild(header);
@@ -335,7 +321,50 @@ function renderAnnotationList() {
   });
 }
 
-function selectBbox(idx, expand = true) {
+function removeBboxAt(idx) {
+  if (idx < 0 || idx >= bboxes.length) return;
+  bboxes.splice(idx, 1);
+  selectedIdx = -1;
+  expandedIdx = -1;
+  renderAnnotationList();
+  redraw();
+}
+
+function bindRowTextarea(textarea, header, i) {
+  textarea.addEventListener("mousedown", (e) => e.stopPropagation());
+  textarea.addEventListener("focus", () => {
+    selectedIdx = i;
+    expandedIdx = i;
+    document.querySelectorAll(".annotation-accordion").forEach((el, j) => {
+      el.classList.toggle("active", j === i);
+      el.classList.toggle("expanded", j === i);
+    });
+    redraw();
+  });
+  textarea.addEventListener("input", (e) => {
+    const val = e.target.value;
+    if (!val.trim()) {
+      bboxes[i].tag = "";
+      header.querySelector(".accordion-title").textContent = summaryTag("", i);
+      redraw();
+      return;
+    }
+    bboxes[i].tag = val;
+    header.querySelector(".accordion-title").textContent = summaryTag(val, i);
+    redraw();
+  });
+  textarea.addEventListener("blur", (e) => {
+    if (!e.target.value.trim()) {
+      removeBboxAt(i);
+    }
+  });
+  textarea.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !e.target.value.trim()) {
+      e.preventDefault();
+      removeBboxAt(i);
+    }
+  });
+}
   selectedIdx = idx;
   if (expand) expandedIdx = idx;
   renderAnnotationList();
