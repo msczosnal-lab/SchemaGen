@@ -5,33 +5,36 @@
 PC ZW: tylko kod + testy (mock/fixture). Pelny eksport (z prawdziwym
 data/schemagen.db i data/raw/*.png) uruchamia Filip lokalnie.
 
-Struktura wynikowa:
-    dataset/
-      images/train/<page>.png   images/val/<page>.png
-      labels/train/<page>.txt   labels/val/<page>.txt
-      data.yaml
+Struktura wynikowa (data/labeled/):
+    data.yaml
+    export-manifest.json
+    images/train/<page>.png   images/val/<page>.png
+    labels/train/<page>.txt   labels/val/<page>.txt
 """
 
 from __future__ import annotations
 
+import json
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
 from backend.db import list_pages, load_annotation
 from backend.models.label import LabelRecord
-from backend.paths import DATA, RAW
+from backend.paths import LABELED, RAW
 from labeler.export import find_raw_image, load_class_map, yolo_label_lines
-
-DATASET_DIR = DATA / "dataset"
 
 
 def load_labeled_records() -> list[LabelRecord]:
-    """Wszystkie rekordy z adnotacjami z SQLite (kazda strona z zapisanym payloadem)."""
+    """Rekordy z adnotacjami z SQLite (bbox>0, pomijajac strony `test_*`)."""
     records: list[LabelRecord] = []
     for page in list_pages():
-        data = load_annotation(page["id"])
+        page_id = page["id"]
+        if page_id.startswith("test_") or page_id.startswith("test"):
+            continue
+        data = load_annotation(page_id)
         if not data:
             continue
         record = LabelRecord.model_validate(data)
@@ -43,15 +46,19 @@ def load_labeled_records() -> list[LabelRecord]:
 def split_train_val(
     records: list[LabelRecord], val_ratio: float = 0.2
 ) -> tuple[list[LabelRecord], list[LabelRecord]]:
-    """Deterministyczny podzial (sort po page_id). Przy >=2 rekordach val ma min. 1."""
+    """Deterministyczny podzial (sort po page_id). **Ostatnie** strony ida do val.
+
+    Przy <=1 rekordzie ta sama strona trafia do train i val (za malo danych).
+    """
     ordered = sorted(records, key=lambda r: r.page_id)
     n = len(ordered)
     if n <= 1:
-        return ordered, ordered  # za malo danych — ta sama strona w train i val
+        return ordered, ordered
     n_val = max(1, round(n * val_ratio))
     n_val = min(n_val, n - 1)  # zostaw min. 1 w train
-    val = ordered[:n_val]
-    train = ordered[n_val:]
+    n_train = n - n_val
+    train = ordered[:n_train]
+    val = ordered[n_train:]
     return train, val
 
 
