@@ -277,17 +277,20 @@ function renderAnnotationList() {
     header.className = "accordion-header";
     header.innerHTML = `<span class="accordion-chevron">▶</span><span class="accordion-title"></span>`;
     header.querySelector(".accordion-title").textContent = summaryTag(b.tag, i);
-    header.addEventListener("click", () => {
-      if (expandedIdx === i) {
-        expandedIdx = -1;
-      } else {
+    header.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const opening = expandedIdx !== i;
+      if (opening) {
         expandedIdx = i;
         selectedIdx = i;
+      } else {
+        expandedIdx = -1;
       }
       renderAnnotationList();
       redraw();
-      if (expandedIdx === i) {
-        row.querySelector("textarea")?.focus();
+      if (opening) {
+        list.querySelector(`textarea.row-tag[data-idx="${i}"]`)?.focus();
       }
     });
 
@@ -321,9 +324,10 @@ function renderAnnotationList() {
     row.appendChild(body);
     list.appendChild(row);
 
-    if (focusIdx === String(i)) {
-      textarea.focus();
-      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+    if (focusIdx === String(i) && expandedIdx === i) {
+      const ta = row.querySelector("textarea");
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = ta.value.length;
     }
   });
 }
