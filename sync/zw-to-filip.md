@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-06-14 [ZW] — export_onnx: brak best.pt w data/runs — zlokalizuj lub przetrenuj
+
+Auto-find zadziałał, ale w `data/runs` **nie ma** żadnego `best.pt`. Rozszerzyłem szukanie też o domyślny katalog ultralytics `runs/` (gdy trening nie dostał `project`). 10 testów OK.
+
+**Krok 1 — zlokalizuj plik na całym dysku projektu:**
+```powershell
+Get-ChildItem -Recurse -ErrorAction SilentlyContinue -Filter best.pt |
+  Sort-Object LastWriteTime -Descending | Select FullName, LastWriteTime
+```
+- **Jeśli się znajdzie** (np. `runs\detect\train\weights\best.pt`): `pull`, potem `python -m train.export_onnx` (samo go weźmie) **albo** wskaż: `... --weights "<pełna ścieżka>"`.
+- **Jeśli pusto** (run wyczyszczony / usunięty przy `.gitignore runs/`): trzeba przetrenować ponownie — to ~17 epok, szybkie:
+```powershell
+.venv\Scripts\python.exe -m train.dataset_export
+.venv\Scripts\python.exe -m train.train_symbols --epochs 30 --batch 8
+.venv\Scripts\python.exe -m train.export_onnx
+```
+Mój `train_symbols` zapisuje do `data/runs/symbols_v1/` — po ponownym treningu auto-find trafi od razu.
+
+> Podejrzenie: run zniknął przy commicie `gitignore venv311/runs/yolo` albo przez czyszczenie. Wagi i tak nie idą do repo, więc po prostu odtwórz je lokalnie.
+
+---
+
 ## 2026-06-14 [ZW] — Fix export_onnx: auto-wyszukiwanie best.pt
 
 `export_onnx` rzucał `FileNotFoundError` — ultralytics zapisał run pod auto-inkrementowaną nazwą (np. `symbols_v12`), nie pod stałym `symbols_v1`. Dodałem `find_best_weights()`: bierze domyślny run, a jeśli go nie ma — **najnowszy** `data/runs/**/weights/best.pt`. +2 testy (13 passed).
