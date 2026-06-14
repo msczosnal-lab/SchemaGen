@@ -114,7 +114,54 @@ Następny krok techniczny: ekstrakcja **multi-source** do jednego `config/symbol
 3. **[RYZYKO] Język.** Opisy EN — `aliases_pl` trzeba dołożyć ręcznie/półautomatycznie; ControlByte (źródło 1) pomaga jako słownik PL pojęć.
 4. **[RYZYKO] Licencja.** IEC 60617 to treść normatywna — sprawdzić warunki redystrybucji crop-ów, jeśli atlas miałby trafić do repo publicznego. **[do potwierdzenia przez Filipa]**
 
-**Wniosek dla źródła 2:** **fundament katalogu typów**. Realna droga: ekstrakcja layout-aware → `config/symbol-reference.yaml` (id, iec_ref, default_description EN + aliases_pl, crop PNG). Trening: crop-y jako baza syntetyki, ale priorytet to bboxy z WRT01.
+**Wniosek dla źródła 2:** **fundament katalogu typów** (warstwa bazowa). Realna droga: ekstrakcja layout-aware → `config/symbol-reference.yaml`. Słabo pokrywa PLC/IO i aparaturę producencką → uzupełnić QET i bibliotekami producentów.
+
+---
+
+### Źródło 3 — QElectroTech (biblioteka symboli CAD)
+
+**Co zawiera:** open-source'owy program do schematów elektrycznych z **oficjalną kolekcją >8000 symboli** (`qelectrotech-elements`). Obejmuje folder **IEC 60617** oraz obszerne zbiory **przemysłowe: PLC/IO, styczniki, przekaźniki, napędy/falowniki, czujniki, pneumatykę**. Każdy symbol to plik **`.elmt` (XML)** z geometrią wektorową i **nazwami wielojęzycznymi (w tym PL)**. Licencja **GNU/GPL**.
+
+**Dlaczego najlepiej trafia w WRT01:** profil = PLC/IO/sieci + aparatura producencka — dokładnie to, czego IEC 60617 nie ma. Plus rozwiązuje dwie bolączki źródła 2: **aliasy PL** (nazwy już są PL) i **licencję** (GPL zamiast normy zamkniętej).
+
+**Macierz oceny (1–5):**
+
+| Kryterium | Ocena | Uzasadnienie |
+|-----------|:-----:|--------------|
+| Przydatność dla oznaczającego | **5** | Tysiące symboli + nazwy PL → gotowe `symbol_id` i opisy dla labelera |
+| Przydatność dla treningu YOLO | **4** | Wektory → renderowalne crop-y i **syntetyka** (skalowanie, szum); wciąż domain gap vs skan |
+| Przydatność dla walidacji | **4** | Spójna semantyka + kategorie (styki, PLC, napędy) jako reguły |
+| Koszt integracji | **niski–średni** | `.elmt` to XML — parsowanie proste; render SVG→PNG dla crop-ów |
+| Ryzyko | **niskie** | GPL (atrybucja!); duplikaty z IEC 60617 do deduplikacji |
+
+**Zgodność z WRT01: 5/5** — najszerszy zakres + PL + przemysł. Minus jedyny: symbole **generyczne**, nie konkretne modele producenckie (te z biblioteki producenta — patrz luka niżej).
+
+#### [RYZYKO] / uwagi
+
+1. **[RYZYKO] GPL — atrybucja/copyleft.** Symbole QET są na GPL. Użycie crop-ów/derywatów w SchemaGen wymaga zachowania atrybucji i sprawdzenia, czy nie „zaraża" licencji projektu. **[do potwierdzenia przez Filipa]** — jak licencjonowany jest sam SchemaGen.
+2. **[RYZYKO] Deduplikacja IEC ↔ QET.** Ten sam symbol w obu źródłach → potrzebny kanoniczny `symbol_id` i `source_refs[]`, inaczej dublet klas YOLO.
+3. **Pobranie = osobny krok** (repo `qelectrotech-elements`), nie w 007. Runtime offline zachowany — pobieramy raz, parsujemy lokalnie.
+
+**Wniosek dla źródła 3:** **warstwa przemysłowa atlasu** i główne źródło aliasów PL. Razem z IEC 60617 pokrywa większość WRT01; resztę (konkretne modele) dobiera biblioteka producenta.
+
+---
+
+## Luka pokrycia — PLC/IO/sieci + aparatura producentów (profil WRT01)
+
+Filip wskazał, że dominują **PLC/IO/sieci** i **aparatura konkretnych producentów**. Stan pokrycia:
+
+| Kategoria z WRT01 | IEC 60617 | QElectroTech | Biblioteka producenta / EPLAN |
+|-------------------|:---------:|:------------:|:-----------------------------:|
+| Aparatura łączeniowa (styczniki, bezpieczniki, wyłączniki) | ✓ pełne | ✓ pełne | ✓ modele |
+| Styki, przekaźniki, zaciski, uziemienia | ✓ | ✓ | ✓ |
+| **Moduły PLC / IO** | ✗ brak | ◐ generyczne | ✓ konkretne (Siemens S7, itp.) |
+| **Sieci / magistrale (PROFINET/PROFIBUS)** | ✗ | ◐ częściowo | ✓ |
+| **Falowniki / napędy** | ◐ ogólny silnik | ◐ generyczne | ✓ modele |
+| **Czujniki przemysłowe (PNP/NPN, IO-Link)** | ◐ | ◐ | ✓ |
+
+**Wniosek:** dla profilu WRT01 **konieczna trzecia warstwa** — biblioteki symboli producentów (EPLAN Data Portal / makra) lub ekstrakcja z `archive/eplan-era-2026-06.zip`. IEC 60617 + QET dają fundament i przemysł generyczny; konkretne moduły PLC i marki dokłada producent.
+
+[RYZYKO] **Nazewnictwo modeli** — symbole producenckie często niosą oznaczenia handlowe (np. „6ES7..."), które nie są symbolem graficznym, lecz tagiem typu. W katalogu rozdzielić **symbol graficzny** (kształt) od **typu handlowego** (pole `product_type`/`order_no`).
 
 ---
 
