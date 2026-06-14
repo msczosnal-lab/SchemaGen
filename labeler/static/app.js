@@ -95,27 +95,27 @@ function listLabel(b) {
 
 function drawBboxNumber(b, color) {
   const num = String(b.seq || "?");
-  const pad = 4 / scale;
-  const maxW = Math.max(b.width - pad * 2, 12 / scale);
-  const maxH = Math.max(b.height - pad * 2, 12 / scale);
-  const minSize = 18 / scale;
-  let fontSize = Math.min(32 / scale, maxH * 0.55, maxW * 0.95);
+  const pad = 5 / scale;
+  const maxW = Math.max(b.width - pad * 2, 16 / scale);
+  const maxH = Math.max(b.height - pad * 2, 16 / scale);
+  const minSize = 26 / scale;
+  let fontSize = Math.min(48 / scale, maxH * 0.72, maxW * 0.98);
   fontSize = Math.max(minSize, fontSize);
   ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
   let textW = ctx.measureText(num).width;
-  while (fontSize > minSize && (textW + pad * 2 > maxW || fontSize > maxH * 0.65)) {
-    fontSize *= 0.9;
+  while (fontSize > minSize && (textW + pad * 2 > maxW || fontSize > maxH * 0.78)) {
+    fontSize *= 0.88;
     ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
     textW = ctx.measureText(num).width;
   }
   const badgeW = Math.min(textW + pad * 2, b.width);
-  const badgeH = Math.min(fontSize + pad * 1.4, b.height);
+  const badgeH = Math.min(fontSize + pad * 1.5, b.height);
   const tx = b.x + pad;
-  const ty = b.y + fontSize + pad * 0.3;
+  const ty = b.y + fontSize + pad * 0.35;
   ctx.fillStyle = color;
   ctx.fillRect(b.x, b.y, badgeW, badgeH);
-  ctx.strokeStyle = "rgba(0,0,0,0.35)";
-  ctx.lineWidth = 1 / scale;
+  ctx.strokeStyle = "rgba(0,0,0,0.45)";
+  ctx.lineWidth = 1.5 / scale;
   ctx.strokeRect(b.x, b.y, badgeW, badgeH);
   ctx.fillStyle = "#fff";
   ctx.fillText(num, tx, ty);
@@ -136,13 +136,6 @@ function drawBboxOnCanvas(b, i) {
   }
 
   drawBboxNumber(b, color);
-
-  const caption = b.tag || "(bez opisu)";
-  let capSize = Math.min(13 / scale, b.height * 0.35);
-  capSize = Math.max(6 / scale, capSize);
-  ctx.font = `${capSize}px Segoe UI, Arial, sans-serif`;
-  ctx.fillStyle = color;
-  ctx.fillText(caption, b.x + 2 / scale, Math.max(b.y - 4 / scale, capSize));
 }
 
 // ── render ───────────────────────────────────────────────────────────────────
