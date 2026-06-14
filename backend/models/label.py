@@ -30,6 +30,15 @@ class BboxAnnotation(BaseModel):
     seq: int = 0
     semantic_group: str = ""
     color_ref: str = ""
+    parent_id: str = ""
+    depth: int = 0
+    rel_bbox: list[float] = Field(default_factory=list)  # [rx, ry, rw, rh] wzgledem rodzica
+
+
+class SpatialRelation(BaseModel):
+    from_id: str
+    to_id: str
+    relation: Literal["contains", "left_of", "right_of", "above", "below"]
 
 
 class TextAnnotation(BaseModel):
@@ -69,3 +78,4 @@ class LabelRecord(BaseModel):
     lines: list[LineAnnotation] = Field(default_factory=list)
     texts: list[TextAnnotation] = Field(default_factory=list)
     connections: list[ConnectionAnnotation] = Field(default_factory=list)
+    spatial_relations: list[SpatialRelation] = Field(default_factory=list)
