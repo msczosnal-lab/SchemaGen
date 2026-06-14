@@ -1,0 +1,47 @@
+meta:
+  version: 1
+  generated_at: '2026-06-14T00:00:00+00:00'
+  sources:
+    - id: qet
+      type: gpl_lib
+      ref: data/atlas/qet
+      license: GNU/GPL — atrybucja w README/docs
+  tag_standard: IEC 81346-1
+  note: >
+    Seed (3 fixture-symbole). Pelny atlas (>=80 wpisow) generuje sie przez:
+    python -m backend.atlas.build_reference --qet-dir data/atlas/qet
+    (wymaga lokalnego klonu QET — patrz docs/atlas-setup.md)
+
+symbols:
+  - id: fuse
+    yolo_class: element
+    iec_ref: null
+    default_description: Fuse
+    aliases_pl:
+      - bezpiecznik
+    tag_prefix: F
+    atlas_crop: data/atlas/crops/fuse.png
+    source_refs:
+      - qet:10_electric/10_allpole/fuse.elmt
+
+  - id: contactor
+    yolo_class: element
+    iec_ref: null
+    default_description: Contactor
+    aliases_pl:
+      - stycznik
+    tag_prefix: KM
+    atlas_crop: data/atlas/crops/contactor.png
+    source_refs:
+      - qet:10_electric/10_allpole/contactor.elmt
+
+  - id: terminal_block
+    yolo_class: element
+    iec_ref: null
+    default_description: Terminal block
+    aliases_pl:
+      - listwa zaciskowa
+    tag_prefix: X
+    atlas_crop: data/atlas/crops/terminal_block.png
+    source_refs:
+      - qet:10_electric/10_allpole/terminal_block.elmt
