@@ -2,18 +2,18 @@
 
 **Data:** 2026-06-14
 **Autor:** Claude (ZW) + Filip
-**Wersja:** 1 (runda 1 — 1 źródło)
+**Wersja:** 2 (runda 2 — 2 źródła; doszedł atlas IEC 60617)
 **Prompt:** `sync/prompts/007-sources-analysis.md`
 
 ---
 
 ## Streszczenie wykonawcze
 
-Pierwsze źródło (blog ControlByte) to materiał **wprowadzający**, nie atlas symboli ani norma. Jego jedyna realna wartość dla SchemaGen to **potwierdzenie i wyjaśnienie systemu oznaczeń IEC 81346-1 (`=` funkcja / `+` lokalizacja / `–` element)** — który jest dokładnie tym językiem tagów, jakim opisany jest WRT01 (`-11`, `-K1`, `+RG1`). To realnie pomaga przy **parsowaniu i walidacji tagów**, a nie przy rozpoznawaniu typów symboli.
+Dwa źródła o **różnej wadze**. Blog ControlByte to materiał **wprowadzający** — jego jedyna wartość to wyjaśnienie systemu oznaczeń **IEC 81346-1 (`=`/`+`/`–`)** zgodnego z tagami WRT01; do typów i treningu nieprzydatny (kilka grafik, miejscami **błędne** opisy — patrz [BŁĘDY]).
 
-Do dwóch kluczowych potrzeb — **trening YOLO** (obrazy symboli) i **katalog opisów typów** — to źródło jest **nieprzydatne**: ma kilka niskiej jakości grafik i słowne, miejscami **błędne** opisy symboli (patrz [BŁĘDY] niżej). Nie nadaje się na `default_description`.
+Drugie źródło — **`IEC60617.pdf`** — to **właściwy atlas symboli**: 53 strony, ~533 osadzone grafiki, tabela SYMBOL | DESCRIPTION | COMMENTS. Pokrywa wszystkie kluczowe typy z WRT01 (bezpieczniki, styczniki, przekaźniki, wyłączniki, rozłączniki, silniki, transformatory, styki zwierne/rozwierne, zaciski, uziemienia). **To jest brakujące źródło typów** — podstawa pod `config/symbol-reference.yaml`, opisy `default_description` i (z augmentacją) trening YOLO.
 
-**Rekomendacja:** użyć ControlByte wyłącznie jako **glosariusza pojęć PL → IEC** (system =/+/–, adresy krosowe, linie potencjałowe). Do typów i treningu potrzebny prawdziwy **atlas symboli IEC 60617 / PN-EN 60617**. Priorytet #1 = pozyskanie takiego atlasu; bbox-y na WRT01 kontynuować równolegle.
+**Rekomendacja:** ControlByte → glosariusz pojęć PL. IEC 60617 → **priorytet #1**, baza katalogu symboli. Następny krok techniczny: **layout-aware ekstrakcja** atlasu (sparowanie crop symbolu ↔ opis ↔ komentarz) + warstwa aliasów **PL**, bo atlas jest po EN. Bbox-y na WRT01 kontynuować równolegle. EPLAN z archiwum schodzi na drugi plan — atlas normatywny już mamy.
 
 ---
 
@@ -22,6 +22,7 @@ Do dwóch kluczowych potrzeb — **trening YOLO** (obrazy symboli) i **katalog o
 | # | Nazwa | Typ | Język | Standard | Offline | Zgodność z WRT01 (1–5) |
 |---|-------|-----|-------|----------|---------|------------------------|
 | 1 | ControlByte — „Jak czytać schematy elektryczne" | blog/HTML | PL | IEC 81346-1 (wzm.) | TAK (zapis HTML) | **3** |
+| 2 | **IEC 60617** — atlas symboli | PDF / atlas | EN | **IEC 60617** | TAK (`data/raw/IEC60617.pdf`) | **4** |
 
 ---
 
