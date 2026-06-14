@@ -1,4 +1,5 @@
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+﻿[Claude] docs: knowledge sources analysis (prompt 007)
+# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
 # [Cursor] opis etapu - agent Cursor (PC Filip)
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
