@@ -41,8 +41,8 @@ function Clear-CommitMessageFile {
     $path = Get-CommitMessageFilePath -RepoPath $RepoPath
     $header = @(
         "# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):"
-        "# [Cursor] opis etapu   — agent Cursor (PC Filip)"
-        "# [Claude] opis etapu   — agent Claude Cowork (PC ZW)"
+        "# [Cursor] opis etapu - agent Cursor (PC Filip)"
+        "# [Claude] opis etapu - agent Claude Cowork (PC ZW)"
         "#"
         "# Po udanym commicie plik jest czyszczony automatycznie."
         ""
@@ -61,7 +61,7 @@ function Append-CommitLog {
     $logPath = Get-CommitLogFilePath -RepoPath $RepoPath
     if (-not (Test-Path $logPath)) {
         $header = @(
-            "# Historia nazwanych commitow (append-only — dopisuje GitSyncDaemon)"
+            "# Historia nazwanych commitow (append-only, dopisuje GitSyncDaemon)"
             ""
             "| Data | Autor | Hash | Wiadomosc |"
             "|------|-------|------|-----------|"
@@ -113,5 +113,4 @@ function Invoke-GitSyncCommit {
 
 function Show-ToastIfAvailable {
     param([string]$Title, [string]$Text)
-    # no-op here; daemon overrides via Show-Toast when dot-sourced with -Toast
 }
