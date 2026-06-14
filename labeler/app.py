@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from backend.catalog import list_element_labels, register_labels
 from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
+from backend.geometry.bbox_layout import enrich_label_record
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
 from labeler.export import export_all, write_data_yaml
 from backend.models.label import LabelRecord
@@ -66,7 +67,14 @@ def api_element_catalog() -> dict:
 @app.get("/api/annotations/{page_id}")
 def get_annotations(page_id: str) -> dict:
     data = load_annotation(page_id)
-    return data or {"page_id": page_id, "bboxes": [], "texts": [], "connections": []}
+    if not data:
+        return {"page_id": page_id, "bboxes": [], "texts": [], "connections": []}
+    # Migracja w locie: stare rekordy bez hierarchii dostaja parent_id/depth/rel_bbox.
+    has_hierarchy = any(b.get("parent_id") for b in data.get("bboxes", []))
+    if data.get("bboxes") and not has_hierarchy and not data.get("spatial_relations"):
+        record = enrich_label_record(LabelRecord.model_validate(data))
+        return record.model_dump()
+    return data
 
 
 class AnnotationPayload(BaseModel):

@@ -73,6 +73,7 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
         components=components,
         graphic_lines=graphic_lines,
         connections=connections,
+        spatial_relations=spatial_relations,
         annotations=annotations,
     )
 
