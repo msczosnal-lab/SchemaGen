@@ -9,11 +9,13 @@
 
 Temat: **Kod eksportu datasetu (SQLite→YOLO) + trening YOLOv8n.** Implementacja + pytest na PC ZW. **Pełny trening GPU robisz Ty (RTX 2080).**
 
+> Uwaga: pierwsza wersja tego wpisu powstała na **starych plikach** (nasłuch pusha był zatrzymany). Po fast-forward do `origin/main` przeczytałem właściwy `sync/prompts/005-train-symbols.md` i dostosowałem kod (katalog `data/labeled/`, val = ostatnie strony p022/p023, pomijanie `test_*`, manifest, summary JSON, CLI `--epochs/--batch`).
+
 ### Co zrobione (kod)
 
 - **`labeler/export.py`** — fix: `export_yolo` kopiuje teraz źródłowy PNG z `data/raw/` do `images/` (para image/label wymagana przez YOLO). Dodane helpery `yolo_label_lines()` i `find_raw_image()`.
-- **`train/dataset_export.py`** — NOWY. SQLite → struktura YOLO `images/{train,val}` + `labels/{train,val}` + `data.yaml`. Deterministyczny split (sort po `page_id`), domyślnie val_ratio 0.2 (przy 1 stronie ta sama w train i val). Pomija rekordy bez PNG.
-- **`train/train_symbols.py`** — `train()` zaimplementowany: ultralytics YOLOv8n, leniwy import (testy nie wymagają torch/GPU), twardy limit `batch≤8` (8GB VRAM), zapis best.pt + metryki. `register_model()` bez zmian.
+- **`train/dataset_export.py`** — NOWY. SQLite → `data/labeled/{images,labels}/{train,val}` + `data.yaml` + `export-manifest.json`. Deterministyczny split (sort po `page_id`, **ostatnie** strony → val, val_ratio 0.2). Pomija strony `test_*` i rekordy bez PNG. CLI: `python -m train.dataset_export`.
+- **`train/train_symbols.py`** — `train()` zaimplementowany: ultralytics YOLOv8n, leniwy import (testy nie wymagają torch/GPU), twardy limit `batch≤8` (8GB VRAM), run w `data/runs/symbols_v1/`, zapis `best.pt` + summary `data/models/symbols_v1_train_summary.json`. CLI z `--epochs/--batch/--imgsz/--device`. `register_model()` bez zmian.
 - **`train/tests/test_dataset_export.py`** — NOWY. 6 testów na fixturach (atrapy PNG, tmp dir), bez GPU.
 
 ### Testy (PC ZW)
@@ -23,32 +25,31 @@ pytest backend/tests labeler/tests train/tests   →  30 passed
 python -m backend.cli validate schema/fixtures/page1_expected.json  →  approved: true
 ```
 
-> Uwaga: `best.pt` **NIE** jest w repo — trenujesz u siebie. `data/schemagen.db` i `data/raw/*.png` są w `.gitignore`, na ZW ich nie ma → nie odpalałem pełnego treningu.
+> `best.pt`, `data/runs/`, wagi **NIE** idą do repo — trenujesz u siebie. `data/schemagen.db` i `data/raw/*.png` są w `.gitignore`, na ZW ich nie ma → nie odpalałem pełnego treningu ani eksportu na żywej bazie.
 
-### Komendy dla Ciebie (Filip, RTX 2080, PowerShell)
+### Uruchomienie u Filipa (RTX 2080, PowerShell)
 
 ```powershell
 # 0. (raz) zależności GPU
 pip install -e ".[gpu]"
 
-# 1. Oznacz/wyeksportuj strony w labelerze (działa już na :8765) — adnotacje lądują w data/schemagen.db
-#    Upewnij się, że PNG-i są w data/raw/
+# 1. PNG źródłowe w data/raw/ (SchematWRT01_p*.png), adnotacje już w data/schemagen.db
 
-# 2. Zbuduj dataset YOLO z bazy (SQLite → train/val + kopie PNG)
+# 2. Batch eksport SQLite → YOLO train/val + kopie PNG
 python -m train.dataset_export
-#    → tworzy data/dataset/{images,labels}/{train,val} + data/dataset/data.yaml
-#    wypisze: Dataset: train=N val=M klasy=K -> ...data.yaml
+#    → data/labeled/{images,labels}/{train,val} + data.yaml + export-manifest.json
+#    wg promptu: 9 stron, val = p022, p023 (ostatnie); ~394 bboxy, klasa: element
+#    wypisze: Dataset: train=N val=M klasy=1 -> ...data.yaml
 
-# 3. Trening (batch jest twardo ograniczony do 8)
-python -m train.train_symbols
-#    lub z parametrami:
-python -c "from train.train_symbols import train; print(train(epochs=50, batch=8, imgsz=640, device=0))"
-#    → best.pt w data/models/runs/symbols/weights/best.pt
+# 3. Trening (batch twardo ograniczony do 8)
+python -m train.train_symbols --epochs 30 --batch 8
+#    → best.pt w data/runs/symbols_v1/weights/best.pt
+#    → summary w data/models/symbols_v1_train_summary.json (dopisz mAP do sync, jeśli chcesz)
 
-# 4. (prompt 006) export do ONNX — jeszcze NotImplemented, osobne zadanie
+# 4. (prompt 006) export best.pt → ONNX — jeszcze NotImplemented, osobne zadanie
 ```
 
-Jeśli masz mało oznaczonych stron (3–5), zacznij od `epochs=50` i sprawdź czy nie ma overfittu na val. Daj znać metryki (map50) — dostroję split / augmentacje.
+9 stron to mało — spodziewaj się overfittu. Po treningu wrzuć metryki z summary (map50) — dostroję split/augmentacje albo damy zielone na doznaczanie kolejnych stron.
 
 ---
 
