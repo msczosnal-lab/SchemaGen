@@ -90,6 +90,9 @@ function applyPageState(state) {
   bboxes = state?.bboxes ? JSON.parse(JSON.stringify(state.bboxes)) : [];
   sortBboxesNewestFirst();
   ensureSeqNumbers();
+  if (state?.nextSeq && state.nextSeq > nextSeq) {
+    nextSeq = state.nextSeq;
+  }
 }
 
 function markPageDirty(pageId = currentPageId) {
