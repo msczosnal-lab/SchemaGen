@@ -22,6 +22,11 @@ let startY = 0;
 
 // Loaded image
 let bgImage = null;
+let catalogLabels = [];
+
+const tagInput = document.getElementById("tag-input");
+const editorHint = document.getElementById("editor-hint");
+const classHint = document.getElementById("class-hint");
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -78,7 +83,8 @@ function redraw() {
 
     ctx.fillStyle = color;
     ctx.font = `${13 / scale}px Segoe UI, Arial, sans-serif`;
-    ctx.fillText(`${b.class_name} ${b.id}`, b.x + 2 / scale, b.y - 4 / scale);
+    const caption = b.tag ? b.tag : `${b.class_name} ${b.id}`;
+    ctx.fillText(caption, b.x + 2 / scale, b.y - 4 / scale);
   });
 
   ctx.restore();
@@ -101,7 +107,43 @@ async function loadPages() {
 async function loadClasses() {
   const data = await fetchJson("/api/classes");
   classes = data.classes || [];
+  const textIdx = classes.indexOf("text_label");
+  if (textIdx >= 0) activeClassIdx = textIdx;
   renderClassList();
+}
+
+async function loadElementCatalog() {
+  const data = await fetchJson("/api/element-catalog");
+  catalogLabels = data.labels || [];
+  const dl = document.getElementById("element-suggestions");
+  dl.innerHTML = "";
+  catalogLabels.forEach((label) => {
+    const opt = document.createElement("option");
+    opt.value = label;
+    dl.appendChild(opt);
+  });
+}
+
+function syncTagEditor() {
+  const hasSelection = selectedIdx >= 0 && bboxes[selectedIdx];
+  tagInput.disabled = !hasSelection;
+  if (!hasSelection) {
+    tagInput.value = "";
+    editorHint.textContent = "Zaznacz bbox na canvasie.";
+    classHint.textContent = "";
+    return;
+  }
+  const b = bboxes[selectedIdx];
+  tagInput.value = b.tag || "";
+  editorHint.textContent = `Bbox #${selectedIdx + 1}`;
+  classHint.textContent = `Klasa YOLO (skrot): ${b.class_name} — szczegoly wpisuj w opisie powyzej.`;
+}
+
+function updateSelectedTag(value) {
+  if (selectedIdx < 0 || !bboxes[selectedIdx]) return;
+  bboxes[selectedIdx].tag = value.trim();
+  redraw();
+  renderAnnotationList();
 }
 
 function renderClassList() {
@@ -149,8 +191,9 @@ async function selectPage(pageId) {
 
   redraw();
   renderAnnotationList();
+  syncTagEditor();
   document.getElementById("hint").textContent =
-    `Strona: ${pageId} — rysuj bbox | scroll=zoom | Del=usuń`;
+    `Strona: ${pageId} — rysuj bbox | scroll=zoom | Del=usuń | opis po zaznaczeniu`;
 }
 
 // ── annotation list ───────────────────────────────────────────────────────────
@@ -160,9 +203,9 @@ function renderAnnotationList() {
   list.innerHTML = "";
   bboxes.forEach((b, i) => {
     const li = document.createElement("li");
-    li.textContent = `${b.class_name}: ${b.id}`;
+    li.textContent = b.tag ? b.tag : `${b.class_name} (${b.id})`;
     if (i === selectedIdx) li.classList.add("active");
-    li.onclick = () => { selectedIdx = i; redraw(); renderAnnotationList(); };
+    li.onclick = () => { selectedIdx = i; redraw(); renderAnnotationList(); syncTagEditor(); };
     list.appendChild(li);
   });
 }
@@ -182,6 +225,7 @@ canvas.addEventListener("mousedown", (e) => {
     selectedIdx = hit;
     redraw();
     renderAnnotationList();
+    syncTagEditor();
     return;
   }
 
@@ -229,6 +273,8 @@ canvas.addEventListener("mouseup", (e) => {
   selectedIdx = bboxes.length - 1;
   redraw();
   renderAnnotationList();
+  syncTagEditor();
+  tagInput.focus();
 });
 
 // ── zoom ──────────────────────────────────────────────────────────────────────
@@ -252,12 +298,17 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if ((e.key === "Delete" || e.key === "Backspace") && selectedIdx >= 0) {
+    if (e.target === tagInput) return;
     bboxes.splice(selectedIdx, 1);
     selectedIdx = -1;
     redraw();
     renderAnnotationList();
+    syncTagEditor();
   }
 });
+
+tagInput.addEventListener("input", (e) => updateSelectedTag(e.target.value));
+tagInput.addEventListener("change", (e) => updateSelectedTag(e.target.value));
 
 // ── save / export ─────────────────────────────────────────────────────────────
 
@@ -279,7 +330,8 @@ document.getElementById("save-btn").onclick = async () => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  document.getElementById("hint").textContent = "Zapisano ✓";
+  await loadElementCatalog();
+  document.getElementById("hint").textContent = "Zapisano ✓ (katalog uaktualniony)";
 };
 
 document.getElementById("export-btn").onclick = async () => {
@@ -292,3 +344,5 @@ document.getElementById("export-btn").onclick = async () => {
 
 loadPages();
 loadClasses();
+loadElementCatalog();
+syncTagEditor();

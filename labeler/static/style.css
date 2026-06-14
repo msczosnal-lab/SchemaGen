@@ -11,3 +11,8 @@ li { padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 4px; curs
 li.active { outline: 2px solid #4a9eff; }
 button { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
 #hint { color: #aaa; font-size: 0.9rem; }
+.muted { color: #888; font-size: 0.85rem; margin: 4px 0 8px; }
+#bbox-editor { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #444; }
+#bbox-editor label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 4px; }
+#tag-input { width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #2a2a2a; color: #eee; font-size: 0.95rem; }
+#tag-input:disabled { opacity: 0.45; }
