@@ -1,0 +1,5 @@
+# Katalog elementow schematu — rosnacy slownik z labelera.
+# Kazdy wpis: stabilny id + czytelny opis (powtarzalny miedzy stronami).
+# yolo_class: opcjonalne mapowanie na klase YOLO (symbol-classes.yaml).
+
+elements: []

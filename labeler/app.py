@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from backend.catalog import list_element_labels, register_labels
 from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
 from labeler.export import export_all, write_data_yaml
@@ -60,6 +61,11 @@ def api_classes() -> dict:
     return yaml.safe_load(SYMBOL_CLASSES.read_text(encoding="utf-8"))
 
 
+@app.get("/api/element-catalog")
+def api_element_catalog() -> dict:
+    return {"labels": list_element_labels()}
+
+
 @app.get("/api/annotations/{page_id}")
 def get_annotations(page_id: str) -> dict:
     data = load_annotation(page_id)
@@ -75,7 +81,9 @@ def post_annotations(body: AnnotationPayload) -> dict[str, str]:
     record = body.record
     save_annotation(record.page_id, record.model_dump())
     upsert_page(record.page_id, record.image_path, status="labeled")
-    return {"status": "saved", "page_id": record.page_id}
+    tags = [b.tag for b in record.bboxes if b.tag.strip()]
+    added = register_labels(tags)
+    return {"status": "saved", "page_id": record.page_id, "catalog_added": added}
 
 
 @app.post("/api/export/{page_id}")
