@@ -2,18 +2,26 @@
 
 **Data:** 2026-06-14
 **Autor:** Claude (ZW) + Filip
-**Wersja:** 2 (runda 2 — 2 źródła; doszedł atlas IEC 60617)
+**Wersja:** 3 (runda 3 — 3 źródła; doszedł QElectroTech)
+**Profil WRT01 (Filip):** dominują **PLC/IO/sieci** + **aparatura producentów**
 **Prompt:** `sync/prompts/007-sources-analysis.md`
 
 ---
 
 ## Streszczenie wykonawcze
 
-Dwa źródła o **różnej wadze**. Blog ControlByte to materiał **wprowadzający** — jego jedyna wartość to wyjaśnienie systemu oznaczeń **IEC 81346-1 (`=`/`+`/`–`)** zgodnego z tagami WRT01; do typów i treningu nieprzydatny (kilka grafik, miejscami **błędne** opisy — patrz [BŁĘDY]).
+Trzy źródła tworzące **warstwowy atlas**. Profil WRT01 (PLC/IO/sieci + aparatura producencka) oznacza, że **żadne pojedyncze źródło nie wystarczy** — IEC 60617 to podstawa normatywna, ale modułów PLC i symboli handlowych prawie nie ma.
 
-Drugie źródło — **`IEC60617.pdf`** — to **właściwy atlas symboli**: 53 strony, ~533 osadzone grafiki, tabela SYMBOL | DESCRIPTION | COMMENTS. Pokrywa wszystkie kluczowe typy z WRT01 (bezpieczniki, styczniki, przekaźniki, wyłączniki, rozłączniki, silniki, transformatory, styki zwierne/rozwierne, zaciski, uziemienia). **To jest brakujące źródło typów** — podstawa pod `config/symbol-reference.yaml`, opisy `default_description` i (z augmentacją) trening YOLO.
+- **ControlByte (1)** — wprowadzenie; wartość = system oznaczeń **IEC 81346-1 (`=`/`+`/`–`)** + słownik pojęć PL. Do typów/treningu nieprzydatny, miejscami **błędny** (patrz [BŁĘDY]).
+- **IEC 60617 (2)** — atlas normatywny, 53 str., ~533 symbole. **Baza** katalogu i `default_description`. Słabo pokrywa PLC/IO i aparaturę producencką.
+- **QElectroTech (3)** — biblioteka CAD open-source, **>8000 symboli** (IEC 60617 + **przemysłowe/PLC** + pneumatyka), format **.elmt/XML** (łatwa ekstrakcja), nazwy **wielojęzyczne w tym PL**, licencja **GPL**. **Najlepiej trafia w profil WRT01** i rozwiązuje aliasy PL oraz licencję.
 
-**Rekomendacja:** ControlByte → glosariusz pojęć PL. IEC 60617 → **priorytet #1**, baza katalogu symboli. Następny krok techniczny: **layout-aware ekstrakcja** atlasu (sparowanie crop symbolu ↔ opis ↔ komentarz) + warstwa aliasów **PL**, bo atlas jest po EN. Bbox-y na WRT01 kontynuować równolegle. EPLAN z archiwum schodzi na drugi plan — atlas normatywny już mamy.
+**Rekomendacja (atlas warstwowy):**
+1. **IEC 60617** — warstwa bazowa, kanoniczne `iec_ref` i opisy.
+2. **QElectroTech** — warstwa przemysłowa: PLC/IO, sieci, napędy, pneumatyka + nazwy PL.
+3. **Biblioteki producentów / EPLAN** (w tym `archive/eplan-era-2026-06.zip`) — symbole **konkretnej aparatury handlowej** z WRT01, których normy nie mają.
+
+Następny krok techniczny: ekstrakcja **multi-source** do jednego `config/symbol-reference.yaml` z kanonicznym `symbol_id` + `source_refs[]` (deduplikacja IEC ↔ QET ↔ producent). Bbox-y na WRT01 kontynuować równolegle.
 
 ---
 
@@ -23,6 +31,7 @@ Drugie źródło — **`IEC60617.pdf`** — to **właściwy atlas symboli**: 53 
 |---|-------|-----|-------|----------|---------|------------------------|
 | 1 | ControlByte — „Jak czytać schematy elektryczne" | blog/HTML | PL | IEC 81346-1 (wzm.) | TAK (zapis HTML) | **3** |
 | 2 | **IEC 60617** — atlas symboli | PDF / atlas | EN | **IEC 60617** | TAK (`data/raw/IEC60617.pdf`) | **4** |
+| 3 | **QElectroTech** — biblioteka symboli | CAD / open-source | PL/wieloj. | IEC 60617 + przemysł | TAK (repo do pobrania) | **5** |
 
 ---
 
