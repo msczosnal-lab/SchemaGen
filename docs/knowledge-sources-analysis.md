@@ -113,16 +113,17 @@ Drugie źródło — **`IEC60617.pdf`** — to **właściwy atlas symboli**: 53 
 
 Co realnie pokrywa potrzeby — i skąd:
 
-| Potrzeba | Ze schematu WRT01 (must) | Ze źródła referencyjnego (nice) | Pokrywa ControlByte? |
-|----------|--------------------------|----------------------------------|:--------------------:|
-| Pozycja bbox | ✓ (labeler) | — | — |
-| Tag instancji (`-11`, `-K1`) | OCR / labeler | reguły składni IEC 81346-1 | **Częściowo** — wyjaśnia =/+/– |
-| Typ urządzenia (fuse, contactor…) | YOLO / dopasowanie | atlas symboli | **NIE** (brak atlasu) |
-| Opis / definicja typu | dziś ręcznie | podręcznik → katalog | **Słabo** (i z błędami) |
-| Połączenia elektryczne | LineTracer + graf | reguły walidacji | **Częściowo** — linie/węzły, krosy, potencjały |
-| Bloki funkcjonalne (RUPS1…) | tylko projekt | częściowo teoria | **NIE** |
+| Potrzeba | Ze schematu WRT01 (must) | Źródło referencyjne (nice) | ControlByte (1) | IEC 60617 (2) |
+|----------|--------------------------|----------------------------|:---------------:|:-------------:|
+| Pozycja bbox | ✓ (labeler) | — | — | — |
+| Tag instancji (`-11`, `-K1`) | OCR / labeler | składnia IEC 81346-1 | **Częściowo** (=/+/–) | — |
+| Typ urządzenia (fuse, contactor…) | YOLO / dopasowanie | atlas symboli | NIE | **TAK** (~533 symbole) |
+| Opis / definicja typu | dziś ręcznie | atlas → katalog | Słabo (z błędami) | **TAK** (EN, +aliasy PL) |
+| Trening YOLO (obrazy) | bboxy WRT01 | crop-y symboli / syntetyka | NIE | **Częściowo** (domain gap) |
+| Połączenia elektryczne | LineTracer + graf | reguły walidacji | Częściowo | **TAK** (semantyka styków) |
+| Bloki funkcjonalne (RUPS1…) | tylko projekt | częściowo teoria | NIE | NIE |
 
-Wniosek: ControlByte zasila głównie **warstwę tagów/walidacji**, marginalnie **opisy**, **wcale** trening i atlas typów.
+Wniosek: **ControlByte** zasila warstwę tagów/słownik PL. **IEC 60617** zasila **typy, opisy, walidację** i częściowo trening — to brakujący filar katalogu.
 
 ---
 
