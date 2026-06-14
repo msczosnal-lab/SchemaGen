@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>SchemaGen Labeler</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>SchemaGen Labeler</h1>
+    <p>Oznaczanie symboli — MVP (canvas: COWORK prompt 001)</p>
+  </header>
+  <main class="layout">
+    <aside id="pages-panel">
+      <h2>Strony</h2>
+      <ul id="page-list"></ul>
+      <h2>Klasy</h2>
+      <ul id="class-list"></ul>
+    </aside>
+    <section id="canvas-panel">
+      <canvas id="canvas" width="800" height="600"></canvas>
+      <p id="hint">Laduj strone z listy. Rysowanie bbox — implementacja w app.js (Cowork).</p>
+    </section>
+    <aside id="annotations-panel">
+      <h2>Adnotacje</h2>
+      <ul id="annotation-list"></ul>
+      <button id="save-btn" type="button">Zapisz</button>
+      <button id="export-btn" type="button">Eksport YOLO + JSON</button>
+    </aside>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
