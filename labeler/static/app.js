@@ -15,6 +15,7 @@ let pageIds = [];
 let pagesMeta = [];
 let bboxes = [];
 let selectedIdx = -1;
+let expandedIdx = -1;
 let pendingTag = "";
 
 // Zoom/pan state
@@ -235,65 +236,105 @@ async function selectPage(pageId) {
     `Strona ${pos}: ${pageId} — opis → bbox → Zapisz | ←/→ strony | scroll zoom | Del usuwa`;
 }
 
+function summaryTag(tag, i) {
+  const t = (tag || "").trim();
+  const oneLine = t.replace(/\s+/g, " ");
+  const preview = oneLine
+    ? (oneLine.length > 56 ? `${oneLine.slice(0, 56)}…` : oneLine)
+    : "(bez opisu)";
+  return `#${i + 1} · ${preview}`;
+}
+
+function isTextField(el) {
+  return el === tagInput || el?.classList?.contains("row-tag");
+}
+
 // ── annotation list ───────────────────────────────────────────────────────────
 
 function renderAnnotationList() {
   const list = document.getElementById("annotation-list");
-  const focusedIdx = document.activeElement?.dataset?.idx;
+  const focusIdx = document.activeElement?.dataset?.idx;
   list.innerHTML = "";
   if (!bboxes.length) {
     const empty = document.createElement("li");
     empty.className = "muted";
     empty.textContent = "Brak elementow — wpisz opis i narysuj bbox.";
     empty.style.background = "transparent";
+    empty.style.border = "none";
     empty.style.cursor = "default";
     list.appendChild(empty);
     return;
   }
   bboxes.forEach((b, i) => {
     const row = document.createElement("li");
-    row.className = "annotation-row";
+    row.className = "annotation-accordion";
     if (i === selectedIdx) row.classList.add("active");
+    if (i === expandedIdx) row.classList.add("expanded");
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "row-tag";
-    input.dataset.idx = String(i);
-    input.value = b.tag || "";
-    input.placeholder = `#${i + 1} — opis elementu`;
-    input.addEventListener("mousedown", (e) => e.stopPropagation());
-    input.addEventListener("focus", () => {
+    const header = document.createElement("button");
+    header.type = "button";
+    header.className = "accordion-header";
+    header.innerHTML = `<span class="accordion-chevron">▶</span><span class="accordion-title"></span>`;
+    header.querySelector(".accordion-title").textContent = summaryTag(b.tag, i);
+    header.addEventListener("click", () => {
+      if (expandedIdx === i) {
+        expandedIdx = -1;
+      } else {
+        expandedIdx = i;
+        selectedIdx = i;
+      }
+      renderAnnotationList();
+      redraw();
+      if (expandedIdx === i) {
+        row.querySelector("textarea")?.focus();
+      }
+    });
+
+    const body = document.createElement("div");
+    body.className = "accordion-body";
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "row-tag tag-textarea";
+    textarea.dataset.idx = String(i);
+    textarea.rows = 5;
+    textarea.value = b.tag || "";
+    textarea.placeholder = "Pelny opis elementu…";
+    textarea.addEventListener("mousedown", (e) => e.stopPropagation());
+    textarea.addEventListener("focus", () => {
       selectedIdx = i;
-      list.querySelectorAll(".annotation-row").forEach((el, j) => {
+      expandedIdx = i;
+      list.querySelectorAll(".annotation-accordion").forEach((el, j) => {
         el.classList.toggle("active", j === i);
+        el.classList.toggle("expanded", j === i);
       });
       redraw();
     });
-    input.addEventListener("input", (e) => {
+    textarea.addEventListener("input", (e) => {
       bboxes[i].tag = e.target.value;
+      header.querySelector(".accordion-title").textContent = summaryTag(e.target.value, i);
       redraw();
     });
 
-    row.appendChild(input);
-    row.addEventListener("click", () => {
-      selectedIdx = i;
-      renderAnnotationList();
-      redraw();
-      row.querySelector("input")?.focus();
-    });
+    body.appendChild(textarea);
+    row.appendChild(header);
+    row.appendChild(body);
     list.appendChild(row);
 
-    if (focusedIdx === String(i)) {
-      input.focus();
-      input.selectionStart = input.selectionEnd = input.value.length;
+    if (focusIdx === String(i)) {
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
     }
   });
 }
 
-function selectBbox(idx) {
+function selectBbox(idx, expand = true) {
   selectedIdx = idx;
+  if (expand) expandedIdx = idx;
   renderAnnotationList();
   redraw();
+  if (expand) {
+    document.querySelector(`textarea.row-tag[data-idx="${idx}"]`)?.focus();
+  }
 }
 
 // ── bbox drawing ──────────────────────────────────────────────────────────────
