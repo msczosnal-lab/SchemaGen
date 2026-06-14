@@ -227,6 +227,27 @@ symbols:
 
 ---
 
+## Archiwum EPLAN + typy plików symboli producenta
+
+Z przeglądu `archive/eplan-era-2026-06.zip` (kod + baza wiedzy API EPLAN) wynika, **jakich plików szukać**, gdy będziemy pozyskiwać symbole producentów (Siemens, Phoenix, GE):
+
+| Rozszerzenie | Co to | Wartość dla atlasu |
+|--------------|-------|--------------------|
+| **`.edz`** | EPLAN Data Portal — pakiet artykułu (część + makro + symbol + 3D) | **Najbogatsze** — jedno pobranie = symbol + dane części |
+| **`.ema`** | makro okna (placed circuit / reprezentacja urządzenia) | graficzny układ symboli — dobre do crop-ów i wzorców |
+| **`.ems`** | makro symbolu | pojedynczy symbol |
+| **`.xml`** | eksport bazy części (parts master data) | opisy/typy handlowe, bez grafiki |
+
+Źródło symboli producenta = **EPLAN Data Portal** (`.edz` per artykuł) lub biblioteki producenta. To **nie jest** to archiwum — archiwum tylko nazywa te formaty.
+
+## Strategia treningu — Siemens-first (decyzja Filipa)
+
+Filip: *można użyć innych komponentów do uczenia — schematy z komponentami Siemensa*. To rozwiązuje lukę GE Vernova:
+
+1. **Trenuj na schematach z aparaturą Siemens** — QET ma **452 symbole Siemens** + 1982 WAGO + IEC 60617 generyczne. Pokrycie pełne, materiał referencyjny obfity (Siemens publikuje makra EPLAN/Data Portal masowo).
+2. **GE Vernova / Phoenix Contact (rdzeń)** — odkładamy. Detektor uczy się **generycznych klas** (`relay`, `fuse`, `terminal_block`, `plc_io_module`), nie konkretnych modeli; symbole GE/Phoenix dochodzą później jako `.edz` z Data Portal, mapowane na te same klasy.
+3. **Konsekwencja:** SchemaGen nie musi czekać na symbole GE — start na Siemens + generyki, generalizacja przez klasy. To skraca drogę do pierwszego działającego detektora.
+
 ## Rekomendacje i następne kroki — „Co robimy"
 
 1. **Bbox-y na WRT01: TAK, kontynuować.** Schematu nic nie zastąpi (pozycje, tagi, topologia). Cel: dokończyć 3 oznaczone (p013–p015), potem 5–10 reprezentatywnych stron pod różnorodność typów — nie wszystkie 77 naraz.
