@@ -1,6 +1,6 @@
 # Zadanie 003: labeler — hierarchia bboxów i relacje przestrzenne
 
-**Status:** OPEN — priorytet przed 002-labeler-lines-colors  
+**Status:** DONE — commit `20392b1`, review Cursor 2026-06-14 OK  
 **Model:** Sonnet, effort **High**  
 **Pliki główne:**
 - `backend/geometry/bbox_layout.py` (nowy)

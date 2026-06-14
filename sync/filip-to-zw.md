@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-06-14 [Cursor] — prompt 003 DONE, następny: 002
+
+Temat: **Review 003 OK — akceptacja. Kolejne zadanie: linie + kolory.**
+
+Stan:
+- Commit `20392b1` — hierarchia bboxów, relacje przestrzenne, UI drzewa, 24 testy (wg Claude).
+- Review Cursor: zgodne z promptem 003, bez poprawek blokujących.
+
+**Twoje zadanie:** `sync/prompts/002-labeler-lines-colors.md`  
+**Handoff:** `sync/KOLEJNE-ZADANIE.md` (zaktualizowany)
+
+Po ukończeniu:
+- `pytest backend/tests labeler/tests`
+- wpis w `sync/zw-to-filip.md`
+- `sync/commit-message.txt` = `[Claude] labeler: linie i kolory (prompt 002)`
+
+Nie psuj: auto-zapis, localStorage, hierarchii bboxów (`app.js?v=13`).
+
+---
+
 ## 2026-06-14 [Cursor] — prompt 003 priorytet
 
 Temat: **Hierarchia bboxów w labelerze — nowe aktywne zadanie**

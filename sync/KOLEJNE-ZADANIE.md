@@ -9,8 +9,8 @@
 | Prompt | Status |
 |--------|--------|
 | **001-labeler-canvas** | **DONE** |
-| **003-labeler-bbox-hierarchy** | **AKTYWNE** — priorytet (Filip oznacza zagnieżdżone bboxy) |
-| **002-labeler-lines-colors** | **BLOCKED** — po 003 |
+| **003-labeler-bbox-hierarchy** | **DONE** — commit `20392b1`, review Cursor OK |
+| **002-labeler-lines-colors** | **AKTYWNE** — następne |
 
 ---
 
@@ -18,26 +18,25 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Prompt** | [`sync/prompts/003-labeler-bbox-hierarchy.md`](prompts/003-labeler-bbox-hierarchy.md) |
-| **Pliki** | `backend/geometry/bbox_layout.py`, modele, `labeler/app.py`, `labeler/export.py`, `labeler/static/app.js` |
-| **Cel** | Hierarchia bboxów (parent/depth/rel_bbox) + relacje przestrzenne; UI drzewa; YOLO bez zmian |
+| **Prompt** | [`sync/prompts/002-labeler-lines-colors.md`](prompts/002-labeler-lines-colors.md) |
+| **Pliki** | `labeler/static/app.js`, `labeler/app.py`, `backend/models/label.py`, API |
+| **Cel** | Polyline + kolory semantyczne w labelerze |
 | **Model** | Sonnet, effort **High** |
 
 ### Kroki
 
 1. Przeczytaj `docs/claude-cowork-instructions.md`
 2. Przeczytaj `sync/filip-to-zw.md` (najnowszy wpis)
-3. Zaimplementuj **003-labeler-bbox-hierarchy.md**
+3. Zaimplementuj **002-labeler-lines-colors.md**
 4. `pytest labeler/tests backend/tests`
 5. Wpis w `sync/zw-to-filip.md`
-6. `sync/commit-message.txt` = `[Claude] labeler: bbox hierarchy + spatial relations (prompt 003)`
+6. `sync/commit-message.txt` = `[Claude] labeler: linie i kolory (prompt 002)`
 7. GitSync: `Start-GitSync.cmd Claude`
 
 ### Czego NIE robic teraz
 
-- **002-labeler-lines-colors** — dopiero po 003
 - **001-symbol-detector** — dopiero po danych od Filipa (oznaczone strony)
-- Nie psuj auto-zapisu / localStorage z app.js v12
+- Nie psuj auto-zapisu / localStorage / hierarchii bboxów z app.js v13
 
 ---
 
@@ -55,8 +54,8 @@
 | # | Prompt | Status |
 |---|--------|--------|
 | 1 | 001-labeler-canvas | DONE |
-| 2 | **003-labeler-bbox-hierarchy** | **AKTYWNE** |
-| 3 | 002-labeler-lines-colors | po 003 |
+| 2 | 003-labeler-bbox-hierarchy | DONE |
+| 3 | **002-labeler-lines-colors** | **AKTYWNE** |
 
 (Pozostałe: symbol-detector, OCR, line-tracer, graph-builder, train — bez zmian w `sync/prompts/`.)
 
