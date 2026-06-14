@@ -9,3 +9,4 @@
 | 2026-06-14 13:03 | Claude | 20392b1 | [Claude] labeler: bbox hierarchy + spatial relations (prompt 003) |
 | 2026-06-14 17:22 | Claude | dd8eceb | [Claude] docs: knowledge sources analysis (prompt 007) |
 | 2026-06-14 17:33 | Cursor | 49bf0bb | [Cursor] sync: akceptacja 007, prompt 008a QET atlas, handoff Claude |
+| 2026-06-14 18:02 | Cursor | 2689c32 | [Cursor] sync: inwentaryzacja sync/sources (523 str PDF), MANIFEST.json |
