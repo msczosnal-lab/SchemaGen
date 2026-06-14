@@ -64,6 +64,13 @@ function clientToCanvas(e) {
   };
 }
 
+function colorFromTag(tag, fallbackIdx = 0) {
+  if (!tag) return PALETTE[fallbackIdx % PALETTE.length];
+  let h = 0;
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
+
 function bboxIdTime(id) {
   const m = String(id).match(/(\d{13,})/);
   return m ? Number(m[1]) : 0;
@@ -297,24 +304,21 @@ async function selectPage(pageId) {
     `Strona ${pos}: ${pageId} — przeciagnij = nowy bbox | klik = zaznacz | ←/→ strony`;
 }
 
-function summaryTag(tag, i) {
-  const t = (tag || "").trim();
-  const oneLine = t.replace(/\s+/g, " ");
-  const preview = oneLine
-    ? (oneLine.length > 56 ? `${oneLine.slice(0, 56)}…` : oneLine)
-    : "(bez opisu)";
-  return `#${i + 1} · ${preview}`;
+function toggleAccordion(i, focusTextarea = false) {
+  if (expandedIdx === i) {
+    expandedIdx = -1;
+    focusTextareaIdx = null;
+  } else {
+    expandedIdx = i;
+    selectedIdx = i;
+    if (focusTextarea) focusTextareaIdx = i;
+  }
+  renderAnnotationList();
+  redraw();
 }
-
-function isTextField(el) {
-  return el === tagInput || el?.classList?.contains("row-tag");
-}
-
-// ── annotation list ───────────────────────────────────────────────────────────
 
 function renderAnnotationList() {
   const list = document.getElementById("annotation-list");
-  const focusIdx = document.activeElement?.dataset?.idx;
   list.innerHTML = "";
   if (!bboxes.length) {
     const empty = document.createElement("li");
@@ -332,48 +336,64 @@ function renderAnnotationList() {
     if (i === selectedIdx) row.classList.add("active");
     if (i === expandedIdx) row.classList.add("expanded");
 
-    const header = document.createElement("button");
-    header.type = "button";
-    header.className = "accordion-header";
-    header.innerHTML = `<span class="accordion-chevron">▶</span><span class="accordion-title"></span>`;
-    header.querySelector(".accordion-title").textContent = summaryTag(b.tag, i);
-    header.addEventListener("click", (e) => {
-      e.preventDefault();
+    const summary = document.createElement("div");
+    summary.className = "accordion-summary";
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "accordion-toggle";
+    toggle.textContent = "▶";
+    toggle.title = "Rozwin / zwin";
+    toggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      const opening = expandedIdx !== i;
-      if (opening) {
-        expandedIdx = i;
-        selectedIdx = i;
-      } else {
-        expandedIdx = -1;
-      }
-      renderAnnotationList();
-      redraw();
-      if (opening) {
-        list.querySelector(`textarea.row-tag[data-idx="${i}"]`)?.focus();
-      }
+      toggleAccordion(i);
     });
+
+    const line = document.createElement("button");
+    line.type = "button";
+    line.className = "summary-line";
+    line.textContent = summaryLine(b);
+    line.title = b.tag || "(bez opisu)";
+    line.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleAccordion(i, expandedIdx !== i);
+    });
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "×";
+    del.title = "Usun element";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeBboxAt(i);
+    });
+
+    summary.appendChild(toggle);
+    summary.appendChild(line);
+    summary.appendChild(del);
 
     const body = document.createElement("div");
     body.className = "accordion-body";
-
     const textarea = document.createElement("textarea");
     textarea.className = "row-tag tag-textarea";
     textarea.dataset.idx = String(i);
-    textarea.rows = 5;
+    textarea.rows = 4;
     textarea.value = b.tag || "";
-    textarea.placeholder = "Opis… Pusty + klik poza pole lub Enter = usuwa bbox";
-    bindRowTextarea(textarea, header, i);
-
+    textarea.placeholder = "Pelny opis elementu…";
+    bindRowTextarea(textarea, line, i);
     body.appendChild(textarea);
-    row.appendChild(header);
+
+    row.appendChild(summary);
     row.appendChild(body);
     list.appendChild(row);
 
-    if (focusIdx === String(i) && expandedIdx === i) {
-      const ta = row.querySelector("textarea");
-      ta.focus();
-      ta.selectionStart = ta.selectionEnd = ta.value.length;
+    if (focusTextareaIdx === i) {
+      requestAnimationFrame(() => {
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+        focusTextareaIdx = null;
+      });
     }
   });
 }
@@ -383,54 +403,33 @@ function removeBboxAt(idx) {
   bboxes.splice(idx, 1);
   selectedIdx = -1;
   expandedIdx = -1;
+  focusTextareaIdx = null;
   renderAnnotationList();
   redraw();
 }
 
-function bindRowTextarea(textarea, header, i) {
+function bindRowTextarea(textarea, summaryBtn, i) {
   textarea.addEventListener("mousedown", (e) => e.stopPropagation());
-  textarea.addEventListener("focus", () => {
-    selectedIdx = i;
-    expandedIdx = i;
-    document.querySelectorAll(".annotation-accordion").forEach((el, j) => {
-      el.classList.toggle("active", j === i);
-      el.classList.toggle("expanded", j === i);
-    });
-    redraw();
-  });
   textarea.addEventListener("input", (e) => {
-    const val = e.target.value;
-    if (!val.trim()) {
-      bboxes[i].tag = "";
-      header.querySelector(".accordion-title").textContent = summaryTag("", i);
-      redraw();
-      return;
-    }
-    bboxes[i].tag = val;
-    header.querySelector(".accordion-title").textContent = summaryTag(val, i);
+    bboxes[i].tag = e.target.value;
+    summaryBtn.textContent = summaryLine(bboxes[i]);
+    summaryBtn.title = e.target.value || "(bez opisu)";
     redraw();
-  });
-  textarea.addEventListener("blur", (e) => {
-    if (!e.target.value.trim()) {
-      removeBboxAt(i);
-    }
-  });
-  textarea.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.target.value.trim()) {
-      e.preventDefault();
-      removeBboxAt(i);
-    }
   });
 }
 
-function selectBbox(idx, expand = true) {
+function selectBbox(idx, expand = false) {
   selectedIdx = idx;
-  if (expand) expandedIdx = idx;
+  if (expand) {
+    expandedIdx = idx;
+    focusTextareaIdx = idx;
+  }
   renderAnnotationList();
   redraw();
-  if (expand) {
-    document.querySelector(`textarea.row-tag[data-idx="${idx}"]`)?.focus();
-  }
+}
+
+function isTextField(el) {
+  return el === tagInput || el?.classList?.contains("row-tag");
 }
 
 // ── bbox drawing ──────────────────────────────────────────────────────────────
@@ -440,7 +439,7 @@ canvas.addEventListener("mousedown", (e) => {
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
 
-  clickSelectCandidate = bboxes.findLastIndex(
+  clickSelectCandidate = bboxes.findIndex(
     (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
   );
   pendingTag = tagInput.value;
@@ -500,7 +499,7 @@ canvas.addEventListener("mouseup", (e) => {
 
   const tag = tagInput.value.trim();
   const id = `${DEFAULT_CLASS}_${Date.now()}`;
-  bboxes.push({
+  bboxes.unshift({
     id,
     class_name: DEFAULT_CLASS,
     x,
@@ -508,6 +507,7 @@ canvas.addEventListener("mouseup", (e) => {
     width: w,
     height: h,
     tag,
+    seq: nextSeq++,
   });
   selectedIdx = -1;
   expandedIdx = -1;
@@ -544,11 +544,7 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if ((e.key === "Delete" || e.key === "Backspace") && selectedIdx >= 0) {
-    bboxes.splice(selectedIdx, 1);
-    selectedIdx = -1;
-    expandedIdx = -1;
-    redraw();
-    renderAnnotationList();
+    removeBboxAt(selectedIdx);
   }
 });
 
