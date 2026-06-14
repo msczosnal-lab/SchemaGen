@@ -1,0 +1,41 @@
+---
+description: SchemaGen offline — rozpoznawanie schematow, RTX 2080, Cursor + Claude Cowork
+globs:
+  - backend/**
+  - labeler/**
+  - train/**
+  - blocks/**
+  - schema/**
+  - sync/**
+alwaysApply: true
+---
+
+# SchemaGen (pivot offline)
+
+## Projekt
+
+Offline rozpoznawanie i generowanie schematow. **Bez EPLAN.** Archiwum: `archive/eplan-era-2026-06.zip`.
+
+## Runtime
+
+- GPU RTX 2080 = max cap aplikacji (YOLO nano, ONNX, batch≤8)
+- Zakaz cloud API w `backend/recognize/`, `train/`, `labeler/`
+
+## Podzial pracy
+
+- **Cursor**: protokoly ABC, Pydantic, stuby, prompty `sync/prompts/`, review, akceptacja
+- **Claude Cowork**: implementacja `NotImplementedError`
+- **Uzytkownik**: labeler, kierunek
+
+## Konwencja stub
+
+```python
+# COWORK_TASK: sync/prompts/NNN-modul.md
+raise NotImplementedError("COWORK: opis")
+```
+
+## Dokumentacja
+
+- `docs/project-context.txt`
+- `docs/claude-cowork-instructions.md`
+- `docs/eplan-kb/` — tylko archiwum (nie uzywac w runtime)

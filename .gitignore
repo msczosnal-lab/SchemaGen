@@ -3,6 +3,17 @@
 .env.*
 *.local
 
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
 # Windows
 Thumbs.db
 Desktop.ini
@@ -12,20 +23,30 @@ Desktop.ini
 *.user
 *.suo
 
-# Build
+# Build (legacy)
 bin/
 obj/
-dist/
 *.dll
 
-# EPLAN — eksporty testowe
-*.csv
-connections.csv
-schemat.pdf
+# Dane lokalne (obrazy, modele, SQLite)
+data/raw/*
+!data/raw/.gitkeep
+data/labeled/*
+!data/labeled/.gitkeep
+data/schemagen.db
+data/output/
 
-# MCP / EPLAN output (lokalne na maszynie użytkownika)
+# EPLAN legacy output
+eplan_output/
 output/
 
-# GitSync daemon — logi i status lokalne (nie synchronizować)
+# GitSync daemon
 sync/.daemon-*.log
 sync/.status-*.json
+
+# SchemaGen exports
+*.pdf
+schemat.pdf
+
+# Accidental nested folder
+SchemaGen/
