@@ -9,12 +9,12 @@ Tworzysz ground truth do treningu YOLO i walidacji pozniejszej inferencji.
 1. Umiesc PNG/PDF strony w `data/raw/` (PDF: `python -m backend.cli recognize` konwertuje via ingest)
 2. Uruchom labeler: `python -m labeler.app` → http://localhost:8765
 3. Wybierz strone z listy
-4. Rysuj bbox wokol symbolu
-5. **Opis tekstowy** — zaznacz bbox, wpisz w panelu „Opis elementu” (np. `Stycznik -K1`, `Silnik =M1`)
-6. Zapisz — nowe opisy trafiaja do `config/element-catalog.yaml` (autouzupelnianie przy kolejnych stronach)
+4. **Wpisz opis elementu** (lewy panel), np. `Stycznik -K1`
+5. Narysuj bbox wokol symbolu na schemacie
+6. Zapisz — opis trafia do katalogu `config/element-catalog.yaml`
 7. Eksport YOLO + JSON
 
-Klasa YOLO (1–9) jest drugorzedna na tym etapie — domyslnie `text_label`; szczegoly sa w opisie.
+Klasa techniczna YOLO: `element` (jedna dla wszystkich). Szczegoly = opis tekstowy.
 
 ## Klasy (start)
 

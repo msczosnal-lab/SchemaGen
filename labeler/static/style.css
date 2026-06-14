@@ -19,4 +19,3 @@ button { margin: 6px 4px 0 0; padding: 8px 12px; background: #4a9eff; border: no
 #bbox-editor { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #444; }
 #bbox-editor label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 4px; }
 #tag-input { width: 100%; padding: 8px; border: 1px solid #555; border-radius: 4px; background: #2a2a2a; color: #eee; font-size: 0.95rem; }
-#tag-input:disabled { opacity: 0.45; }
