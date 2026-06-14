@@ -83,7 +83,7 @@ class AnnotationPayload(BaseModel):
 
 @app.post("/api/annotations")
 def post_annotations(body: AnnotationPayload) -> dict:
-    record = body.record
+    record = enrich_label_record(body.record)
     save_annotation(record.page_id, record.model_dump())
     upsert_page(record.page_id, record.image_path, status="labeled")
     tags = [b.tag for b in record.bboxes if b.tag.strip()]
@@ -92,11 +92,13 @@ def post_annotations(body: AnnotationPayload) -> dict:
         added = register_labels(tags)
     except OSError:
         pass
+    depth_max = max((b.depth for b in record.bboxes), default=0)
     return {
         "status": "saved",
         "page_id": record.page_id,
         "catalog_added": added,
         "bbox_count": len(record.bboxes),
+        "hierarchy_depth_max": depth_max,
     }
 
 

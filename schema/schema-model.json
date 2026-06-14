@@ -24,7 +24,24 @@
           "tag": { "type": "string" },
           "bbox": { "type": "array", "items": { "type": "number" } },
           "confidence": { "type": "number" },
-          "source": { "enum": ["yolo", "ocr", "manual", "block"] }
+          "source": { "enum": ["yolo", "ocr", "manual", "block"] },
+          "parent_id": { "type": "string" },
+          "depth": { "type": "integer" },
+          "rel_bbox": { "type": "array", "items": { "type": "number" } }
+        }
+      }
+    },
+    "spatial_relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from_id", "to_id", "relation"],
+        "properties": {
+          "from_id": { "type": "string" },
+          "to_id": { "type": "string" },
+          "relation": {
+            "enum": ["contains", "left_of", "right_of", "above", "below"]
+          }
         }
       }
     },
