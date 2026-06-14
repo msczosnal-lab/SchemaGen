@@ -439,7 +439,11 @@ async function selectPage(pageId) {
   if (currentPageId && currentPageId !== pageId) {
     persistPageDraft(currentPageId);
     if (dirtyPages.has(currentPageId)) {
-      await savePageToServer(currentPageId, { silent: true });
+      const ok = await savePageToServer(currentPageId, { silent: true });
+      if (!ok) {
+        saveStatusEl.textContent =
+          `Auto-zapis ${currentPageId} nieudany — szkic w localStorage, kliknij Zapisz wszystkie`;
+      }
     }
   }
 
