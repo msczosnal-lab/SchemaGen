@@ -1,45 +1,47 @@
 {
   "path": "sync/sources/",
+  "updated": "2026-06-14",
   "pdf_count": 4,
   "total_pages": 523,
+  "note": "PDF-y w .gitignore (*.pdf). WRT01 osobno: data/raw/SchematWRT01.pdf + 77× PNG.",
   "items": [
     {
       "file": "20_A_022_PL_Norblin_Cars_2022-06-26.pdf",
+      "project": "Norblin Cars",
       "project_code": "022",
-      "year_prefix": "20",
       "pages": 199,
       "size_kb": 6901,
-      "content_hint": "text/vector"
+      "content": "text/vector"
     },
     {
       "file": "22_A_153_PL_Adamed_AGV_SA2_20250706.pdf",
+      "project": "Adamed AGV SA2",
       "project_code": "153",
-      "year_prefix": "22",
       "pages": 200,
       "size_kb": 6910,
-      "content_hint": "text/vector"
+      "content": "text/vector"
     },
     {
       "file": "22_A_153_PL_Adamed_INTEROL_SA1_20250729.pdf",
+      "project": "Adamed INTEROL SA1",
       "project_code": "153",
-      "year_prefix": "22",
       "pages": 99,
       "size_kb": 2948,
-      "content_hint": "text/vector"
+      "content": "text/vector"
+    },
+    {
+      "file": "25_A_229_PL5_19012026.pdf",
+      "project": "Stanley 229 / modernizacja PL5",
+      "project_code": "229",
+      "pages": 25,
+      "size_kb": 897,
+      "content": "text/vector"
     },
     {
       "file": "24_A_068_PL5_29102024 schemat PL5.lnk",
       "type": "shortcut",
-      "target_pdf": null,
-      "note": "Skrót OneDrive (PC ZW) — skopiuj PDF lokalnie, jeśli potrzebny"
-    },
-    {
-      "file": "25_A_229_PL5_19012026.pdf",
-      "project_code": "229",
-      "year_prefix": "25",
-      "pages": 25,
-      "size_kb": 897,
-      "content_hint": "text/vector"
+      "status": "broken_local",
+      "note": "Skrót do OneDrive (PC ZW). Brak lokalnego PDF — skopiuj 24_A_068_PL5_29102024.pdf jeśli potrzebny pełny PL5."
     }
   ]
 }
