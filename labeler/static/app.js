@@ -205,6 +205,7 @@ async function selectPage(pageId) {
   originX = 0;
   originY = 0;
   selectedIdx = -1;
+  expandedIdx = -1;
   pendingTag = "";
 
   bgImage = await new Promise((resolve, reject) => {
@@ -356,7 +357,10 @@ canvas.addEventListener("mousedown", (e) => {
   pendingTag = tagInput.value;
   drawing = true;
   selectedIdx = -1;
-  document.querySelectorAll(".annotation-row").forEach((el) => el.classList.remove("active"));
+  expandedIdx = -1;
+  document.querySelectorAll(".annotation-accordion").forEach((el) => {
+    el.classList.remove("active", "expanded");
+  });
   redraw();
   startX = pt.x;
   startY = pt.y;
@@ -404,7 +408,8 @@ canvas.addEventListener("mouseup", (e) => {
     height: h,
     tag,
   });
-  selectedIdx = -1;
+  selectedIdx = bboxes.length - 1;
+  expandedIdx = bboxes.length - 1;
   redraw();
   renderAnnotationList();
   clearNewTagEditor();
@@ -426,7 +431,7 @@ canvas.addEventListener("wheel", (e) => {
 // ── keyboard ──────────────────────────────────────────────────────────────────
 
 document.addEventListener("keydown", (e) => {
-  if (e.target === tagInput || e.target.classList?.contains("row-tag")) return;
+  if (isTextField(e.target)) return;
   if (e.key === "ArrowLeft") {
     e.preventDefault();
     navigatePage(-1);
@@ -440,6 +445,7 @@ document.addEventListener("keydown", (e) => {
   if ((e.key === "Delete" || e.key === "Backspace") && selectedIdx >= 0) {
     bboxes.splice(selectedIdx, 1);
     selectedIdx = -1;
+    expandedIdx = -1;
     redraw();
     renderAnnotationList();
   }
