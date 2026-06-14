@@ -230,19 +230,23 @@ symbols:
 ## Rekomendacje i następne kroki — „Co robimy"
 
 1. **Bbox-y na WRT01: TAK, kontynuować.** Schematu nic nie zastąpi (pozycje, tagi, topologia). Cel: dokończyć 3 oznaczone (p013–p015), potem 5–10 reprezentatywnych stron pod różnorodność typów — nie wszystkie 77 naraz.
-2. **Priorytet #1 = IEC 60617 (źródło 2).** Atlas jest w ręku — droga to **layout-aware ekstrakcja** (parowanie crop ↔ opis ↔ komentarz) → `config/symbol-reference.yaml` + crop-y PNG do `data/atlas/`. ControlByte zostaje jako słownik PL pojęć i kontrola terminologii.
-3. **Skrócony workflow labelera.** Filip wpisuje tylko **tag instancji** (np. `-11`) + wskazuje **symbol_id** z listy z atlasu; opis/typ ciągnie się z `symbol-reference.yaml`. Koniec ręcznego przepisywania opisów.
-4. **Co odkładamy.** Pełne ręczne rysowanie linii — czekamy na auto-tracer (003-line-tracer). EPLAN z archiwum — tylko gdy zabraknie symboli producenckich. Streszczanie wideo w runtime — odpada (offline). Encyklopedyczne opisy w bboxach — zastąpione katalogiem.
+2. **Atlas warstwowy** zamiast jednego źródła:
+   - **Warstwa 1 — IEC 60617** (`data/raw/IEC60617.pdf`): baza normatywna, `iec_ref` + opisy. Ekstrakcja layout-aware (parowanie crop ↔ opis).
+   - **Warstwa 2 — QElectroTech** (repo `qelectrotech-elements`): PLC/IO, sieci, napędy, pneumatyka + **nazwy PL** + wektory pod syntetykę. Parsowanie `.elmt` (XML) → crop SVG/PNG.
+   - **Warstwa 3 — producent / EPLAN** (`archive/eplan-era-2026-06.zip` lub Data Portal): konkretne moduły PLC i marki z WRT01.
+   - Spina je jeden `config/symbol-reference.yaml` z kanonicznym `symbol_id` + `source_refs[]` (dedup).
+3. **Skrócony workflow labelera.** Filip wpisuje tylko **tag instancji** (np. `-11`) + wskazuje **symbol_id** z atlasu; opis/typ ciągnie się z `symbol-reference.yaml`. Koniec ręcznego przepisywania opisów.
+4. **Co odkładamy.** Pełne ręczne rysowanie linii — czekamy na auto-tracer (003-line-tracer). Streszczanie wideo w runtime — odpada (offline). Encyklopedyczne opisy w bboxach — zastąpione katalogiem. ControlByte → tylko słownik PL + kontrola terminologii.
 5. **Następny prompt implementacyjny (propozycja dla Cursor):**
-   - **008-iec60617-atlas-extract** *(implementacja, offline)* — layout-aware ekstrakcja `data/raw/IEC60617.pdf`: pozycje grafik + bboxy tekstu → parowanie po wierszu tabeli → `data/atlas/<id>.png` + `config/symbol-reference.yaml` (id, iec_ref, default_description EN, aliases_pl, atlas_crop). Rozwiązuje [RYZYKO] alignmentu. Bez cloud API.
+   - **008-symbol-atlas-extract** *(implementacja, offline, multi-source)* — (a) layout-aware ekstrakcja `IEC60617.pdf` (parowanie po wierszu tabeli → [RYZYKO] alignment), (b) parser `.elmt` QET (XML → nazwy PL + render PNG), (c) scalanie do `config/symbol-reference.yaml` z dedup `symbol_id`. Pobranie QET = krok wstępny. Bez cloud API.
    - następnie **009-bbox→symbol_id w labelerze** — wybór `symbol_id` z atlasu przy bboxie; katalog dostarcza opis/typ.
 
 ---
 
 ## Otwarte pytania do Filipa
 
-1. **Ekstrakcja atlasu:** akceptujesz prompt **008-iec60617-atlas-extract** (parowanie symbol↔opis + `symbol-reference.yaml`) jako następny krok implementacyjny dla Cursor?
-2. **Aliasy PL:** dla ~533 symboli opisy są EN. Tłumaczymy **wszystkie**, czy tylko podzbiór realnie występujący na WRT01 (szybciej, mniej szumu)? Sugeruję podzbiór.
-3. **Zakres bbox:** zostajemy na p013–p015, czy dobieramy kolejne strony pod różnorodność typów? Które stacje/obwody są najważniejsze?
-4. **`tag_prefix`:** czy WRT01 trzyma konwencję członów literowych (`-F` bezpiecznik, `-K` przekaźnik/stycznik, `-M` silnik, `-Q` wyłącznik)? Zdeterminuje regułę walidacji tag → typ.
-5. **[do potwierdzenia] Licencja IEC 60617** — czy crop-y symboli mogą trafić do repo (zwł. jeśli publiczne)? Jeśli nie — trzymamy atlas tylko lokalnie (`data/raw`, `data/atlas` w `.gitignore`).
+1. **Pobranie QET:** mam pobrać repo `qelectrotech-elements` (osobny krok) i potwierdzić realne pokrycie PLC/IO przed pisaniem promptu 008?
+2. **Licencje [do potwierdzenia]:** (a) jak licencjonowany jest **SchemaGen** — kompatybilny z **GPL** (QET)? (b) czy crop-y **IEC 60617** mogą trafić do repo, czy tylko lokalnie (`data/atlas` w `.gitignore`)?
+3. **Aparatura producencka:** którzy producenci dominują na WRT01 (Siemens? Schneider? Eaton? Finder?) — zdeterminuje warstwę 3 i czy sięgać po `archive/eplan-era-2026-06.zip`.
+4. **Zakres bbox:** zostajemy na p013–p015, czy dobieramy kolejne strony pod różnorodność typów? Które stacje/obwody najważniejsze?
+5. **`tag_prefix`:** czy WRT01 trzyma konwencję członów literowych (`-F` bezpiecznik, `-K` przekaźnik/stycznik, `-M` silnik, `-Q` wyłącznik, `-A` moduł/PLC)? Zdeterminuje regułę walidacji tag → typ.
