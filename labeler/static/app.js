@@ -409,6 +409,18 @@ function drawBboxOnCanvas(b, i) {
     ctx.setLineDash([6 / scale, 3 / scale]);
     ctx.strokeRect(b.x, b.y, b.width, b.height);
     ctx.setLineDash([]);
+
+    // Podglad rodzica zaznaczonego dziecka — przerywana obwodka w innym kolorze.
+    if (b.parent_id) {
+      const parent = bboxes.find((x) => x.id === b.parent_id);
+      if (parent) {
+        ctx.strokeStyle = "#ffd24a";
+        ctx.lineWidth = 2.5 / scale;
+        ctx.setLineDash([10 / scale, 5 / scale]);
+        ctx.strokeRect(parent.x, parent.y, parent.width, parent.height);
+        ctx.setLineDash([]);
+      }
+    }
   }
 
   drawBboxNumber(b, color);
@@ -623,12 +635,14 @@ function renderAnnotationList() {
     list.appendChild(empty);
     return;
   }
-  bboxes.forEach((b, i) => {
+  treeOrderedIndices().forEach((i) => {
+    const b = bboxes[i];
     const isExpanded = i === expandedIdx;
     const row = document.createElement("li");
     row.className = "annotation-accordion";
     if (i === selectedIdx) row.classList.add("active");
     if (isExpanded) row.classList.add("expanded");
+    if (b.depth) row.style.marginLeft = `${b.depth * 16}px`;
 
     const summary = document.createElement("div");
     summary.className = "accordion-summary";
@@ -636,7 +650,8 @@ function renderAnnotationList() {
     const line = document.createElement("button");
     line.type = "button";
     line.className = "summary-line";
-    line.textContent = listLabel(b);
+    const pseq = parentSeqOf(b);
+    line.textContent = pseq ? `${listLabel(b)}  ↳ w #${pseq}` : listLabel(b);
     line.title = isExpanded ? "Zwin" : (b.tag || "Kliknij aby edytowac opis");
     line.addEventListener("click", (e) => {
       e.stopPropagation();
