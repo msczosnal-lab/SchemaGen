@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-06-14 [ZW] — Fix export_onnx: auto-wyszukiwanie best.pt
+
+`export_onnx` rzucał `FileNotFoundError` — ultralytics zapisał run pod auto-inkrementowaną nazwą (np. `symbols_v12`), nie pod stałym `symbols_v1`. Dodałem `find_best_weights()`: bierze domyślny run, a jeśli go nie ma — **najnowszy** `data/runs/**/weights/best.pt`. +2 testy (13 passed).
+
+**Odpal ponownie (samo znajdzie wagi):**
+```powershell
+.venv\Scripts\python.exe -m train.export_onnx
+#    wypisze "Wagi: ...\best.pt" + "ONNX: ...symbols_v1.onnx"
+```
+Gdyby trzeba wskazać ręcznie — najpierw zlokalizuj plik, potem `--weights`:
+```powershell
+Get-ChildItem -Recurse data\runs -Filter best.pt | Select FullName
+.venv\Scripts\python.exe -m train.export_onnx --weights "data\runs\<run>\weights\best.pt"
+```
+
+---
+
 ## 2026-06-14 [ZW] — Prompty 006 + 001: export ONNX + inferencja symboli
 
 Temat: **best.pt → ONNX + detektor YOLOv8 ONNX (offline).** Kod + pytest na ZW; export i inferencja GPU u Ciebie. Bazuje na BUILD M0 (mAP50≈0.04, 17 epok — overfit przy 9 stronach, zgodnie z przewidywaniem).
