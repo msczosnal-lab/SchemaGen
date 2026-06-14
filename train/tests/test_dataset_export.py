@@ -35,6 +35,8 @@ def test_split_train_val_deterministic() -> None:
     train_recs, val_recs = split_train_val(recs, val_ratio=0.2)
     assert len(val_recs) == 1
     assert len(train_recs) == 4
+    # val to OSTATNIA strona po sortowaniu (p4)
+    assert [r.page_id for r in val_recs] == ["p4"]
     # zadna strona nie jest jednoczesnie w train i val
     assert not ({r.page_id for r in train_recs} & {r.page_id for r in val_recs})
 
