@@ -38,6 +38,14 @@
 - **Dlaczego wybrałem:** atlas symboli — typy urządzeń do katalogu i treningu
 - **Notatki:** 53 strony, ~533 osadzone grafiki symboli; tabela SYMBOL | DESCRIPTION | COMMENTS. Pokrywa: bezpieczniki, styczniki, przekaźniki, wyłączniki, rozłączniki, silniki, transformatory, styki, zaciski, uziemienia.
 
+### QElectroTech — biblioteka symboli (QET elements)
+- **Typ:** biblioteka symboli CAD (open-source)
+- **URL / ścieżka:** https://qelectrotech.org/ · repo: https://github.com/qelectrotech/qelectrotech-elements (do pobrania, osobny krok)
+- **Język:** wielojęzyczny (w tym **PL**), folder IEC 60617
+- **Standard:** IEC 60617 + symbole przemysłowe / **PLC** / pneumatyka
+- **Dlaczego wybrałem:** uzupełnia IEC 60617 o PLC/IO/sieci i aparaturę przemysłową (profil WRT01)
+- **Notatki:** **>8000 symboli**, format **.elmt / XML** (łatwa ekstrakcja), licencja **GNU/GPL**. Wersja 0.100.
+
 ---
 
 ## Kontekst projektu (dla Claude)
