@@ -6,19 +6,37 @@
 
 ## 2026-06-14 [Cursor]
 
-Temat: GitSync — nazwane commity + tagi Cursor/Claude
-Kontekst: `sync/commit-message.txt` — wpisuj `[Claude] opis` po ukonczeniu promptu. Daemon: `Start-GitSync.cmd Claude`. Historia: `sync/commit-log.md`. Tagi: **Cursor** (Filip), **Claude** (ZW) — stare Filip/ZW wycofane.
-Do zrobienia po stronie Claude: **001-labeler-canvas.md**; po pytest → commit-message.txt
-Commit pending: `[Cursor] gitsync: named commits + tags Cursor/Claude`
+Temat: **Kolejne zadanie = prompt 001-labeler-canvas**
+
+Kontekst:
+- Cursor dodal warstwe **linii graficznych + kolory semantyczne** (model, paleta, fixture v2).
+- **Twoje pierwsze zadanie:** wczytaj `sync/KOLEJNE-ZADANIE.md` i zaimplementuj `sync/prompts/001-labeler-canvas.md`.
+- Po ukonczeniu: pytest → `zw-to-filip.md` → `commit-message.txt` = `[Claude] labeler: canvas bbox (prompt 001)`.
+
+Nowe pliki (nie edytuj bez potrzeby):
+- `config/semantic-colors.yaml` — paleta kolorow (Filip uzupelni grupy)
+- `backend/colors/palette.py` — match_color, resolve_stroke
+- `backend/models/schema.py` — `GraphicLine`, `graphic_lines[]`
+- `schema/fixtures/page1_expected.json` — przyklad z liniami
+
+Zasada: **linia na schemacie ≠ polaczenie**. Prompt 002 (linie w labelerze) — po 001.
+
+Commit pending: `[Cursor] model: graphic lines + semantic colors palette`
 
 ---
 
 ## 2026-06-14 [Cursor]
 
-Temat: Pivot offline — Faza 0 gotowa, start Cowork od labelera
-Kontekst: EPLAN zarchiwizowany (`archive/eplan-era-2026-06.zip`). Nowy stack: Python backend + labeler FastAPI :8765 + CLI. Szkielet recognize/train = NotImplementedError. Walidacja i export YOLO dzialaja. Fixture: `schema/fixtures/page1_expected.json`.
-Do zrobienia po stronie ZW: **001-labeler-canvas.md** (canvas bbox), potem 001-symbol-detector. Instrukcje: `docs/claude-cowork-instructions.md`
-Do zrobienia po stronie Filip: oznacz schematy w labelerze (TASK #11)
+Temat: GitSync — nazwane commity + tagi Cursor/Claude
+Kontekst: `sync/commit-message.txt` — wpisuj `[Claude] opis` po ukonczeniu promptu. Daemon: `Start-GitSync.cmd Claude`. Historia: `sync/commit-log.md`. Tagi: **Cursor** (Filip), **Claude** (ZW).
+Do zrobienia po stronie Claude: **001-labeler-canvas.md**
+Commit: `[Cursor] gitsync: named commits + tags Cursor/Claude`
+
+---
+
+## 2026-06-14 [Cursor]
+
+Temat: Pivot offline — Faza 0 gotowa
 Commit: (po GitSync)
 
 ---

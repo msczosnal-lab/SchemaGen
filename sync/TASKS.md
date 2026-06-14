@@ -17,3 +17,8 @@
 | 11 | 2026-06-14 | Filip | OPEN | Oznacz 3-5 stron schematu w labelerze (data/raw/) | Filip |
 | 12 | 2026-06-14 | Claude | OPEN | Cowork: 001-symbol-detector + train po danych od Filipa | Claude |
 | 13 | 2026-06-14 | Cursor | DONE | GitSync: commit-message.txt + tagi Cursor/Claude | obaj |
+| 14 | 2026-06-14 | Cursor | DONE | Model GraphicLine + semantic-colors.yaml + palette.py | obaj |
+| 15 | 2026-06-14 | Claude | OPEN | Cowork: 001-labeler-canvas.md — canvas bbox (sync/KOLEJNE-ZADANIE.md) | Claude |
+| 16 | 2026-06-14 | Claude | OPEN | Cowork: 002-labeler-lines-colors.md — po ukonczeniu #15 | Claude |
+| 17 | 2026-06-14 | Filip | OPEN | Oznacz 3-5 stron schematu w labelerze (data/raw/) | Filip |
+| 18 | 2026-06-14 | Claude | OPEN | Cowork: 001-symbol-detector + train po danych od Filipa | Claude |
