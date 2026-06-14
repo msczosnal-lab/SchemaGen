@@ -26,15 +26,15 @@ def test_find_best_weights_picks_newest(tmp_path: Path, monkeypatch: pytest.Monk
     import os, time
 
     os.utime(new, (time.time() + 10, time.time() + 10))  # nowszy mtime
-    monkeypatch.setattr(eo, "RUNS_DIR", runs)
     monkeypatch.setattr(eo, "DEFAULT_WEIGHTS", runs / "nieistnieje" / "best.pt")
+    monkeypatch.setattr(eo, "_SEARCH_ROOTS", (runs,))
 
     assert eo.find_best_weights() == new
 
 
 def test_find_best_weights_none_when_empty(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(eo, "RUNS_DIR", tmp_path / "runs")
     monkeypatch.setattr(eo, "DEFAULT_WEIGHTS", tmp_path / "runs" / "x" / "best.pt")
+    monkeypatch.setattr(eo, "_SEARCH_ROOTS", (tmp_path / "runs",))
     assert eo.find_best_weights() is None
 
 
