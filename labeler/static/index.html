@@ -8,17 +8,14 @@
 <body>
   <header>
     <h1>SchemaGen Labeler</h1>
-    <p>Oznacz elementy opisem tekstowym — katalog w config/element-catalog.yaml</p>
+    <p>Symbole graficzne — narysuj bbox, potem wybierz typ po prawej</p>
   </header>
   <main class="layout">
     <aside id="pages-panel">
       <div id="bbox-editor">
-        <h2>Nowy element</h2>
-        <p id="editor-hint">Wpisz opis, narysuj bbox — pole sie wyczysci.</p>
-        <label for="tag-input">Opis (nastepny bbox)</label>
-        <textarea id="tag-input" rows="6" placeholder="np. Stycznik -K1&#10;Funkcja: zasilanie szyny DC" autocomplete="off"></textarea>
-        <datalist id="element-suggestions"></datalist>
-        <p id="class-hint" class="muted">Edycja istniejacych — lista po prawej.</p>
+        <h2>Workflow</h2>
+        <p id="editor-hint">1. Narysuj prostokąt na schemacie<br>2. Wybierz typ z palety (panel po prawej)<br>3. Zapisz stronę</p>
+        <p id="class-hint" class="muted">YOLO: klasa <code>element</code> — hasło tylko w JSON.</p>
       </div>
       <h2>Strony</h2>
       <ul id="page-list"></ul>
@@ -30,7 +27,7 @@
         <button id="page-next" type="button" title="Następna strona (→)">→</button>
       </div>
       <canvas id="canvas" width="800" height="600"></canvas>
-      <p id="hint">Opis → bbox → edycja po prawej → Zapisz</p>
+      <p id="hint">Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu</p>
     </section>
     <aside id="annotations-panel">
       <h2>Elementy na stronie</h2>
@@ -41,6 +38,6 @@
       <p id="save-status" class="muted"></p>
     </aside>
   </main>
-  <script src="/static/app.js?v=14"></script>
+  <script src="/static/app.js?v=15"></script>
 </body>
 </html>

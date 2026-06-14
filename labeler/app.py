@@ -14,6 +14,7 @@ from backend.catalog import list_element_labels, register_labels
 from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
 from backend.geometry.bbox_layout import enrich_label_record
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
+from backend.symbol_palette import search_palette
 from labeler.export import export_all, write_data_yaml
 from backend.models.label import LabelRecord
 
@@ -64,6 +65,11 @@ def api_element_catalog() -> dict:
     return {"labels": list_element_labels()}
 
 
+@app.get("/api/symbol-palette")
+def api_symbol_palette(q: str = "", limit: int = 30) -> dict:
+    return {"symbols": search_palette(q, limit=min(limit, 100))}
+
+
 @app.get("/api/annotations/{page_id}")
 def get_annotations(page_id: str) -> dict:
     data = load_annotation(page_id)
@@ -93,11 +99,13 @@ def post_annotations(body: AnnotationPayload) -> dict:
     except OSError:
         pass
     depth_max = max((b.depth for b in record.bboxes), default=0)
+    unassigned = sum(1 for b in record.bboxes if not b.tag.strip())
     return {
         "status": "saved",
         "page_id": record.page_id,
         "catalog_added": added,
         "bbox_count": len(record.bboxes),
+        "unassigned_count": unassigned,
         "hierarchy_depth_max": depth_max,
     }
 
