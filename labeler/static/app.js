@@ -1,10 +1,11 @@
-// COWORK_TASK: sync/prompts/001-labeler-canvas.md
-// Interaktywny canvas bbox — rysowanie, zoom, zaznaczanie, usuwanie, zapis
+// Prompt 010: bbox-first + paleta typów
+// Canvas bbox — rysowanie, zoom, przypisanie typu po bboxie
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const DEFAULT_CLASS = "element";
+const UNASSIGNED_COLOR = "#6c757d";
 const PALETTE = [
   "#e74c3c", "#3498db", "#2ecc71", "#f39c12",
   "#9b59b6", "#1abc9c", "#e67e22", "#34495e", "#e91e63",
@@ -16,16 +17,13 @@ let pagesMeta = [];
 let bboxes = [];
 let selectedIdx = -1;
 let expandedIdx = -1;
-let pendingTag = "";
 let nextSeq = 1;
-let focusTextareaIdx = null;
+let focusSearchIdx = null;
 
-// Zoom/pan state
 let scale = 1;
 let originX = 0;
 let originY = 0;
 
-// Drawing state
 let drawing = false;
 let drawMoved = false;
 let clickSelectCandidate = -1;
@@ -33,13 +31,12 @@ let startX = 0;
 let startY = 0;
 const DRAG_THRESHOLD = 5;
 
-// Loaded image
 let bgImage = null;
 let catalogLabels = [];
+let paletteCache = [];
+let paletteSearchTimer = null;
 
-const tagInput = document.getElementById("tag-input");
 const editorHint = document.getElementById("editor-hint");
-const classHint = document.getElementById("class-hint");
 const pagePrevBtn = document.getElementById("page-prev");
 const pageNextBtn = document.getElementById("page-next");
 const pagePositionEl = document.getElementById("page-position");
@@ -95,6 +92,10 @@ function applyPageState(state) {
   }
 }
 
+function countUnassigned() {
+  return bboxes.filter((b) => !(b.tag || "").trim()).length;
+}
+
 function markPageDirty(pageId = currentPageId) {
   if (!pageId) return;
   dirtyPages.add(pageId);
@@ -105,14 +106,20 @@ function markPageDirty(pageId = currentPageId) {
 function updateSaveStatus() {
   if (!saveBtn || !saveStatusEl) return;
   const n = bboxes.length;
+  const unassigned = countUnassigned();
   const dirty = currentPageId && dirtyPages.has(currentPageId);
   saveBtn.textContent = dirty ? `Zapisz strone (${n})*` : `Zapisz strone (${n})`;
   saveBtn.classList.toggle("dirty", !!dirty);
-  const cached = pageCache.size;
   const dirtyCount = dirtyPages.size;
+  let extra = "";
+  if (unassigned > 0) {
+    extra = ` | ${unassigned} nieprzypisanych`;
+  }
   if (dirtyCount > 0) {
-    saveStatusEl.textContent = `Niezapisane: ${dirtyCount} str. — zmiana strony tez zapisuje lokalnie.`;
-  } else if (cached > 0) {
+    saveStatusEl.textContent = `Niezapisane: ${dirtyCount} str.${extra}`;
+  } else if (unassigned > 0) {
+    saveStatusEl.textContent = `${unassigned} bbox bez typu — przypisz po prawej`;
+  } else if (pageCache.size > 0) {
     saveStatusEl.textContent = "Wszystko zapisane w bazie.";
   } else {
     saveStatusEl.textContent = "";
@@ -162,7 +169,9 @@ async function savePageToServer(pageId, { silent = false } = {}) {
     dirtyPages.delete(pageId);
     updateSaveStatus();
     if (!silent) {
-      saveStatusEl.textContent = `Zapisano ${pageId}: ${res.bbox_count ?? state.bboxes.length} bbox`;
+      const ua = res.unassigned_count ?? countUnassigned();
+      saveStatusEl.textContent = `Zapisano ${pageId}: ${res.bbox_count ?? state.bboxes.length} bbox` +
+        (ua ? ` (${ua} nieprzypisanych)` : "");
       document.getElementById("hint").textContent = `Zapisano ✓ ${pageId}`;
     }
     return true;
@@ -226,8 +235,6 @@ function reportRecoveryHints() {
     `Lokalne szkice: ${drafts.length} str., ${total} bbox (localStorage). Otworz strone aby wczytac.`;
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(await res.text());
@@ -246,8 +253,12 @@ function clientToCanvas(e) {
   };
 }
 
+function isAssigned(b) {
+  return !!(b.tag || "").trim();
+}
+
 function colorFromTag(tag, fallbackIdx = 0) {
-  if (!tag) return PALETTE[fallbackIdx % PALETTE.length];
+  if (!tag || !tag.trim()) return UNASSIGNED_COLOR;
   let h = 0;
   for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
   return PALETTE[h % PALETTE.length];
@@ -272,10 +283,10 @@ function ensureSeqNumbers() {
 }
 
 function listLabel(b) {
-  return `#${b.seq || "?"}`;
+  const tag = (b.tag || "").trim();
+  if (tag) return `#${b.seq || "?"} · ${tag}`;
+  return `#${b.seq || "?"} · (?)`;
 }
-
-// ── hierarchia bboxow (lustro backend/geometry/bbox_layout.py) ─────────────────
 
 const HIER_EPS = 1.0;
 
@@ -348,7 +359,6 @@ function parentSeqOf(b) {
   return p ? p.seq || "?" : null;
 }
 
-/** Indeksy do listy UI: najnowsze na gorze (seq malejaco), nie drzewo DFS. */
 function listDisplayIndices() {
   return bboxes
     .map((_, i) => i)
@@ -384,10 +394,15 @@ function drawBboxNumber(b, color) {
 }
 
 function drawBboxOnCanvas(b, i) {
+  const assigned = isAssigned(b);
   const color = colorFromTag(b.tag, i);
   ctx.strokeStyle = color;
   ctx.lineWidth = 2 / scale;
+  if (!assigned) {
+    ctx.setLineDash([8 / scale, 4 / scale]);
+  }
   ctx.strokeRect(b.x, b.y, b.width, b.height);
+  ctx.setLineDash([]);
 
   if (i === selectedIdx) {
     ctx.strokeStyle = "#fff";
@@ -395,8 +410,6 @@ function drawBboxOnCanvas(b, i) {
     ctx.setLineDash([6 / scale, 3 / scale]);
     ctx.strokeRect(b.x, b.y, b.width, b.height);
     ctx.setLineDash([]);
-
-    // Podglad rodzica zaznaczonego dziecka — przerywana obwodka w innym kolorze.
     if (b.parent_id) {
       const parent = bboxes.find((x) => x.id === b.parent_id);
       if (parent) {
@@ -412,24 +425,17 @@ function drawBboxOnCanvas(b, i) {
   drawBboxNumber(b, color);
 }
 
-// ── render ───────────────────────────────────────────────────────────────────
-
 function redraw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
-
   if (bgImage) ctx.drawImage(bgImage, 0, 0);
-
   for (let i = bboxes.length - 1; i >= 0; i--) {
     drawBboxOnCanvas(bboxes[i], i);
   }
-
   ctx.restore();
 }
-
-// ── load data ─────────────────────────────────────────────────────────────────
 
 async function loadPages() {
   const pages = await fetchJson("/api/pages");
@@ -490,46 +496,141 @@ async function navigatePage(delta) {
 async function loadElementCatalog() {
   const data = await fetchJson("/api/element-catalog");
   catalogLabels = data.labels || [];
-  const dl = document.getElementById("element-suggestions");
-  dl.innerHTML = "";
-  catalogLabels.forEach((label) => {
-    const opt = document.createElement("option");
-    opt.value = label;
-    dl.appendChild(opt);
+}
+
+async function fetchSymbolPalette(q = "") {
+  const data = await fetchJson(`/api/symbol-palette?q=${encodeURIComponent(q)}&limit=30`);
+  return data.symbols || [];
+}
+
+async function ensurePaletteCache() {
+  if (!paletteCache.length) {
+    paletteCache = await fetchSymbolPalette("");
+  }
+}
+
+function assignTag(idx, tag) {
+  if (idx < 0 || idx >= bboxes.length) return;
+  bboxes[idx].tag = (tag || "").trim();
+  markPageDirty();
+  recomputeHierarchy();
+  redraw();
+  renderAnnotationList();
+  updateSaveStatus();
+}
+
+function renderPaletteButtons(container, symbols, idx, { recent = false } = {}) {
+  container.innerHTML = "";
+  if (!symbols.length) {
+    const empty = document.createElement("span");
+    empty.className = "muted";
+    empty.textContent = "Brak wynikow";
+    container.appendChild(empty);
+    return;
+  }
+  symbols.forEach((sym) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "palette-btn" + (recent ? " recent" : "");
+    btn.textContent = sym.label_pl || sym.id;
+    btn.title = sym.tag_prefix ? `Prefiks: ${sym.tag_prefix}` : sym.id;
+    btn.addEventListener("click", () => assignTag(idx, sym.label_pl));
+    container.appendChild(btn);
   });
 }
 
-function syncNewTagEditor() {
-  tagInput.value = pendingTag;
-  editorHint.textContent = "Wpisz opis nastepnego elementu, potem narysuj bbox.";
-}
+function buildTypePicker(body, idx) {
+  body.innerHTML = "";
+  const b = bboxes[idx];
 
-function clearNewTagEditor() {
-  pendingTag = "";
-  tagInput.value = "";
-  syncNewTagEditor();
-}
+  const preview = document.createElement("div");
+  preview.className = "tag-preview " + (isAssigned(b) ? "assigned" : "unassigned");
+  preview.textContent = isAssigned(b)
+    ? `Typ: ${b.tag}`
+    : "Nieprzypisany — wybierz z palety lub wpisz wlasne haslo";
+  body.appendChild(preview);
 
-function onNewTagInput(value) {
-  pendingTag = value;
-}
+  const search = document.createElement("input");
+  search.type = "search";
+  search.className = "type-search";
+  search.placeholder = "Szukaj typu (np. stycznik)…";
+  search.dataset.idx = String(idx);
+  body.appendChild(search);
 
-function normalizeBboxesForSave() {
-  return capturePageState().bboxes.map((b) => ({
-    id: b.id,
-    class_name: b.class_name || DEFAULT_CLASS,
-    x: b.x,
-    y: b.y,
-    width: b.width,
-    height: b.height,
-    tag: (b.tag || "").trim(),
-    seq: b.seq || 0,
-    semantic_group: b.semantic_group || "",
-    color_ref: b.color_ref || "",
-    parent_id: b.parent_id || "",
-    depth: b.depth || 0,
-    rel_bbox: b.rel_bbox || [],
-  }));
+  const resultsSection = document.createElement("div");
+  resultsSection.className = "palette-section";
+  const resultsTitle = document.createElement("h4");
+  resultsTitle.textContent = "Paleta";
+  resultsSection.appendChild(resultsTitle);
+  const resultsList = document.createElement("div");
+  resultsList.className = "palette-list";
+  resultsSection.appendChild(resultsList);
+  body.appendChild(resultsSection);
+
+  const recentSection = document.createElement("div");
+  recentSection.className = "palette-section";
+  const recentTitle = document.createElement("h4");
+  recentTitle.textContent = "Ostatnie / katalog";
+  recentSection.appendChild(recentTitle);
+  const recentList = document.createElement("div");
+  recentList.className = "palette-list";
+  recentSection.appendChild(recentList);
+  body.appendChild(recentSection);
+
+  const customLabel = document.createElement("label");
+  customLabel.className = "custom-tag-label";
+  customLabel.textContent = "Wolne haslo (wyjatek)";
+  body.appendChild(customLabel);
+
+  const customInput = document.createElement("input");
+  customInput.type = "text";
+  customInput.className = "type-search";
+  customInput.placeholder = "np. modul zasilania RUPS1";
+  customInput.value = b.tag || "";
+  body.appendChild(customInput);
+
+  customInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      assignTag(idx, customInput.value);
+    }
+  });
+  customInput.addEventListener("blur", () => {
+    if (customInput.value.trim() !== (b.tag || "").trim()) {
+      assignTag(idx, customInput.value);
+    }
+  });
+
+  async function refreshResults(q) {
+    const symbols = q ? await fetchSymbolPalette(q) : paletteCache.length ? paletteCache : await fetchSymbolPalette("");
+    if (!q && !paletteCache.length) paletteCache = symbols;
+    renderPaletteButtons(resultsList, symbols, idx);
+  }
+
+  search.addEventListener("input", () => {
+    clearTimeout(paletteSearchTimer);
+    paletteSearchTimer = setTimeout(() => refreshResults(search.value.trim()), 200);
+  });
+  search.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const first = resultsList.querySelector(".palette-btn");
+      if (first) first.click();
+    }
+  });
+
+  const recentLabels = [...new Set([...catalogLabels].reverse())].slice(0, 12);
+  const recentSymbols = recentLabels.map((label) => ({ id: label, label_pl: label }));
+  renderPaletteButtons(recentList, recentSymbols, idx, { recent: true });
+
+  ensurePaletteCache().then(() => refreshResults(""));
+
+  if (focusSearchIdx === idx) {
+    requestAnimationFrame(() => {
+      search.focus();
+      focusSearchIdx = null;
+    });
+  }
 }
 
 async function selectPage(pageId) {
@@ -551,8 +652,7 @@ async function selectPage(pageId) {
   originY = 0;
   selectedIdx = -1;
   expandedIdx = -1;
-  focusTextareaIdx = null;
-  pendingTag = "";
+  focusSearchIdx = null;
 
   bgImage = await new Promise((resolve, reject) => {
     const img = new Image();
@@ -590,23 +690,22 @@ async function selectPage(pageId) {
   redraw();
   renderAnnotationList();
   renderPageList();
-  clearNewTagEditor();
   updatePageNav();
   updateSaveStatus();
   const idx = currentPageIndex();
   const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
   document.getElementById("hint").textContent =
-    `Strona ${pos}: ${pageId} — zmiana strony auto-zapisuje | Ctrl+S = zapisz`;
+    `Strona ${pos}: ${pageId} — narysuj bbox, przypisz typ | Ctrl+S | / = szukaj`;
 }
 
 function toggleAccordion(i) {
   if (expandedIdx === i) {
     expandedIdx = -1;
-    focusTextareaIdx = null;
+    focusSearchIdx = null;
   } else {
     expandedIdx = i;
     selectedIdx = i;
-    focusTextareaIdx = i;
+    focusSearchIdx = i;
   }
   renderAnnotationList();
   redraw();
@@ -618,7 +717,7 @@ function renderAnnotationList() {
   if (!bboxes.length) {
     const empty = document.createElement("li");
     empty.className = "muted";
-    empty.textContent = "Brak elementow — wpisz opis i narysuj bbox.";
+    empty.textContent = "Brak elementow — narysuj bbox na schemacie.";
     empty.style.background = "transparent";
     empty.style.border = "none";
     empty.style.cursor = "default";
@@ -630,6 +729,7 @@ function renderAnnotationList() {
     const isExpanded = i === expandedIdx;
     const row = document.createElement("li");
     row.className = "annotation-accordion";
+    if (!isAssigned(b)) row.classList.add("unassigned");
     if (i === selectedIdx) row.classList.add("active");
     if (isExpanded) row.classList.add("expanded");
     if (b.depth) row.style.marginLeft = `${b.depth * 16}px`;
@@ -642,7 +742,7 @@ function renderAnnotationList() {
     line.className = "summary-line";
     const pseq = parentSeqOf(b);
     line.textContent = pseq ? `${listLabel(b)}  ↳ w #${pseq}` : listLabel(b);
-    line.title = isExpanded ? "Zwin" : (b.tag || "Kliknij aby edytowac opis");
+    line.title = isExpanded ? "Zwin" : (isAssigned(b) ? b.tag : "Przypisz typ");
     line.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleAccordion(i);
@@ -665,23 +765,8 @@ function renderAnnotationList() {
     if (isExpanded) {
       const body = document.createElement("div");
       body.className = "accordion-body";
-      const textarea = document.createElement("textarea");
-      textarea.className = "row-tag tag-textarea";
-      textarea.dataset.idx = String(i);
-      textarea.rows = 5;
-      textarea.value = b.tag || "";
-      textarea.placeholder = "Opis elementu…";
-      bindRowTextarea(textarea, i);
-      body.appendChild(textarea);
+      buildTypePicker(body, i);
       row.appendChild(body);
-
-      if (focusTextareaIdx === i) {
-        requestAnimationFrame(() => {
-          textarea.focus();
-          textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-          focusTextareaIdx = null;
-        });
-      }
     }
 
     list.appendChild(row);
@@ -694,19 +779,11 @@ function removeBboxAt(idx) {
   recomputeHierarchy();
   selectedIdx = -1;
   expandedIdx = -1;
-  focusTextareaIdx = null;
+  focusSearchIdx = null;
   markPageDirty();
   renderAnnotationList();
   redraw();
-}
-
-function bindRowTextarea(textarea, i) {
-  textarea.addEventListener("mousedown", (e) => e.stopPropagation());
-  textarea.addEventListener("input", (e) => {
-    bboxes[i].tag = e.target.value;
-    markPageDirty();
-    redraw();
-  });
+  updateSaveStatus();
 }
 
 function selectBbox(idx) {
@@ -715,21 +792,18 @@ function selectBbox(idx) {
   redraw();
 }
 
-function isTextField(el) {
-  return el === tagInput || el?.classList?.contains("row-tag");
+function isTypingField(el) {
+  if (!el) return false;
+  return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
 }
-
-// ── bbox drawing ──────────────────────────────────────────────────────────────
 
 canvas.addEventListener("mousedown", (e) => {
   if (e.button !== 0) return;
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
-
   clickSelectCandidate = bboxes.findIndex(
     (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
   );
-  pendingTag = tagInput.value;
   drawing = true;
   drawMoved = false;
   startX = pt.x;
@@ -744,11 +818,10 @@ canvas.addEventListener("mousemove", (e) => {
   const h = Math.abs(pt.y - startY);
   if (w >= DRAG_THRESHOLD || h >= DRAG_THRESHOLD) drawMoved = true;
   redraw();
-
   ctx.save();
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
-  ctx.strokeStyle = colorFromTag(pendingTag || tagInput.value, bboxes.length);
+  ctx.strokeStyle = UNASSIGNED_COLOR;
   ctx.lineWidth = 2 / scale;
   ctx.setLineDash([6 / scale, 3 / scale]);
   ctx.strokeRect(startX, startY, pt.x - startX, pt.y - startY);
@@ -761,7 +834,6 @@ canvas.addEventListener("mouseup", (e) => {
   drawing = false;
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
-
   const x = Math.min(startX, pt.x);
   const y = Math.min(startY, pt.y);
   const w = Math.abs(pt.x - startX);
@@ -769,7 +841,7 @@ canvas.addEventListener("mouseup", (e) => {
 
   if (!drawMoved) {
     if (clickSelectCandidate >= 0) {
-      selectBbox(clickSelectCandidate);
+      toggleAccordion(clickSelectCandidate);
     } else {
       selectedIdx = -1;
       expandedIdx = -1;
@@ -784,7 +856,6 @@ canvas.addEventListener("mouseup", (e) => {
     return;
   }
 
-  const tag = tagInput.value.trim();
   const id = `${DEFAULT_CLASS}_${Date.now()}`;
   bboxes.unshift({
     id,
@@ -793,24 +864,21 @@ canvas.addEventListener("mouseup", (e) => {
     y,
     width: w,
     height: h,
-    tag,
+    tag: "",
     seq: nextSeq++,
     parent_id: "",
     depth: 0,
     rel_bbox: [],
   });
   recomputeHierarchy();
-  selectedIdx = -1;
-  expandedIdx = -1;
-  focusTextareaIdx = null;
+  selectedIdx = 0;
+  expandedIdx = 0;
+  focusSearchIdx = 0;
   markPageDirty();
   redraw();
   renderAnnotationList();
-  clearNewTagEditor();
-  tagInput.focus();
+  updateSaveStatus();
 });
-
-// ── zoom ──────────────────────────────────────────────────────────────────────
 
 canvas.addEventListener("wheel", (e) => {
   e.preventDefault();
@@ -822,10 +890,8 @@ canvas.addEventListener("wheel", (e) => {
   redraw();
 }, { passive: false });
 
-// ── keyboard ──────────────────────────────────────────────────────────────────
-
 document.addEventListener("keydown", (e) => {
-  if (isTextField(e.target)) {
+  if (isTypingField(e.target)) {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       savePageToServer(currentPageId);
@@ -847,12 +913,16 @@ document.addEventListener("keydown", (e) => {
     navigatePage(1);
     return;
   }
+  if (e.key === "/" && expandedIdx >= 0) {
+    e.preventDefault();
+    focusSearchIdx = expandedIdx;
+    renderAnnotationList();
+    return;
+  }
   if ((e.key === "Delete" || e.key === "Backspace") && selectedIdx >= 0) {
     removeBboxAt(selectedIdx);
   }
 });
-
-tagInput.addEventListener("input", (e) => onNewTagInput(e.target.value));
 
 pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
 pageNextBtn?.addEventListener("click", () => navigatePage(1));
@@ -866,7 +936,7 @@ async function init() {
     updatePageNav();
   }
   await loadElementCatalog();
-  clearNewTagEditor();
+  paletteCache = await fetchSymbolPalette("");
   updateSaveStatus();
 }
 

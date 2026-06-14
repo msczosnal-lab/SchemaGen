@@ -1,45 +1,48 @@
 # Instrukcja oznaczania schematow
 
-## Cel
+Wizja trzech filarow: [`schematic-interpretation.md`](schematic-interpretation.md)
 
-Tworzysz ground truth do treningu YOLO i walidacji pozniejszej inferencji.
+## Cel (etap 1 — symbole graficzne)
 
-## Kroki
+Tworzysz ground truth bboxow do treningu YOLO (klasa `element`) i JSON/schema.
 
-1. Umiesc PNG/PDF strony w `data/raw/` (PDF: `python -m backend.cli recognize` konwertuje via ingest)
-2. Uruchom labeler: `python -m labeler.app` → http://localhost:8765
-3. Wybierz strone z listy
-4. **Wpisz opis elementu** (lewy panel), np. `Stycznik -K1`
-5. Narysuj bbox wokol symbolu na schemacie
-6. Zapisz — opis trafia do katalogu `config/element-catalog.yaml`
-7. Eksport YOLO + JSON
+## Workflow labelera (prompt 010)
 
-Klasa techniczna YOLO: `element` (jedna dla wszystkich). Szczegoly = opis tekstowy.
+1. Uruchom: `python -m labeler.app` → http://localhost:8765
+2. Wybierz strone z listy
+3. **Narysuj bbox** wokol symbolu/urzadzenia na schemacie (bez opisu)
+4. Kliknij element na liscie po prawej → **wybierz typ** z palety lub wpisz wolne haslo
+5. Zapisz strone (Ctrl+S)
 
-## Klasy (start)
+Skroty: `/` = focus wyszukiwarki typu, strzalki = zmiana strony.
 
-Zobacz `config/symbol-classes.yaml` — 9 klas MVP.
+## Hasla (typ urządzenia)
 
-## Minimum datasetu
+- **Krotko:** `stycznik`, `bezpiecznik`, `modul PLC` — jedno haslo, nie relacje w tekscie
+- **Paleta:** `config/symbol-palette.yaml` (~50 typow IEC/WRT01)
+- **Wyjatki:** pole „Wolne haslo” — trafia do `config/element-catalog.yaml`
+- **Nieprzypisany bbox:** szary, przerywany obrys — mozna zapisac, ale warto uzupelnic typ
 
-10 stron × ~15 symboli = proof-of-concept YOLOv8n na RTX 2080.
+## Klasa YOLO
 
-## Oznaczanie warstwowe (hierarchia bboxow)
+Zobacz `config/symbol-classes.yaml` — na etapie 1 tylko **`element`**. Haslo (`tag`) idzie do JSON, **nie** do pliku YOLO `.txt`.
 
-Mozesz rysowac **bbox w bboxie** — duzy blok (np. „Blok zasilania RUPS1”)
-i mniejsze bboxy szczegolow w srodku (rozlacznik, symbol, tag `-11`).
+## Hierarchia bboxow
 
-- System **sam wykrywa zawieranie** — najmniejszy bbox w pelni obejmujacy nowy
-  zostaje jego rodzicem; zapisywane sa `parent_id`, `depth`, `rel_bbox`.
-- W panelu po prawej dzieci sa wciete, z adnotacja `↳ w #<nr rodzica>`;
-  po zaznaczeniu dziecka rodzic ma zolta przerywana obwodke na canvas.
-- **Eksport YOLO = wszystkie prostokaty** (nakladanie jest celowe);
-  hierarchia trafia tylko do JSON/schema (`spatial_relations`, relacje przestrzenne).
-- Tag na bloku = **kontekst**, tag na dziecku = **konkret** (np. `-11`).
+Duzy bbox-blok (np. `modul zasilania`) + mniejsze symbole w srodku — system sam wykrywa `parent_id`, `depth`, `rel_bbox`. Eksport YOLO = wszystkie prostokaty.
+
+## Zlozone urzadzenia (device_block)
+
+Na razie: **jeden obrys** + haslo blokowe (`szafa`, `listwa zaciskow`). Terminali nie oznaczaj — osobny tryb pozniej ([`docs/adr/device-block-stub.md`](adr/device-block-stub.md)).
 
 ## Po eksporcie
 
-Pliki trafiaja do `data/labeled/`:
-- `labels/*.txt` — YOLO
-- `*.schema.json` — SchemaModel GT
+Pliki w `data/labeled/`:
+- `labels/*.txt` — YOLO (klasa `element`)
+- `*.schema.json` — SchemaModel GT z `tag`
 - `data.yaml` — konfig treningu
+
+## Nastepne filary (nie w tym labelerze jeszcze)
+
+- **Tekst** — OCR + bboxy tekstu
+- **Polaczenia** — linie wire/bus w labelerze (prompt 002-labeler-lines-colors)
