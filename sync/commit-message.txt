@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Claude] atlas: QET extract -> symbol-reference.yaml (prompt 008a)
