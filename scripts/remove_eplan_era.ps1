@@ -35,6 +35,12 @@ $removePaths = @(
 )
 Get-ChildItem "scripts\*.cs" -ErrorAction SilentlyContinue | Remove-Item -Force
 foreach ($p in $removePaths) {
-    if (Test-Path $p) { Remove-Item $p -Recurse -Force }
+    if (Test-Path $p) {
+        try {
+            Remove-Item $p -Recurse -Force -ErrorAction Stop
+        } catch {
+            Write-Warning "Could not remove ${p}: $_"
+        }
+    }
 }
 Write-Host "EPLAN era files removed from repo root."
