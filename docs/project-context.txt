@@ -1,136 +1,36 @@
-Kontekst projektu: EPLAN SchemaGen — automatyczne generowanie schematów elektrycznych
-Cel projektu
-Zbudowanie narzędzia które na podstawie prostej konfiguracji (typ napędu, moc, sterowanie) automatycznie generuje gotowy schemat elektryczny w EPLAN Electric P8 2025. Docelowo: agent AI tłumaczy opis słowny lub formularz → generuje schemat → waliduje → eksportuje PDF dla człowieka.
+Kontekst projektu: SchemaGen offline — rozpoznawanie i generowanie schematow elektrycznych
 
-Środowisko
+## Cel
 
-EPLAN Electric P8 2025 Professional — zainstalowany, licencja bezterminowa
-Licencja API: Module: EPLAN API Extension — aktywny ✅
-Projekt testowy: C:\Users\Public\EPLAN\Data\Projekty\Schemagen\Hello_world.edb — pusty, gotowy jako sandbox
-Projekt referencyjny: C:\Users\Public\EPLAN\Data\Projekty\Schemagen\EPLAN_Sample_Project.edb — gotowy przykład EPLAN do analizy
-Dane EPLAN: C:\Users\Public\EPLAN\Data\ — pełna instalacja z bibliotekami
+Na podstawie PDF/obrazu schematu + konfiguracji napędu (XML) system offline:
+- rozpoznaje elementy (YOLO + OCR + OpenCV),
+- buduje SchemaModel JSON,
+- waliduje regułami,
+- generuje nowy schemat SVG z biblioteki blokow.
 
+## Srodowisko runtime
 
-Architektura — decyzja: skrypt .cs zamiast pluginu DLL
-EPLAN obsługuje dwa modele kodu:
-Skrypt .csPlugin (DLL)KompilacjaEPLAN robi automatycznieWymagany Visual StudioWdrożenieSkopiuj plik do folderuRejestracja DLLAPIIdentyczneIdentyczneStartNatychmiastTydzień setupu
-Decyzja: zaczynamy od skryptu .cs. Lokalizacja: C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\. Uruchamiany przez EPLAN: menu Narzędzia → Skrypty. Gdy kod działa — migracja do pluginu to proste przepakowanie.
-Przykład istniejącego skryptu w instalacji: PageNavi_ContextMenu_OpenFolders.cs — można użyć jako wzorzec struktury.
+- Maszyna: PC uzytkownika, GPU RTX 2080 (8 GB VRAM) — hard cap
+- Offline: brak cloud API w backend/recognize, train/, labeler/
+- Opcjonalny chat: formularz user_intent lub lokalny LLM 7B (pozniej)
 
-Model danych — XML konfiguracji (gotowy format)
-EPLAN Sample Project używa własnego systemu konfiguracji XML. Pliki 3_Sample_StepByStep.xml i 901_Drive_Design.xml pokazują dokładny format:
-xml<ConfigurationVariable name="OP_Power_supply_400V">true</ConfigurationVariable>
-<ConfigurationVariable name="SE_Drive_Control">Frequency Converter</ConfigurationVariable>
-<ConfigurationVariable name="SE_Drive_Type">1,5 kW</ConfigurationVariable>
-<ConfigurationVariable name="OP_Transport_1">true</ConfigurationVariable>
-<ConfigurationVariable name="SE_Transport_1_Type">0,75 kW</ConfigurationVariable>
-Kluczowy wniosek: format danych wejściowych dla agenta jest już zdefiniowany. Agent AI generuje taki XML → skrypt C# go parsuje → EPLAN API wstawia odpowiednie makra. Nie trzeba wymyślać modelu danych od zera.
+## Agenci (development)
 
-Biblioteka makr — gotowa do użycia
-Ścieżka bazowa: C:\Users\Public\EPLAN\Data\Makra\Schemagen\EPLAN_Macro\
-Makra kluczowe dla MVP:
-201_Power_Supply/101_01_Variant_1/
-    400VAC_Power_Supply.ema              ← sekcja zasilania 400V AC
+- Cursor: kod strukturalny, prompty sync/prompts/, review, akceptacja
+- Claude Cowork (ZW): implementacja NotImplementedError
+- Uzytkownik: oznaczanie w labelerze, kierunek projektu
 
-202_Power_Supply_24V/101_01_Variant_1/
-    24VDC_Supply.ema                     ← zasilanie 24V DC
+## MVP status (2026-06-14)
 
-203_Electrical_Engine/
-    101_01_Variant_1/
-        Reverse_Contactor_Control.ema    ← silnik DOL z rewersem (softstart)
-    101_02_Variant_2/
-        Frequency_Control.ema            ← silnik z falownikiem ✅ (core case)
+- Archiwum EPLAN: archive/eplan-era-2026-06.zip
+- backend/: CLI, API, validate, generate, recognize stubs
+- labeler/: FastAPI + static stub (Cowork: canvas)
+- train/: stubs YOLO + ONNX
+- blocks/: 400vac_supply, frequency_control, start_stop
+- schema/fixtures/: page1_expected.json
 
-300_Machine_Protection/                  ← safety, wyłączniki krańcowe
-401_PLC_Control_IO_Module/              ← karty DI/DO
-902_PLC_Rack/
-    CPU.ema
-    Digital_input.ema
-    Digital_output.ema
-Biblioteki producentów (makra gotowych urządzeń):
+## Nastepny krok
 
-Siemens/Industrial_Controls/ — 3RT2 (styki), 3RV2 (rozruszniki), 3SB3/3SU1 (przyciski)
-SEW/ — napędy MOVIMOT
-FESTO/ — pneumatyka
-Rittal/ — szafy i akcesoria
-
-
-Pętla walidacji agenta — NIE PDF
-PDF to format wyjściowy dla człowieka, nie dla agenta. AI widzi schemat jako obraz — brak semantyki połączeń.
-Właściwe sprzężenie zwrotne:
-Skrypt generuje schemat w EPLAN
-        ↓
-EPLAN API eksportuje CSV listy połączeń
-        ↓
-Agent dostaje CSV + zestaw reguł walidacji:
-  "Czy każdy falownik ma DI Ready?"
-  "Czy safety ma dwa kanały?"
-  "Czy każdy silnik ma PE?"
-  "Czy BOM jest kompletny?"
-        ↓
-Agent zwraca: { errors: [...], warnings: [...], approved: bool }
-        ↓
-Jeśli approved == false → agent modyfikuje XML konfiguracji → iteruje
-        ↓
-Jeśli approved == true → EPLAN eksportuje PDF dla człowieka
-Eksport CSV w EPLAN API:
-csharp// Lista połączeń
-new CommandLineInterpreter().Execute("XExport /Format:CSV /Filename:connections.csv");
-// PDF dla człowieka
-new CommandLineInterpreter().Execute("XPrintPdf /Filename:schemat.pdf");
-
-**Status MVP (Faza 1 — sesja 1.6 zaimplementowana, test EPLAN do wykonania, 2026-06-09)**
-SchemaGen_MVP.cs + add-in SchemaGen.EplAddIn..dll:
-
-✅ Wczytuje XML konfiguracji (901_Drive_Design.xml, parser SchemaGenConfig w skrypcie)
-✅ Otwiera projekt Hello_world.elk
-✅ Tworzy trzy strony schematu (=SCHEMAGEN+MAIN/N): opisy w nawigatorze przez PAGE_NOMINATIOMN (#11011)
-✅ Wstawia makro 400VAC_Power_Supply.ema (strona 1)
-✅ Wstawia makro Frequency_Control.ema z danymi XML SE_Drive_Type (strona 2)
-✅ Wstawia makro Fan_motor_control_two_switches.ema — Start/Stop (strona 3)
-✅ Po makrach: SchemaGenLinkPotentials (generate CONNECTIONS + audyt odnośników)
-✅ MacroFitCalculator — kompensacja origin makra (bbox offset, cache macro-offsets.xml v3)
-
-✅ SchemaGenConnectMotor: ConnectMotorWindings (U/V/W + generate CONNECTIONS). Numeracja DT — osobny krok (renumber EPLAN, 1.7d)
-✅ FrameLayoutCalculator + USE_FRAME_LAYOUT=1 w MVP (auto-pozycjonowanie w ramce)
-✅ SchemaGenAuditLayout → output/layout-audit.json (sprzężenie zwrotne layoutu)
-✅ MCP schemagen-eplan: eplan_build_addin, eplan_run_script, eplan_get_layout, eplan_closed_loop
-✅ Walidacja Fazy 2: validate_connections.py + validation-rules.json
-
-⚠️ Layout w ramce — wymaga kalibracji Frame* po teście EPLAN (domyślnie FrameMinRy=0.6, MaxRy=250, MaxRx=400)
-Pułapka osi: Insert.WindowMacro PointD(X,Y) → X=RY (pion), Y=RX (poziom); MACROX=RY, MACROY=RX
-
-Otwarte problemy:
-- Tagi PLC surowe [20171<218<...] — pełny remap struktury GAA→SCHEMAGEN (S063111) — poza zakresem 1.6
-- Odnośniki potencjałów między stronami — audyt jest, pełna weryfikacja w EPLAN do potwierdzenia
-
-Następny krok (sesja 1.7 / Faza 2):
-1. Test EPLAN sesji 1.6 + kalibracja Frame* wg layout-audit.json
-2. MCP eplan_closed_loop — pierwsza pełna pętla walidacji CSV
-3. Dopracowanie validation-rules.json po rzeczywistym eksporcie
-
-Integracja agenta — MCP (zaimplementowane):
-Serwer: mcp/schemagen_eplan/server.py | Cursor: .cursor/mcp.json | Cowork: config/claude_desktop_config.example.json → %APPDATA%\Claude\claude_desktop_config.json
-
-Pliki: repo scripts/ → kopia SchemaGen_MVP.cs do C:\Users\Public\EPLAN\Data\Skrypty\Schemagen\
-Build add-in: powershell scripts/build_addin.ps1
-Kontekst sesji: docs/session-log.md (ostatni wpis), docs/ROADMAP.md, docs/eplan-api-notes.md
-
-Opcje frontendu (przyszłość)
-
-WinForms/WPF w skrypcie EPLAN — dialog bezpośrednio w EPLAN, zero zewnętrznych zależności, najszybszy start
-Electron/Tauri — desktop app generuje XML → woła skrypt przez CLI EPLAN
-Web app (Next.js) — formularz w przeglądarce, generowanie serwerowe, dla wielu użytkowników
-Agent AI jako frontend — opis słowny → Claude generuje XML konfiguracji → skrypt uruchamia EPLAN
-
-Rekomendacja: zacznij od WinForms w skrypcie. Logika biznesowa i tak jest w .cs — dodanie formularza to 20 linii.
-
-Struktura projektu Cursor (sugerowana)
-schemagen/
-├── SchemaGen_MVP.cs          ← główny skrypt EPLAN
-├── config/
-│   └── 901_Drive_Design.xml  ← przykładowy plik konfiguracji
-├── templates/
-│   └── relay_latch.xml       ← definicja obwodu przekaźnika podtrzymującego
-└── docs/
-    └── eplan_api_notes.md    ← notatki o API
+1. Cowork: sync/prompts/001-labeler-canvas.md
+2. Uzytkownik: oznacz 3-5 stron w labelerze
+3. Cowork: train + recognize ONNX
