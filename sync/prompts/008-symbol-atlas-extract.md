@@ -1,6 +1,6 @@
 # Zadanie 008: ekstrakcja atlasu symboli (faza 1 — QET)
 
-**Status:** DONE — kod w repo (commit `c2800a8d`+). Kurator TAK/NIE **wstrzymany** — faza 2. Poprawki buildera (polygon, selekcja P0): review Cursor pending.  
+**Status:** ANULOWANY na etapie 1 (2026-06-15) — rezygnacja z atlasu QET w runtime. Kod może zostać w repo; **Claude nie rozszerza, nie używa w labelerze.** Wizja: [`docs/schematic-interpretation.md`](../../docs/schematic-interpretation.md).  
 **Model:** Sonnet, effort **High**  
 **Faza:** **008a** — tylko QElectroTech. IEC 60617 PDF i warstwa producenta → fazy 008b/008c (osobne prompty).
 

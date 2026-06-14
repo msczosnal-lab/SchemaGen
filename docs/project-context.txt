@@ -1,50 +1,15 @@
-Kontekst projektu: SchemaGen offline — rozpoznawanie i generowanie schematow elektrycznych
+## Etap 1 (2026-06-15) — trzy filary interpretacji wizualnej
 
-## Cel
+Pelna wizja: docs/schematic-interpretation.md
 
-Na podstawie PDF/obrazu schematu + konfiguracji napędu (XML) system offline:
-- rozpoznaje elementy (YOLO + OCR + OpenCV),
-- buduje SchemaModel JSON,
-- waliduje regułami,
-- generuje nowy schemat SVG z biblioteki blokow.
+1. TEKST — OCR (prompt 002-ocr)
+2. SYMBOLE GRAFICZNE — YOLO + labeler bbox (prompt 010)
+3. POLACZENIA — linie wire/bus (labeler + line tracer 003)
 
-## Srodowisko runtime
+Potem: relacje — tekst przypisany do symbolu, symbol polaczony z symbolem (GraphBuilder 004).
 
-- Maszyna: PC uzytkownika, GPU RTX 2080 (8 GB VRAM) — hard cap
-- Offline: brak cloud API w backend/recognize, train/, labeler/
-- Opcjonalny chat: formularz user_intent lub lokalny LLM 7B (pozniej)
+REZYGNACJA: atlas QET, kurator, cropy — nie uzywamy w runtime.
 
-## Agenci (development)
-
-- Cursor: kod strukturalny, prompty sync/prompts/, review, akceptacja
-- Claude Cowork (ZW): implementacja NotImplementedError
-- Uzytkownik: oznaczanie w labelerze, kierunek projektu
+Trening detekcji = wylacznie bboxy ze skanow oznaczonych przez Filipa.
 
 ## MVP status (2026-06-15)
-
-- BUILD M0: trening YOLO + ONNX + detektor (u Filipa, .venv311)
-- labeler/: canvas bbox, hierarchia 003; **następny krok: 010 bbox-first + paleta haseł**
-- backend/atlas/: parser QET 008a (kurator wstrzymany)
-- train/: dataset_export, train_symbols, export_onnx
-
-## Etap 1 (aktywny) — detekcja elementów
-
-- Cel: YOLO znajduje prostokąty elementów na schemacie (klasa `element`)
-- Filip: duża baza bboxów z wielu PDF/PNG; hasła krótkie (typ urządzenia)
-- Labeler: najpierw bbox, potem wybór z config/symbol-palette.yaml
-- Tagi instancji, połączenia, terminale złożonych urządzeń — później
-- Trening detekcji = wyłącznie bboxy ze skanów WRT01 (nie cropy atlasu QET)
-
-## Semantyka linii i kolorow
-
-- GraphicLine = linia na rysunku (wire, bus, device_stroke, frame, dash, crossing...)
-- Connection = polaczenie logiczne — tylko z linii wire/bus
-- Kolory: config/semantic-colors.yaml — uzytkownik definiuje grupy (kable czarne, falownik fioletowy...)
-- Rozpoznawanie i walidacja po kolorze + roli linii
-
-## Nastepny krok
-
-1. Claude: sync/KOLEJNE-ZADANIE.md → 010-labeler-bbox-first-palette.md
-2. Filip: bboxy na wielu schematach; re-train po zebraniu danych
-3. Później: 002 linie/kolory, line tracer, GraphBuilder
-4. Faza 2: kurator atlasu QET, terminale device_block

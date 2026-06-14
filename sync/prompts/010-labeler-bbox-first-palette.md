@@ -1,25 +1,29 @@
 # Zadanie 010: labeler — bbox najpierw + paleta haseł
 
-**Status:** OPEN — decyzja Filipa/Cursor 2026-06-15 (Etap 1: detekcja elementów)  
+**Status:** OPEN — decyzja Filipa 2026-06-15  
 **Model:** Sonnet, effort **High**  
-**Zastępuje / refinuje:** planowany 009-bbox-symbol-id (picker w labelerze, bez atlasu QET w UI)
+**Filar:** symbole graficzne (1/3) — patrz [`docs/schematic-interpretation.md`](../../docs/schematic-interpretation.md)
 
 ## Kontekst (decyzja Filipa)
 
-**Etap 1 projektu:** skrypt ma **rozpoznawać elementy** na schemacie (YOLO, klasa `element`). Tagi instancji, połączenia, komentarze — **później**, proceduralnie.
+System interpretuje schemat przez **trzy filary wizualne**, potem **relacje**:
+1. **Symbole graficzne** ← *ten prompt*
+2. Tekst (OCR — prompt 002)
+3. Połączenia (linie — prompty 002-labeler / 003-tracer)
+
+**Relacje później:** tekst↔symbol, symbol↔symbol — `004-graph-builder`.
+
+**Rezygnacja:** atlas QET, kurator, cropy, `symbol-reference.yaml` — **nie używać**. Paleta = statyczne hasła PL w YAML.
 
 | Teraz | Później |
 |-------|---------|
-| Duża baza bboxów z wielu schematów WRT01 | Line tracer, GraphBuilder, tagi `-K1` |
-| Hasło = **typ urządzenia** (1 słowo / krótkie) | Charakterystyki, połączenia |
-| **Najpierw bbox, potem wybór typu** | Kurator atlasu QET (TAK/NIE) — faza 2 |
-| Złożone urządzenia: obrys + hasło blokowe | Osobny tryb `device_block` + terminale |
+| Duża baza bboxów ze skanów | OCR, line tracer, GraphBuilder |
+| Bbox → hasło typu z palety | Relacje tekst–symbol–połączenie |
+| YOLO klasa `element` | Multi-class gdy starczy bboxów ze skanu |
 
-**Problem z obecnym labelerem:** [`labeler/static/index.html`](../../labeler/static/index.html) wymaga opisu **przed** narysowaniem bboxa (`Wpisz opis, narysuj bbox`). Filip chce **odwrotnie**.
+**Labeler dziś:** opis **przed** bboxem — odwrócić na bbox **przed** wyborem typu.
 
-**Atlas QET (008a):** kod w repo; cropy QET **nie** idą do pickera — brzydkie, domain gap vs WRT01. Paleta = krótkie hasła PL, bez PNG.
-
-**Trening YOLO:** wyłącznie bboxy ze skanów. Hasło w `tag` trafia do JSON/schema, **nie** do `labels/*.txt` (nadal jedna klasa `element`).
+**Trening YOLO:** wyłącznie bboxy ze skanów. Hasło w `tag` → JSON/schema, nie do YOLO `.txt`.
 
 ---
 
@@ -76,7 +80,7 @@ Dopisz `id` slug (ASCII, snake_case). **Nie** duplikuj wpisów semantycznie iden
 
 ---
 
-## 2. Backend — `backend/atlas/palette.py` (nowy)
+## 2. Backend — `backend/symbol_palette.py` (nowy)
 
 ```python
 def load_symbol_palette() -> dict: ...
@@ -85,7 +89,7 @@ def search_palette(query: str, limit: int = 20) -> list[dict]:
     """Case-insensitive: label_pl, aliases, id."""
 ```
 
-Stała ścieżki: `CONFIG / "symbol-palette.yaml"` (dopisz `SYMBOL_PALETTE` w [`backend/paths.py`](../../backend/paths.py) jeśli brakuje).
+Stała: `CONFIG / "symbol-palette.yaml"`. **Nie** importuj z `backend/atlas/` — atlas QET nieużywany.
 
 ---
 
@@ -176,13 +180,9 @@ Krótka notatka w [`docs/project-context.txt`](../../docs/project-context.txt) �
 
 ## Czego NIE robić
 
-- Kurator atlasu QET (:8766), TAK/NIE cropów.
-- Cropów PNG w palecie.
-- Multi-class YOLO / zmiana `symbol-classes.yaml`.
-- Linie, kolory (002), line tracer, GraphBuilder.
-- Trybu `device_block` / terminali — tylko wzmianka w docs.
-- Psucia hierarchii 003, localStorage, auto-zapisu stron.
-- Cloud API.
+- **`backend/atlas/`**, QET, `build_reference`, kurator, cropy PNG
+- Multi-class YOLO / line tracer / OCR / GraphBuilder w tej sesji
+- Cloud API
 
 ---
 

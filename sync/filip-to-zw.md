@@ -4,6 +4,38 @@
 
 ---
 
+## 2026-06-15 [Filip/Cursor] — Trzy filary + rezygnacja z atlasu QET
+
+Temat: **Interpretacja wizualna schematu bez QET. Relacje — po zebraniu filarów.**
+
+### Wizja (źródło prawdy)
+
+[`docs/schematic-interpretation.md`](../docs/schematic-interpretation.md)
+
+**Trzy metody odczytu schematu:**
+1. **Tekst** — OCR (tagi, opisy)
+2. **Symbole graficzne** — YOLO + bboxy w labelerze
+3. **Połączenia** — linie wire/bus (labeler + line tracer)
+
+**Następnie:** relacje — tekst przypisany do symbolu, symbol połączony z symbolem (`004-graph-builder`).
+
+### Rezygnacja
+
+- **Atlas QET, kurator TAK/NIE, cropy, `symbol-reference.yaml` w UI** — nie używamy na tym etapie.
+- Kod `backend/atlas/` może zostać w repo — **martwy**, bez runtime i bez pickera.
+
+### Aktywne zadanie Claude
+
+Nadal **010** (filar symbole): bbox-first + `config/symbol-palette.yaml` (same hasła PL, bez PNG).
+
+Paleta: `backend/symbol_palette.py` — **nie** pakiet `atlas`.
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+Commit pending: `[Cursor] sync: trzy filary interpretacji, rezygnacja QET, wizja schematic-interpretation`
+
+---
+
 ## 2026-06-15 [Filip/Cursor] — Etap 1: detekcja elementów + prompt 010
 
 Temat: **Labeler bbox-first + paleta haseł. Kurator QET wstrzymany.**
