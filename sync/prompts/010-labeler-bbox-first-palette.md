@@ -1,6 +1,6 @@
 # Zadanie 010: labeler — bbox najpierw + paleta haseł
 
-**Status:** OPEN — decyzja Filipa 2026-06-15  
+**Status:** DONE — Cursor 2026-06-15 (implementacja lokalna; review Filipa)
 **Model:** Sonnet, effort **High**  
 **Filar:** symbole graficzne (1/3) — patrz [`docs/schematic-interpretation.md`](../../docs/schematic-interpretation.md)
 

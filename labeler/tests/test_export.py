@@ -79,3 +79,23 @@ def test_export_yolo_keeps_all_nested_bboxes() -> None:
         path = export_yolo(record, Path(tmp))
         lines = [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
         assert len(lines) == 2  # oba bboxy mimo zagniezdzenia
+
+
+def test_export_yolo_empty_tag_still_exports_element_class() -> None:
+    """Etap 1: nieprzypisany bbox (pusty tag) idzie do YOLO jako klasa element."""
+    import tempfile
+    from pathlib import Path
+
+    record = LabelRecord(
+        page_id="unassigned",
+        image_path="test.png",
+        image_width=100,
+        image_height=100,
+        bboxes=[
+            BboxAnnotation(id="u1", class_name="element", x=5, y=5, width=40, height=40, tag=""),
+        ],
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        path = export_yolo(record, Path(tmp))
+        line = path.read_text(encoding="utf-8").strip()
+        assert line.startswith("0 ")  # class_id 0 = element
