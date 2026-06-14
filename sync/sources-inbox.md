@@ -22,9 +22,13 @@
 
 ---
 
-### (tu dopisuj źródła)
-
-*(pusto — czeka na Filipa)*
+### Jak czytać schematy elektryczne – praktyczny poradnik (ControlByte)
+- **Typ:** strona / blog (HTML, zapis offline)
+- **URL / ścieżka:** https://www.controlbyte.pl/blog/jak-czytac-schematy-elektryczne/ — lokalnie: `uploads/Jak czytać schematy elektryczne - praktyczny poradnik.html`
+- **Język:** PL
+- **Standard:** IEC ogólne; jawnie wymienia **IEC 81346-1** (oznaczenia =/+/-)
+- **Dlaczego wybrałem:** poradnik o czytaniu schematów, symbole + system oznaczeń
+- **Notatki:** poziom wprowadzający; autor Szymon Adamek; data 2024-09, akt. 2026-01. Ocena → `docs/knowledge-sources-analysis.md`
 
 ---
 
