@@ -25,8 +25,31 @@ from backend.atlas.qet_parser import QetElement, parse_elmt
 from backend.atlas.qet_render import save_crop
 from backend.paths import CONFIG, DATA
 
-# Katalogi priorytetowe wzgledem katalogu QET
-_P0_DIRS = ["10_electric/10_allpole"]
+# Podkatalogi allpole pod WRT01 (kolejnosc = priorytet)
+_P0_SUBDIRS = [
+    "200_fuses_protective_gears",
+    "310_relays_contactors_contacts",
+    "130_terminals_terminal_strips",
+    "391_consumers_actuators",
+    "380_signaling_operating",
+    "390_sensors_instruments",
+    "330_transformers_power_supplies",
+    "340_converters_inverters",
+    "392_generators_sources",
+    "395_electronics_semiconductors",
+    "140_connectors_plugs",
+    "450_high_voltage",
+]
+
+# Pomijamy: odnośniki między folio, kable, połączenia pomocnicze, dom
+_SKIP_ALLPOLE_SUBDIRS = {
+    "100_folio_referencing",
+    "110_network_supplies",
+    "114_connections",
+    "120_cables_wiring",
+    "500_home_installation",
+}
+
 _P1_DIRS = ["10_electric/91_en_60617"]
 _P2_MANUFACTURERS = ["Siemens", "WAGO", "ABB", "Schneider"]
 
@@ -68,6 +91,30 @@ def _slug_from_name(name_en: str, fallback: str) -> str:
     return s or re.sub(r"[^\w]", "_", fallback.lower())
 
 
+def _collect_p0_files(qet_dir: Path) -> list[Path]:
+    """Urzadzenia z 10_allpole — tylko podkatalogi P0, bez folio/kabli."""
+    base = qet_dir / "10_electric" / "10_allpole"
+    if not base.exists():
+        return []
+    files: list[Path] = []
+    for sub in _P0_SUBDIRS:
+        d = base / sub
+        if d.exists():
+            files.extend(sorted(d.rglob("*.elmt")))
+    return files
+
+
+def _is_usable_element(el: QetElement) -> bool:
+    """Pomija symbole bez rysowalnej geometrii (same terminale / puste)."""
+    if el.geometry.drawable_count() == 0:
+        return False
+    bb = el.geometry.bounding_box()
+    if bb is None:
+        return False
+    x_min, y_min, x_max, y_max = bb
+    return (x_max - x_min) >= 2 and (y_max - y_min) >= 2
+
+
 def _collect_files(qet_dir: Path, rel_dirs: list[str]) -> list[Path]:
     files: list[Path] = []
     for d in rel_dirs:
@@ -101,7 +148,7 @@ def build(
 ) -> list[dict]:
     """Buduje atlas i zapisuje YAML + PNG. Zwraca liste wpisow."""
     all_batches: list[tuple[list[Path], int]] = [
-        (_collect_files(qet_dir, _P0_DIRS), 0),
+        (_collect_p0_files(qet_dir), 0),
         (_collect_files(qet_dir, _P1_DIRS), 1),
     ]
     if include_manufacturers:
@@ -118,7 +165,7 @@ def build(
                 el = parse_elmt(p)
             except Exception:
                 continue
-            if not el.name_en():
+            if not el.name_en() or not _is_usable_element(el):
                 continue
             slug = _slug_from_name(el.name_en(), p.stem)
             ref = f"qet:{p.relative_to(qet_dir).as_posix()}"

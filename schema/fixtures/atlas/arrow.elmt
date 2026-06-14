@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition width="30" height="20" hotspot_x="6" hotspot_y="10" version="0.100.0">
+  <names>
+    <name lang="en">Coming arrow</name>
+    <name lang="pl">Wejście adresowe</name>
+  </names>
+  <description>
+    <polygon x1="-1" y1="-4" x2="-1" y2="4" x3="9" y3="0" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="9" y1="0" x2="12" y2="0" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <terminal x="13" y="0" orientation="e" name="1"/>
+  </description>
+</definition>

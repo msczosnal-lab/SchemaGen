@@ -70,6 +70,12 @@ def render_element(element: QetElement, size: int = _TARGET) -> Image.Image:
             pts = [_t(px, py) for px, py in poly]
             draw.polygon(pts, outline=(0, 0, 0))
 
+    for ex, ey, ew, eh in geom.ellipses:
+        tl = _t(ex, ey)
+        br = _t(ex + ew, ey + eh)
+        if tl != br:
+            draw.ellipse([tl, br], outline=(0, 0, 0), width=_LINE_W)
+
     for term in geom.terminals:
         pt = _t(term.x, term.y)
         r = _TERM_R

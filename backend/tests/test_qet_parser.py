@@ -42,6 +42,13 @@ def test_parse_terminal_block():
     assert el.slug() == "terminal_block"
 
 
+def test_parse_polygon_attributes():
+    el = parse_elmt(FIXTURES / "arrow.elmt")
+    assert len(el.geometry.polygons) == 1
+    assert el.geometry.polygons[0] == [(-1.0, -4.0), (-1.0, 4.0), (9.0, 0.0)]
+    assert el.geometry.drawable_count() >= 2
+
+
 @pytest.mark.parametrize("fname", ["fuse.elmt", "contactor.elmt", "terminal_block.elmt"])
 def test_bounding_box_valid(fname):
     el = parse_elmt(FIXTURES / fname)
