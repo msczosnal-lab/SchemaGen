@@ -16,6 +16,28 @@ def test_export_onnx_missing_weights_raises(tmp_path: Path) -> None:
         eo.export_onnx(weights_path=str(tmp_path / "nope.pt"))
 
 
+def test_find_best_weights_picks_newest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runs = tmp_path / "runs"
+    old = runs / "symbols_v1" / "weights" / "best.pt"
+    new = runs / "symbols_v12" / "weights" / "best.pt"
+    for p in (old, new):
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(b"x")
+    import os, time
+
+    os.utime(new, (time.time() + 10, time.time() + 10))  # nowszy mtime
+    monkeypatch.setattr(eo, "RUNS_DIR", runs)
+    monkeypatch.setattr(eo, "DEFAULT_WEIGHTS", runs / "nieistnieje" / "best.pt")
+
+    assert eo.find_best_weights() == new
+
+
+def test_find_best_weights_none_when_empty(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(eo, "RUNS_DIR", tmp_path / "runs")
+    monkeypatch.setattr(eo, "DEFAULT_WEIGHTS", tmp_path / "runs" / "x" / "best.pt")
+    assert eo.find_best_weights() is None
+
+
 def test_register_model_writes_registry(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     registry = tmp_path / "registry.json"
     monkeypatch.setattr("train.train_symbols.REGISTRY_PATH", registry)

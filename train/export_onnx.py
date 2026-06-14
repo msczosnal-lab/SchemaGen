@@ -69,7 +69,7 @@ def export_onnx(
             "`pip install -e \".[gpu]\"`."
         ) from exc
 
-    model = YOLO(weights)
+    model = YOLO(weights_str)
     exported = model.export(format="onnx", opset=opset, imgsz=imgsz, dynamic=False)
 
     MODELS.mkdir(parents=True, exist_ok=True)
