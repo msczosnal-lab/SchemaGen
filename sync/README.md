@@ -40,9 +40,12 @@ Po ukonczeniu etapu wpisz **jedna linia**:
 
 ## Start sesji Claude
 
-1. `sync/zw-to-filip.md` + `TASKS.md` + `commit-log.md` (ostatnie etapy)
-2. Aktywny prompt: `sync/prompts/001-labeler-canvas.md`
-3. Po implementacji: wpis w `zw-to-filip.md` + opcjonalnie `[Claude] ...` w `commit-message.txt`
+**Pełna instrukcja + prompt do wklejenia:** [`sync/START-CLAUDE-SESJA.md`](START-CLAUDE-SESJA.md)
+
+1. [claude.ai/code](https://claude.ai/code) → **New session** (nie stary link `session_…`)
+2. Wklej prompt startowy z `START-CLAUDE-SESJA.md` (lub napisz: `kolejne zadanie`)
+3. Claude czyta `KOLEJNE-ZADANIE.md` → `filip-to-zw.md` → aktywny `sync/prompts/`
+4. Po implementacji: wpis w `zw-to-filip.md` + `[Claude] ...` w `commit-message.txt`
 
 ## Regula
 

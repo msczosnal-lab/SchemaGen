@@ -2,7 +2,9 @@
 
 ## Start sesji
 
-Filip pisze **„kolejne zadanie”** → wczytaj w tej kolejności:
+**Nowa sesja:** [claude.ai/code](https://claude.ai/code) → New session → prompt z `sync/START-CLAUDE-SESJA.md`.
+
+Filip pisze **„kolejne zadanie”** (lub wkleja prompt startowy) → wczytaj w tej kolejności:
 
 1. **`sync/KOLEJNE-ZADANIE.md`** — aktywny prompt i kroki
 2. **`sync/filip-to-zw.md`** — najnowszy wpis od Cursor
