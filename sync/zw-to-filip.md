@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-06-14 [ZW] — Prompt 003: hierarchia bboxów + relacje przestrzenne
+
+Temat: Zaimplementowana warstwowa hierarchia bboxów (parent/depth/rel_bbox) + relacje przestrzenne. YOLO bez zmian.
+
+Co zrobiłem:
+- **Modele** (`backend/models/label.py`, `schema.py`): `BboxAnnotation`/`Component` mają teraz `parent_id`, `depth`, `rel_bbox`; nowy model `SpatialRelation`; `spatial_relations[]` na `LabelRecord` i `SchemaModel`. Wszystko opcjonalne (backward compatible).
+- **Geometria** (`backend/geometry/bbox_layout.py`, nowy — źródło prawdy): czyste funkcje `contains` (zawieranie ścisłe, EPS=1px), `find_parent` (min. powierzchnia, remis po id), `compute_hierarchy`, `compute_spatial_relations` (contains rodzic→dziecko + kompas między rodzeństwem wg centroidów), `enrich_label_record`.
+- **API** (`labeler/app.py`): POST woła `enrich_label_record` **przed** zapisem, zwraca `hierarchy_depth_max`; GET migruje stare rekordy w locie (np. `SchematWRT01_p013`).
+- **Eksport** (`labeler/export.py`): `parent_id`/`depth`/`rel_bbox` → `Component`, `spatial_relations` → `SchemaModel`; enrich gdy relacje puste; YOLO **bez zmian** (wszystkie bboxy).
+- **UI** (`labeler/static/app.js?v=13`): JS-lustro `recomputeHierarchy()` (ta sama logika contains + min area) po `mouseup` / `removeBboxAt` / wczytaniu strony; accordion z wcięciem wg `depth` + `↳ w #<rodzic>`; zaznaczone dziecko → żółta przerywana obwódka rodzica na canvas; drzewiaste sortowanie listy; payload rozszerzony. Auto-zapis/localStorage/pageCache (v12) **nietknięte** — tylko rozszerzone.
+- **Schema JSON** (`schema/schema-model.json`): nowe pola opcjonalne.
+- **Docs** (`docs/labeling-guide.md`): sekcja „Oznaczanie warstwowe".
+
+Testy: nowy `backend/tests/test_bbox_layout.py` (7) + rozszerzony `labeler/tests/test_export.py` (hierarchia w schema + YOLO zachowuje oba bboxy). `pytest backend/tests labeler/tests` → **24 passed**. `python -m backend.cli validate schema/fixtures/page1_expected.json` → approved.
+
+Jak testować ręcznie:
+```
+python -m labeler.app   # localhost:8765
+```
+1. Narysuj duży bbox-blok, potem mniejszy w środku.
+2. Zapisz → w DevTools/Network POST `/api/annotations`: dziecko ma `parent_id` bloku, `depth=1`, `rel_bbox`.
+3. Odśwież → hierarchia wczytana, accordion z wcięciem i `↳ w #<rodzic>`.
+4. Zaznacz dziecko → żółta przerywana obwódka rodzica na canvas.
+5. Eksport → `*.schema.json` ma `spatial_relations` (contains + kompas).
+6. `labels/*.txt` (YOLO) nadal ma **oba** bboxy.
+
+Commit: `[Claude] labeler: bbox hierarchy + spatial relations (prompt 003)`
+
+---
+
 ## 2026-06-14 [ZW] — Prompt 001: canvas bbox labeler
 
 Temat: Zaimplementowany interaktywny canvas bbox w `labeler/static/app.js`.
