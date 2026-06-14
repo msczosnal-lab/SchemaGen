@@ -1,9 +1,9 @@
-# Usuwa pliki ery EPLAN po utworzeniu archive/eplan-era-2026-06.zip
+# Remove EPLAN era files after archive/eplan-era-2026-06.zip exists
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 if (-not (Test-Path "archive\eplan-era-2026-06.zip")) {
-    throw "Brak archive\eplan-era-2026-06.zip — najpierw uruchom archive_eplan_era.ps1"
+    throw "Missing archive\eplan-era-2026-06.zip - run archive_eplan_era.ps1 first"
 }
 
 $removePaths = @(
@@ -37,4 +37,4 @@ Get-ChildItem "scripts\*.cs" -ErrorAction SilentlyContinue | Remove-Item -Force
 foreach ($p in $removePaths) {
     if (Test-Path $p) { Remove-Item $p -Recurse -Force }
 }
-Write-Host "Usunięto pliki ery EPLAN z root repo."
+Write-Host "EPLAN era files removed from repo root."
