@@ -223,7 +223,7 @@ symbols:
 - `config/symbol-classes.yaml` — klasa YOLO `element`. `symbol-reference.yaml.symbols[].yolo_class` musi się zgadzać.
 - `blocks/*.json` — szablony **obwodów** (RUPS1…), nie pojedyncze symbole. Bez zmian; symbol-reference działa o poziom niżej.
   `default_description` w przykładzie ciągniemy z **IEC 60617** (źródło 2), `aliases_pl` ze słownika PL (źródło 1), `atlas_crop` = crop z `IEC60617.pdf`.
-- `archive/eplan-era-2026-06.zip` — **schodzi na drugi plan**. Atlas normatywny (IEC 60617) już mamy. EPLAN warto wykorzystać dopiero gdyby brakowało konkretnych symboli aparatury producenckiej z WRT01 — wtedy jednorazowo, offline.
+- `archive/eplan-era-2026-06.zip` — **[WERDYKT] NIE jest źródłem symboli.** Przejrzane (71 plików): to historyczny **kod ery EPLAN** — add-in C# (`addin/*.cs`), baza wiedzy o API EPLAN (`eplan-kb/`), skrypty, logi. **Zero symboli/makr.** Wartość: tylko referencja, *jakich typów plików szukać* u producenta (patrz niżej). Wątek atlasu z tego archiwum — zamknięty.
 
 ---
 
