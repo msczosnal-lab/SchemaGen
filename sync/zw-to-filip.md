@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-06-14 [ZW] — Prompt 001: canvas bbox labeler
+
+Temat: Zaimplementowany interaktywny canvas bbox w `labeler/static/app.js`.
+
+Co zrobiłem:
+- Rysowanie bbox: mousedown → mousemove → mouseup (preview dashed rect podczas ciągnięcia)
+- Aktywna klasa z listy (`config/symbol-classes.yaml`), klawisze 1–9 + klik na liście
+- Zoom: scroll na canvas (zoom do punktu kursora)
+- Wyświetlanie istniejących bbox po załadowaniu strony (GET `/api/annotations/{page_id}`)
+- Zaznaczanie bbox kliknięciem (highlight w list + dashed outline na canvas)
+- Del/Backspace — usuwa zaznaczony bbox
+- Zapis POST `/api/annotations`, eksport YOLO
+- Każdy bbox dostaje unikalny id = `{class}_{timestamp}`
+
+Jak testować ręcznie:
+```
+python -m labeler.app   # localhost:8765
+```
+1. Załaduj dowolną stronę z listy.
+2. Wybierz klasę (klawisze 1–9 lub klik na liście).
+3. Narysuj 3 bbox na canvas.
+4. Zaznacz jeden bbox i wciśnij Del — powinien zniknąć.
+5. Scroll — zoom do kursora.
+6. Kliknij „Zapisz" → alert „Zapisano ✓".
+7. Odśwież stronę — bbox powinny się wczytać z powrotem.
+8. Kliknij „Eksport YOLO + JSON".
+
+Testy automatyczne: `pytest labeler/tests backend/tests` → 14 passed.
+
+Commit: `[Claude] labeler: canvas bbox (prompt 001)`
+
+---
+
 ## 2026-06-13 [ZW] — Plan B: globalny FUNC_COUNTER (MA1+MA2)
 
 Temat: Plan A (CONFIGSCHEME) odrzucony po Twoim teście. Wdrożony Plan B — wymuszenie licznika w add-inie.
