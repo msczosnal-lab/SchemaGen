@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import yaml
@@ -17,7 +18,7 @@ from backend.models.schema import (
     SchemaModel,
     SpatialRelation,
 )
-from backend.paths import CONFIG, LABELED
+from backend.paths import CONFIG, LABELED, RAW
 
 
 def load_class_map() -> dict[str, int]:
@@ -78,6 +79,36 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
     )
 
 
+def yolo_label_lines(record: LabelRecord, class_map: dict[str, int] | None = None) -> list[str]:
+    """Linie YOLO (`cls cx cy w h`, znormalizowane) dla wszystkich bboxow rekordu."""
+    cmap = class_map if class_map is not None else load_class_map()
+    w = record.image_width or 1
+    h = record.image_height or 1
+    lines: list[str] = []
+    for b in record.bboxes:
+        cls_id = cmap.get(b.class_name, 0)
+        cx = (b.x + b.width / 2) / w
+        cy = (b.y + b.height / 2) / h
+        bw = b.width / w
+        bh = b.height / h
+        lines.append(f"{cls_id} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}")
+    return lines
+
+
+def find_raw_image(record: LabelRecord, raw_dir: Path | None = None) -> Path | None:
+    """Znajdz zrodlowy PNG/JPG dla rekordu w data/raw (po image_path lub page_id)."""
+    base = raw_dir or RAW
+    candidates: list[Path] = []
+    if record.image_path:
+        candidates.append(base / Path(record.image_path).name)
+    for ext in (".png", ".jpg", ".jpeg"):
+        candidates.append(base / f"{record.page_id}{ext}")
+    for path in candidates:
+        if path.exists():
+            return path
+    return None
+
+
 def export_yolo(record: LabelRecord, output_dir: Path | None = None) -> Path:
     out = output_dir or LABELED
     labels_dir = out / "labels"
@@ -85,20 +116,14 @@ def export_yolo(record: LabelRecord, output_dir: Path | None = None) -> Path:
     labels_dir.mkdir(parents=True, exist_ok=True)
     images_dir.mkdir(parents=True, exist_ok=True)
 
-    class_map = load_class_map()
-    w = record.image_width or 1
-    h = record.image_height or 1
-    lines: list[str] = []
-    for b in record.bboxes:
-        cls_id = class_map.get(b.class_name, 0)
-        cx = (b.x + b.width / 2) / w
-        cy = (b.y + b.height / 2) / h
-        bw = b.width / w
-        bh = b.height / h
-        lines.append(f"{cls_id} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}")
-
+    lines = yolo_label_lines(record)
     label_file = labels_dir / f"{record.page_id}.txt"
     label_file.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+
+    # Kopiuj zrodlowy obraz, by labels mialy parę image/label (wymog YOLO).
+    src = find_raw_image(record)
+    if src is not None:
+        shutil.copy2(src, images_dir / f"{record.page_id}{src.suffix}")
     return label_file
 
 

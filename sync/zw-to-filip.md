@@ -5,6 +5,53 @@
 
 ---
 
+## 2026-06-14 [ZW] — Prompt 005 (BUILD M0): dataset export + kod treningu YOLO
+
+Temat: **Kod eksportu datasetu (SQLite→YOLO) + trening YOLOv8n.** Implementacja + pytest na PC ZW. **Pełny trening GPU robisz Ty (RTX 2080).**
+
+### Co zrobione (kod)
+
+- **`labeler/export.py`** — fix: `export_yolo` kopiuje teraz źródłowy PNG z `data/raw/` do `images/` (para image/label wymagana przez YOLO). Dodane helpery `yolo_label_lines()` i `find_raw_image()`.
+- **`train/dataset_export.py`** — NOWY. SQLite → struktura YOLO `images/{train,val}` + `labels/{train,val}` + `data.yaml`. Deterministyczny split (sort po `page_id`), domyślnie val_ratio 0.2 (przy 1 stronie ta sama w train i val). Pomija rekordy bez PNG.
+- **`train/train_symbols.py`** — `train()` zaimplementowany: ultralytics YOLOv8n, leniwy import (testy nie wymagają torch/GPU), twardy limit `batch≤8` (8GB VRAM), zapis best.pt + metryki. `register_model()` bez zmian.
+- **`train/tests/test_dataset_export.py`** — NOWY. 6 testów na fixturach (atrapy PNG, tmp dir), bez GPU.
+
+### Testy (PC ZW)
+
+```
+pytest backend/tests labeler/tests train/tests   →  30 passed
+python -m backend.cli validate schema/fixtures/page1_expected.json  →  approved: true
+```
+
+> Uwaga: `best.pt` **NIE** jest w repo — trenujesz u siebie. `data/schemagen.db` i `data/raw/*.png` są w `.gitignore`, na ZW ich nie ma → nie odpalałem pełnego treningu.
+
+### Komendy dla Ciebie (Filip, RTX 2080, PowerShell)
+
+```powershell
+# 0. (raz) zależności GPU
+pip install -e ".[gpu]"
+
+# 1. Oznacz/wyeksportuj strony w labelerze (działa już na :8765) — adnotacje lądują w data/schemagen.db
+#    Upewnij się, że PNG-i są w data/raw/
+
+# 2. Zbuduj dataset YOLO z bazy (SQLite → train/val + kopie PNG)
+python -m train.dataset_export
+#    → tworzy data/dataset/{images,labels}/{train,val} + data/dataset/data.yaml
+#    wypisze: Dataset: train=N val=M klasy=K -> ...data.yaml
+
+# 3. Trening (batch jest twardo ograniczony do 8)
+python -m train.train_symbols
+#    lub z parametrami:
+python -c "from train.train_symbols import train; print(train(epochs=50, batch=8, imgsz=640, device=0))"
+#    → best.pt w data/models/runs/symbols/weights/best.pt
+
+# 4. (prompt 006) export do ONNX — jeszcze NotImplemented, osobne zadanie
+```
+
+Jeśli masz mało oznaczonych stron (3–5), zacznij od `epochs=50` i sprawdź czy nie ma overfittu na val. Daj znać metryki (map50) — dostroję split / augmentacje.
+
+---
+
 ## 2026-06-14 [ZW] — Prompt 007: analiza źródeł wiedzy (runda 1–4)
 
 Temat: Ocena 3 źródeł + werdykt o archiwum EPLAN + strategia treningu. **Research, bez kodu.**
