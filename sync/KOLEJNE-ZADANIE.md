@@ -1,81 +1,76 @@
-# KOLEJNE ZADANIE — wczytaj ten plik po wiadomosci od Filipa
-
-> **Filip pisze:** „kolejne zadanie” → czytasz ten plik + `sync/filip-to-zw.md` + aktywny prompt.
-
----
-
-## Stan (2026-06-14, koniec sesji)
-
-| Prompt | Status |
-|--------|--------|
-| **001-labeler-canvas** | **DONE** (`5d16757`) — czeka na **review Cursor** |
-| **002-labeler-lines-colors** | **NASTĘPNY** — po akceptacji 001 |
-
-Handoff: [`sync/NASTEPNA-SESJA.md`](NASTEPNA-SESJA.md)
-
----
-
-## Aktywne zadanie (po akceptacji 001)
-
-| Pole | Wartosc |
-|------|---------|
-| **Prompt** | [`sync/prompts/002-labeler-lines-colors.md`](prompts/002-labeler-lines-colors.md) |
-| **Pliki** | labeler (canvas/API), kolory z `config/semantic-colors.yaml` |
-| **Cel** | Polyline + przypisanie kolorów semantycznych w labelerze |
-| **Model** | Sonnet, effort **High** |
-
-### Kroki
-
-1. Przeczytaj `docs/claude-cowork-instructions.md`
-2. Przeczytaj `sync/filip-to-zw.md` (najnowszy wpis)
-3. Zaimplementuj **002-labeler-lines-colors.md**
-4. `pytest labeler/tests backend/tests`
-5. Wpis w `sync/zw-to-filip.md`
-6. `sync/commit-message.txt` = `[Claude] labeler: lines + semantic colors (prompt 002)`
-7. GitSync: `Start-GitSync.cmd Claude`
-
-### Czego NIE robic teraz
-
-- **001-labeler-canvas** — DONE, chyba że Cursor dopisze `## Poprawka` w promptcie
-- **001-symbol-detector** — dopiero po danych od Filipa (3–5 oznaczonych stron)
-- Nie zmieniaj modeli w `backend/models/` (Cursor je utrzymuje)
-
----
-
-## Nowosc architektury (2026-06-14) — zapamietaj
-
-1. **Linia ≠ polaczenie** — `GraphicLine` (grafika) vs `Connection` (graf logiczny)
-2. **Kolory semantyczne** — `config/semantic-colors.yaml`, modul `backend/colors/palette.py`
-3. Tylko linie `wire` / `bus` moga stac sie `Connection` w GraphBuilder
-
-Fixture z przykladem: `schema/fixtures/page1_expected.json` (ma `graphic_lines`).
-
----
-
-## Kolejnosc promptow (pelna)
-
-| # | Prompt | Plik glowny | Status |
-|---|--------|-------------|--------|
-| 1 | 001-labeler-canvas | `labeler/static/app.js` | **DONE** (review) |
-| 2 | 002-labeler-lines-colors | labeler + API | **NASTĘPNY** |
-| 3 | 001-symbol-detector | `backend/recognize/symbol_detector.py` | po danych od Filipa |
-| 4 | 002-ocr-engine | `backend/recognize/ocr_engine.py` | — |
-| 5 | 003-line-tracer-classifier | line_tracer + line_classifier | po 002 labeler |
-| 6 | 004-graph-builder | graph_builder.py | po 3–5 |
-| 7 | 005-train-symbols | `train/` | po danych |
-| 8 | 006-export-onnx | `train/export_onnx.py` | po 005 |
-
----
-
-## Test akceptacji (zawsze)
-
-```powershell
-pytest backend/tests labeler/tests
-python -m backend.cli validate schema/fixtures/page1_expected.json
-```
-
----
-
-## Commit
-
-Jedna linia w `sync/commit-message.txt`, autor `[Claude]`. Nie nadpisuj jesli jest `[Cursor]` i niepusty.
+# KOLEJNE ZADANIE — wczytaj ten plik po wiadomosci od Filipa
+
+> **Filip pisze:** „kolejne zadanie” → czytasz ten plik + `sync/filip-to-zw.md` + aktywny prompt.
+
+---
+
+## Stan (2026-06-14)
+
+| Prompt | Status |
+|--------|--------|
+| **001-labeler-canvas** | **DONE** |
+| **003-labeler-bbox-hierarchy** | **AKTYWNE** — priorytet (Filip oznacza zagnieżdżone bboxy) |
+| **002-labeler-lines-colors** | **BLOCKED** — po 003 |
+
+---
+
+## Aktywne zadanie
+
+| Pole | Wartosc |
+|------|---------|
+| **Prompt** | [`sync/prompts/003-labeler-bbox-hierarchy.md`](prompts/003-labeler-bbox-hierarchy.md) |
+| **Pliki** | `backend/geometry/bbox_layout.py`, modele, `labeler/app.py`, `labeler/export.py`, `labeler/static/app.js` |
+| **Cel** | Hierarchia bboxów (parent/depth/rel_bbox) + relacje przestrzenne; UI drzewa; YOLO bez zmian |
+| **Model** | Sonnet, effort **High** |
+
+### Kroki
+
+1. Przeczytaj `docs/claude-cowork-instructions.md`
+2. Przeczytaj `sync/filip-to-zw.md` (najnowszy wpis)
+3. Zaimplementuj **003-labeler-bbox-hierarchy.md**
+4. `pytest labeler/tests backend/tests`
+5. Wpis w `sync/zw-to-filip.md`
+6. `sync/commit-message.txt` = `[Claude] labeler: bbox hierarchy + spatial relations (prompt 003)`
+7. GitSync: `Start-GitSync.cmd Claude`
+
+### Czego NIE robic teraz
+
+- **002-labeler-lines-colors** — dopiero po 003
+- **001-symbol-detector** — dopiero po danych od Filipa (oznaczone strony)
+- Nie psuj auto-zapisu / localStorage z app.js v12
+
+---
+
+## Nowosc (prompt 003) — zapamietaj
+
+1. Filip robi **bbox w bboxie** — blok + szczegóły w środku
+2. Zapisuj: `parent_id`, `depth`, `rel_bbox`, `spatial_relations`
+3. YOLO: **wszystkie** bboxy (bez filtra); hierarchia tylko w JSON/schema
+4. Źródło prawdy geometrii: `backend/geometry/bbox_layout.py`
+
+---
+
+## Kolejnosc promptow (labeler)
+
+| # | Prompt | Status |
+|---|--------|--------|
+| 1 | 001-labeler-canvas | DONE |
+| 2 | **003-labeler-bbox-hierarchy** | **AKTYWNE** |
+| 3 | 002-labeler-lines-colors | po 003 |
+
+(Pozostałe: symbol-detector, OCR, line-tracer, graph-builder, train — bez zmian w `sync/prompts/`.)
+
+---
+
+## Test akceptacji (zawsze)
+
+```powershell
+pytest backend/tests labeler/tests
+python -m backend.cli validate schema/fixtures/page1_expected.json
+```
+
+---
+
+## Commit
+
+Jedna linia w `sync/commit-message.txt`, autor `[Claude]`. Nie nadpisuj jesli jest `[Cursor]` i niepusty.

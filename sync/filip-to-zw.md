@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-06-14 [Cursor] — prompt 003 priorytet
+
+Temat: **Hierarchia bboxów w labelerze — nowe aktywne zadanie**
+
+Kontekst:
+- Filip oznacza schematy warstwowo: duży bbox-blok + mniejsze bboxy w środku (rozłącznik, tag `-11` itd.).
+- System dziś zapisuje płaską listę — brak relacji rodzic/dziecko i położenia względem siebie.
+- YOLO bez zmian (wszystkie bboxy); hierarchia w JSON/schema.
+
+**Twoje zadanie:** `sync/prompts/003-labeler-bbox-hierarchy.md`  
+**Handoff:** `sync/KOLEJNE-ZADANIE.md` (zaktualizowany)
+
+Po ukończeniu:
+- `pytest backend/tests labeler/tests`
+- wpis w `sync/zw-to-filip.md`
+- `sync/commit-message.txt` = `[Claude] labeler: bbox hierarchy + spatial relations (prompt 003)`
+
+002-labeler-lines-colors — **wstrzymane** do czasu merge 003.
+
+---
+
 ## 2026-06-14 [Cursor] — koniec sesji
 
 Temat: **Prompt 001 DONE — czeka review. Następny: 002 po akceptacji.**
