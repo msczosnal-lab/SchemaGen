@@ -17,6 +17,8 @@ let bboxes = [];
 let selectedIdx = -1;
 let expandedIdx = -1;
 let pendingTag = "";
+let nextSeq = 1;
+let focusTextareaIdx = null;
 
 // Zoom/pan state
 let scale = 1;
@@ -62,11 +64,78 @@ function clientToCanvas(e) {
   };
 }
 
-function colorFromTag(tag, fallbackIdx = 0) {
-  if (!tag) return PALETTE[fallbackIdx % PALETTE.length];
-  let h = 0;
-  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
-  return PALETTE[h % PALETTE.length];
+function bboxIdTime(id) {
+  const m = String(id).match(/(\d{13,})/);
+  return m ? Number(m[1]) : 0;
+}
+
+function sortBboxesNewestFirst() {
+  bboxes.sort((a, b) => bboxIdTime(b.id) - bboxIdTime(a.id));
+}
+
+function ensureSeqNumbers() {
+  const byAge = [...bboxes].sort((a, b) => bboxIdTime(a.id) - bboxIdTime(b.id));
+  byAge.forEach((b, i) => {
+    b.seq = b.seq || i + 1;
+  });
+  const maxSeq = bboxes.reduce((m, b) => Math.max(m, b.seq || 0), 0);
+  nextSeq = maxSeq + 1;
+}
+
+function summaryLine(b) {
+  const t = (b.tag || "").trim();
+  const oneLine = t.replace(/\s+/g, " ");
+  const preview = oneLine
+    ? (oneLine.length > 52 ? `${oneLine.slice(0, 52)}…` : oneLine)
+    : "(bez opisu)";
+  return `#${b.seq || "?"} · ${preview}`;
+}
+
+function drawBboxNumber(b, color) {
+  const num = String(b.seq || "?");
+  const pad = 2 / scale;
+  const maxW = Math.max(b.width - pad * 2, 1);
+  const maxH = Math.max(b.height - pad * 2, 1);
+  let fontSize = Math.min(14 / scale, maxH * 0.45, maxW * 0.85);
+  const minSize = 5 / scale;
+  fontSize = Math.max(minSize, fontSize);
+  ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
+  let textW = ctx.measureText(num).width;
+  while (fontSize > minSize && (textW + pad * 2 > maxW || fontSize > maxH * 0.55)) {
+    fontSize *= 0.88;
+    ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
+    textW = ctx.measureText(num).width;
+  }
+  const badgeW = Math.min(textW + pad * 2, b.width);
+  const badgeH = Math.min(fontSize + pad * 1.2, b.height);
+  ctx.fillStyle = color;
+  ctx.fillRect(b.x, b.y, badgeW, badgeH);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(num, b.x + pad, b.y + fontSize);
+}
+
+function drawBboxOnCanvas(b, i) {
+  const color = colorFromTag(b.tag, i);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2 / scale;
+  ctx.strokeRect(b.x, b.y, b.width, b.height);
+
+  if (i === selectedIdx) {
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 3 / scale;
+    ctx.setLineDash([6 / scale, 3 / scale]);
+    ctx.strokeRect(b.x, b.y, b.width, b.height);
+    ctx.setLineDash([]);
+  }
+
+  drawBboxNumber(b, color);
+
+  const caption = b.tag || "(bez opisu)";
+  let capSize = Math.min(13 / scale, b.height * 0.35);
+  capSize = Math.max(6 / scale, capSize);
+  ctx.font = `${capSize}px Segoe UI, Arial, sans-serif`;
+  ctx.fillStyle = color;
+  ctx.fillText(caption, b.x + 2 / scale, Math.max(b.y - 4 / scale, capSize));
 }
 
 // ── render ───────────────────────────────────────────────────────────────────
@@ -79,25 +148,9 @@ function redraw() {
 
   if (bgImage) ctx.drawImage(bgImage, 0, 0);
 
-  bboxes.forEach((b, i) => {
-    const color = colorFromTag(b.tag, i);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2 / scale;
-    ctx.strokeRect(b.x, b.y, b.width, b.height);
-
-    if (i === selectedIdx) {
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 3 / scale;
-      ctx.setLineDash([6 / scale, 3 / scale]);
-      ctx.strokeRect(b.x, b.y, b.width, b.height);
-      ctx.setLineDash([]);
-    }
-
-    ctx.fillStyle = color;
-    ctx.font = `${13 / scale}px Segoe UI, Arial, sans-serif`;
-    const caption = b.tag || "(bez opisu)";
-    ctx.fillText(caption, b.x + 2 / scale, b.y - 4 / scale);
-  });
+  for (let i = bboxes.length - 1; i >= 0; i--) {
+    drawBboxOnCanvas(bboxes[i], i);
+  }
 
   ctx.restore();
 }
@@ -196,6 +249,7 @@ function normalizeBboxesForSave() {
     width: b.width,
     height: b.height,
     tag: (b.tag || "").trim(),
+    seq: b.seq || 0,
     semantic_group: b.semantic_group || "",
     color_ref: b.color_ref || "",
   }));
@@ -225,8 +279,11 @@ async function selectPage(pageId) {
   try {
     const ann = await fetchJson(`/api/annotations/${pageId}`);
     bboxes = ann.bboxes || [];
+    sortBboxesNewestFirst();
+    ensureSeqNumbers();
   } catch {
     bboxes = [];
+    nextSeq = 1;
   }
 
   redraw();
