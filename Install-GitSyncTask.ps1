@@ -4,8 +4,8 @@
   Alternatywa bez harmonogramu: podwojne klikniecie Start-GitSync.cmd.
 
   Uruchom RAZ na kazdym komputerze (PowerShell, ten sam uzytkownik co repo):
-    .\Install-GitSyncTask.ps1 -MachineTag ZW
-    .\Install-GitSyncTask.ps1 -MachineTag Filip -RepoPath "C:\Users\Filip\Desktop\Cursor\SchemaGen"
+    .\Install-GitSyncTask.ps1 -MachineTag Claude
+    .\Install-GitSyncTask.ps1 -MachineTag Cursor -RepoPath "C:\Users\Filip\Desktop\Cursor\SchemaGen"
 
   Usuniecie zadania:
     Unregister-ScheduledTask -TaskName "SchemaGen GitSync" -Confirm:$false

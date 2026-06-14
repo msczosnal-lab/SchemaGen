@@ -1,6 +1,9 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-$repoPath = "C:\Users\ZW\Desktop\prywatne\automatyzacja\KodKlon\SchemaGen"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $scriptDir "GitSyncCommit.ps1")
+
+$repoPath = $scriptDir
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "SchemaGen Git Sync"
@@ -29,16 +32,21 @@ $cancelButton.Height = 30
 $cancelButton.Left = 200
 $cancelButton.Top = 40
 
+$commitHelperPath = (Join-Path $scriptDir "GitSyncCommit.ps1") -replace "'", "''"
+$repoPathEscaped = $repoPath -replace "'", "''"
+
 $pushButton.Add_Click({
     Start-Process powershell `
         -ArgumentList "-NoExit", "-Command", "
-        cd '$repoPath';
-        git add .;
-        git diff --cached --quiet;
-        if (`$LASTEXITCODE -eq 0) {
+        . '$commitHelperPath';
+        cd '$repoPathEscaped';
+        git diff --quiet;
+        `$dirty = git status --porcelain;
+        if (-not `$dirty) {
             Write-Host 'Brak zmian do wyslania.';
         } else {
-            git commit -m 'Auto commit';
+            `$r = Invoke-GitSyncCommit -RepoPath '$repoPathEscaped' -MachineTag Manual -Manual;
+            if (`$r.Ok) { Write-Host ('Commit: ' + `$r.Message) } else { Write-Host 'Commit nieudany.' }
             git pull --rebase;
             git push;
         }"
@@ -48,7 +56,7 @@ $pushButton.Add_Click({
 $pullButton.Add_Click({
     Start-Process powershell `
         -ArgumentList "-NoExit", "-Command", "
-        cd '$repoPath';
+        cd '$repoPathEscaped';
         git pull --rebase"
     $form.Close()
 })

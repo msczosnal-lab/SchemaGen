@@ -5,16 +5,16 @@
   Cykl co -IntervalSec:
     1. fetch origin
     2. jesli jestesmy behind -> rebase na origin/<branch>
-    3. jesli sa niezacommitowane zmiany -> add + commit (auto[<TAG>])
+    3. jesli sa niezacommitowane zmiany -> add + commit (sync/commit-message.txt lub auto[<TAG>])
     4. push (jesli ahead)
     5. heartbeat w konsoli + wykrycie commitu drugiego komputera
     6. zapis statusu do sync/.status-<TAG>.json
 
-  Bezpieczna porazka: konflikt rebase => abort + alert, praca lokalna NIE jest tracona.
+  Tagi maszyn: Cursor (PC Filip), Claude (PC ZW)
 
   Przyklad:
-    .\GitSyncDaemon.ps1 -MachineTag ZW -IntervalSec 10
-    .\GitSyncDaemon.ps1 -MachineTag Filip -IntervalSec 10 -RepoPath "C:\Users\Filip\Desktop\Cursor\SchemaGen"
+    .\GitSyncDaemon.ps1 -MachineTag Claude -IntervalSec 10
+    .\GitSyncDaemon.ps1 -MachineTag Cursor -IntervalSec 10 -RepoPath "C:\Users\Filip\Desktop\Cursor\SchemaGen"
 #>
 
 param(
@@ -27,6 +27,9 @@ param(
 )
 
 $ErrorActionPreference = "Continue"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $scriptDir "GitSyncCommit.ps1")
+
 $logFile = Join-Path $RepoPath "sync\.daemon-$MachineTag.log"
 
 function Log([string]$msg) {
@@ -55,6 +58,11 @@ function Show-Toast([string]$title, [string]$text) {
     } catch {}
 }
 
+function script:Show-ToastIfAvailable {
+    param([string]$Title, [string]$Text)
+    Show-Toast -title $Title -text $Text
+}
+
 if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
     Write-Host "[BLAD] $RepoPath nie jest repozytorium git. Stop." -ForegroundColor Red
     exit 1
@@ -68,12 +76,10 @@ $lastRemote = ""
 
 do {
     try {
-        # 0. usun osierocone locki po przerwanej operacji
         Get-ChildItem -Path (Join-Path $RepoPath ".git") -Recurse -Filter "*.lock" -ErrorAction SilentlyContinue | ForEach-Object {
             Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
         }
 
-        # 1. fetch
         & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
 
         $local  = (& git -C $RepoPath rev-parse $Branch 2>$null)
@@ -81,7 +87,6 @@ do {
         if ($local)  { $local  = $local.Trim() }
         if ($remote) { $remote = $remote.Trim() }
 
-        # powiadomienie o nowym commicie drugiego komputera
         if ($remote -and $remote -ne $lastRemote -and $remote -ne $local) {
             $msg = (& git -C $RepoPath log -1 --pretty=format:"%h %an: %s" "origin/$Branch" 2>$null)
             Log "[NOWE] commit od drugiego komputera: $msg"
@@ -89,11 +94,9 @@ do {
         }
         $lastRemote = $remote
 
-        # liczniki ahead/behind
         $ahead  = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
         $behind = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
 
-        # 2. integracja zdalnych zmian
         if ($behind -gt 0) {
             & git -C $RepoPath rebase "origin/$Branch" 2>&1 | Out-Null
             if ($LASTEXITCODE -ne 0) {
@@ -105,16 +108,14 @@ do {
             Log "[PULL] zintegrowano $behind commit(ow) z origin."
         }
 
-        # 3. lokalne zmiany -> commit
         $dirty = (& git -C $RepoPath status --porcelain 2>$null)
         if ($dirty) {
-            & git -C $RepoPath add -A 2>&1 | Out-Null
-            $stamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            & git -C $RepoPath commit -m "auto[$MachineTag] $stamp" 2>&1 | Out-Null
-            Log "[COMMIT] auto[$MachineTag] $stamp"
+            $result = Invoke-GitSyncCommit -RepoPath $RepoPath -MachineTag $MachineTag
+            if ($result.Ok) {
+                Log "[COMMIT] $($result.Message)"
+            }
         }
 
-        # 4. push jesli ahead
         $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
         if ($ahead -gt 0) {
             & git -C $RepoPath push origin $Branch 2>&1 | Out-Null
@@ -125,7 +126,6 @@ do {
             }
         }
 
-        # 5. heartbeat (tylko ekran)
         $lh = (& git -C $RepoPath rev-parse --short $Branch 2>$null)
         $rh = (& git -C $RepoPath rev-parse --short "origin/$Branch" 2>$null)
         if ($lh) { $lh = $lh.Trim() }
@@ -139,7 +139,6 @@ do {
             Write-Host $hb -ForegroundColor Yellow
         }
 
-        # 6. status do pliku
         $status = [ordered]@{
             machine    = $MachineTag
             time       = (Get-Date -Format "o")
