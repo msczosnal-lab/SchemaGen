@@ -1,0 +1,154 @@
+meta:
+  version: 1
+  purpose: picker labelera — hasła jednowierszowe, bez cropów atlasu
+
+symbols:
+  - id: fuse
+    label_pl: bezpiecznik
+    tag_prefix: F
+    aliases: [bezpiecznik topikowy]
+  - id: circuit_breaker
+    label_pl: wyłącznik
+    tag_prefix: QF
+    aliases: [wylacznik]
+  - id: motor_breaker
+    label_pl: wyłącznik silnikowy
+    tag_prefix: QF
+  - id: disconnector
+    label_pl: rozłącznik
+    tag_prefix: QS
+  - id: contactor
+    label_pl: stycznik
+    tag_prefix: KM
+  - id: relay
+    label_pl: przekaźnik
+    tag_prefix: KA
+    aliases: [przekaznik]
+  - id: thermal_relay
+    label_pl: przekaźnik termiczny
+    tag_prefix: KA
+  - id: auxiliary_contactor
+    label_pl: stycznik pomocniczy
+    tag_prefix: KM
+  - id: motor
+    label_pl: silnik
+    tag_prefix: M
+  - id: inverter
+    label_pl: falownik
+    tag_prefix: UF
+  - id: soft_starter
+    label_pl: softstart
+    tag_prefix: US
+  - id: brake
+    label_pl: hamulec
+    tag_prefix: M
+  - id: transformer
+    label_pl: transformator
+    tag_prefix: T
+  - id: power_supply
+    label_pl: zasilacz
+    tag_prefix: T
+  - id: rectifier
+    label_pl: prostownik
+  - id: capacitor
+    label_pl: kondensator
+    tag_prefix: C
+  - id: resistor
+    label_pl: rezystor
+    tag_prefix: R
+  - id: inductor
+    label_pl: cewka
+  - id: diode
+    label_pl: dioda
+    tag_prefix: V
+  - id: led
+    label_pl: lampka
+    tag_prefix: HG
+    aliases: [dioda swietlna, sygnalizator]
+  - id: push_button
+    label_pl: przycisk
+    tag_prefix: SB
+  - id: emergency_stop
+    label_pl: przycisk awaryjny
+    tag_prefix: SF
+  - id: selector_switch
+    label_pl: przełącznik
+    tag_prefix: SA
+    aliases: [przelacznik]
+  - id: selector
+    label_pl: selektor
+    tag_prefix: SA
+  - id: limit_switch
+    label_pl: krańcówka
+    tag_prefix: SQ
+  - id: sensor
+    label_pl: czujnik
+    tag_prefix: SQ
+  - id: proximity_sensor
+    label_pl: czujnik zbliżeniowy
+    tag_prefix: SQ
+  - id: photoelectric
+    label_pl: czujnik fotoelektryczny
+    tag_prefix: SQ
+  - id: ammeter
+    label_pl: amperomierz
+  - id: voltmeter
+    label_pl: woltomierz
+  - id: energy_meter
+    label_pl: licznik energii
+  - id: terminal
+    label_pl: zacisk
+    tag_prefix: X
+  - id: terminal_block
+    label_pl: listwa zaciskowa
+    tag_prefix: X
+    aliases: [listwa zaciskow]
+  - id: connector
+    label_pl: wtyczka
+    tag_prefix: X
+  - id: socket
+    label_pl: gniazdo
+    tag_prefix: X
+  - id: plc_module
+    label_pl: moduł PLC
+    tag_prefix: A
+  - id: io_module
+    label_pl: moduł IO
+    tag_prefix: A
+  - id: interface_relay
+    label_pl: przekaźnik interfejsu
+    tag_prefix: KA
+  - id: power_module
+    label_pl: moduł zasilania
+  - id: ups
+    label_pl: UPS
+  - id: filter
+    label_pl: filtr
+  - id: surge_protector
+    label_pl: ogranicznik przepięć
+    tag_prefix: F
+  - id: ground
+    label_pl: uziemienie
+  - id: equipotential
+    label_pl: wyrównanie potencjałów
+  - id: busbar
+    label_pl: szyna
+  - id: junction
+    label_pl: węzeł
+  - id: crossing
+    label_pl: mostek
+  - id: heater
+    label_pl: grzałka
+  - id: fan
+    label_pl: wentylator
+  - id: valve
+    label_pl: zawór
+  - id: solenoid
+    label_pl: elektrozawór
+  - id: cabinet
+    label_pl: szafa
+  - id: device_block
+    label_pl: bloczek aparatury
+  - id: unknown
+    label_pl: element
+    aliases: [inny, nieznany]
