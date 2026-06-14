@@ -63,7 +63,7 @@ def test_sibling_relations() -> None:
     parent = _bbox("p", 0, 0, 200, 200)
     left = _bbox("left", 10, 80, 20, 20)
     right = _bbox("right", 150, 80, 20, 20)
-    top = _bbox("top", 80, 10, 20, 20)
+    top = _bbox("top", 10, 10, 20, 20)
     bboxes = [parent, left, right, top]
     compute_hierarchy(bboxes)
     rels = compute_spatial_relations(bboxes)
