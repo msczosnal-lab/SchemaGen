@@ -5,6 +5,73 @@
 
 ---
 
+## 2026-06-14 [ZW] — Prompt 008a: QET atlas extract → symbol-reference.yaml
+
+Temat: **Parser `.elmt` QET + renderer PNG + builder YAML + testy (faza 008a DONE).**
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `backend/atlas/__init__.py` | pakiet |
+| `backend/atlas/qet_parser.py` | parsowanie `.elmt` (XML): nazwy EN/PL, linie/rects/poly/terminale, bbox |
+| `backend/atlas/qet_render.py` | render geometry → PNG 128×128 (Pillow, offline) |
+| `backend/atlas/build_reference.py` | CLI: skan QET P0/P1/P2, dedup, YAML + crops |
+| `backend/atlas/reference.py` | `load_symbol_reference()`, `lookup_by_id`, `lookup_by_alias` |
+| `config/symbol-reference.yaml` | seed (3 fixture-symbole); po builderze → ≥80 wpisów |
+| `backend/tests/test_qet_parser.py` | 11 testów parsera na fixture `.elmt` |
+| `backend/tests/test_symbol_reference.py` | 11 testów YAML (struktura, unikalne ID, lookup) |
+| `schema/fixtures/atlas/*.elmt` | 3 fixture: fuse, contactor, terminal_block |
+| `data/atlas/crops/*.png` | crop-y PNG z fixture (128×128, commitujemy) |
+| `docs/atlas-setup.md` | instrukcja klonowania QET + uruchomienia buildera |
+| `backend/paths.py` | nowe stałe: `SYMBOL_REFERENCE`, `ATLAS_QET`, `ATLAS_CROPS` |
+
+### Testy (PC ZW)
+
+```
+pytest backend/tests labeler/tests   →  49 passed (zero regresji)
+```
+
+### Twoje kroki (Filip — RTX 2080)
+
+**Krok 1 — sklonuj QET (jednorazowo):**
+```powershell
+git clone --depth 1 https://github.com/qelectrotech/qelectrotech-elements.git data/atlas/qet
+```
+
+**Krok 2 — uruchom builder:**
+```powershell
+python -m backend.atlas.build_reference `
+    --qet-dir data/atlas/qet `
+    --out config/symbol-reference.yaml `
+    --crops-dir data/atlas/crops
+# Oczekiwany wynik: "Zbudowano 120 symboli → config/symbol-reference.yaml"
+```
+
+**Krok 3 — weryfikacja:**
+```powershell
+python -m pytest backend/tests/test_symbol_reference.py -v
+# Oczekiwane: 11 passed
+python -m backend.cli validate schema/fixtures/page1_expected.json
+# Oczekiwane: approved: true (bez regresji)
+```
+
+**Krok 4 — commit po buildzie:**
+```powershell
+git add config/symbol-reference.yaml data/atlas/crops/
+git commit -m "[Filip] atlas: QET build → symbol-reference.yaml (008a full)"
+```
+
+### Uwagi
+
+- `data/atlas/qet/` już w `.gitignore` — surowa biblioteka QET poza repo (115 MB, GPL)
+- Crop-y PNG z fixture (3 pliki, 128×128) commitujemy; pełne crops po Twoim buildzie
+- Licencja: YAML i crop-y = pochodna GPL; atrybucja w `symbol-reference.yaml`→`meta.sources.license`
+- Crop-y zrenderowane przez Pillow — cairosvg **nie wymagane**
+- Następny prompt po 008a: **009 — picker symbol_id w labelerze**
+
+---
+
 ## 2026-06-14 [ZW] — export_onnx: brak best.pt w data/runs — zlokalizuj lub przetrenuj
 
 Auto-find zadziałał, ale w `data/runs` **nie ma** żadnego `best.pt`. Rozszerzyłem szukanie też o domyślny katalog ultralytics `runs/` (gdy trening nie dostał `project`). 10 testów OK.
