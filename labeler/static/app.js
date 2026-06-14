@@ -89,36 +89,36 @@ function ensureSeqNumbers() {
   nextSeq = maxSeq + 1;
 }
 
-function summaryLine(b) {
-  const t = (b.tag || "").trim();
-  const oneLine = t.replace(/\s+/g, " ");
-  const preview = oneLine
-    ? (oneLine.length > 52 ? `${oneLine.slice(0, 52)}…` : oneLine)
-    : "(bez opisu)";
-  return `#${b.seq || "?"} · ${preview}`;
+function listLabel(b) {
+  return `#${b.seq || "?"}`;
 }
 
 function drawBboxNumber(b, color) {
   const num = String(b.seq || "?");
-  const pad = 2 / scale;
-  const maxW = Math.max(b.width - pad * 2, 1);
-  const maxH = Math.max(b.height - pad * 2, 1);
-  let fontSize = Math.min(14 / scale, maxH * 0.45, maxW * 0.85);
-  const minSize = 5 / scale;
+  const pad = 4 / scale;
+  const maxW = Math.max(b.width - pad * 2, 12 / scale);
+  const maxH = Math.max(b.height - pad * 2, 12 / scale);
+  const minSize = 18 / scale;
+  let fontSize = Math.min(32 / scale, maxH * 0.55, maxW * 0.95);
   fontSize = Math.max(minSize, fontSize);
   ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
   let textW = ctx.measureText(num).width;
-  while (fontSize > minSize && (textW + pad * 2 > maxW || fontSize > maxH * 0.55)) {
-    fontSize *= 0.88;
+  while (fontSize > minSize && (textW + pad * 2 > maxW || fontSize > maxH * 0.65)) {
+    fontSize *= 0.9;
     ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
     textW = ctx.measureText(num).width;
   }
   const badgeW = Math.min(textW + pad * 2, b.width);
-  const badgeH = Math.min(fontSize + pad * 1.2, b.height);
+  const badgeH = Math.min(fontSize + pad * 1.4, b.height);
+  const tx = b.x + pad;
+  const ty = b.y + fontSize + pad * 0.3;
   ctx.fillStyle = color;
   ctx.fillRect(b.x, b.y, badgeW, badgeH);
+  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  ctx.lineWidth = 1 / scale;
+  ctx.strokeRect(b.x, b.y, badgeW, badgeH);
   ctx.fillStyle = "#fff";
-  ctx.fillText(num, b.x + pad, b.y + fontSize);
+  ctx.fillText(num, tx, ty);
 }
 
 function drawBboxOnCanvas(b, i) {
