@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-06-15 [Filip/Cursor] — Etap 1: detekcja elementów + prompt 010
+
+Temat: **Labeler bbox-first + paleta haseł. Kurator QET wstrzymany.**
+
+### Decyzje Filipa
+
+- **Etap 1:** rozpoznawanie **elementów** na schemacie (YOLO klasa `element`). Tagi, połączenia, charakterystyki — później, proceduralnie.
+- **Workflow labelera:** najpierw **zaznacz obszar**, potem **wybierz typ** z biblioteki (odwrotnie niż dziś).
+- **Paleta:** ~40–60 najczęstszych haseł PL — **bez** cropów QET w UI (brzydkie, domain gap).
+- **Filip:** oznacza więcej schematów, krótkie hasła, wyjątki ręcznie → duża baza bboxów → re-train.
+- **Złożone urządzenia** (box + terminale): na razie obrys + hasło blokowe; osobny tryb — faza 2.
+- **Kurator atlasu QET (TAK/NIE):** wstrzymany do fazy 2.
+
+### Twoje zadanie (PRIORYTET #1)
+
+[`sync/prompts/010-labeler-bbox-first-palette.md`](prompts/010-labeler-bbox-first-palette.md)
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)  
+Start: [`sync/PROMPT-CLAUDE-010.md`](PROMPT-CLAUDE-010.md)
+
+### Po kodzie
+
+- `pytest backend/tests labeler/tests`
+- wpis w `sync/zw-to-filip.md`
+- `sync/commit-message.txt` = `[Claude] labeler: bbox-first + symbol palette (prompt 010)`
+
+### Nie rób
+
+- Kurator :8766, multi-class YOLO, line tracer, GraphBuilder w tej sesji.
+
+Commit pending: `[Cursor] sync: handoff prompt 010 bbox-first + paleta, etap 1 detekcja elementów`
+
+---
+
 ## 2026-06-14 [Filip/Cursor] — BUILD M0 DONE + priorytet 008a
 
 Temat: **Trening + ONNX + inferencja u Filipa zamknięte. Następne zadanie Claude = 008a (QET atlas).**

@@ -1,6 +1,6 @@
 # Zadanie 008: ekstrakcja atlasu symboli (faza 1 — QET)
 
-**Status:** OPEN — akceptacja Filipa 2026-06-14 (prompt 007)  
+**Status:** DONE — kod w repo (commit `c2800a8d`+). Kurator TAK/NIE **wstrzymany** — faza 2. Poprawki buildera (polygon, selekcja P0): review Cursor pending.  
 **Model:** Sonnet, effort **High**  
 **Faza:** **008a** — tylko QElectroTech. IEC 60617 PDF i warstwa producenta → fazy 008b/008c (osobne prompty).
 

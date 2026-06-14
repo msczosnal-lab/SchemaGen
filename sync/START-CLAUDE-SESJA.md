@@ -6,7 +6,7 @@
 
 1. `Start-GitSync.cmd Claude` — poczekaj na pull (repo aktualne).
 2. Otwórz **[claude.ai/code](https://claude.ai/code)** → **New session** (nie stara sesja z historią).
-3. Wklej prompt z [`sync/PROMPT-CLAUDE-005.md`](PROMPT-CLAUDE-005.md) (BUILD M0) **lub** skrót „kolejne zadanie” gdy aktywny jest inny prompt.
+3. Wklej prompt z [`sync/PROMPT-CLAUDE-010.md`](PROMPT-CLAUDE-010.md) (Etap 1: bbox-first + paleta) **lub** skrót „kolejne zadanie”.
 4. Claude czyta pliki lokalne z repo — nie musisz ręcznie wklejać promptów z `sync/prompts/`.
 
 ## Prompt startowy (kopiuj całość)

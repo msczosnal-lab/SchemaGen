@@ -20,15 +20,20 @@ Na podstawie PDF/obrazu schematu + konfiguracji napędu (XML) system offline:
 - Claude Cowork (ZW): implementacja NotImplementedError
 - Uzytkownik: oznaczanie w labelerze, kierunek projektu
 
-## MVP status (2026-06-14)
+## MVP status (2026-06-15)
 
-- Archiwum EPLAN: archive/eplan-era-2026-06.zip
-- backend/: CLI, API, validate, generate, recognize stubs
-- backend/colors/: paleta semantyczna (semantic-colors.yaml)
-- labeler/: FastAPI + static stub (Cowork: canvas, potem linie)
-- train/: stubs YOLO + ONNX
-- blocks/: 400vac_supply, frequency_control, start_stop
-- schema/fixtures/: page1_expected.json (components + graphic_lines + connections)
+- BUILD M0: trening YOLO + ONNX + detektor (u Filipa, .venv311)
+- labeler/: canvas bbox, hierarchia 003; **następny krok: 010 bbox-first + paleta haseł**
+- backend/atlas/: parser QET 008a (kurator wstrzymany)
+- train/: dataset_export, train_symbols, export_onnx
+
+## Etap 1 (aktywny) — detekcja elementów
+
+- Cel: YOLO znajduje prostokąty elementów na schemacie (klasa `element`)
+- Filip: duża baza bboxów z wielu PDF/PNG; hasła krótkie (typ urządzenia)
+- Labeler: najpierw bbox, potem wybór z config/symbol-palette.yaml
+- Tagi instancji, połączenia, terminale złożonych urządzeń — później
+- Trening detekcji = wyłącznie bboxy ze skanów WRT01 (nie cropy atlasu QET)
 
 ## Semantyka linii i kolorow
 
@@ -39,7 +44,7 @@ Na podstawie PDF/obrazu schematu + konfiguracji napędu (XML) system offline:
 
 ## Nastepny krok
 
-1. Claude: sync/KOLEJNE-ZADANIE.md → 001-labeler-canvas.md
-2. Claude: 002-labeler-lines-colors.md (po canvas)
-3. Uzytkownik: oznacz 3-5 stron w labelerze
-4. Claude: train + recognize ONNX + line tracer
+1. Claude: sync/KOLEJNE-ZADANIE.md → 010-labeler-bbox-first-palette.md
+2. Filip: bboxy na wielu schematach; re-train po zebraniu danych
+3. Później: 002 linie/kolory, line tracer, GraphBuilder
+4. Faza 2: kurator atlasu QET, terminale device_block
