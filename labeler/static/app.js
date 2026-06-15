@@ -32,8 +32,8 @@ let startY = 0;
 const DRAG_THRESHOLD = 5;
 
 let bgImage = null;
-let catalogLabels = [];
 let paletteCache = [];
+let paletteCacheQuery = null;
 let paletteSearchTimer = null;
 
 const editorHint = document.getElementById("editor-hint");
@@ -494,32 +494,54 @@ async function navigatePage(delta) {
 }
 
 async function loadElementCatalog() {
-  const data = await fetchJson("/api/element-catalog");
-  catalogLabels = data.labels || [];
+  await fetchJson("/api/element-catalog");
+}
+
+async function recordTagUsage(label) {
+  const tag = (label || "").trim();
+  if (!tag) return;
+  try {
+    await fetchJson("/api/tag-usage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ labels: [tag] }),
+    });
+    paletteCache = [];
+    paletteCacheQuery = null;
+    if (expandedIdx >= 0) renderAnnotationList();
+  } catch (err) {
+    console.warn("tag-usage:", err);
+  }
 }
 
 async function fetchSymbolPalette(q = "") {
-  const data = await fetchJson(`/api/symbol-palette?q=${encodeURIComponent(q)}&limit=30`);
+  const data = await fetchJson(`/api/symbol-palette?q=${encodeURIComponent(q)}&limit=60`);
   return data.symbols || [];
 }
 
-async function ensurePaletteCache() {
-  if (!paletteCache.length) {
-    paletteCache = await fetchSymbolPalette("");
-  }
+async function ensurePaletteCache(q = "") {
+  if (paletteCache.length && paletteCacheQuery === q) return paletteCache;
+  paletteCache = await fetchSymbolPalette(q);
+  paletteCacheQuery = q;
+  return paletteCache;
 }
 
 function assignTag(idx, tag) {
   if (idx < 0 || idx >= bboxes.length) return;
-  bboxes[idx].tag = (tag || "").trim();
+  const trimmed = (tag || "").trim();
+  const prev = (bboxes[idx].tag || "").trim();
+  bboxes[idx].tag = trimmed;
   markPageDirty();
   recomputeHierarchy();
   redraw();
   renderAnnotationList();
   updateSaveStatus();
+  if (trimmed && trimmed !== prev) {
+    recordTagUsage(trimmed);
+  }
 }
 
-function renderPaletteButtons(container, symbols, idx, { recent = false } = {}) {
+function renderPaletteButtons(container, symbols, idx) {
   container.innerHTML = "";
   if (!symbols.length) {
     const empty = document.createElement("span");
@@ -531,10 +553,16 @@ function renderPaletteButtons(container, symbols, idx, { recent = false } = {}) 
   symbols.forEach((sym) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "palette-btn" + (recent ? " recent" : "");
-    btn.textContent = sym.label_pl || sym.id;
-    btn.title = sym.tag_prefix ? `Prefiks: ${sym.tag_prefix}` : sym.id;
-    btn.addEventListener("click", () => assignTag(idx, sym.label_pl));
+    btn.className = "palette-btn" + (sym.custom ? " custom" : "");
+    const count = sym.usage_count || 0;
+    const label = sym.label_pl || sym.id;
+    btn.textContent = count > 0 ? `${label} (${count})` : label;
+    btn.title = [
+      sym.tag_prefix ? `Prefiks: ${sym.tag_prefix}` : sym.id,
+      sym.custom ? "Wolne haslo / wyjatek" : "",
+      count > 0 ? `Uzyc: ${count}` : "",
+    ].filter(Boolean).join(" · ");
+    btn.addEventListener("click", () => assignTag(idx, label));
     container.appendChild(btn);
   });
 }
@@ -560,22 +588,13 @@ function buildTypePicker(body, idx) {
   const resultsSection = document.createElement("div");
   resultsSection.className = "palette-section";
   const resultsTitle = document.createElement("h4");
-  resultsTitle.textContent = "Paleta";
+  resultsTitle.className = "palette-section-title";
+  resultsTitle.textContent = "Typy (najczesciej uzywane na gorze)";
   resultsSection.appendChild(resultsTitle);
   const resultsList = document.createElement("div");
   resultsList.className = "palette-list";
   resultsSection.appendChild(resultsList);
   body.appendChild(resultsSection);
-
-  const recentSection = document.createElement("div");
-  recentSection.className = "palette-section";
-  const recentTitle = document.createElement("h4");
-  recentTitle.textContent = "Ostatnie / katalog";
-  recentSection.appendChild(recentTitle);
-  const recentList = document.createElement("div");
-  recentList.className = "palette-list";
-  recentSection.appendChild(recentList);
-  body.appendChild(recentSection);
 
   const customLabel = document.createElement("label");
   customLabel.className = "custom-tag-label";
@@ -602,14 +621,17 @@ function buildTypePicker(body, idx) {
   });
 
   async function refreshResults(q) {
-    const symbols = q ? await fetchSymbolPalette(q) : paletteCache.length ? paletteCache : await fetchSymbolPalette("");
-    if (!q && !paletteCache.length) paletteCache = symbols;
+    const symbols = await ensurePaletteCache(q);
+    resultsTitle.textContent = q.trim()
+      ? "Wyniki wyszukiwania"
+      : "Typy (najczesciej uzywane na gorze)";
     renderPaletteButtons(resultsList, symbols, idx);
   }
 
   search.addEventListener("input", () => {
     clearTimeout(paletteSearchTimer);
-    paletteSearchTimer = setTimeout(() => refreshResults(search.value.trim()), 200);
+    const q = search.value.trim();
+    paletteSearchTimer = setTimeout(() => refreshResults(q), 200);
   });
   search.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -623,7 +645,7 @@ function buildTypePicker(body, idx) {
   const recentSymbols = recentLabels.map((label) => ({ id: label, label_pl: label }));
   renderPaletteButtons(recentList, recentSymbols, idx, { recent: true });
 
-  ensurePaletteCache().then(() => refreshResults(""));
+  refreshResults("");
 
   if (focusSearchIdx === idx) {
     requestAnimationFrame(() => {

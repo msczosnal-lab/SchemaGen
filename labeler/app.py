@@ -14,7 +14,8 @@ from backend.catalog import list_element_labels, register_labels
 from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
 from backend.geometry.bbox_layout import enrich_label_record
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
-from backend.symbol_palette import search_palette
+from backend.tag_usage import record_tag_usage
+from backend.type_picker import list_type_picker
 from labeler.export import export_all, write_data_yaml
 from backend.models.label import LabelRecord
 
@@ -62,12 +63,30 @@ def api_classes() -> dict:
 
 @app.get("/api/element-catalog")
 def api_element_catalog() -> dict:
-    return {"labels": list_element_labels()}
+    from backend.db import get_tag_usage_map
+
+    usage = get_tag_usage_map()
+    items = []
+    for label in list_element_labels():
+        cf = label.casefold()
+        canonical, count = usage.get(cf, (label, 0))
+        items.append({"label": canonical, "usage_count": count})
+    return {"labels": items}
 
 
 @app.get("/api/symbol-palette")
 def api_symbol_palette(q: str = "", limit: int = 30) -> dict:
-    return {"symbols": search_palette(q, limit=min(limit, 100))}
+    return {"symbols": list_type_picker(q, limit=min(limit, 100))}
+
+
+class TagUsagePayload(BaseModel):
+    labels: list[str]
+
+
+@app.post("/api/tag-usage")
+def post_tag_usage(body: TagUsagePayload) -> dict:
+    stats = record_tag_usage(body.labels)
+    return {"status": "ok", **stats}
 
 
 @app.get("/api/annotations/{page_id}")
