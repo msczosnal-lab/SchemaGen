@@ -259,3 +259,7 @@ elements:
   label: fotodioda
   yolo_class: element
   created_at: '2026-06-15T20:29:48.772712+00:00'
+- id: styk_pomocniczy
+  label: styk pomocniczy
+  yolo_class: element
+  created_at: '2026-06-15T20:56:41.163170+00:00'
