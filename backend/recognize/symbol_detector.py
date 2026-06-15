@@ -9,17 +9,22 @@ import numpy as np
 
 from backend.ingest.image_utils import load_bgr, resize_for_yolo
 from backend.models.detection import SymbolDetection
-
-YOLO_SIZE = 640
+from backend.runtime_config import yolo_conf_threshold, yolo_imgsz
 PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
 
 class OnnxSymbolDetector:
     """Detekcja symboli schematu — YOLOv8 ONNX."""
 
-    def __init__(self, model_path: str, class_map: dict[str, int] | None = None) -> None:
+    def __init__(
+        self,
+        model_path: str,
+        class_map: dict[str, int] | None = None,
+        imgsz: int | None = None,
+    ) -> None:
         self._model_path = model_path
         self._class_map = class_map or {}
+        self._imgsz = imgsz if imgsz is not None else yolo_imgsz()
         self._id_to_name = {idx: name for name, idx in self._class_map.items()}
         self._session = None
         self._input_name: str | None = None
@@ -38,19 +43,24 @@ class OnnxSymbolDetector:
         return self._session
 
     def _preprocess(self, image: np.ndarray) -> np.ndarray:
-        canvas = resize_for_yolo(image, YOLO_SIZE)
+        canvas = resize_for_yolo(image, self._imgsz)
         rgb = canvas[:, :, ::-1]  # BGR -> RGB
         blob = rgb.transpose(2, 0, 1)[np.newaxis].astype(np.float32) / 255.0
         return np.ascontiguousarray(blob)
 
     def detect(
-        self, image_path: str, conf_threshold: float = 0.25, iou_threshold: float = 0.45
+        self,
+        image_path: str,
+        conf_threshold: float | None = None,
+        iou_threshold: float = 0.45,
     ) -> list[SymbolDetection]:
         """Zwraca bbox (w pikselach oryginalu) + class_id + confidence dla strony PNG."""
+        if conf_threshold is None:
+            conf_threshold = yolo_conf_threshold()
         session = self._ensure_session()
         image = load_bgr(image_path)
         h0, w0 = image.shape[:2]
-        scale = YOLO_SIZE / max(h0, w0)  # resize_for_yolo: top-left, jednolita skala
+        scale = self._imgsz / max(h0, w0)  # resize_for_yolo: top-left, jednolita skala
 
         blob = self._preprocess(image)
         input_name = self._input_name or session.get_inputs()[0].name
@@ -73,7 +83,7 @@ class OnnxSymbolDetector:
         if len(boxes_xywh) == 0:
             return []
 
-        # (cx, cy, w, h) w przestrzeni 640 -> (x, y, w, h) top-left w oryginale
+        # (cx, cy, w, h) w przestrzeni imgsz -> (x, y, w, h) top-left w oryginale
         xs = (boxes_xywh[:, 0] - boxes_xywh[:, 2] / 2) / scale
         ys = (boxes_xywh[:, 1] - boxes_xywh[:, 3] / 2) / scale
         ws = boxes_xywh[:, 2] / scale

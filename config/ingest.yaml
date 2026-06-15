@@ -1,0 +1,4 @@
+# Raster PDF → PNG (PyMuPDF)
+pdf_dpi: 400
+# Poprzedni domyslny DPI — do jednorazowej migracji adnotacji (x2 przy 200→400)
+legacy_pdf_dpi: 200
