@@ -24,3 +24,4 @@
 | 2026-06-14 23:50 | Cursor | 8d6a6810 | [Cursor] sync: trzy filary interpretacji schematu, rezygnacja QET |
 | 2026-06-14 23:52 | Cursor | 0d64d7cb | [Cursor] labeler: bbox-first + symbol palette (prompt 010) |
 | 2026-06-15 19:22 | Cursor | 3f4294f0 | [Cursor] data: archive WRT01 legacy bboxes + reset labeler GT |
+| 2026-06-15 19:37 | Cursor | 4eb7f1f5 | [Cursor] labeler: tag usage counter + custom labels in picker |
