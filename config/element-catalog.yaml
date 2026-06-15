@@ -75,3 +75,7 @@ elements:
   label: terminal przyłączeniowy
   yolo_class: element
   created_at: '2026-06-15T17:52:41.567939+00:00'
+- id: terminale_urządzenia
+  label: terminale urządzenia
+  yolo_class: element
+  created_at: '2026-06-15T17:52:55.398294+00:00'
