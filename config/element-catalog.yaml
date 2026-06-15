@@ -39,3 +39,7 @@ elements:
   label: Symbol napięcia
   yolo_class: element
   created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: czujnik_fotoelektryczny
+  label: czujnik fotoelektryczny
+  yolo_class: element
+  created_at: '2026-06-15T17:39:16.284959+00:00'
