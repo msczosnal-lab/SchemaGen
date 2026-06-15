@@ -283,25 +283,20 @@ function applyTagUi(el, tag, { variant = "fill" } = {}) {
   }
   const color = colorFromTag(t);
   el.style.setProperty("--tag-color", color);
-  if (variant === "fill") {
+  if (variant === "fill" || variant === "preview") {
     el.style.background = color;
+    el.style.color = contrastTextForTag(t);
+    el.style.border = variant === "preview" ? "none" : `1px solid ${color}`;
+    if (variant === "preview") {
+      el.style.padding = "6px 8px";
+      el.style.borderRadius = "4px";
+    }
+  } else if (variant === "border") {
+    el.style.background = "";
     el.style.color = contrastTextForTag(t);
     el.style.borderColor = color;
     el.style.borderWidth = "2px";
-  } else if (variant === "border") {
-    el.style.background = "";
-    el.style.color = color;
-    el.style.borderColor = color;
-    el.style.borderWidth = "2px";
     el.style.borderStyle = "solid";
-  } else if (variant === "preview") {
-    el.style.background = "rgba(0,0,0,0.15)";
-    el.style.color = color;
-    el.style.borderColor = color;
-    el.style.borderWidth = "2px";
-    el.style.borderStyle = "solid";
-    el.style.padding = "6px 8px";
-    el.style.borderRadius = "4px";
   }
 }
 
@@ -598,7 +593,7 @@ function renderPaletteButtons(container, symbols, idx, onPick) {
     const count = sym.usage_count || 0;
     const label = sym.label_pl || sym.id;
     btn.textContent = count > 0 ? `${label} (${count})` : label;
-    btn.style.setProperty("--tag-color", colorFromTag(label));
+    applyTagUi(btn, label, { variant: "fill" });
     btn.title = [
       sym.tag_prefix ? `Prefiks: ${sym.tag_prefix}` : sym.id,
       sym.custom ? "Wolne haslo / wyjatek" : "",
@@ -630,7 +625,7 @@ function buildTypePicker(body, idx) {
   typeInput.placeholder = "Szukaj typ lub wpisz wyjatek (np. stycznik)…";
   typeInput.value = b.tag || "";
   typeInput.dataset.idx = String(idx);
-  applyTagUi(typeInput, b.tag, { variant: "border" });
+  applyTagUi(typeInput, b.tag, { variant: "fill" });
   body.appendChild(typeInput);
 
   const resultsSection = document.createElement("div");
@@ -667,7 +662,7 @@ function buildTypePicker(body, idx) {
   typeInput.addEventListener("input", () => {
     clearTimeout(paletteSearchTimer);
     const q = typeInput.value.trim();
-    applyTagUi(typeInput, q, { variant: "border" });
+    applyTagUi(typeInput, q, { variant: "fill" });
     paletteSearchTimer = setTimeout(() => refreshResults(q), 200);
   });
   typeInput.addEventListener("keydown", (e) => {
