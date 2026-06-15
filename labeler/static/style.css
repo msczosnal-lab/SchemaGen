@@ -139,7 +139,8 @@ li.annotation-accordion.unassigned.active .summary-line {
   cursor: pointer;
 }
 .palette-btn:hover { background: #4a9eff; border-color: #4a9eff; }
-.palette-btn.recent { background: #2a4030; border-color: #3d6b4f; }
+.palette-btn.custom { background: #3a3528; border-color: #6b5a3d; }
+.palette-btn.custom:hover { background: #5a4a2a; border-color: #c9a227; }
 
 .custom-tag-label {
   display: block;

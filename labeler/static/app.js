@@ -641,10 +641,6 @@ function buildTypePicker(body, idx) {
     }
   });
 
-  const recentLabels = [...new Set([...catalogLabels].reverse())].slice(0, 12);
-  const recentSymbols = recentLabels.map((label) => ({ id: label, label_pl: label }));
-  renderPaletteButtons(recentList, recentSymbols, idx, { recent: true });
-
   refreshResults("");
 
   if (focusSearchIdx === idx) {
@@ -957,8 +953,7 @@ async function init() {
   } else {
     updatePageNav();
   }
-  await loadElementCatalog();
-  paletteCache = await fetchSymbolPalette("");
+  await ensurePaletteCache("");
   updateSaveStatus();
 }
 

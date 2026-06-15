@@ -35,6 +35,7 @@ def list_type_picker(query: str, limit: int = 30) -> list[dict]:
                 "id": str(sym.get("id", key)),
                 "label_pl": canonical,
                 "tag_prefix": sym.get("tag_prefix") or "",
+                "aliases": sym.get("aliases") or [],
                 "usage_count": count,
                 "custom": False,
             }
