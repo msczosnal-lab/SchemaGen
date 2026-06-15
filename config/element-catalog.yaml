@@ -159,3 +159,7 @@ elements:
   label: ekranowanie kabla
   yolo_class: element
   created_at: '2026-06-15T18:23:37.188088+00:00'
+- id: listwa_zaciskowa
+  label: listwa zaciskowa
+  yolo_class: element
+  created_at: '2026-06-15T18:24:22.359195+00:00'
