@@ -120,7 +120,7 @@ li.annotation-accordion.unassigned.active .summary-line {
 }
 .type-search:focus {
   outline: none;
-  box-shadow: 0 0 0 1px var(--tag-color, #4a9eff);
+  filter: brightness(1.08);
 }
 
 .palette-section { margin-bottom: 10px; }
@@ -134,19 +134,13 @@ li.annotation-accordion.unassigned.active .summary-line {
 .palette-list { display: flex; flex-wrap: wrap; gap: 4px; }
 .palette-btn {
   padding: 4px 10px;
-  border: 2px solid var(--tag-color, #555);
   border-radius: 4px;
-  background: #2a2a2a;
-  color: var(--tag-color, #eee);
   font-size: 0.85rem;
   cursor: pointer;
+  border: none;
 }
-.palette-btn:hover {
-  background: var(--tag-color, #4a9eff);
-  border-color: var(--tag-color, #4a9eff);
-  color: #fff;
-}
-.palette-btn.custom { background: #252220; }
+.palette-btn:hover { filter: brightness(1.12); }
+.palette-btn.custom { opacity: 0.95; }
 
 .custom-tag-label {
   display: block;

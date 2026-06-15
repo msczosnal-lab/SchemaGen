@@ -276,8 +276,7 @@ function applyTagUi(el, tag, { variant = "fill" } = {}) {
   if (!t) {
     el.style.removeProperty("background");
     el.style.removeProperty("color");
-    el.style.borderColor = UNASSIGNED_COLOR;
-    el.style.borderWidth = variant === "border" ? "2px" : "";
+    el.style.removeProperty("border");
     el.style.removeProperty("--tag-color");
     return;
   }
