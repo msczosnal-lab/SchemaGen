@@ -6,10 +6,8 @@ const ctx = canvas.getContext("2d");
 
 const DEFAULT_CLASS = "element";
 const UNASSIGNED_COLOR = "#6c757d";
-const PALETTE = [
-  "#e74c3c", "#3498db", "#2ecc71", "#f39c12",
-  "#9b59b6", "#1abc9c", "#e67e22", "#34495e", "#e91e63",
-];
+const BBOX_STROKE = 3.5;
+const BBOX_STROKE_SELECTED = 4.5;
 
 let currentPageId = null;
 let pageIds = [];
@@ -257,11 +255,54 @@ function isAssigned(b) {
   return !!(b.tag || "").trim();
 }
 
-function colorFromTag(tag, fallbackIdx = 0) {
+function colorFromTag(tag) {
   if (!tag || !tag.trim()) return UNASSIGNED_COLOR;
   let h = 0;
-  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
-  return PALETTE[h % PALETTE.length];
+  const s = tag.trim();
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const hue = (h * 137.508) % 360;
+  return `hsl(${hue.toFixed(1)}, 72%, 46%)`;
+}
+
+function contrastTextForTag(tag) {
+  const color = colorFromTag(tag);
+  const m = color.match(/hsl\([\d.]+,\s*[\d.]+%\s*,\s*([\d.]+)%\)/);
+  if (!m) return "#fff";
+  return parseFloat(m[1]) > 52 ? "#141414" : "#fff";
+}
+
+function applyTagUi(el, tag, { variant = "fill" } = {}) {
+  const t = (tag || "").trim();
+  if (!t) {
+    el.style.removeProperty("background");
+    el.style.removeProperty("color");
+    el.style.borderColor = UNASSIGNED_COLOR;
+    el.style.borderWidth = variant === "border" ? "2px" : "";
+    el.style.removeProperty("--tag-color");
+    return;
+  }
+  const color = colorFromTag(t);
+  el.style.setProperty("--tag-color", color);
+  if (variant === "fill") {
+    el.style.background = color;
+    el.style.color = contrastTextForTag(t);
+    el.style.borderColor = color;
+    el.style.borderWidth = "2px";
+  } else if (variant === "border") {
+    el.style.background = "";
+    el.style.color = color;
+    el.style.borderColor = color;
+    el.style.borderWidth = "2px";
+    el.style.borderStyle = "solid";
+  } else if (variant === "preview") {
+    el.style.background = "rgba(0,0,0,0.15)";
+    el.style.color = color;
+    el.style.borderColor = color;
+    el.style.borderWidth = "2px";
+    el.style.borderStyle = "solid";
+    el.style.padding = "6px 8px";
+    el.style.borderRadius = "4px";
+  }
 }
 
 function bboxIdTime(id) {
