@@ -43,11 +43,36 @@ const saveAllBtn = document.getElementById("save-all-btn");
 const saveStatusEl = document.getElementById("save-status");
 
 const DRAFT_PREFIX = "schemagen:draft:";
+const LAST_TAG_KEY = "schemagen:last-tag";
 const pageCache = new Map();
 const dirtyPages = new Set();
+let lastUsedTag = "";
 
 function draftKey(pageId) {
   return `${DRAFT_PREFIX}${pageId}`;
+}
+
+function loadLastUsedTag() {
+  try {
+    return (localStorage.getItem(LAST_TAG_KEY) || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function rememberLastTag(tag) {
+  const t = (tag || "").trim();
+  if (!t) return;
+  lastUsedTag = t;
+  try {
+    localStorage.setItem(LAST_TAG_KEY, t);
+  } catch {
+    /* ignore */
+  }
+}
+
+function suggestedTag(b) {
+  return (b.tag || "").trim() || lastUsedTag;
 }
 
 function capturePageState() {
@@ -571,8 +596,9 @@ function assignTag(idx, tag) {
   redraw();
   renderAnnotationList();
   updateSaveStatus();
-  if (trimmed && trimmed !== prev) {
-    recordTagUsage(trimmed);
+  if (trimmed) {
+    rememberLastTag(trimmed);
+    if (trimmed !== prev) recordTagUsage(trimmed);
   }
 }
 
@@ -607,24 +633,30 @@ function renderPaletteButtons(container, symbols, idx, onPick) {
 function buildTypePicker(body, idx) {
   body.innerHTML = "";
   const b = bboxes[idx];
+  const displayTag = suggestedTag(b);
 
   const preview = document.createElement("div");
   preview.className = "tag-preview " + (isAssigned(b) ? "assigned" : "unassigned");
-  preview.textContent = isAssigned(b)
-    ? `Typ: ${b.tag}`
-    : "Nieprzypisany — wyszukaj lub wpisz haslo ponizej";
-  body.appendChild(preview);
   if (isAssigned(b)) {
+    preview.textContent = `Typ: ${b.tag}`;
     applyTagUi(preview, b.tag, { variant: "preview" });
+  } else if (lastUsedTag) {
+    preview.textContent = `Ostatni typ: ${lastUsedTag}`;
+    applyTagUi(preview, lastUsedTag, { variant: "preview" });
+  } else {
+    preview.textContent = "Nieprzypisany — wyszukaj lub wpisz haslo ponizej";
   }
+  body.appendChild(preview);
 
   const typeInput = document.createElement("input");
   typeInput.type = "text";
   typeInput.className = "type-search";
-  typeInput.placeholder = "Szukaj typ lub wpisz wyjatek (np. stycznik)…";
-  typeInput.value = b.tag || "";
+  typeInput.placeholder = lastUsedTag
+    ? `Ostatni: ${lastUsedTag} — Enter aby przypisac`
+    : "Szukaj typ lub wpisz wyjatek (np. stycznik)…";
+  typeInput.value = displayTag;
   typeInput.dataset.idx = String(idx);
-  applyTagUi(typeInput, b.tag, { variant: "fill" });
+  applyTagUi(typeInput, displayTag, { variant: "fill" });
   body.appendChild(typeInput);
 
   const resultsSection = document.createElement("div");
@@ -936,10 +968,14 @@ canvas.addEventListener("mouseup", (e) => {
   selectedIdx = 0;
   expandedIdx = 0;
   focusSearchIdx = 0;
-  markPageDirty();
-  redraw();
-  renderAnnotationList();
-  updateSaveStatus();
+  if (lastUsedTag) {
+    assignTag(0, lastUsedTag);
+  } else {
+    markPageDirty();
+    redraw();
+    renderAnnotationList();
+    updateSaveStatus();
+  }
 });
 
 canvas.addEventListener("wheel", (e) => {
@@ -990,6 +1026,7 @@ pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
 pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
 async function init() {
+  lastUsedTag = loadLastUsedTag();
   await loadPages();
   reportRecoveryHints();
   if (pageIds.length && currentPageId == null) {
