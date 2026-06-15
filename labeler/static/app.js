@@ -541,7 +541,7 @@ function assignTag(idx, tag) {
   }
 }
 
-function renderPaletteButtons(container, symbols, idx) {
+function renderPaletteButtons(container, symbols, idx, onPick) {
   container.innerHTML = "";
   if (!symbols.length) {
     const empty = document.createElement("span");
@@ -562,7 +562,8 @@ function renderPaletteButtons(container, symbols, idx) {
       sym.custom ? "Wolne haslo / wyjatek" : "",
       count > 0 ? `Uzyc: ${count}` : "",
     ].filter(Boolean).join(" · ");
-    btn.addEventListener("click", () => assignTag(idx, label));
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("click", () => onPick(label));
     container.appendChild(btn);
   });
 }
@@ -575,15 +576,15 @@ function buildTypePicker(body, idx) {
   preview.className = "tag-preview " + (isAssigned(b) ? "assigned" : "unassigned");
   preview.textContent = isAssigned(b)
     ? `Typ: ${b.tag}`
-    : "Nieprzypisany — wybierz z palety lub wpisz wlasne haslo";
-  body.appendChild(preview);
+    : "Nieprzypisany — wyszukaj lub wpisz haslo ponizej";
 
-  const search = document.createElement("input");
-  search.type = "search";
-  search.className = "type-search";
-  search.placeholder = "Szukaj typu (np. stycznik)…";
-  search.dataset.idx = String(idx);
-  body.appendChild(search);
+  const typeInput = document.createElement("input");
+  typeInput.type = "text";
+  typeInput.className = "type-search";
+  typeInput.placeholder = "Szukaj typ lub wpisz wyjatek (np. stycznik)…";
+  typeInput.value = b.tag || "";
+  typeInput.dataset.idx = String(idx);
+  body.appendChild(typeInput);
 
   const resultsSection = document.createElement("div");
   resultsSection.className = "palette-section";
@@ -596,56 +597,54 @@ function buildTypePicker(body, idx) {
   resultsSection.appendChild(resultsList);
   body.appendChild(resultsSection);
 
-  const customLabel = document.createElement("label");
-  customLabel.className = "custom-tag-label";
-  customLabel.textContent = "Wolne haslo (wyjatek)";
-  body.appendChild(customLabel);
+  function pickLabel(label) {
+    typeInput.value = label;
+    assignTag(idx, label);
+  }
 
-  const customInput = document.createElement("input");
-  customInput.type = "text";
-  customInput.className = "type-search";
-  customInput.placeholder = "np. modul zasilania RUPS1";
-  customInput.value = b.tag || "";
-  body.appendChild(customInput);
-
-  customInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      assignTag(idx, customInput.value);
+  function commitInput() {
+    const value = typeInput.value.trim();
+    if (value !== (bboxes[idx].tag || "").trim()) {
+      assignTag(idx, value);
     }
-  });
-  customInput.addEventListener("blur", () => {
-    if (customInput.value.trim() !== (b.tag || "").trim()) {
-      assignTag(idx, customInput.value);
-    }
-  });
+  }
 
   async function refreshResults(q) {
     const symbols = await ensurePaletteCache(q);
     resultsTitle.textContent = q.trim()
       ? "Wyniki wyszukiwania"
       : "Typy (najczesciej uzywane na gorze)";
-    renderPaletteButtons(resultsList, symbols, idx);
+    renderPaletteButtons(resultsList, symbols, idx, pickLabel);
   }
 
-  search.addEventListener("input", () => {
+  typeInput.addEventListener("input", () => {
     clearTimeout(paletteSearchTimer);
-    const q = search.value.trim();
+    const q = typeInput.value.trim();
     paletteSearchTimer = setTimeout(() => refreshResults(q), 200);
   });
-  search.addEventListener("keydown", (e) => {
+  typeInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       const first = resultsList.querySelector(".palette-btn");
-      if (first) first.click();
+      if (first) {
+        first.click();
+      } else {
+        commitInput();
+      }
+    }
+  });
+  typeInput.addEventListener("blur", () => {
+    if (typeInput.value.trim() !== (bboxes[idx].tag || "").trim()) {
+      commitInput();
     }
   });
 
-  refreshResults("");
+  refreshResults(typeInput.value.trim());
 
   if (focusSearchIdx === idx) {
     requestAnimationFrame(() => {
-      search.focus();
+      typeInput.focus();
+      typeInput.select();
       focusSearchIdx = null;
     });
   }
