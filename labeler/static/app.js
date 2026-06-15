@@ -620,7 +620,9 @@ function buildTypePicker(body, idx) {
     ? `Typ: ${b.tag}`
     : "Nieprzypisany — wyszukaj lub wpisz haslo ponizej";
   body.appendChild(preview);
-  applyTagUi(preview, b.tag, { variant: "preview" });
+  if (isAssigned(b)) {
+    applyTagUi(preview, b.tag, { variant: "preview" });
+  }
 
   const typeInput = document.createElement("input");
   typeInput.type = "text";
