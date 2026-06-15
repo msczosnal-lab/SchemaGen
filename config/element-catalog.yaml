@@ -155,3 +155,7 @@ elements:
   label: ekranowanie przewodu
   yolo_class: element
   created_at: '2026-06-15T18:23:29.194879+00:00'
+- id: ekranowanie_kabla
+  label: ekranowanie kabla
+  yolo_class: element
+  created_at: '2026-06-15T18:23:37.188088+00:00'
