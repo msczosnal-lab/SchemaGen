@@ -255,3 +255,7 @@ elements:
   label: wyłącznik różnicowo-prądowy
   yolo_class: element
   created_at: '2026-06-15T20:28:20.776402+00:00'
+- id: fotodioda
+  label: fotodioda
+  yolo_class: element
+  created_at: '2026-06-15T20:29:48.772712+00:00'
