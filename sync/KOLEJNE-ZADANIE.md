@@ -18,7 +18,7 @@
 | **003-line-tracer** | OPEN — filar: połączenia (runtime) |
 | **004-graph-builder** | OPEN — relacje (po filarach) |
 
-**WRT01:** stare bboxy → `data/archive/wrt01-legacy-2026-06-15/`. Labeler od zera (77 PNG w `data/raw/`).
+**WRT01:** DONE (Filip). **Stanley 229** — 25 PNG w `data/raw/` (`25_A_229_PL5_19012026_p000`…`p024`).
 
 ---
 
@@ -26,17 +26,24 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Cel** | WRT01 od nowa — bbox-first + typ z palety |
-| **Archiwum** | `data/archive/wrt01-legacy-2026-06-15/MANIFEST.json` (11 stron, ~402 bboxy) |
-| **Claude** | ⏸ wstrzymany do powrotu sesji |
+| **Cel** | Oznaczanie **Stanley 229 / PL5** (25 str.) — bbox-first + paleta |
+| **Pliki** | `data/raw/25_A_229_PL5_19012026_p*.png` |
+| **Źródło** | `sync/sources/25_A_229_PL5_19012026.pdf` |
 
 ### Kroki Filip
 
-1. `python -m labeler.app` → http://localhost:8765
-2. **Wyczyść szkice:** DevTools → Application → localStorage → usuń klucze `schemagen:draft:*` (albo tryb prywatny)
-3. Zacznij od `SchematWRT01_p013` — 5–10 stron reprezentatywnych
-4. Workflow: narysuj bbox → wybierz typ z palety → Ctrl+S
-5. Po ~15 stronach: `python -m train.dataset_export` + re-train (`.venv311`)
+1. `python -m labeler.app` → odśwież listę stron
+2. Wybierz **`25_A_229_PL5_19012026_p000`** (lub kolejne)
+3. Ten sam workflow: bbox → typ z palety → Ctrl+S
+4. WRT01 zostaje w liście — możesz go pominąć
+
+### Kolejne projekty (po Stanley)
+
+| Projekt | Stron | PDF |
+|---------|------:|-----|
+| Adamed INTEROL SA1 | 99 | `22_A_153_PL_Adamed_INTEROL_SA1_20250729.pdf` |
+| Adamed AGV SA2 | 200 | `22_A_153_PL_Adamed_AGV_SA2_20250706.pdf` |
+| Norblin Cars | 199 | `20_A_022_PL_Norblin_Cars_2022-06-26.pdf` |
 
 ### Cursor (równolegle, bez pełnego kodu Cowork)
 
