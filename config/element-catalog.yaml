@@ -43,3 +43,7 @@ elements:
   label: czujnik fotoelektryczny
   yolo_class: element
   created_at: '2026-06-15T17:39:16.284959+00:00'
+- id: strzałka_potencjału
+  label: Strzałka potencjału
+  yolo_class: element
+  created_at: '2026-06-15T17:39:25.108694+00:00'
