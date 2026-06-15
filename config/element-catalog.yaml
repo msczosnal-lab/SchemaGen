@@ -135,3 +135,7 @@ elements:
   label: gniazdo światłowodu
   yolo_class: element
   created_at: '2026-06-15T18:14:36.651276+00:00'
+- id: krańcówka
+  label: krańcówka
+  yolo_class: element
+  created_at: '2026-06-15T18:15:05.217254+00:00'
