@@ -251,3 +251,7 @@ elements:
   label: uziemienie
   yolo_class: element
   created_at: '2026-06-15T20:25:00.606159+00:00'
+- id: wyłącznik_różnicowo_prądowy
+  label: wyłącznik różnicowo-prądowy
+  yolo_class: element
+  created_at: '2026-06-15T20:28:20.776402+00:00'
