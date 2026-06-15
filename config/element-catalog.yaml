@@ -167,3 +167,7 @@ elements:
   label: przekaźnik polaryzowany
   yolo_class: element
   created_at: '2026-06-15T18:27:35.181772+00:00'
+- id: przycisk
+  label: przycisk
+  yolo_class: element
+  created_at: '2026-06-15T18:30:58.779007+00:00'
