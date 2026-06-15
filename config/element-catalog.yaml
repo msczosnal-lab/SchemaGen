@@ -103,3 +103,7 @@ elements:
   label: styk krańcówki
   yolo_class: element
   created_at: '2026-06-15T17:57:06.758270+00:00'
+- id: wyłącznik_nadprądowy
+  label: wyłącznik nadprądowy
+  yolo_class: element
+  created_at: '2026-06-15T17:58:15.142957+00:00'
