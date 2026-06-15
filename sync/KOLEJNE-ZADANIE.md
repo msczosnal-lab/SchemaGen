@@ -18,31 +18,29 @@
 | **003-line-tracer** | OPEN — filar: połączenia (runtime) |
 | **004-graph-builder** | OPEN — relacje (po filarach) |
 
-**WRT01:** DONE (Filip). **Stanley 229** — 25 PNG w `data/raw/` (`25_A_229_PL5_19012026_p000`…`p024`).
+**WRT01:** DONE. **Stanley 229:** DONE/w toku. **Adamed AGV SA2** — 200 PNG w `data/raw/`.
 
 ---
 
-## Aktywne zadanie — PRIORYTET (Filip + Cursor)
+## Aktywne zadanie — PRIORYTET (Filip)
 
 | Pole | Wartosc |
 |------|---------|
-| **Cel** | Oznaczanie **Stanley 229 / PL5** (25 str.) — bbox-first + paleta |
-| **Pliki** | `data/raw/25_A_229_PL5_19012026_p*.png` |
-| **Źródło** | `sync/sources/25_A_229_PL5_19012026.pdf` |
+| **Cel** | Oznaczanie **Adamed AGV SA2** — bbox-first + paleta |
+| **Pliki** | `data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p*.png` (p000…p199) |
+| **Źródło** | `sync/sources/22_A_153_PL_Adamed_AGV_SA2_20250706.pdf` |
 
 ### Kroki Filip
 
-1. `python -m labeler.app` → odśwież listę stron
-2. Wybierz **`25_A_229_PL5_19012026_p000`** (lub kolejne)
-3. Ten sam workflow: bbox → typ z palety → Ctrl+S
-4. WRT01 zostaje w liście — możesz go pominąć
+1. Odśwież labeler (F5) — na liście szukaj `22_A_153_PL_Adamed_AGV_SA2`
+2. Zacznij od **`_p000`** (lub reprezentatywnych stron)
+3. Bbox → typ (ostatni typ zapamiętywany) → Ctrl+S
 
-### Kolejne projekty (po Stanley)
+### Kolejne projekty
 
 | Projekt | Stron | PDF |
 |---------|------:|-----|
 | Adamed INTEROL SA1 | 99 | `22_A_153_PL_Adamed_INTEROL_SA1_20250729.pdf` |
-| Adamed AGV SA2 | 200 | `22_A_153_PL_Adamed_AGV_SA2_20250706.pdf` |
 | Norblin Cars | 199 | `20_A_022_PL_Norblin_Cars_2022-06-26.pdf` |
 
 ### Cursor (równolegle, bez pełnego kodu Cowork)
