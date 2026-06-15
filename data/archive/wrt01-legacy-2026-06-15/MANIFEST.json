@@ -1,0 +1,100 @@
+{
+  "archived_at": "2026-06-15T17:22:18.378289+00:00",
+  "reason": "Reset WRT01 — workflow bbox-first + paleta (prompt 010), stare opisy przed paletą",
+  "prefix": "SchematWRT01",
+  "pages_in_db": 77,
+  "annotated_pages": 11,
+  "total_bboxes": 406,
+  "labeled_export_files": 25,
+  "per_page": [
+    {
+      "page_id": "SchematWRT01_p013",
+      "updated_at": "2026-06-14T12:02:08.195283+00:00",
+      "bboxes": 75,
+      "tagged": 74,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p014",
+      "updated_at": "2026-06-14T12:42:22.740164+00:00",
+      "bboxes": 99,
+      "tagged": 98,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p015",
+      "updated_at": "2026-06-14T16:05:53.053580+00:00",
+      "bboxes": 152,
+      "tagged": 152,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p016",
+      "updated_at": "2026-06-14T16:06:44.069596+00:00",
+      "bboxes": 2,
+      "tagged": 2,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p017",
+      "updated_at": "2026-06-14T16:08:11.478827+00:00",
+      "bboxes": 3,
+      "tagged": 3,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p018",
+      "updated_at": "2026-06-14T16:08:04.125594+00:00",
+      "bboxes": 3,
+      "tagged": 3,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p021",
+      "updated_at": "2026-06-14T16:09:23.420615+00:00",
+      "bboxes": 2,
+      "tagged": 2,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p022",
+      "updated_at": "2026-06-14T16:12:31.463933+00:00",
+      "bboxes": 10,
+      "tagged": 10,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p023",
+      "updated_at": "2026-06-14T16:22:59.303777+00:00",
+      "bboxes": 48,
+      "tagged": 47,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p024",
+      "updated_at": "2026-06-14T16:24:34.429425+00:00",
+      "bboxes": 10,
+      "tagged": 10,
+      "lines": 0,
+      "texts": 0
+    },
+    {
+      "page_id": "SchematWRT01_p034",
+      "updated_at": "2026-06-14T16:25:51.603800+00:00",
+      "bboxes": 2,
+      "tagged": 1,
+      "lines": 0,
+      "texts": 0
+    }
+  ],
+  "note": "Stary model symbols_v1.onnx trenowany na tym GT — do ponownego treningu po nowych bboxach."
+}

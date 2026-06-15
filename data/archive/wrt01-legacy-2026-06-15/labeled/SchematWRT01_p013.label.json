@@ -1,0 +1,121 @@
+{
+  "page_id": "SchematWRT01_p013",
+  "image_path": "SchematWRT01_p013.png",
+  "image_width": 3356,
+  "image_height": 2411,
+  "bboxes": [
+    {
+      "id": "element_1781429678242",
+      "class_name": "element",
+      "x": 265.3346240440843,
+      "y": 1824.8219187317707,
+      "width": 568.3891283976183,
+      "height": 347.7781749519738,
+      "tag": "Blok zasilania, opisuje obiekt w roździelnicy RUPS1 ze schematu 11ELERY007",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430129458",
+      "class_name": "element",
+      "x": 457.6577823834383,
+      "y": 1923.5654858122132,
+      "width": 91.83558510242062,
+      "height": 128.2834935854969,
+      "tag": "Rozłącznik bezpiecznikowy jednobiegunowy z wkładką bezpiecznika topikowego. Rozłącznik to urządzenie do rozłączania prądów roboczych w granicach znamionowej wytrzymałości. Nie nadaje się do rozłączania prądów zwarciowych! Oznaczenie tag \"-11\".",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430164732",
+      "class_name": "element",
+      "x": 500.87739668208155,
+      "y": 1947.224859249437,
+      "width": 39.00980606120527,
+      "height": 82.00400539326097,
+      "tag": "Symbol rozłącznika bezpiecznikowego",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430176244",
+      "class_name": "element",
+      "x": 531.760159813869,
+      "y": 1930.9864423398806,
+      "width": 12.190564394126568,
+      "height": 23.545704518856837,
+      "tag": "Cyfra \"1\" oznaczająca numer fizycznego przyłącza przewod do rozłącznika bezpiecznikowego",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430244038",
+      "class_name": "element",
+      "x": 528.0101162854329,
+      "y": 2024.0458401288827,
+      "width": 15.875515865128591,
+      "height": 18.910252599408523,
+      "tag": "Cyfra \"2\" oznaczająca numer fizycznego przyłącza przewod do rozłącznika bezpiecznikowego",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430283824",
+      "class_name": "element",
+      "x": 465.11864958896206,
+      "y": 2025.2658564256187,
+      "width": 34.193418786430755,
+      "height": 21.350285192880392,
+      "tag": "Opis charakterystyki rozłącznika, tutaj 16A.",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430339075",
+      "class_name": "element",
+      "x": 513.9450992032724,
+      "y": 1854.0588283760508,
+      "width": 162.5408585883548,
+      "height": 30.852992128157666,
+      "tag": "Symbole złączek w szafie RUPS1 - tutaj bez opisu",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430372258",
+      "class_name": "element",
+      "x": 376.1887007277851,
+      "y": 1659.192247565165,
+      "width": 319.14897583823483,
+      "height": 97.34930937279182,
+      "tag": "Oznacznik charakterystyki przewodów",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430402845",
+      "class_name": "element",
+      "x": 399.43204350591986,
+      "y": 1660.0853604951906,
+      "width": 106.38299194607828,
+      "height": 33.045178410947756,
+      "tag": "Nazwa kabla",
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430413181",
+      "class_name": "element",
+      "x": 460.22232461796455,
+      "y": 1690.4512001160615,
+      "width": 44.69873611179759,
+      "height": 30.3658396208707,
+      "tag": "Informacje o żyłach kabla - 3 żyły 6 mm",
+      "semantic_group": "",
+      "color_ref": ""
+    }
+  ],
+  "lines": [],
+  "texts": [],
+  "connections": []
+}

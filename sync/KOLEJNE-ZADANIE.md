@@ -11,44 +11,43 @@
 | Prompt | Status |
 |--------|--------|
 | **010-labeler-bbox-first-palette** | ✅ DONE (Cursor) — bbox-first + paleta |
-| **005–006, 001 recognize** | ✅ BUILD M0 |
+| **005–006, 001 recognize** | ✅ BUILD M0 (stary GT — zarchiwizowany) |
 | **008a QET atlas** | ⛔ NIE UŻYWAĆ |
-| **002-ocr-engine** | **PRIORYTET #1 — filar: tekst** |
+| **002-ocr-engine** | ⏸ WSTRZYMANE (brak Claude) |
 | **002-labeler-lines-colors** | OPEN — filar: połączenia (GT) |
 | **003-line-tracer** | OPEN — filar: połączenia (runtime) |
 | **004-graph-builder** | OPEN — relacje (po filarach) |
 
+**WRT01:** stare bboxy → `data/archive/wrt01-legacy-2026-06-15/`. Labeler od zera (77 PNG w `data/raw/`).
+
 ---
 
-## Aktywne zadanie — PRIORYTET (Claude ZW)
+## Aktywne zadanie — PRIORYTET (Filip + Cursor)
 
 | Pole | Wartosc |
 |------|---------|
-| **Prompt** | [`sync/prompts/002-ocr-engine.md`](prompts/002-ocr-engine.md) |
-| **Deliverable** | `backend/recognize/ocr_engine.py` — PaddleOCR offline, testy |
-| **Filar** | **Tekst** (2/3) |
-| **Model** | Sonnet, effort **High** |
+| **Cel** | WRT01 od nowa — bbox-first + typ z palety |
+| **Archiwum** | `data/archive/wrt01-legacy-2026-06-15/MANIFEST.json` (11 stron, ~402 bboxy) |
+| **Claude** | ⏸ wstrzymany do powrotu sesji |
 
-### Kroki Claude
+### Kroki Filip
 
-1. `sync/filip-to-zw.md` + `002-ocr-engine.md` + `docs/schematic-interpretation.md`
-2. Implementacja `PaddleOcrEngine.extract_text` — bez cloud API
-3. `pytest backend/tests labeler/tests`
-4. `sync/zw-to-filip.md` — instrukcja dla Filipa (zależności, smoke)
-5. `sync/commit-message.txt` = `[Claude] recognize: PaddleOCR engine (prompt 002-ocr)`
+1. `python -m labeler.app` → http://localhost:8765
+2. **Wyczyść szkice:** DevTools → Application → localStorage → usuń klucze `schemagen:draft:*` (albo tryb prywatny)
+3. Zacznij od `SchematWRT01_p013` — 5–10 stron reprezentatywnych
+4. Workflow: narysuj bbox → wybierz typ z palety → Ctrl+S
+5. Po ~15 stronach: `python -m train.dataset_export` + re-train (`.venv311`)
+
+### Cursor (równolegle, bez pełnego kodu Cowork)
+
+- `011-ingest-batch` — ingest PDF → PNG (kolejne projekty)
+- `011-bbox-crops` — spec cropów ze skanu
+- `docs/data-layout.md`
 
 ### Czego NIE robić
 
-- Atlas QET, labeler 010 (DONE), line tracer w tej samej sesji
-- Cloud API
-
----
-
-## Filip (równolegle)
-
-- Oznaczaj bboxy symboli (`python -m labeler.app`) — workflow bbox → typ z palety
-- Więcej stron z `data/raw/` i `sync/sources/`
-- Re-train YOLO po zebraniu danych (`.venv311`)
+- Atlas QET, OCR/line tracer (stuby Cowork)
+- Nie używaj starego `symbols_v1.onnx` jako benchmarku nowych bboxów
 
 ---
 
