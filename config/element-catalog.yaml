@@ -119,3 +119,7 @@ elements:
   label: zasilacz
   yolo_class: element
   created_at: '2026-06-15T18:00:11.976038+00:00'
+- id: dioda
+  label: dioda
+  yolo_class: element
+  created_at: '2026-06-15T18:02:42.182724+00:00'
