@@ -3,3 +3,39 @@ elements:
   label: Test opis
   yolo_class: element
   created_at: '2026-06-14T09:37:42.195184+00:00'
+- id: rozłącznik
+  label: rozłącznik
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: rozłącznik_bezpiecznikowy
+  label: Rozłącznik bezpiecznikowy
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: oznaczenie_kabla
+  label: Oznaczenie kabla
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: oznaczenie_przewodu
+  label: Oznaczenie przewodu
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: znak_uziemienia
+  label: Znak uziemienia
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: zwarta_listwa_złączek
+  label: Zwarta listwa złączek
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: złączka
+  label: złączka
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: listwa_złączek
+  label: Listwa złączek
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: symbol_napięcia
+  label: Symbol napięcia
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
