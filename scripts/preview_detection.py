@@ -8,7 +8,7 @@ from pathlib import Path
 
 import cv2
 
-from backend.paths import MODELS, RAW
+from backend.runtime_config import yolo_conf_threshold
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "output" / "detect_preview"
@@ -30,7 +30,8 @@ def find_unlabeled_page() -> Path:
     raise FileNotFoundError("Brak nieoznaczonych stron w data/raw/")
 
 
-def render(page: Path, conf: float, out_dir: Path) -> dict:
+def render(page: Path, conf: float | None, out_dir: Path) -> dict:
+    conf = conf if conf is not None else yolo_conf_threshold()
     det = OnnxSymbolDetector(str(ONNX), {"element": 0})
     detections = det.detect(str(page), conf_threshold=conf)
     img = cv2.imread(str(page))
@@ -118,7 +119,7 @@ def render(page: Path, conf: float, out_dir: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--page", type=Path, default=None, help="PNG w data/raw (domyslnie pierwsza nieoznaczona)")
-    parser.add_argument("--conf", type=float, default=0.15)
+    parser.add_argument("--conf", type=float, default=None)
     parser.add_argument("--out", type=Path, default=OUT_DIR)
     args = parser.parse_args()
     page = args.page or find_unlabeled_page()

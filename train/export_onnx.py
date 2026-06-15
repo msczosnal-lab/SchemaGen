@@ -12,6 +12,7 @@ import shutil
 from pathlib import Path
 
 from backend.paths import DATA, MODELS, ROOT
+from backend.runtime_config import yolo_imgsz
 from train.train_symbols import register_model
 
 RUNS_DIR = DATA / "runs"
