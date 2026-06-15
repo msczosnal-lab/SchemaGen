@@ -23,8 +23,8 @@ class _FakeSession:
         return [self._output]
 
 
-def _detector_with_output(output: np.ndarray) -> OnnxSymbolDetector:
-    det = OnnxSymbolDetector(model_path="fake.onnx", class_map={"element": 0})
+def _detector_with_output(output: np.ndarray, imgsz: int = 640) -> OnnxSymbolDetector:
+    det = OnnxSymbolDetector(model_path="fake.onnx", class_map={"element": 0}, imgsz=imgsz)
     det._session = _FakeSession(output)  # pomija _ensure_session / onnxruntime
     det._input_name = "images"
     return det
@@ -62,7 +62,7 @@ def test_detect_filters_low_confidence(tmp_path: Path) -> None:
 
 def test_detect_unknown_class_falls_back_to_id(tmp_path: Path) -> None:
     # 2 klasy w wyjsciu, brak mapy nazw -> class_name = str(id)
-    det = OnnxSymbolDetector(model_path="fake.onnx")  # pusty class_map
+    det = OnnxSymbolDetector(model_path="fake.onnx", imgsz=640)  # pusty class_map
     output = np.array([[[320.0], [160.0], [100.0], [80.0], [0.1], [0.8]]], dtype=np.float32)
     det._session = _FakeSession(output)
     det._input_name = "images"
