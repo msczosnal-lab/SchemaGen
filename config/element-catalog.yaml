@@ -107,3 +107,7 @@ elements:
   label: wyłącznik nadprądowy
   yolo_class: element
   created_at: '2026-06-15T17:58:15.142957+00:00'
+- id: przetwornik_prąd_przemiennystały
+  label: przetwornik - prąd przemienny/stały
+  yolo_class: element
+  created_at: '2026-06-15T17:58:50.455920+00:00'
