@@ -151,3 +151,7 @@ elements:
   label: przetwornik - temperatura/prąd
   yolo_class: element
   created_at: '2026-06-15T18:22:40.703815+00:00'
+- id: ekranowanie_przewodu
+  label: ekranowanie przewodu
+  yolo_class: element
+  created_at: '2026-06-15T18:23:29.194879+00:00'
