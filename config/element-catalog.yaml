@@ -71,3 +71,7 @@ elements:
   label: terminal PLC
   yolo_class: element
   created_at: '2026-06-15T17:46:58.678009+00:00'
+- id: terminal_przyłączeniowy
+  label: terminal przyłączeniowy
+  yolo_class: element
+  created_at: '2026-06-15T17:52:41.567939+00:00'
