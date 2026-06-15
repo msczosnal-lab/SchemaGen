@@ -258,7 +258,7 @@ function isAssigned(b) {
 function colorFromTag(tag) {
   if (!tag || !tag.trim()) return UNASSIGNED_COLOR;
   let h = 0;
-  const s = tag.trim();
+  const s = tag.trim().toLocaleLowerCase("pl");
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   const hue = (h * 137.508) % 360;
   return `hsl(${hue.toFixed(1)}, 72%, 46%)`;
@@ -436,9 +436,9 @@ function drawBboxNumber(b, color) {
 
 function drawBboxOnCanvas(b, i) {
   const assigned = isAssigned(b);
-  const color = colorFromTag(b.tag, i);
+  const color = colorFromTag(b.tag);
   ctx.strokeStyle = color;
-  ctx.lineWidth = 2 / scale;
+  ctx.lineWidth = BBOX_STROKE / scale;
   if (!assigned) {
     ctx.setLineDash([8 / scale, 4 / scale]);
   }
@@ -447,7 +447,7 @@ function drawBboxOnCanvas(b, i) {
 
   if (i === selectedIdx) {
     ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 3 / scale;
+    ctx.lineWidth = BBOX_STROKE_SELECTED / scale;
     ctx.setLineDash([6 / scale, 3 / scale]);
     ctx.strokeRect(b.x, b.y, b.width, b.height);
     ctx.setLineDash([]);
@@ -598,6 +598,7 @@ function renderPaletteButtons(container, symbols, idx, onPick) {
     const count = sym.usage_count || 0;
     const label = sym.label_pl || sym.id;
     btn.textContent = count > 0 ? `${label} (${count})` : label;
+    btn.style.setProperty("--tag-color", colorFromTag(label));
     btn.title = [
       sym.tag_prefix ? `Prefiks: ${sym.tag_prefix}` : sym.id,
       sym.custom ? "Wolne haslo / wyjatek" : "",
@@ -618,6 +619,8 @@ function buildTypePicker(body, idx) {
   preview.textContent = isAssigned(b)
     ? `Typ: ${b.tag}`
     : "Nieprzypisany — wyszukaj lub wpisz haslo ponizej";
+  body.appendChild(preview);
+  applyTagUi(preview, b.tag, { variant: "preview" });
 
   const typeInput = document.createElement("input");
   typeInput.type = "text";
@@ -625,6 +628,7 @@ function buildTypePicker(body, idx) {
   typeInput.placeholder = "Szukaj typ lub wpisz wyjatek (np. stycznik)…";
   typeInput.value = b.tag || "";
   typeInput.dataset.idx = String(idx);
+  applyTagUi(typeInput, b.tag, { variant: "border" });
   body.appendChild(typeInput);
 
   const resultsSection = document.createElement("div");
@@ -661,6 +665,7 @@ function buildTypePicker(body, idx) {
   typeInput.addEventListener("input", () => {
     clearTimeout(paletteSearchTimer);
     const q = typeInput.value.trim();
+    applyTagUi(typeInput, q, { variant: "border" });
     paletteSearchTimer = setTimeout(() => refreshResults(q), 200);
   });
   typeInput.addEventListener("keydown", (e) => {
@@ -801,6 +806,9 @@ function renderAnnotationList() {
     const pseq = parentSeqOf(b);
     line.textContent = pseq ? `${listLabel(b)}  ↳ w #${pseq}` : listLabel(b);
     line.title = isExpanded ? "Zwin" : (isAssigned(b) ? b.tag : "Przypisz typ");
+    if (isAssigned(b)) {
+      applyTagUi(line, b.tag, { variant: "fill" });
+    }
     line.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleAccordion(i);
