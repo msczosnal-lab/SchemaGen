@@ -59,3 +59,7 @@ elements:
   label: Strzałka potencjału (wyjściowa)
   yolo_class: element
   created_at: '2026-06-15T17:43:24.385142+00:00'
+- id: styki_przekaźnika
+  label: styki przekaźnika
+  yolo_class: element
+  created_at: '2026-06-15T17:44:05.985206+00:00'
