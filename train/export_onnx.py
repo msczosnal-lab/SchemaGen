@@ -45,7 +45,7 @@ def export_onnx(
     weights_path: str | None = None,
     version: str = "symbols_v1",
     opset: int = DEFAULT_OPSET,
-    imgsz: int = 640,
+    imgsz: int | None = None,
     metrics: dict | None = None,
 ) -> str:
     """Konwertuj best.pt -> ONNX, skopiuj do data/models/ i zarejestruj wersje."""
@@ -64,6 +64,7 @@ def export_onnx(
         raise FileNotFoundError(
             f"Brak wag: {weights}. Najpierw trening: `python -m train.train_symbols`."
         )
+    imgsz = imgsz if imgsz is not None else yolo_imgsz()
     weights_str = str(weights)
     print(f"Wagi: {weights_str}")
 
@@ -92,10 +93,13 @@ def _cli() -> None:
     parser.add_argument("--weights", default=None, help="domyslnie data/runs/symbols_v1/weights/best.pt")
     parser.add_argument("--version", default="symbols_v1")
     parser.add_argument("--opset", type=int, default=DEFAULT_OPSET)
-    parser.add_argument("--imgsz", type=int, default=640)
+    parser.add_argument("--imgsz", type=int, default=None, help=f"domyslnie {yolo_imgsz()}")
     args = parser.parse_args()
     out = export_onnx(
-        weights_path=args.weights, version=args.version, opset=args.opset, imgsz=args.imgsz
+        weights_path=args.weights,
+        version=args.version,
+        opset=args.opset,
+        imgsz=args.imgsz,
     )
     print(f"ONNX: {out}")
 
