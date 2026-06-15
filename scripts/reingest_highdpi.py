@@ -25,21 +25,26 @@ DEFAULT_PDFS = [
     SOURCES / "25_A_229_PL5_19012026.pdf",
     SOURCES / "22_A_153_PL_Adamed_AGV_SA2_20250706.pdf",
 ]
+ANNOTATION_DPI_MARKER = ROOT / "data" / ".annotation_dpi"
 
 
-def _scale_factor() -> float:
-    old = legacy_pdf_dpi()
-    new = pdf_dpi()
-    if old <= 0:
-        raise ValueError("legacy_pdf_dpi musi byc > 0")
-    return new / old
+def _annotation_dpi_applied() -> int:
+    if ANNOTATION_DPI_MARKER.exists():
+        return int(ANNOTATION_DPI_MARKER.read_text(encoding="utf-8").strip())
+    return legacy_pdf_dpi()
+
+
+def _mark_annotation_dpi(dpi: int) -> None:
+    ANNOTATION_DPI_MARKER.write_text(str(dpi), encoding="utf-8")
 
 
 def scale_annotations(apply: bool) -> int:
-    factor = _scale_factor()
-    if abs(factor - 1.0) < 1e-6:
-        print("Skala 1.0 — pomijam migracje adnotacji.")
+    applied = _annotation_dpi_applied()
+    target = pdf_dpi()
+    if applied >= target:
+        print(f"Adnotacje juz w DPI {applied} — pomijam skalowanie.")
         return 0
+    factor = target / applied
 
     db = ROOT / "data" / "schemagen.db"
     conn = sqlite3.connect(db)
@@ -49,9 +54,6 @@ def scale_annotations(apply: bool) -> int:
         data = json.loads(payload_json)
         record = LabelRecord.model_validate(data)
         if not record.bboxes:
-            continue
-        if record.image_width and record.image_width > 3000:
-            # heurystyka: juz w wysokim DPI (np. >3000 px szerokosci)
             continue
         for b in record.bboxes:
             b.x = round(b.x * factor, 2)
@@ -65,6 +67,8 @@ def scale_annotations(apply: bool) -> int:
         updated += 1
         if apply:
             save_annotation(page_id, record.model_dump())
+    if apply and updated:
+        _mark_annotation_dpi(target)
     conn.close()
     print(f"Adnotacje do skalowania x{factor:.2f}: {updated}")
     return updated
@@ -101,7 +105,7 @@ def main() -> int:
     args = parser.parse_args()
 
     pdfs = [Path(p) for p in args.pdf] if args.pdf else DEFAULT_PDFS
-    print(f"DPI: {pdf_dpi()} (legacy {legacy_pdf_dpi()}), skala adnotacji x{_scale_factor():.2f}")
+    print(f"DPI: {pdf_dpi()} (adnotacje: {_annotation_dpi_applied()} DPI)")
 
     n_pages = rasterize_pdfs(pdfs, apply=args.apply)
     if not args.skip_annotations:

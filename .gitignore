@@ -40,6 +40,7 @@ data/raw/*
 data/labeled/*
 !data/labeled/.gitkeep
 data/schemagen.db
+data/.annotation_dpi
 data/archive/
 data/output/
 data/runs/
