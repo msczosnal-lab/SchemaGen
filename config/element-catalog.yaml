@@ -235,3 +235,7 @@ elements:
   label: wyłącznik silnikowy
   yolo_class: element
   created_at: '2026-06-15T20:13:09.827164+00:00'
+- id: złącze
+  label: złącze
+  yolo_class: element
+  created_at: '2026-06-15T20:13:55.512707+00:00'
