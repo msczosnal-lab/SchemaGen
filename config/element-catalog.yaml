@@ -215,3 +215,7 @@ elements:
   label: styki NC
   yolo_class: element
   created_at: '2026-06-15T20:04:09.486372+00:00'
+- id: styk
+  label: styk
+  yolo_class: element
+  created_at: '2026-06-15T20:04:57.129065+00:00'
