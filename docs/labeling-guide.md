@@ -22,7 +22,8 @@ Skroty: `/` = focus wyszukiwarki typu, strzalki = zmiana strony.
 
 - **Krotko:** `stycznik`, `bezpiecznik`, `modul PLC` — jedno haslo, nie relacje w tekscie
 - **Paleta:** `config/symbol-palette.yaml` (~50 typow IEC/WRT01)
-- **Wyjatki:** pole „Wolne haslo” — trafia do `config/element-catalog.yaml`
+- **Wyjatki:** pole „Wolne haslo” — trafia do `config/element-catalog.yaml` i od razu do listy typow
+- **Czestotliwosc:** licznik uzyc w SQLite — bez filtra najczesciej uzywane hasla na gorze listy
 - **Nieprzypisany bbox:** szary, przerywany obrys — mozna zapisac, ale warto uzupelnic typ
 
 ## Klasa YOLO
