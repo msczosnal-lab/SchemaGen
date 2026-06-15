@@ -1,8 +1,12 @@
 {
-  "active": "symbols_v1",
+  "active": "symbols_v2",
   "versions": {
     "symbols_v1": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v1.onnx",
+      "metrics": {}
+    },
+    "symbols_v2": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v2.onnx",
       "metrics": {}
     }
   }
