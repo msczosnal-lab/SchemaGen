@@ -199,3 +199,7 @@ elements:
   label: urządzenie
   yolo_class: element
   created_at: '2026-06-15T18:46:25.946168+00:00'
+- id: terminal_sterownika_safety
+  label: terminal sterownika safety
+  yolo_class: element
+  created_at: '2026-06-15T18:55:11.284818+00:00'
