@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 from backend.paths import DATA, LABELED, MODELS, REGISTRY_PATH
+from backend.runtime_config import yolo_batch, yolo_imgsz
 
 DATASET_YAML = LABELED / "data.yaml"
 RUNS_DIR = DATA / "runs"
@@ -17,8 +18,8 @@ MAX_BATCH = 8  # limit dla RTX 2080 (8GB VRAM)
 def train(
     data_yaml: str | None = None,
     epochs: int = 50,
-    batch: int = 8,
-    imgsz: int = 640,
+    batch: int | None = None,
+    imgsz: int | None = None,
     device: int | str = 0,
     model: str = "yolov8n.pt",
     project: str | None = None,
@@ -35,6 +36,8 @@ def train(
             f"Brak datasetu: {yaml_path}. Uruchom najpierw "
             f"`python -m train.dataset_export`."
         )
+    imgsz = imgsz if imgsz is not None else yolo_imgsz()
+    batch = batch if batch is not None else yolo_batch()
     batch = min(batch, MAX_BATCH)  # twardy limit VRAM
 
     try:
