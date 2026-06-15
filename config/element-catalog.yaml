@@ -63,3 +63,7 @@ elements:
   label: styki przekaźnika
   yolo_class: element
   created_at: '2026-06-15T17:44:05.985206+00:00'
+- id: ogranicznik_przepięć
+  label: ogranicznik przepięć
+  yolo_class: element
+  created_at: '2026-06-15T17:44:20.471836+00:00'
