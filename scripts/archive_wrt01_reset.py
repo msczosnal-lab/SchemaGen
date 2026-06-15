@@ -173,7 +173,7 @@ def archive_and_reset(apply: bool) -> dict:
 
     print("\nGotowe:")
     print(f"  Archiwum: {archive_dir}")
-    print(f"  SQLite: usunięto {len(annotations)} adnotacji WRT01, status stron → new")
+    print(f"  SQLite: usunięto {len(annotations)} adnotacji WRT01, status stron -> new")
     print(f"  data/labeled: usunięto {len(labeled_files)} plików WRT01")
     print("  Labeler: wyczyść szkice w przeglądarce (localStorage) lub Ctrl+Shift+R")
     return manifest

@@ -4,6 +4,36 @@
 
 ---
 
+## 2026-06-15 [Filip/Cursor] — Reset WRT01, archiwum starych bboxów
+
+Temat: **WRT01 od zera — workflow bbox-first + paleta (010). Claude wstrzymany.**
+
+### Co zrobione
+
+- Archiwum: `data/archive/wrt01-legacy-2026-06-15/`
+  - 11 stron, **406 bboxów** (stary workflow: opis przed paletą / bez typów)
+  - `annotations/*.label.json`, kopia `labeled/`, `MANIFEST.json`
+- SQLite: usunięte adnotacje `SchematWRT01_*`, status stron → `new`
+- `data/labeled/`: wyczyszczone eksporty WRT01
+- Skrypt: `scripts/archive_wrt01_reset.py` (`--apply`)
+
+### Filip — teraz
+
+1. Wyczyść localStorage labelera (`schemagen:draft:*`) lub okno prywatne
+2. `python -m labeler.app` — zacznij od `SchematWRT01_p013`
+3. Bbox → typ z palety → Ctrl+S
+4. Stary `symbols_v1.onnx` **nie** jest benchmarkiem nowego GT
+
+### Claude
+
+⏸ Wstrzymany (brak sesji). Po powrocie: **002 OCR** — bez zmian w handoff.
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+Commit pending: `[Cursor] data: archive WRT01 legacy bboxes + reset labeler GT`
+
+---
+
 ## 2026-06-15 [Filip/Cursor] — 010 DONE (Cursor) → Claude: 002 OCR
 
 Temat: **Labeler bbox-first gotowy. Następny filar: tekst (PaddleOCR).**

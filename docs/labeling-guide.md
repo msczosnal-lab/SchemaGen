@@ -14,6 +14,8 @@ Tworzysz ground truth bboxow do treningu YOLO (klasa `element`) i JSON/schema.
 4. Kliknij element na liscie po prawej → **wybierz typ** z palety lub wpisz wolne haslo
 5. Zapisz strone (Ctrl+S)
 
+**Reset 2026-06-15:** stare bboxy WRT01 w `data/archive/wrt01-legacy-2026-06-15/`. Po resecie wyczysc szkice przegladarki (`localStorage`, klucze `schemagen:draft:*`).
+
 Skroty: `/` = focus wyszukiwarki typu, strzalki = zmiana strony.
 
 ## Hasla (typ urządzenia)
