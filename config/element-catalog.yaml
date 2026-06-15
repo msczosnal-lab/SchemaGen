@@ -203,3 +203,7 @@ elements:
   label: terminal sterownika safety
   yolo_class: element
   created_at: '2026-06-15T18:55:11.284818+00:00'
+- id: przycisk_awaryjny
+  label: przycisk awaryjny
+  yolo_class: element
+  created_at: '2026-06-15T20:03:40.350916+00:00'
