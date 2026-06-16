@@ -18,9 +18,12 @@ import yaml
 from backend.paths import SYMBOL_PALETTE
 
 
+_PL = str.maketrans({"\u0142": "l", "\u0141": "L"})  # l z kreska -> l (NFKD go nie rozklada)
+
+
 def _ascii(text: str) -> str:
     return (
-        unicodedata.normalize("NFKD", text or "")
+        unicodedata.normalize("NFKD", (text or "").translate(_PL))
         .encode("ascii", "ignore")
         .decode("ascii")
     )
