@@ -37,8 +37,9 @@ def _write_image(tmp_path: Path, w: int = 1280, h: int = 640) -> str:
 
 
 def test_detect_maps_box_to_original_coords(tmp_path: Path) -> None:
-    # 1280x640 -> scale 0.5; detekcja cx=320,cy=160,w=100,h=80 w przestrzeni 640
-    output = np.array([[[320.0], [160.0], [100.0], [80.0], [0.9]]], dtype=np.float32)
+    # 1280x640 -> letterbox: scale 0.5, pad_top=160 (wysrodkowane).
+    # detekcja cx=320,cy=320,w=100,h=80 w przestrzeni letterboxa 640x640.
+    output = np.array([[[320.0], [320.0], [100.0], [80.0], [0.9]]], dtype=np.float32)
     det = _detector_with_output(output)
     results = det.detect(_write_image(tmp_path))
 
@@ -47,7 +48,7 @@ def test_detect_maps_box_to_original_coords(tmp_path: Path) -> None:
     assert d.class_id == 0
     assert d.class_name == "element"
     assert abs(d.confidence - 0.9) < 1e-5
-    # mapowanie do oryginalu (scale 0.5): x=540, y=240, w=200, h=160
+    # mapowanie do oryginalu: x=(320-50-0)/0.5=540, y=(320-40-160)/0.5=240
     assert abs(d.x - 540.0) < 1.0
     assert abs(d.y - 240.0) < 1.0
     assert abs(d.width - 200.0) < 1.0
