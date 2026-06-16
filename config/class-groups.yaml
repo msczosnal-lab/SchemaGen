@@ -1,0 +1,22 @@
+# Scalanie wizualnie nierozroznialnych klas YOLO.
+# member (kanoniczna nazwa klasy z `class_report.py`) -> grupa.
+#
+# Zasada: YOLO wykrywa PRYMITYW wizualny; podtyp (terminal vs zlaczka) odzyskujemy
+# pozniej z kontekstu (zawieranie w kontenerze) — patrz backend/geometry/bbox_layout.py.
+#   zacisk wewnatrz `urzadzenie`      -> terminal
+#   zacisk wewnatrz `listwa_zlaczek`  -> zacisk listwy
+#   zacisk bez kontenera              -> zlaczka
+#
+# Kontenery (urzadzenie, listwa_zlaczek) celowo NIE sa scalane — sa potrzebne do tej reguly.
+# terminal_plc zostaje osobno: wizualnie rozni sie i dziala dobrze (mAP 0.871).
+
+groups:
+  zacisk:
+    - zlaczka
+    - terminal_przylaczeniowy
+    - zlacze
+    - terminale_urzadzenia
+    - terminal_sterownika_safety
+
+  listwa_zlaczek:
+    - zwarta_listwa_zlaczek
