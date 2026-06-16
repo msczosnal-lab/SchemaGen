@@ -25,14 +25,16 @@ DEFAULT_OPSET = 12  # zgodny z onnxruntime-gpu 1.17
 _SEARCH_ROOTS = (RUNS_DIR, ROOT / "runs")
 
 
-def find_best_weights() -> Path | None:
-    """Znajdz best.pt: domyslny run, inaczej **najnowszy** w znanych lokalizacjach.
+def find_best_weights(version: str | None = None) -> Path | None:
+    """Znajdz best.pt DLA DANEJ WERSJI: data/runs/<version>/weights/best.pt.
 
-    ultralytics auto-inkrementuje katalog runu (symbols_v1, symbols_v12, ...)
-    i przy braku `project` pisze do `runs/detect/train*/` — przeszukujemy oba.
+    To krytyczne: --version musi wskazywac wagi tego konkretnego treningu, a nie
+    pierwszego lepszego. Fallback (gdy brak wersji/pliku): najnowszy best.pt.
     """
-    if DEFAULT_WEIGHTS.exists():
-        return DEFAULT_WEIGHTS
+    if version:
+        vw = RUNS_DIR / version / "weights" / "best.pt"
+        if vw.exists():
+            return vw
     candidates: list[Path] = []
     for root in _SEARCH_ROOTS:
         if root.exists():
@@ -53,7 +55,7 @@ def export_onnx(
     if weights_path:
         weights = Path(weights_path)
     else:
-        found = find_best_weights()
+        found = find_best_weights(version)
         if found is None:
             raise FileNotFoundError(
                 f"Brak best.pt w {RUNS_DIR} ani {DEFAULT_WEIGHTS}. "
