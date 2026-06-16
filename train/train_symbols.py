@@ -25,9 +25,9 @@ def train(
     project: str | None = None,
     name: str = "symbols_v1",
     patience: int = 30,
-    fliplr: float = 0.5,
-    flipud: float = 0.5,
-    degrees: float = 180.0,
+    fliplr: float = 0.0,
+    flipud: float = 0.0,
+    degrees: float = 0.0,
 ) -> dict:
     """Fine-tune YOLOv8n na oznaczonych symbolach.
 
@@ -143,9 +143,9 @@ def _cli() -> None:
     parser.add_argument("--device", default="0", help="0 = GPU, 'cpu' = CPU")
     parser.add_argument("--name", default="symbols_v1")
     parser.add_argument("--patience", type=int, default=30)
-    parser.add_argument("--fliplr", type=float, default=0.5)
-    parser.add_argument("--flipud", type=float, default=0.5)
-    parser.add_argument("--degrees", type=float, default=180.0)
+    parser.add_argument("--fliplr", type=float, default=0.0)
+    parser.add_argument("--flipud", type=float, default=0.0)
+    parser.add_argument("--degrees", type=float, default=0.0)
     args = parser.parse_args()
 
     device: int | str = int(args.device) if args.device.isdigit() else args.device
