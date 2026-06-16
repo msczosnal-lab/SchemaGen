@@ -24,7 +24,9 @@ import yaml
 from backend.db import list_pages, load_annotation
 from backend.models.label import LabelRecord
 from backend.paths import LABELED, RAW
-from labeler.export import find_raw_image, load_class_map, yolo_label_lines
+from labeler.export import find_raw_image, yolo_label_lines
+from backend.class_map import build_class_map, load_palette_map
+from backend.paths import SYMBOL_CLASSES
 
 
 def load_labeled_records() -> list[LabelRecord]:
@@ -68,6 +70,7 @@ def _write_split(
     split: str,
     class_map: dict[str, int],
     raw_dir: Path,
+    palette_map: dict[str, str] | None = None,
 ) -> int:
     images_dir = out / "images" / split
     labels_dir = out / "labels" / split
@@ -79,7 +82,7 @@ def _write_split(
         if src is None:
             continue  # bez obrazu nie ma sensu tworzyc labela
         shutil.copy2(src, images_dir / f"{record.page_id}{src.suffix}")
-        lines = yolo_label_lines(record, class_map)
+        lines = yolo_label_lines(record, class_map, palette_map)
         label_file = labels_dir / f"{record.page_id}.txt"
         label_file.write_text(
             "\n".join(lines) + ("\n" if lines else ""), encoding="utf-8"
@@ -88,22 +91,42 @@ def _write_split(
     return written
 
 
+def persist_class_map(class_map: dict[str, int]) -> None:
+    """Zapisz wygenerowana liste klas do config/symbol-classes.yaml (zrodlo prawdy)."""
+    names = [name for name, _ in sorted(class_map.items(), key=lambda kv: kv[1])]
+    SYMBOL_CLASSES.write_text(
+        "# AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).\n"
+        "# Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.\n"
+        + yaml.dump({"classes": names}, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
+
+
 def export_dataset(
     output_dir: Path | None = None,
     val_ratio: float = 0.2,
     records: list[LabelRecord] | None = None,
     raw_dir: Path | None = None,
+    min_count: int = 1,
 ) -> dict:
-    """Zbuduj dataset YOLO train/val + data.yaml + export-manifest.json."""
+    """Zbuduj dataset YOLO multi-class train/val + data.yaml + export-manifest.json.
+
+    Klasy sa wyprowadzane z pola `tag` WSZYSTKICH adnotacji (paleta jako kanon).
+    `min_count` — klasy ponizej tego progu trafiaja do `inny` (domyslnie 1 = wszystkie).
+    """
     out = output_dir or LABELED
     raw = raw_dir or RAW
     recs = records if records is not None else load_labeled_records()
-    class_map = load_class_map() or {"element": 0}
+    palette_map = load_palette_map()
+    class_map, distribution = build_class_map(recs, min_count=min_count)
+    if not class_map:
+        class_map = {"element": 0}
+    persist_class_map(class_map)
 
     train, val = split_train_val(recs, val_ratio)
     out.mkdir(parents=True, exist_ok=True)
-    n_train = _write_split(train, out, "train", class_map, raw)
-    n_val = _write_split(val, out, "val", class_map, raw)
+    n_train = _write_split(train, out, "train", class_map, raw, palette_map)
+    n_val = _write_split(val, out, "val", class_map, raw, palette_map)
 
     data_yaml = {
         "path": str(out.resolve()),
@@ -123,6 +146,8 @@ def export_dataset(
         "train_count": n_train,
         "val_count": n_val,
         "total_bboxes": sum(len(r.bboxes) for r in recs),
+        "num_classes": len(class_map),
+        "class_distribution": dict(distribution.most_common()),
     }
     manifest_path = out / "export-manifest.json"
     manifest_path.write_text(
