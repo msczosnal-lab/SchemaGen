@@ -24,15 +24,13 @@ mAP50 ≈ 0.09–0.11 nawet dla **jednej** klasy to wynik bardzo zły (próg uż
 
 ## Przyczyny — ranking wg wpływu
 
-### 1. [BŁĄD] Jedna klasa zamiast wielu — przyczyna #1
-Opisana wyżej. Skutek: nie ma czego oceniać per-typ; model uczy się tylko „obiekt vs tło".
-Twoje oczekiwanie (strzałka potencjału / styki / złączka jako osobne klasy) wymaga, żeby `class_name` bboxa mapował się na **osobny `class_id`**, a `data.yaml::names` miał te klasy.
+### 1. [BŁĄD] Typ w `tag`, nie w klasie — przyczyna #1
+Opisana wyżej. Skutek: model uczy się tylko „obiekt vs tło"; nie ma czego oceniać per-typ. Twoje oczekiwanie (strzałka potencjału / styki / złączka jako osobne klasy) wymaga, żeby typ z palety **lądował w `class_name`** (albo żeby eksport mapował `tag` → klasa), a `symbol-classes.yaml`/`data.yaml::names` miały realną listę klas.
 
-### 2. [BŁĄD] Dramatycznie za mały zbiór obrazów
-- Trening v1/v2: **~394 bboxy na 9 stronach** (`sync/filip-to-zw.md`, BUILD M0).
-- YOLO liczy się w **obrazach**, nie bboxach. 9 obrazów to dla detektora margines szumu — i to przy 1-klasie. Przy podziale na ~kilkanaście klas część typów dostanie 1–3 przykłady → nie nauczą się wcale.
-- Dodatkowo WRT01 zresetowano do zera (`2026-06-15 Reset WRT01`), więc aktualny GT jest jeszcze mniejszy.
-Orientacyjnie: minimum sensowne to ~50–100 obrazów i ≥150–300 instancji **na klasę** dla klas priorytetowych.
+### 2. [RYZYKO] Za mało obrazów (mniejszy problem niż sądzono — bboxów wystarczy)
+- ~1500 bboxów to przyzwoita liczba instancji. Wąskim gardłem jest **liczba obrazów/stron** i ich różnorodność, bo YOLO uczy się kontekstu na poziomie obrazu, nie pojedynczego wycinka.
+- Trening v1/v2 szedł na **9 stronach** (`sync/filip-to-zw.md`, BUILD M0); WRT01 potem zresetowano. Ile stron jest w żywym DB — sprawdź lokalnie (`data/schemagen.db` nie jest w repo).
+- Po rozbiciu na typy pilnuj, by klasy priorytetowe miały ≥150–300 instancji każda (przy 1500 to realne dla 3 klas), a rzadkie scal w `inny` na ten etap. Cel obrazów: orientacyjnie ≥30–50 zróżnicowanych stron.
 
 ### 3. [RYZYKO] Rozdzielczość treningu za mała dla gęstych, drobnych symboli
 - `data/runs/*_train_summary.json` → realny trening szedł na **imgsz 640**.
