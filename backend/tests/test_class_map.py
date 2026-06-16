@@ -59,3 +59,12 @@ def test_resolve_class_id_skips_unknown():
     assert resolve_class_id("silnik", cmap) == 0
     assert resolve_class_id("", cmap) is None       # bez tagu
     assert resolve_class_id("cos nowego", cmap) == 1  # -> inny
+
+
+def test_min_count_excludes_when_not_bucketing():
+    recs = [_rec("p1", ["silnik", "silnik", "rzadka klasa"])]
+    cmap, _ = build_class_map(recs, min_count=2, bucket_rare=False)
+    assert "motor" in cmap
+    assert "inny" not in cmap            # brak smietnika
+    assert "rzadka_klasa" not in cmap    # wykluczona
+    assert len(cmap) == 1

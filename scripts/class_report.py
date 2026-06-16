@@ -47,7 +47,7 @@ def main() -> int:
 
     pmap = load_palette_map()
     dist = class_distribution(recs, pmap)
-    class_map, _ = build_class_map(recs, min_count=args.min_count)
+    class_map, _ = build_class_map(recs, min_count=args.min_count, bucket_rare=False)
 
     total_bbox = sum(len(r.bboxes) for r in recs)
     tagged = sum(dist.values())
@@ -57,19 +57,17 @@ def main() -> int:
     print(f"{'id':>3}  {'klasa':<32} {'instancji':>9}")
     print("-" * 48)
     for name, idx in sorted(class_map.items(), key=lambda kv: kv[1]):
-        cnt = dist.get(name, 0)
-        if name == "inny":
-            cnt = sum(n for c, n in dist.items() if c not in class_map)
-        print(f"{idx:>3}  {name:<32} {cnt:>9}")
+        print(f"{idx:>3}  {name:<32} {dist.get(name, 0):>9}")
 
-    rare = [c for c, n in dist.items() if n < args.min_count]
-    if rare:
-        print(f"\n[RYZYKO] {len(rare)} klas < min-count -> 'inny': "
-              f"{', '.join(sorted(rare)[:20])}{'...' if len(rare) > 20 else ''}")
-    singles = [c for c, n in dist.items() if n == 1 and c in class_map]
-    if singles:
-        print(f"[RYZYKO] {len(singles)} klas ma tylko 1 instancje "
-              f"(slabo sie naucza, nie trafia do val): {', '.join(sorted(singles)[:20])}")
+    excluded = sorted((c, n) for c, n in dist.items() if c not in class_map)
+    if excluded:
+        lost = sum(n for _, n in excluded)
+        print(f"\n[INFO] WYKLUCZONE (<{args.min_count} instancji): {len(excluded)} klas, "
+              f"{lost} bbox nie trafi do treningu:")
+        print("  " + ", ".join(f"{c}({n})" for c, n in excluded[:30])
+              + ("..." if len(excluded) > 30 else ""))
+    print(f"\n[INFO] Klas do treningu: {len(class_map)} | "
+          f"instancji w treningu: {sum(dist.get(n, 0) for n in class_map)}")
     return 0
 
 
