@@ -1,4 +1,4 @@
-"""Podglad detekcji YOLO na nieoznaczonej stronie — HTML + PNG."""
+"""Podglad detekcji YOLO na stronie — HTML + PNG (multi-class)."""
 
 from __future__ import annotations
 
@@ -8,13 +8,30 @@ from pathlib import Path
 
 import cv2
 
-from backend.paths import MODELS, RAW
+from backend.paths import MODELS, RAW, REGISTRY_PATH
 from backend.runtime_config import yolo_conf_threshold
 from labeler.export import load_class_map
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "output" / "detect_preview"
-ONNX = MODELS / "symbols_v2.onnx"
+
+
+def active_version() -> str:
+    if REGISTRY_PATH.exists():
+        try:
+            reg = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+            if reg.get("active"):
+                return reg["active"]
+        except (json.JSONDecodeError, OSError):
+            pass
+    return "symbols_mc_v1"
+
+
+def resolve_model(version: str | None, model: Path | None) -> Path:
+    if model:
+        return model
+    ver = version or active_version()
+    return MODELS / f"{ver}.onnx"
 
 
 def find_unlabeled_page() -> Path:
@@ -32,9 +49,13 @@ def find_unlabeled_page() -> Path:
     raise FileNotFoundError("Brak nieoznaczonych stron w data/raw/")
 
 
-def render(page: Path, conf: float | None, out_dir: Path) -> dict:
+def render(page: Path, conf: float | None, out_dir: Path, onnx: Path) -> dict:
     conf = conf if conf is not None else yolo_conf_threshold()
-    det = OnnxSymbolDetector(str(ONNX), load_class_map())
+    if not onnx.exists():
+        raise FileNotFoundError(
+            f"Brak modelu ONNX: {onnx}. Najpierw: python -m train.export_onnx --version {onnx.stem}"
+        )
+    det = OnnxSymbolDetector(str(onnx), load_class_map())
     detections = det.detect(str(page), conf_threshold=conf)
     img = cv2.imread(str(page))
     if img is None:
@@ -45,7 +66,7 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
         w, h = int(d.width), int(d.height)
         cv2.rectangle(img, (x, y), (x + w, y + h), (46, 204, 113), 3)
         label = f"#{i} {d.class_name} {d.confidence:.0%}"
-        cv2.rectangle(img, (x, max(y - 28, 0)), (x + max(len(label) * 14, 60), max(y, 28)), (46, 204, 113), -1)
+        cv2.rectangle(img, (x, max(y - 28, 0)), (x + max(len(label) * 11, 60), max(y, 28)), (46, 204, 113), -1)
         cv2.putText(img, label, (x + 4, max(y - 8, 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -55,7 +76,7 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
     meta = {
         "page": page.name,
         "page_id": page.stem,
-        "model": ONNX.name,
+        "model": onnx.name,
         "conf_threshold": conf,
         "count": len(detections),
         "detections": [
@@ -74,10 +95,10 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     rows = "".join(
-        f"<tr><td>#{d['id']}</td><td>{d['confidence']:.0%}</td>"
+        f"<tr><td>#{d['id']}</td><td>{d['class']}</td><td>{d['confidence']:.0%}</td>"
         f"<td>{d['x']:.0f}, {d['y']:.0f}</td><td>{d['width']:.0f}×{d['height']:.0f}</td></tr>"
         for d in meta["detections"]
-    ) or "<tr><td colspan='4'>Brak detekcji przy tym progu conf</td></tr>"
+    ) or "<tr><td colspan='5'>Brak detekcji przy tym progu conf</td></tr>"
 
     html = f"""<!DOCTYPE html>
 <html lang="pl">
@@ -87,7 +108,7 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
   <style>
     body {{ margin: 0; font-family: Segoe UI, Arial, sans-serif; background: #1e1e1e; color: #eee; }}
     header {{ padding: 12px 20px; background: #2d2d2d; border-bottom: 1px solid #444; }}
-    main {{ display: grid; grid-template-columns: 1fr 280px; gap: 0; min-height: calc(100vh - 56px); }}
+    main {{ display: grid; grid-template-columns: 1fr 320px; gap: 0; min-height: calc(100vh - 56px); }}
     #img-wrap {{ overflow: auto; padding: 12px; background: #111; }}
     img {{ max-width: 100%; height: auto; border: 1px solid #444; }}
     aside {{ padding: 12px; border-left: 1px solid #444; overflow: auto; }}
@@ -99,16 +120,16 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
 </head>
 <body>
   <header>
-    <strong>symbols_v2</strong> — {page.name}
+    <strong>{onnx.stem}</strong> — {page.name}
     <span class="badge"> {meta['count']} detekcji</span>
-    <span class="muted"> (conf ≥ {conf}, strona nieoznaczona)</span>
+    <span class="muted"> (conf ≥ {conf})</span>
   </header>
   <main>
     <div id="img-wrap"><img src="{img_name}" alt="schemat z bbox" /></div>
     <aside>
       <h3>Znalezione bboxy</h3>
       <table>
-        <thead><tr><th>#</th><th>conf</th><th>xy</th><th>rozmiar</th></tr></thead>
+        <thead><tr><th>#</th><th>klasa</th><th>conf</th><th>xy</th><th>rozmiar</th></tr></thead>
         <tbody>{rows}</tbody>
       </table>
     </aside>
@@ -123,10 +144,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--page", type=Path, default=None, help="PNG w data/raw (domyslnie pierwsza nieoznaczona)")
     parser.add_argument("--conf", type=float, default=None)
+    parser.add_argument("--version", default=None, help="wersja modelu (domyslnie aktywna z registry)")
+    parser.add_argument("--model", type=Path, default=None, help="bezposrednia sciezka do .onnx")
     parser.add_argument("--out", type=Path, default=OUT_DIR)
     args = parser.parse_args()
     page = args.page or find_unlabeled_page()
-    meta = render(page, args.conf, args.out)
+    onnx = resolve_model(args.version, args.model)
+    meta = render(page, args.conf, args.out, onnx)
     print(json.dumps(meta, ensure_ascii=False, indent=2))
 
 
