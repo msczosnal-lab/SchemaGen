@@ -19,7 +19,8 @@ def _record(page_id: str) -> LabelRecord:
         image_width=100,
         image_height=100,
         bboxes=[
-            BboxAnnotation(id="a", class_name="element", x=10, y=10, width=20, height=20)
+            BboxAnnotation(id="a", class_name="element", x=10, y=10, width=20, height=20,
+                           tag="silnik")
         ],
     )
 
@@ -71,7 +72,7 @@ def test_export_dataset_structure(tmp_path: Path) -> None:
     data = yaml.safe_load((out / "data.yaml").read_text(encoding="utf-8"))
     assert data["train"] == "images/train"
     assert data["val"] == "images/val"
-    assert data["names"] == {0: "element"}
+    assert data["names"] == {0: "motor"}
 
     # export-manifest.json z lista stron train/val
     import json
