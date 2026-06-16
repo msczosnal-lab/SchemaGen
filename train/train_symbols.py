@@ -69,7 +69,8 @@ def train(
         # Augmentacja pod schematy: obrot + lustro WLACZONE — sens symboli jest
         # orientacyjnie niezmienniczy (np. linia strzalki jest wzgledem grotu,
         # nie wzgledem gory obrazu). Mnozy dane bez psucia etykiet.
-        # WYLACZONE: shear/perspective (deformuja ksztalt) i kolor (rysunek kreskowy).
+        # CALA augmentacja zmieniajaca obraz WYLACZONA (scale/translate/hsv/mosaic/
+        # shear/perspective): bboxy sa ciasne i poprawne, dorzucanie tla/kontekstu szkodzi.
         fliplr=fliplr,
         flipud=flipud,
         degrees=degrees,
@@ -79,9 +80,9 @@ def train(
         mixup=0.0,
         hsv_h=0.0,
         hsv_s=0.0,
-        hsv_v=0.2,
-        scale=0.2,
-        translate=0.05,
+        hsv_v=0.0,
+        scale=0.0,
+        translate=0.0,
     )
 
     save_dir = Path(getattr(results, "save_dir", out_dir / name))
