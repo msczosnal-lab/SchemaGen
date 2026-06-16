@@ -108,6 +108,7 @@ def export_dataset(
     records: list[LabelRecord] | None = None,
     raw_dir: Path | None = None,
     min_count: int = 1,
+    bucket_rare: bool = False,
 ) -> dict:
     """Zbuduj dataset YOLO multi-class train/val + data.yaml + export-manifest.json.
 
@@ -118,7 +119,9 @@ def export_dataset(
     raw = raw_dir or RAW
     recs = records if records is not None else load_labeled_records()
     palette_map = load_palette_map()
-    class_map, distribution = build_class_map(recs, min_count=min_count)
+    class_map, distribution = build_class_map(
+        recs, min_count=min_count, bucket_rare=bucket_rare
+    )
     if not class_map:
         class_map = {"element": 0}
     persist_class_map(class_map)
@@ -147,6 +150,11 @@ def export_dataset(
         "val_count": n_val,
         "total_bboxes": sum(len(r.bboxes) for r in recs),
         "num_classes": len(class_map),
+        "min_count": min_count,
+        "excluded_classes": {
+            c: n for c, n in distribution.items()
+            if c not in class_map and (bucket_rare is False or n < min_count)
+        } if not bucket_rare else {},
         "class_distribution": dict(distribution.most_common()),
     }
     manifest_path = out / "export-manifest.json"
@@ -163,9 +171,26 @@ def export_dataset(
     }
 
 
-if __name__ == "__main__":
-    summary = export_dataset()
+def _cli() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Eksport datasetu YOLO multi-class.")
+    parser.add_argument("--min-count", type=int, default=1,
+                        help="klasy ponizej progu sa wykluczane (domyslnie 1 = wszystkie)")
+    parser.add_argument("--val-ratio", type=float, default=0.2)
+    parser.add_argument("--bucket-rare", action="store_true",
+                        help="zamiast wykluczac, wrzuc rzadkie klasy do 'inny'")
+    args = parser.parse_args()
+    summary = export_dataset(
+        val_ratio=args.val_ratio,
+        min_count=args.min_count,
+        bucket_rare=args.bucket_rare,
+    )
     print(
         f"Dataset: train={summary['train']} val={summary['val']} "
         f"klasy={summary['classes']} -> {summary['data_yaml']}"
     )
+
+
+if __name__ == "__main__":
+    _cli()
