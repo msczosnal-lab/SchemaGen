@@ -1,4 +1,7 @@
-"""Testy eksportu labelera."""
+"""Testy eksportu labelera (multi-class: klasa z pola `tag`)."""
+
+import tempfile
+from pathlib import Path
 
 from labeler.export import export_yolo, label_to_schema
 from backend.models.label import BboxAnnotation, LabelRecord
@@ -24,11 +27,9 @@ def test_export_yolo_line() -> None:
         image_path="test.png",
         image_width=100,
         image_height=100,
-        bboxes=[BboxAnnotation(id="a", class_name="motor", x=10, y=10, width=20, height=20)],
+        bboxes=[BboxAnnotation(id="a", class_name="element", x=10, y=10, width=20, height=20,
+                               tag="silnik")],
     )
-    import tempfile
-    from pathlib import Path
-
     with tempfile.TemporaryDirectory() as tmp:
         path = export_yolo(record, Path(tmp))
         text = path.read_text(encoding="utf-8").strip()
@@ -61,31 +62,29 @@ def test_label_to_schema_hierarchy() -> None:
     )
 
 
-def test_export_yolo_keeps_all_nested_bboxes() -> None:
-    import tempfile
-    from pathlib import Path
-
+def test_export_yolo_keeps_all_tagged_bboxes() -> None:
     record = LabelRecord(
         page_id="nested_yolo",
         image_path="nested.png",
         image_width=400,
         image_height=400,
         bboxes=[
-            BboxAnnotation(id="element_1", class_name="element", x=0, y=0, width=200, height=200),
-            BboxAnnotation(id="element_2", class_name="element", x=50, y=50, width=30, height=30),
+            BboxAnnotation(id="element_1", class_name="element", x=0, y=0, width=200, height=200,
+                           tag="silnik"),
+            BboxAnnotation(id="element_2", class_name="element", x=50, y=50, width=30, height=30,
+                           tag="rozłącznik"),
         ],
     )
     with tempfile.TemporaryDirectory() as tmp:
         path = export_yolo(record, Path(tmp))
         lines = [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
-        assert len(lines) == 2  # oba bboxy mimo zagniezdzenia
+        assert len(lines) == 2  # oba otagowane bboxy
+        # dwie rozne klasy -> rozne class_id
+        assert {ln.split()[0] for ln in lines} == {"0", "1"}
 
 
-def test_export_yolo_empty_tag_still_exports_element_class() -> None:
-    """Etap 1: nieprzypisany bbox (pusty tag) idzie do YOLO jako klasa element."""
-    import tempfile
-    from pathlib import Path
-
+def test_export_yolo_empty_tag_skipped() -> None:
+    """Multi-class: nieprzypisany bbox (pusty tag) NIE idzie do treningu."""
     record = LabelRecord(
         page_id="unassigned",
         image_path="test.png",
@@ -97,5 +96,5 @@ def test_export_yolo_empty_tag_still_exports_element_class() -> None:
     )
     with tempfile.TemporaryDirectory() as tmp:
         path = export_yolo(record, Path(tmp))
-        line = path.read_text(encoding="utf-8").strip()
-        assert line.startswith("0 ")  # class_id 0 = element
+        text = path.read_text(encoding="utf-8").strip()
+        assert text == ""  # pominiety
