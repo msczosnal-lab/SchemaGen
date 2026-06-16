@@ -24,6 +24,9 @@ Desktop.ini
 *.user
 *.suo
 
+# Cowork / lokalny agent
+.claude/
+
 # Build (legacy)
 bin/
 obj/
