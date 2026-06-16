@@ -1,5 +1,5 @@
 {
-  "active": "symbols_mc_v2",
+  "active": "symbols_mc_v5",
   "versions": {
     "symbols_v1": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v1.onnx",
@@ -15,6 +15,10 @@
     },
     "symbols_mc_v2": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_mc_v2.onnx",
+      "metrics": {}
+    },
+    "symbols_mc_v5": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_mc_v5.onnx",
       "metrics": {}
     }
   }
