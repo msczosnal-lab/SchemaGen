@@ -10,6 +10,7 @@ import cv2
 
 from backend.paths import MODELS, RAW
 from backend.runtime_config import yolo_conf_threshold
+from labeler.export import load_class_map
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "output" / "detect_preview"
@@ -33,7 +34,7 @@ def find_unlabeled_page() -> Path:
 
 def render(page: Path, conf: float | None, out_dir: Path) -> dict:
     conf = conf if conf is not None else yolo_conf_threshold()
-    det = OnnxSymbolDetector(str(ONNX), {"element": 0})
+    det = OnnxSymbolDetector(str(ONNX), load_class_map())
     detections = det.detect(str(page), conf_threshold=conf)
     img = cv2.imread(str(page))
     if img is None:
@@ -43,7 +44,7 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
         x, y = int(d.x), int(d.y)
         w, h = int(d.width), int(d.height)
         cv2.rectangle(img, (x, y), (x + w, y + h), (46, 204, 113), 3)
-        label = f"#{i} {d.confidence:.0%}"
+        label = f"#{i} {d.class_name} {d.confidence:.0%}"
         cv2.rectangle(img, (x, max(y - 28, 0)), (x + max(len(label) * 14, 60), max(y, 28)), (46, 204, 113), -1)
         cv2.putText(img, label, (x + 4, max(y - 8, 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
@@ -60,6 +61,7 @@ def render(page: Path, conf: float | None, out_dir: Path) -> dict:
         "detections": [
             {
                 "id": i,
+                "class": d.class_name,
                 "confidence": round(d.confidence, 4),
                 "x": round(d.x, 1),
                 "y": round(d.y, 1),
