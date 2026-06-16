@@ -4,15 +4,21 @@ Data: 2026-06-16 · Zakres: pipeline treningu `train/` + `config/` + `labeler/ex
 
 ## Wniosek nadrzędny
 
-[BŁĄD] **Sieć NIE jest uczona wieloklasowo.** Cały dataset trafia do YOLO jako **jedna klasa `element`**. Niezależnie od tego ile bboxów strzałek / styków / złączek oznaczysz — model fizycznie nie ma jak ich rozróżnić, bo wszystkie dostają `class_id = 0`. To nie jest kwestia „za mało danych" ani „za krótki trening" — to błąd projektu etykiet. Dopóki to stoi, mAP wieloklasowe = 0 z definicji.
+[BŁĄD] **Typ elementu, który oznaczasz, NIE trafia do klasy YOLO — ląduje w polu tekstowym `tag`.** Każdy bbox w systemie ma na sztywno `class_name = "element"`, a wybór z palety zapisuje się do `tag`. Trening czyta wyłącznie `class_name` → wszystkie ~1500 bboxów to dla sieci **jedna klasa**. Stąd masz mnóstwo etykiet, a model i tak uczy się tylko „czy tu jest jakiś element vs tło". Rozróżnienia strzałka/styk/złączka nie da się osiągnąć — informacja o typie istnieje w danych, ale pipeline jej nie używa.
 
-Dowody twarde (z repo):
-- `config/symbol-classes.yaml` → `classes: [element]` (1 klasa).
-- `config/element-catalog.yaml` → 68 wpisów, **wszystkie** `yolo_class: element` (sprawdzone: `grep` = 68/68).
-- `labeler/export.py::yolo_label_lines` → `cls_id = cmap.get(b.class_name, 0)`; mapa ma tylko `element` → każdy bbox dostaje `0`.
-- `data/models/symbols_v1_train_summary.json` → **mAP50 = 0.085**; `symbols_v2` → **mAP50 = 0.106** (30 epok). To wynik jednoklasowego detektora „czy tu jest jakiś element".
+To nie jest kwestia „za mało danych" — 1500 bboxów by wystarczyło. To błąd przepływu etykiety: **`tag` → nigdzie**, `class_name` → zawsze `element`.
 
-mAP50 ≈ 0.09–0.11 nawet dla **jednej** klasy to wynik bardzo zły (próg użyteczności orientacyjnie >0.5). Czyli mamy dwa nakładające się problemy: zła definicja zadania **oraz** zły trening.
+Dowody twarde (z kodu):
+- `labeler/static/app.js:7` → `const DEFAULT_CLASS = "element"`; linie 161, 956 → bbox tworzony zawsze z `class_name: "element"`.
+- `labeler/static/app.js:593` → wybór z palety: `bboxes[idx].tag = trimmed;` (zapis do **`tag`**, nie do klasy). `isAssigned` (l. 280) sprawdza `tag`, nie `class_name`.
+- `config/symbol-classes.yaml` → `classes: [element]` (1 klasa); `config/element-catalog.yaml` → 68/68 wpisów `yolo_class: element`.
+- `labeler/export.py::yolo_label_lines` (l. 89) → `cls_id = cmap.get(b.class_name, 0)`; mapa ma tylko `element` → **każdy** bbox dostaje `0` (a nawet gdyby `class_name` był typem, `.get(..., 0)` i tak zwróci 0 dla typu spoza mapy).
+- Archiwum legacy (`data/archive/.../annotations/*.label.json`): 406 bboxów, **wszystkie** `class_name="element"`, typ wpisany w `tag` jako długi opis (np. „Symbol rozłącznika bezpiecznikowego"). Potwierdza wzorzec.
+- `data/models/symbols_v1_train_summary.json` → **mAP50 = 0.085**; `symbols_v2` → **mAP50 = 0.106** (30 epok).
+
+mAP50 ≈ 0.09–0.11 nawet dla **jednej** klasy to wynik bardzo zły (próg użyteczności orientacyjnie >0.5). Czyli nakładają się dwa problemy: zła definicja zadania (typ w `tag`, nie w klasie) **oraz** zły trening (rozmiar/augmentacja).
+
+> Uwaga o liczbie bboxów: w repo widać tylko **406** zarchiwizowanych (`data/archive/wrt01-legacy-2026-06-15/`). Żywe **~1500** siedzi w `data/schemagen.db`, który jest w `.gitignore` (`data/schemagen.db`) i **nie jest synchronizowany** do tego repo — dlatego nie policzę ich rozkładu po typach stąd. Wniosek architektoniczny jest jednak niezależny od liczby: dopóki typ jest w `tag`, każda liczba bboxów = 1 klasa.
 
 ---
 
