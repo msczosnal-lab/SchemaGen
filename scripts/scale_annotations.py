@@ -61,6 +61,10 @@ def scale_all(
 
     updated = 0
     dpi_factor = _dpi_factor() if use_dpi_fallback else None
+    # Idempotencja: po udanym --apply marker == docelowe DPI -> _dpi_factor() = None.
+    # Wowczas NIE uruchamiamy heurystyk extent/dpi (ryzyko podwojnego skalowania,
+    # np. p016). Zostaje tylko bezpieczna detekcja po wymiarach PNG (self-correcting).
+    already_scaled = use_dpi_fallback and dpi_factor is None and factor_override is None
 
     for page_id, payload_json in rows:
         data = json.loads(payload_json)
@@ -70,10 +74,15 @@ def scale_all(
 
         factor = factor_override or detect_scale_factor(record, RAW)
         source = "png"
-        if factor is None:
+        if factor is None and not already_scaled:
             factor = detect_low_dpi_factor(record)
             source = "extent"
-        if factor is None and dpi_factor is not None and not record.image_width:
+        if (
+            factor is None
+            and not already_scaled
+            and dpi_factor is not None
+            and not record.image_width
+        ):
             factor = dpi_factor
             source = "dpi"
 

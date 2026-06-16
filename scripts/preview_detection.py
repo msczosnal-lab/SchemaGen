@@ -8,6 +8,7 @@ from pathlib import Path
 
 import cv2
 
+from backend.paths import MODELS, RAW
 from backend.runtime_config import yolo_conf_threshold
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 

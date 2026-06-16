@@ -1,0 +1,15 @@
+# Normalizacja konca linii — zapobiega "rozsypaniu" repo przez CRLF (Windows + GitSync).
+# Cale repo trzymane i wymeldowywane jako LF (tak jest obecnie w historii).
+* text=auto eol=lf
+
+# Pliki binarne — bez jakiejkolwiek konwersji
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.zip  binary
+*.onnx binary
+*.pt   binary
+*.elmt binary
+*.ico  binary
