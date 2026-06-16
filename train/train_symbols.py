@@ -25,6 +25,9 @@ def train(
     project: str | None = None,
     name: str = "symbols_v1",
     patience: int = 30,
+    fliplr: float = 0.5,
+    flipud: float = 0.5,
+    degrees: float = 180.0,
 ) -> dict:
     """Fine-tune YOLOv8n na oznaczonych symbolach.
 
@@ -63,11 +66,13 @@ def train(
         name=name,
         patience=patience,
         cos_lr=True,
-        # Augmentacja pod schematy: BEZ odbic/obrotow (strzalki sa kierunkowe,
-        # styki NO/NC odbicie myli) i BEZ koloru (rysunek kreskowy).
-        fliplr=0.0,
-        flipud=0.0,
-        degrees=0.0,
+        # Augmentacja pod schematy: obrot + lustro WLACZONE — sens symboli jest
+        # orientacyjnie niezmienniczy (np. linia strzalki jest wzgledem grotu,
+        # nie wzgledem gory obrazu). Mnozy dane bez psucia etykiet.
+        # WYLACZONE: shear/perspective (deformuja ksztalt) i kolor (rysunek kreskowy).
+        fliplr=fliplr,
+        flipud=flipud,
+        degrees=degrees,
         shear=0.0,
         perspective=0.0,
         mosaic=0.0,
@@ -89,6 +94,7 @@ def train(
         "batch": batch,
         "imgsz": imgsz,
         "model": model,
+        "augment": {"fliplr": fliplr, "flipud": flipud, "degrees": degrees},
         "metrics": metrics,
     }
 
@@ -137,6 +143,9 @@ def _cli() -> None:
     parser.add_argument("--device", default="0", help="0 = GPU, 'cpu' = CPU")
     parser.add_argument("--name", default="symbols_v1")
     parser.add_argument("--patience", type=int, default=30)
+    parser.add_argument("--fliplr", type=float, default=0.5)
+    parser.add_argument("--flipud", type=float, default=0.5)
+    parser.add_argument("--degrees", type=float, default=180.0)
     args = parser.parse_args()
 
     device: int | str = int(args.device) if args.device.isdigit() else args.device
@@ -148,6 +157,9 @@ def _cli() -> None:
         device=device,
         name=args.name,
         patience=args.patience,
+        fliplr=args.fliplr,
+        flipud=args.flipud,
+        degrees=args.degrees,
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
