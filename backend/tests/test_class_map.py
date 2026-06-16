@@ -68,3 +68,13 @@ def test_min_count_excludes_when_not_bucketing():
     assert "inny" not in cmap            # brak smietnika
     assert "rzadka_klasa" not in cmap    # wykluczona
     assert len(cmap) == 1
+
+
+def test_group_merge_from_config():
+    # config/class-groups.yaml scala rodzine zaciskow w "zacisk"
+    assert tag_to_class("złączka") == "zacisk"
+    assert tag_to_class("terminal przyłączeniowy") == "zacisk"
+    assert tag_to_class("terminale urządzenia") == "zacisk"
+    # terminal_plc i kontenery wg configu osobno
+    assert tag_to_class("terminal plc") == "terminal_plc"
+    assert tag_to_class("silnik") == "motor"  # spoza grup -> bez zmian
