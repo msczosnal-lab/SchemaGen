@@ -19,6 +19,7 @@ from backend.models.schema import (
     SpatialRelation,
 )
 from backend.paths import CONFIG, LABELED, RAW
+from backend.class_map import load_palette_map, resolve_class_id
 
 
 def load_class_map() -> dict[str, int]:
@@ -79,14 +80,25 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
     )
 
 
-def yolo_label_lines(record: LabelRecord, class_map: dict[str, int] | None = None) -> list[str]:
-    """Linie YOLO (`cls cx cy w h`, znormalizowane) dla wszystkich bboxow rekordu."""
+def yolo_label_lines(
+    record: LabelRecord,
+    class_map: dict[str, int] | None = None,
+    palette_map: dict[str, str] | None = None,
+) -> list[str]:
+    """Linie YOLO (`cls cx cy w h`, znormalizowane) dla bboxow rekordu.
+
+    Klasa wyprowadzana z pola `tag` (multi-class). Bboxy bez tagu lub o klasie
+    spoza `class_map` sa POMIJANE (nie ucz na nieprzypisanych).
+    """
     cmap = class_map if class_map is not None else load_class_map()
+    pmap = palette_map if palette_map is not None else load_palette_map()
     w = record.image_width or 1
     h = record.image_height or 1
     lines: list[str] = []
     for b in record.bboxes:
-        cls_id = cmap.get(b.class_name, 0)
+        cls_id = resolve_class_id(b.tag, cmap, pmap)
+        if cls_id is None:
+            continue
         cx = (b.x + b.width / 2) / w
         cy = (b.y + b.height / 2) / h
         bw = b.width / w
