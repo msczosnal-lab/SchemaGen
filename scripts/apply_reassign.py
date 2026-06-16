@@ -23,13 +23,25 @@ from backend.paths import ROOT
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--file", type=Path, default=ROOT / "data" / "reassignments.json")
+    ap.add_argument("--file", type=Path, default=None)
     ap.add_argument("--apply", action="store_true")
     args = ap.parse_args()
 
-    if not args.file.exists():
-        print(f"[BŁĄD] Brak pliku: {args.file}")
+    candidates = [args.file] if args.file else [
+        ROOT / "data" / "reassignments.json",
+        ROOT / "data" / "output" / "reassignments.json",
+        ROOT / "data" / "output" / "relabel" / "reassignments.json",
+        ROOT / "Downloads" / "reassignments.json",
+    ]
+    path = next((c for c in candidates if c and c.exists()), None)
+    if path is None:
+        print("[BŁĄD] Nie znaleziono reassignments.json. Sprawdzone:")
+        for c in candidates:
+            print(f"  - {c}")
+        print("Wskaz: --file <sciezka>")
         return 1
+    print(f"Plik zmian: {path}")
+    args.file = path
     changes = json.loads(args.file.read_text(encoding="utf-8"))
     if not isinstance(changes, list) or not changes:
         print("Pusta lista zmian.")
