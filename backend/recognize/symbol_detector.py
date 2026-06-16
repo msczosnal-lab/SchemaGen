@@ -79,7 +79,28 @@ class OnnxSymbolDetector:
         shape = list(inp.shape or [])
         if len(shape) == 4 and isinstance(shape[2], int) and isinstance(shape[3], int):
             self._imgsz = int(shape[2])
+        # KLUCZOWE: nazwy klas czytamy z metadanych MODELU (ultralytics zapisuje 'names'),
+        # nie z globalnego symbol-classes.yaml — inaczej indeksy klas modelu mapuja sie
+        # na zla liste, gdy plik zostal nadpisany przez pozniejszy eksport.
+        names = self._names_from_model()
+        if names:
+            self._id_to_name = names
         return self._session
+
+    def _names_from_model(self) -> dict[int, str]:
+        try:
+            meta = self._session.get_modelmeta().custom_metadata_map or {}
+            raw = meta.get("names")
+            if not raw:
+                return {}
+            import ast
+
+            parsed = ast.literal_eval(raw)
+            if isinstance(parsed, dict):
+                return {int(k): str(v) for k, v in parsed.items()}
+        except Exception:
+            pass
+        return {}
 
     def _preprocess(self, image: np.ndarray) -> np.ndarray:
         canvas = resize_for_yolo(image, self._imgsz)
