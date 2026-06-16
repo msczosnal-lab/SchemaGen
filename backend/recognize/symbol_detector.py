@@ -39,7 +39,13 @@ class OnnxSymbolDetector:
                 "Brak onnxruntime. Zainstaluj na PC z GPU: `pip install -e \".[gpu]\"`."
             ) from exc
         self._session = ort.InferenceSession(self._model_path, providers=PROVIDERS)
-        self._input_name = self._session.get_inputs()[0].name
+        inp = self._session.get_inputs()[0]
+        self._input_name = inp.name
+        # Auto-rozmiar wejscia z modelu ONNX (statyczny) — chroni przed niezgodnoscia
+        # imgsz miedzy modelem a runtime (np. model 640 vs yolo_imgsz 1280).
+        shape = list(inp.shape or [])
+        if len(shape) == 4 and isinstance(shape[2], int) and isinstance(shape[3], int):
+            self._imgsz = int(shape[2])
         return self._session
 
     def _preprocess(self, image: np.ndarray) -> np.ndarray:
