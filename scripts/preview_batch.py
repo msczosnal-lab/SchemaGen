@@ -50,6 +50,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--pages", nargs="*", help="globy/sciezki PNG (domyslnie z data/raw)")
     ap.add_argument("--limit", type=int, default=15, help="ile stron gdy brak --pages")
+    ap.add_argument("--offset", type=int, default=0, help="pomin pierwsze N stron (np. tytulowe)")
     ap.add_argument("--conf", type=float, default=None)
     ap.add_argument("--version", default=None)
     ap.add_argument("--model", type=Path, default=None)
@@ -68,7 +69,7 @@ def main() -> int:
             files.extend(Path(p) for p in glob.glob(pat))
         pages = sorted(set(files))
     else:
-        pages = sorted(RAW.glob("*.png"))[: args.limit]
+        pages = sorted(RAW.glob("*.png"))[args.offset : args.offset + args.limit]
     if not pages:
         print("[BŁĄD] Brak stron do podgladu.")
         return 1
