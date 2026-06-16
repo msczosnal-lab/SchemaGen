@@ -71,10 +71,12 @@ def test_min_count_excludes_when_not_bucketing():
 
 
 def test_group_merge_from_config():
-    # config/class-groups.yaml scala rodzine zaciskow w "zacisk"
-    assert tag_to_class("złączka") == "zacisk"
-    assert tag_to_class("terminal przyłączeniowy") == "zacisk"
-    assert tag_to_class("terminale urządzenia") == "zacisk"
-    # terminal_plc i kontenery wg configu osobno
+    # config/class-groups.yaml: dwa scalenia
+    assert tag_to_class("złączka") == "zlaczka"
+    assert tag_to_class("terminal przyłączeniowy") == "zlaczka"
+    assert tag_to_class("listwa złączek") == "listwa_zlaczek"
+    assert tag_to_class("terminale urządzenia") == "listwa_zlaczek"
+    # osobno (NIE scalane)
+    assert tag_to_class("złącze") == "zlacze"
     assert tag_to_class("terminal plc") == "terminal_plc"
-    assert tag_to_class("silnik") == "motor"  # spoza grup -> bez zmian
+    assert tag_to_class("silnik") == "motor"

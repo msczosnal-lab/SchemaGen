@@ -92,7 +92,8 @@ def main() -> int:
         print("Brak bboxow do pokazania.")
         return 1
 
-    options = _class_options()
+    present = {it['cur'] for it in items if it['cur'] != '(bez tagu)'}
+    options = sorted(set(_class_options()) | present)
     data_js = json.dumps(items, ensure_ascii=False)
     opts_js = json.dumps(options, ensure_ascii=False)
     html = """<!DOCTYPE html><html lang="pl"><head><meta charset="UTF-8">
