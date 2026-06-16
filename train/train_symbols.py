@@ -17,13 +17,14 @@ MAX_BATCH = 8  # limit dla RTX 2080 (8GB VRAM)
 
 def train(
     data_yaml: str | None = None,
-    epochs: int = 50,
+    epochs: int = 150,
     batch: int | None = None,
     imgsz: int | None = None,
     device: int | str = 0,
     model: str = "yolov8n.pt",
     project: str | None = None,
     name: str = "symbols_v1",
+    patience: int = 30,
 ) -> dict:
     """Fine-tune YOLOv8n na oznaczonych symbolach.
 
@@ -60,6 +61,22 @@ def train(
         device=device,
         project=str(out_dir),
         name=name,
+        patience=patience,
+        cos_lr=True,
+        # Augmentacja pod schematy: BEZ odbic/obrotow (strzalki sa kierunkowe,
+        # styki NO/NC odbicie myli) i BEZ koloru (rysunek kreskowy).
+        fliplr=0.0,
+        flipud=0.0,
+        degrees=0.0,
+        shear=0.0,
+        perspective=0.0,
+        mosaic=0.0,
+        mixup=0.0,
+        hsv_h=0.0,
+        hsv_s=0.0,
+        hsv_v=0.2,
+        scale=0.2,
+        translate=0.05,
     )
 
     save_dir = Path(getattr(results, "save_dir", out_dir / name))
@@ -114,11 +131,12 @@ def _cli() -> None:
 
     parser = argparse.ArgumentParser(description="Trening YOLOv8n symboli (RTX 2080).")
     parser.add_argument("--data", default=None, help="data.yaml (domyslnie data/labeled/data.yaml)")
-    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--epochs", type=int, default=150)
     parser.add_argument("--batch", type=int, default=None, help=f"domyslnie {yolo_batch()} (config/runtime.yaml)")
     parser.add_argument("--imgsz", type=int, default=None, help=f"domyslnie {yolo_imgsz()} (config/runtime.yaml)")
     parser.add_argument("--device", default="0", help="0 = GPU, 'cpu' = CPU")
     parser.add_argument("--name", default="symbols_v1")
+    parser.add_argument("--patience", type=int, default=30)
     args = parser.parse_args()
 
     device: int | str = int(args.device) if args.device.isdigit() else args.device
@@ -129,6 +147,7 @@ def _cli() -> None:
         imgsz=args.imgsz,
         device=device,
         name=args.name,
+        patience=args.patience,
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
