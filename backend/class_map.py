@@ -91,11 +91,14 @@ def build_class_map(
     records: Iterable,
     min_count: int = 1,
     other_class: str = "inny",
+    bucket_rare: bool = True,
 ) -> tuple[dict[str, int], Counter]:
-    """Mapa nazwa->id ze WSZYSTKICH klas w danych.
+    """Mapa nazwa->id z klas w danych.
 
     Kolejnosc: klasy z palety (te obecne) w kolejnosci palety, potem reszta
-    alfabetycznie. Klasy z liczba < min_count trafiaja do `other_class`.
+    alfabetycznie. Klasy z liczba < min_count:
+      - bucket_rare=True  -> wpadaja do `other_class` ("inny"),
+      - bucket_rare=False -> sa WYKLUCZONE (bboxy pomijane w treningu).
     """
     pmap = load_palette_map()
     records = list(records)
@@ -107,7 +110,7 @@ def build_class_map(
     order = [c for c in palette_order() if c in kept]
     extras = sorted(c for c in kept if c not in set(order))
     names = order + extras
-    if rare:
+    if rare and bucket_rare:
         names.append(other_class)
 
     class_map = {name: idx for idx, name in enumerate(names)}
