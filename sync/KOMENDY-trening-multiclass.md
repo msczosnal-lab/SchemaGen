@@ -39,7 +39,7 @@ python -m train.train_symbols --name symbols_mc_v1
 python -m train.export_onnx --version symbols_mc_v1
 
 # 5. PODGLĄD detekcji (pokaże nazwy klas)
-python scripts/preview_detection.py --page data/raw/<strona>.png --conf 0.25
+python scripts/preview_detection.py --page data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p035.png --conf 0.25
 ```
 
 ## Na co patrzeć w wynikach
