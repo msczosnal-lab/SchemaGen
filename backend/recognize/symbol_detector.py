@@ -7,7 +7,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from backend.ingest.image_utils import load_bgr, resize_for_yolo
+from backend.ingest.image_utils import load_bgr
 from backend.models.detection import SymbolDetection
 from backend.runtime_config import yolo_conf_threshold, yolo_imgsz
 PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
@@ -102,11 +102,23 @@ class OnnxSymbolDetector:
             pass
         return {}
 
-    def _preprocess(self, image: np.ndarray) -> np.ndarray:
-        canvas = resize_for_yolo(image, self._imgsz)
+    def _letterbox(self, image: np.ndarray):
+        """Letterbox jak w ultralytics: jednolita skala, WYSRODKOWANE, szare (114) tlo.
+
+        Zwraca (blob, scale, pad_left, pad_top) do odwzorowania detekcji na oryginal.
+        """
+        size = self._imgsz
+        h, w = image.shape[:2]
+        scale = size / max(h, w)
+        new_w, new_h = int(round(w * scale)), int(round(h * scale))
+        resized = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+        canvas = np.full((size, size, 3), 114, dtype=np.uint8)
+        pad_left = (size - new_w) // 2
+        pad_top = (size - new_h) // 2
+        canvas[pad_top:pad_top + new_h, pad_left:pad_left + new_w] = resized
         rgb = canvas[:, :, ::-1]  # BGR -> RGB
         blob = rgb.transpose(2, 0, 1)[np.newaxis].astype(np.float32) / 255.0
-        return np.ascontiguousarray(blob)
+        return np.ascontiguousarray(blob), scale, pad_left, pad_top
 
     def detect(
         self,
@@ -120,9 +132,8 @@ class OnnxSymbolDetector:
         session = self._ensure_session()
         image = load_bgr(image_path)
         h0, w0 = image.shape[:2]
-        scale = self._imgsz / max(h0, w0)  # resize_for_yolo: top-left, jednolita skala
 
-        blob = self._preprocess(image)
+        blob, scale, pad_left, pad_top = self._letterbox(image)
         input_name = self._input_name or session.get_inputs()[0].name
         outputs = session.run(None, {input_name: blob})
         preds = np.asarray(outputs[0])
@@ -143,9 +154,10 @@ class OnnxSymbolDetector:
         if len(boxes_xywh) == 0:
             return []
 
-        # (cx, cy, w, h) w przestrzeni imgsz -> (x, y, w, h) top-left w oryginale
-        xs = (boxes_xywh[:, 0] - boxes_xywh[:, 2] / 2) / scale
-        ys = (boxes_xywh[:, 1] - boxes_xywh[:, 3] / 2) / scale
+        # (cx, cy, w, h) w przestrzeni letterboxa -> (x, y, w, h) w oryginale
+        # (odejmij padding, podziel przez skale)
+        xs = (boxes_xywh[:, 0] - boxes_xywh[:, 2] / 2 - pad_left) / scale
+        ys = (boxes_xywh[:, 1] - boxes_xywh[:, 3] / 2 - pad_top) / scale
         ws = boxes_xywh[:, 2] / scale
         hs = boxes_xywh[:, 3] / scale
 
