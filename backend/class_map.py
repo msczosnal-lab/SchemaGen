@@ -15,7 +15,9 @@ from typing import Iterable
 
 import yaml
 
-from backend.paths import SYMBOL_PALETTE
+from functools import lru_cache
+
+from backend.paths import CONFIG, SYMBOL_PALETTE
 
 
 _PL = str.maketrans({"\u0142": "l", "\u0141": "L"})  # l z kreska -> l (NFKD go nie rozklada)
@@ -47,6 +49,10 @@ def _palette_raw() -> list[dict]:
     return data.get("symbols", []) or []
 
 
+CLASS_GROUPS = CONFIG / "class-groups.yaml"
+
+
+@lru_cache(maxsize=1)
 def load_palette_map() -> dict[str, str]:
     """Znormalizowane label_pl / aliasy / id -> kanoniczne id klasy."""
     m: dict[str, str] = {}
@@ -65,15 +71,32 @@ def palette_order() -> list[str]:
     return [s.get("id") for s in _palette_raw() if s.get("id")]
 
 
-def tag_to_class(tag: str, palette_map: dict[str, str] | None = None) -> str | None:
-    """Tag -> kanoniczna nazwa klasy. Pusty tag -> None (pomijany w treningu)."""
+@lru_cache(maxsize=1)
+def load_group_map() -> dict[str, str]:
+    """member (kanoniczna klasa) -> nazwa grupy (scalanie wizualnie podobnych)."""
+    if not CLASS_GROUPS.exists():
+        return {}
+    data = yaml.safe_load(CLASS_GROUPS.read_text(encoding="utf-8")) or {}
+    m: dict[str, str] = {}
+    for group, members in (data.get("groups") or {}).items():
+        for mem in members or []:
+            m[mem] = group
+    return m
+
+
+def tag_to_class(
+    tag: str,
+    palette_map: dict[str, str] | None = None,
+    group_map: dict[str, str] | None = None,
+) -> str | None:
+    """Tag -> kanoniczna nazwa klasy (z ew. scaleniem w grupe). Pusty tag -> None."""
     pmap = palette_map if palette_map is not None else load_palette_map()
+    gmap = group_map if group_map is not None else load_group_map()
     norm = normalize_tag(tag)
     if not norm:
         return None
-    if norm in pmap:
-        return pmap[norm]
-    return slugify(tag)
+    cls = pmap[norm] if norm in pmap else slugify(tag)
+    return gmap.get(cls, cls)
 
 
 def class_distribution(records: Iterable, palette_map: dict[str, str] | None = None) -> Counter:
