@@ -19,7 +19,7 @@ from backend.models.schema import (
     SpatialRelation,
 )
 from backend.paths import CONFIG, LABELED, RAW
-from backend.class_map import load_palette_map, resolve_class_id
+from backend.class_map import build_class_map, load_palette_map, resolve_class_id
 
 
 def load_class_map() -> dict[str, int]:
@@ -128,7 +128,8 @@ def export_yolo(record: LabelRecord, output_dir: Path | None = None) -> Path:
     labels_dir.mkdir(parents=True, exist_ok=True)
     images_dir.mkdir(parents=True, exist_ok=True)
 
-    lines = yolo_label_lines(record)
+    class_map, _ = build_class_map([record])
+    lines = yolo_label_lines(record, class_map)
     label_file = labels_dir / f"{record.page_id}.txt"
     label_file.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
