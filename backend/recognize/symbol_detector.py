@@ -13,6 +13,38 @@ from backend.runtime_config import yolo_conf_threshold, yolo_imgsz
 PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
 
+def _enable_cuda_dlls() -> None:
+    """Windows: pozwol onnxruntime-gpu znalezc cublasLt64_12.dll / cuDNN 9 z torch (cu121).
+
+    torch 2.5.1+cu121 wozi te DLL w site-packages/torch/lib. Bez tego CUDAExecutionProvider
+    nie laduje sie i onnxruntime spada na CPU. Best-effort, bez wyjatkow.
+    """
+    import os
+
+    if not hasattr(os, "add_dll_directory"):  # nie-Windows
+        return
+    candidates = []
+    try:
+        import torch
+
+        candidates.append(os.path.join(os.path.dirname(torch.__file__), "lib"))
+    except Exception:
+        pass
+    for mod in ("nvidia.cublas.bin", "nvidia.cudnn.bin"):
+        try:
+            import importlib
+
+            candidates.append(os.path.dirname(importlib.import_module(mod).__file__))
+        except Exception:
+            pass
+    for d in candidates:
+        try:
+            if d and os.path.isdir(d):
+                os.add_dll_directory(d)
+        except Exception:
+            pass
+
+
 class OnnxSymbolDetector:
     """Detekcja symboli schematu — YOLOv8 ONNX."""
 
@@ -38,6 +70,7 @@ class OnnxSymbolDetector:
             raise RuntimeError(
                 "Brak onnxruntime. Zainstaluj na PC z GPU: `pip install -e \".[gpu]\"`."
             ) from exc
+        _enable_cuda_dlls()  # Windows: udostepnij CUDA/cuDNN z pakietu torch (cu121)
         self._session = ort.InferenceSession(self._model_path, providers=PROVIDERS)
         inp = self._session.get_inputs()[0]
         self._input_name = inp.name
