@@ -1,26 +1,4 @@
 # AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).
 # Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.
 classes:
-- led
-- push_button
-- emergency_stop
-- ground
-- crossing
-- cewka_zaworow
-- ekranowanie_kabla
-- gniazdo_rj_45
-- listwa_zlaczek
-- oznaczenie_kabla
-- oznaczenie_przewodu
-- polaczenie_przewodow
-- przekaznik_polaryzowany
-- strzalka_potencjalu_wejsciowa
-- strzalka_potencjalu_wyjsciowa
-- styk_nc
-- styki
-- styki_nc
-- styki_przekaznika
-- terminal_plc
-- urzadzenie
-- wylacznik_nadpradowy
-- zacisk
+- element
