@@ -1,6 +1,7 @@
 # AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).
 # Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.
 classes:
+- relay
 - led
 - push_button
 - emergency_stop
@@ -18,6 +19,7 @@ classes:
 - strzalka_potencjalu_wejsciowa
 - strzalka_potencjalu_wyjsciowa
 - styk_nc
+- styk_stycznika
 - styki
 - styki_nc
 - styki_przekaznika
