@@ -283,3 +283,7 @@ elements:
   label: przekaźnik
   yolo_class: element
   created_at: '2026-06-18T17:55:31.065429+00:00'
+- id: bezpiecznik
+  label: bezpiecznik
+  yolo_class: element
+  created_at: '2026-06-18T18:17:42.769034+00:00'
