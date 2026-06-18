@@ -1,6 +1,6 @@
 {
-  "best_weights": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_mc_v5\\weights\\best.pt",
-  "save_dir": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_mc_v5",
+  "best_weights": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_mc_v5-2\\weights\\best.pt",
+  "save_dir": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_mc_v5-2",
   "epochs": 150,
   "batch": 4,
   "imgsz": 1280,
@@ -11,6 +11,6 @@
     "degrees": 0.0
   },
   "metrics": {
-    "map50": 0.13135158913850123
+    "map50": 0.18279436932475554
   }
 }
