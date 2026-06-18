@@ -279,3 +279,7 @@ elements:
   label: styk stycznika
   yolo_class: element
   created_at: '2026-06-18T17:52:24.735283+00:00'
+- id: przekaźnik
+  label: przekaźnik
+  yolo_class: element
+  created_at: '2026-06-18T17:55:31.065429+00:00'
