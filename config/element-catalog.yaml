@@ -287,3 +287,7 @@ elements:
   label: bezpiecznik
   yolo_class: element
   created_at: '2026-06-18T18:17:42.769034+00:00'
+- id: krańcówka_nc
+  label: krańcówka NC
+  yolo_class: element
+  created_at: '2026-06-18T18:43:16.826366+00:00'
