@@ -295,3 +295,7 @@ elements:
   label: Oznaczenie p
   yolo_class: element
   created_at: '2026-06-20T05:51:28.555484+00:00'
+- id: buzzer
+  label: buzzer
+  yolo_class: element
+  created_at: '2026-06-20T19:04:01.987310+00:00'
