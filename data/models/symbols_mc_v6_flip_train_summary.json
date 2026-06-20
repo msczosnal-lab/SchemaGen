@@ -1,0 +1,16 @@
+{
+  "best_weights": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_mc_v6_flip\\weights\\best.pt",
+  "save_dir": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_mc_v6_flip",
+  "epochs": 150,
+  "batch": 4,
+  "imgsz": 1280,
+  "model": "yolov8n.pt",
+  "augment": {
+    "fliplr": 0.5,
+    "flipud": 0.5,
+    "degrees": 0.0
+  },
+  "metrics": {
+    "map50": 0.17524882724980492
+  }
+}
