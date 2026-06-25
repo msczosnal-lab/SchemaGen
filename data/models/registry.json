@@ -27,9 +27,7 @@
     },
     "symbols_atomic_v2": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_atomic_v2.onnx",
-      "metrics": {
-        "map50": 0.9193728855576988
-      }
+      "metrics": {}
     }
   }
 }
