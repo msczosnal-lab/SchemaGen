@@ -26,3 +26,4 @@
 | 2026-06-15 19:22 | Cursor | 3f4294f0 | [Cursor] data: archive WRT01 legacy bboxes + reset labeler GT |
 | 2026-06-15 19:37 | Cursor | 4eb7f1f5 | [Cursor] labeler: tag usage counter + custom labels in picker |
 | 2026-06-25 17:11 | Claude | a4200e26 | [Claude] recognize: PaddleOCR engine (prompt 002-ocr) |
+| 2026-06-25 18:54 | Claude | 96809b50 | [Claude] labeler: linie + line tracer (prompt 002/003) |
