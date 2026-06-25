@@ -5,6 +5,48 @@
 
 ---
 
+## 2026-06-25 [ZW] — Prompt 002+003: filar POŁĄCZENIA (labeler linie + line tracer)
+
+Temat: **Tryb polyline w labelerze + LineTracer/LineClassifier OpenCV. Linia ≠ Connection.**
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `labeler/app.py` | + `GET /api/semantic-groups`, `GET /api/match-color?hex=` (czytają semantic-colors.yaml) |
+| `labeler/static/index.html` | toolbar trybu Bbox/Linia + rola + grupa + pipeta; lista linii; `app.js?v=21` |
+| `labeler/static/app.js` | tryb polyline: klik=punkt, Enter/dblklik=koniec, Esc=anuluj, Del=usuń; eyedropper (sampling piksela canvas → match-color); rysowanie/edycja/zapis `lines[]` |
+| `labeler/static/style.css` | style toolbara + listy linii |
+| `backend/recognize/line_tracer.py` | OpenCV: Canny+dylatacja+HoughLinesP, merge kolinearnych, sampling koloru HSV→hex (re-sampling po scaleniu) |
+| `backend/recognize/line_classifier.py` | segment→`GraphicLine` (role, semantic_group, color_ref, detected_color); heurystyki roli; **NIE** tworzy Connection |
+| `backend/tests/test_line_tracer.py` | nowy — trace, sampling, merge |
+| `backend/tests/test_line_classifier.py` | rozszerzony — wire/bus/device_stroke/dash, kandydaci Connection |
+| `labeler/tests/test_lines_api.py` | nowy — endpointy + round-trip `graphic_lines` |
+
+### Zasady domenowe (utrzymane)
+
+- `GraphicLine ≠ Connection`. Tylko `role ∈ {wire, bus}` → `is_connection_candidate == True` → kandydaci dla GraphBuilder (004).
+- Kolor → grupa przez `palette.match_color` (config/semantic-colors.yaml). `#9933FF` → `inverter` → rola `device_stroke` (nie-połączenie).
+- Heurystyka roli: kolor (dash/device_stroke/frame) > geometria (długa linia w osi → `bus`) > domyślnie `wire`.
+
+### Testy
+
+```
+pytest backend/tests labeler/tests  →  107 passed
+```
+
+[RYZYKO] LineTracer/Classifier to filar **runtime** (CV). Nie podłączony jeszcze do GraphBuilder — to prompt 004. `pipeline.py` bez zmian.
+[RYZYKO] Próg `bus` domyślnie 400 px lub 0.45·max(W,H) gdy podasz `image_size` — do kalibracji na realnych skanach.
+
+### Filip — do zrobienia
+
+1. Labeler: `python -m labeler.app` → przełącz **L** (linia), narysuj wire (czarna) + device_stroke (fiolet), pipeta na kolor, eksport → sprawdź `*.schema.json` ma `graphic_lines`.
+2. Zwróć uwagę czy progi Hougha (`min_line_length=30`, `max_line_gap=8`) łapią przewody na realnych stronach — jak trzeba, zgłoś `## Poprawka`.
+
+NIE robione w tej sesji: GraphBuilder (004), QET, trening YOLO.
+
+---
+
 ## 2026-06-25 [ZW] — Prompt 002-ocr: PaddleOcrEngine (filar TEKST)
 
 Temat: **OCR offline PaddleOCR — `extract_text` + `TextDetection`. Testy bez pobierania modeli.**
