@@ -784,6 +784,9 @@ async function selectPage(pageId) {
   selectedIdx = -1;
   expandedIdx = -1;
   focusSearchIdx = null;
+  selectedLineIdx = -1;
+  activeLine = null;
+  cursorImgPt = null;
 
   bgImage = await new Promise((resolve, reject) => {
     const img = new Image();
@@ -797,11 +800,14 @@ async function selectPage(pageId) {
   });
 
   let serverBboxes = [];
+  let serverLines = [];
   try {
     const ann = await fetchJson(`/api/annotations/${pageId}`);
     serverBboxes = ann.bboxes || [];
+    serverLines = ann.lines || [];
   } catch {
     serverBboxes = [];
+    serverLines = [];
   }
 
   const cached = pageCache.get(pageId) || loadLocalDraft(pageId);
@@ -812,6 +818,7 @@ async function selectPage(pageId) {
     }
   } else {
     bboxes = serverBboxes;
+    lines = serverLines;
     sortBboxesNewestFirst();
     ensureSeqNumbers();
     persistPageDraft(pageId);
@@ -820,6 +827,7 @@ async function selectPage(pageId) {
   recomputeHierarchy();
   redraw();
   renderAnnotationList();
+  renderLineList();
   renderPageList();
   updatePageNav();
   updateSaveStatus();
