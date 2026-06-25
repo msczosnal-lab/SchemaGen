@@ -1003,6 +1003,266 @@ function selectBbox(idx) {
   redraw();
 }
 
+// ===== Linie (prompt 002) =====
+
+const roleSelect = () => document.getElementById("line-role");
+const groupSelect = () => document.getElementById("line-group");
+
+function currentLineRole() {
+  const el = roleSelect();
+  return el ? el.value : DEFAULT_LINE_ROLE;
+}
+
+function currentLineGroup() {
+  const el = groupSelect();
+  return el ? el.value : "";
+}
+
+function roleDefaultStyle(role) {
+  return role === "dash" ? "dashed" : "solid";
+}
+
+async function loadSemanticGroups() {
+  try {
+    const data = await fetchJson("/api/semantic-groups");
+    semanticGroups = data.groups || [];
+  } catch (err) {
+    console.warn("semantic-groups:", err);
+    semanticGroups = [];
+  }
+  const sel = groupSelect();
+  if (sel) {
+    sel.innerHTML = '<option value="">—</option>';
+    semanticGroups.forEach((g) => {
+      const opt = document.createElement("option");
+      opt.value = g.name;
+      opt.textContent = g.description ? `${g.name} — ${g.description}` : g.name;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function setMode(next) {
+  mode = next;
+  if (mode !== MODE_LINE) {
+    activeLine = null;
+    cursorImgPt = null;
+    eyedropperArmed = false;
+  }
+  const bboxBtn = document.getElementById("mode-bbox");
+  const lineBtn = document.getElementById("mode-line");
+  const toolbar = document.getElementById("line-toolbar");
+  if (bboxBtn) bboxBtn.classList.toggle("active", mode === MODE_BBOX);
+  if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
+  if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
+  canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
+  document.getElementById("hint").textContent =
+    mode === MODE_LINE
+      ? "Linia: klik = punkt, Enter/dblklik = zakończ, Esc = anuluj | Del = usuń | pipeta = kolor"
+      : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb";
+  redraw();
+}
+
+function finishActiveLine() {
+  if (!activeLine || activeLine.points.length < 2) {
+    activeLine = null;
+    cursorImgPt = null;
+    redraw();
+    return;
+  }
+  const role = currentLineRole();
+  const group = currentLineGroup();
+  const grp = semanticGroups.find((g) => g.name === group);
+  const line = {
+    id: `line_${Date.now()}`,
+    points: activeLine.points.map((p) => [Math.round(p[0]), Math.round(p[1])]),
+    role,
+    style: roleDefaultStyle(role),
+    semantic_group: group,
+    color_ref: grp && grp.stroke ? grp.stroke : "",
+  };
+  lines.push(line);
+  activeLine = null;
+  cursorImgPt = null;
+  selectedLineIdx = lines.length - 1;
+  markPageDirty();
+  redraw();
+  renderLineList();
+  updateSaveStatus();
+}
+
+function cancelActiveLine() {
+  activeLine = null;
+  cursorImgPt = null;
+  redraw();
+}
+
+function removeLineAt(idx) {
+  if (idx < 0 || idx >= lines.length) return;
+  lines.splice(idx, 1);
+  selectedLineIdx = -1;
+  markPageDirty();
+  redraw();
+  renderLineList();
+  updateSaveStatus();
+}
+
+function selectLine(idx) {
+  selectedLineIdx = idx;
+  renderLineList();
+  redraw();
+}
+
+function updateLineField(idx, field, value) {
+  if (idx < 0 || idx >= lines.length) return;
+  lines[idx][field] = value;
+  if (field === "role") lines[idx].style = roleDefaultStyle(value);
+  if (field === "semantic_group") {
+    const grp = semanticGroups.find((g) => g.name === value);
+    lines[idx].color_ref = grp && grp.stroke ? grp.stroke : "";
+  }
+  markPageDirty();
+  redraw();
+  renderLineList();
+}
+
+function pointSegDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  let t = len2 ? ((px - ax) * dx + (py - ay) * dy) / len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t * dx;
+  const cy = ay + t * dy;
+  return Math.hypot(px - cx, py - cy);
+}
+
+function hitTestLine(pt) {
+  const tol = 6 / scale;
+  for (let i = 0; i < lines.length; i++) {
+    const pts = lines[i].points || [];
+    for (let k = 0; k + 1 < pts.length; k++) {
+      if (pointSegDist(pt.x, pt.y, pts[k][0], pts[k][1], pts[k + 1][0], pts[k + 1][1]) <= tol) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+function canvasPixelHex(imgX, imgY) {
+  if (!bgImage) return null;
+  const x = Math.round(imgX);
+  const y = Math.round(imgY);
+  if (x < 0 || y < 0 || x >= bgImage.naturalWidth || y >= bgImage.naturalHeight) return null;
+  const off = document.createElement("canvas");
+  off.width = 1;
+  off.height = 1;
+  const octx = off.getContext("2d", { willReadFrequently: true });
+  octx.drawImage(bgImage, x, y, 1, 1, 0, 0, 1, 1);
+  const d = octx.getImageData(0, 0, 1, 1).data;
+  const hex = "#" + [d[0], d[1], d[2]].map((v) => v.toString(16).padStart(2, "0")).join("");
+  return hex;
+}
+
+async function applyEyedropper(imgX, imgY) {
+  const hex = canvasPixelHex(imgX, imgY);
+  eyedropperArmed = false;
+  canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
+  if (!hex) return;
+  try {
+    const res = await fetchJson(`/api/match-color?hex=${encodeURIComponent(hex)}`);
+    const sel = groupSelect();
+    if (res.semantic_group && sel) {
+      sel.value = res.semantic_group;
+      saveStatusEl.textContent = `Pipeta ${hex} → grupa: ${res.semantic_group}`;
+    } else {
+      saveStatusEl.textContent = `Pipeta ${hex} → brak dopasowania grupy`;
+    }
+  } catch (err) {
+    saveStatusEl.textContent = `Pipeta: blad match-color (${err.message})`;
+  }
+}
+
+function renderLineList() {
+  const list = document.getElementById("line-list");
+  if (!list) return;
+  list.innerHTML = "";
+  if (!lines.length) {
+    const empty = document.createElement("li");
+    empty.className = "muted";
+    empty.textContent = "Brak linii — przełącz na tryb Linia (L).";
+    empty.style.background = "transparent";
+    empty.style.border = "none";
+    list.appendChild(empty);
+    return;
+  }
+  lines.forEach((line, i) => {
+    const row = document.createElement("li");
+    row.className = "line-row";
+    if (i === selectedLineIdx) row.classList.add("active");
+
+    const swatch = document.createElement("span");
+    swatch.className = "line-swatch";
+    swatch.style.background = lineStrokeColor(line);
+    row.appendChild(swatch);
+
+    const label = document.createElement("button");
+    label.type = "button";
+    label.className = "line-label";
+    const grpTxt = line.semantic_group ? ` · ${line.semantic_group}` : "";
+    label.textContent = `${i + 1}. ${line.role}${grpTxt} (${line.points.length} pkt)`;
+    label.addEventListener("click", () => selectLine(i));
+    row.appendChild(label);
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "×";
+    del.title = "Usun linie";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeLineAt(i);
+    });
+    row.appendChild(del);
+
+    if (i === selectedLineIdx) {
+      const editor = document.createElement("div");
+      editor.className = "line-editor";
+
+      const roleSel = document.createElement("select");
+      ["wire", "bus", "device_stroke", "frame", "dash", "crossing", "leader", "other"].forEach((r) => {
+        const o = document.createElement("option");
+        o.value = r;
+        o.textContent = r;
+        if (r === line.role) o.selected = true;
+        roleSel.appendChild(o);
+      });
+      roleSel.addEventListener("change", () => updateLineField(i, "role", roleSel.value));
+      editor.appendChild(roleSel);
+
+      const grpSel = document.createElement("select");
+      const none = document.createElement("option");
+      none.value = "";
+      none.textContent = "— grupa —";
+      grpSel.appendChild(none);
+      semanticGroups.forEach((g) => {
+        const o = document.createElement("option");
+        o.value = g.name;
+        o.textContent = g.name;
+        if (g.name === line.semantic_group) o.selected = true;
+        grpSel.appendChild(o);
+      });
+      grpSel.addEventListener("change", () => updateLineField(i, "semantic_group", grpSel.value));
+      editor.appendChild(grpSel);
+
+      row.appendChild(editor);
+    }
+
+    list.appendChild(row);
+  });
+}
+
 function isTypingField(el) {
   if (!el) return false;
   return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
