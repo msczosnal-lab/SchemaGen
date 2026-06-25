@@ -68,17 +68,13 @@ class LineClassifier:
         return 0.45 * max(w, h)
 
     def _role_for(self, seg: LineSegment, group: str | None, bus_len: float) -> str:
-        # 1) Wskazowka z grupy koloru — jesli grupa definiuje jednoznaczna role.
-        if group:
-            roles = self._palette.groups.get(group, {}).get("roles", [])
-            if len(roles) == 1:
-                return str(roles[0])
-            # grupa typu falownik (fill, applies_to_types) -> obrys urzadzenia
-            grp = self._palette.groups.get(group, {})
-            if grp.get("applies_to_types") and not roles:
-                return "device_stroke"
+        # 1) Wskazowka z grupy koloru. Role inne niz wire (dash, device_stroke,
+        #    frame) maja pierwszenstwo przed geometria — kolor jest tu mocnym sygnalem.
+        hint = self._color_role_hint(group)
+        if hint and hint != "wire":
+            return hint
 
-        # 2) Geometria: dluga linia w osi -> szyna (bus).
+        # 2) Geometria: dluga linia w osi -> szyna (bus) — nawet dla czarnej linii.
         angle = seg.angle_deg
         axis_aligned = (
             angle <= AXIS_TOL_DEG
@@ -88,8 +84,20 @@ class LineClassifier:
         if axis_aligned and seg.length >= bus_len:
             return "bus"
 
-        # 3) Domyslnie kabel.
+        # 3) Kolor kabla (czern/PE) lub domyslnie -> wire.
         return "wire"
+
+    def _color_role_hint(self, group: str | None) -> str | None:
+        if not group:
+            return None
+        grp = self._palette.groups.get(group, {})
+        roles = grp.get("roles", [])
+        if len(roles) == 1:
+            return str(roles[0])
+        # grupa typu falownik (fill, applies_to_types, bez roles) -> obrys urzadzenia
+        if grp.get("applies_to_types") and not roles:
+            return "device_stroke"
+        return None
 
     @staticmethod
     def is_connection_candidate(line: GraphicLine) -> bool:
