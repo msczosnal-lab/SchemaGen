@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-06-25 [Filip/Cursor] — 002 OCR DONE → Claude: linie + line tracer
+
+Temat: **PaddleOCR wdrożony. Następny filar: połączenia (GT + runtime).**
+
+### Co zrobione
+
+- Claude: `backend/recognize/ocr_engine.py` + testy (commit `a4200e26`)
+- Cursor: `scripts/preview_ocr.py` — wizualny smoke OCR
+- YOLO: `symbols_atomic_v2` aktywny (mAP50≈0.92)
+
+### Twoje zadanie (PRIORYTET #1)
+
+[`sync/PROMPT-CLAUDE-002-LINES.md`](PROMPT-CLAUDE-002-LINES.md)
+
+1. `002-labeler-lines-colors` — polyline wire/bus w labelerze
+2. `003-line-tracer-classifier` — OpenCV line tracer
+
+Po kodzie: pytest → `sync/zw-to-filip.md` → `[Claude] labeler: linie + line tracer (prompt 002/003)`
+
+**Nie:** GraphBuilder (004), QET, trening YOLO.
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+### Filip — równolegle
+
+```powershell
+pip install paddlepaddle-gpu paddleocr
+python scripts/preview_ocr.py --page data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p035.png --lang latin
+```
+
+Commit pending: `[Cursor] scripts: preview_ocr + sync handoff po 002-ocr`
+
+---
+
 ## 2026-06-24 [Cursor] — Pętla treningowa + handoff Claude OCR
 
 Temat: **train_cycle, stały val, autolabel batch, delegacja filarów tekst/linie**

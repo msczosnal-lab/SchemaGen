@@ -158,6 +158,16 @@ python scripts/reingest_highdpi.py --apply
 
 Po `--apply` bboxy w SQLite są przeskalowane. Potem ponowny eksport + trening (`symbols_atomic_v1`).
 
+## OCR (filar tekst — po commicie Claude 002)
+
+```powershell
+pip install paddlepaddle-gpu paddleocr   # CPU: paddlepaddle paddleocr
+python scripts/preview_ocr.py --page data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p035.png --lang latin
+python scripts/preview_ocr.py --offset 20 --limit 5 --lang latin
+```
+
+Wynik: `data/output/preview_ocr/index.html`
+
 ## Resolver kontekstu (faza 2)
 
 GT z labelera: `ContextResolver` w [`backend/geometry/row_layout.py`](backend/geometry/row_layout.py) — grupy Y, kotwice listwy/kabla, pole `context_assignments` w `.schema.json`.
