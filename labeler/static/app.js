@@ -1330,7 +1330,14 @@ canvas.addEventListener("mousemove", (e) => {
   ctx.restore();
 });
 
+canvas.addEventListener("dblclick", (e) => {
+  if (mode !== MODE_LINE) return;
+  e.preventDefault();
+  finishActiveLine();
+});
+
 canvas.addEventListener("mouseup", (e) => {
+  if (mode === MODE_LINE) return;
   if (!drawing) return;
   drawing = false;
   const { cx, cy } = clientToCanvas(e);
