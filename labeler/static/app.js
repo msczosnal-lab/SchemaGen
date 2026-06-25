@@ -534,7 +534,76 @@ function redraw() {
   for (let i = bboxes.length - 1; i >= 0; i--) {
     drawBboxOnCanvas(bboxes[i], i);
   }
+  for (let i = 0; i < lines.length; i++) {
+    drawLineOnCanvas(lines[i], i);
+  }
+  drawActiveLine();
   ctx.restore();
+}
+
+function applyLineDash(line) {
+  if (line.style === "dashed" || line.role === "dash") {
+    ctx.setLineDash([10 / scale, 6 / scale]);
+  } else if (line.style === "dotted") {
+    ctx.setLineDash([2 / scale, 4 / scale]);
+  } else {
+    ctx.setLineDash([]);
+  }
+}
+
+function drawLineOnCanvas(line, i) {
+  const pts = line.points || [];
+  if (pts.length < 1) return;
+  const color = lineStrokeColor(line);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = (i === selectedLineIdx ? LINE_STROKE + 1.5 : LINE_STROKE) / scale;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  applyLineDash(line);
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // wezly
+  for (const p of pts) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], LINE_POINT_R / scale, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (i === selectedLineIdx) {
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 1.5 / scale;
+    for (const p of pts) {
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], (LINE_POINT_R + 1.5) / scale, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+}
+
+function drawActiveLine() {
+  if (!activeLine || !activeLine.points.length) return;
+  const pts = activeLine.points;
+  ctx.strokeStyle = LINE_ROLE_COLORS[currentLineRole()] || "#111";
+  ctx.lineWidth = LINE_STROKE / scale;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+  if (cursorImgPt) ctx.lineTo(cursorImgPt.x, cursorImgPt.y);
+  ctx.stroke();
+  for (const p of pts) {
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1.5 / scale;
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], LINE_POINT_R / scale, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
 }
 
 async function loadPages() {
