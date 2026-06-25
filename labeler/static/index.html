@@ -26,18 +26,42 @@
         <span id="page-position">— / —</span>
         <button id="page-next" type="button" title="Następna strona (→)">→</button>
       </div>
+      <div id="mode-bar">
+        <button id="mode-bbox" type="button" class="mode-btn active" title="Tryb bbox (B)">⬚ Bbox</button>
+        <button id="mode-line" type="button" class="mode-btn" title="Tryb linia (L)">╱ Linia</button>
+        <span id="line-toolbar" class="hidden">
+          <label>Rola:
+            <select id="line-role">
+              <option value="wire">wire (kabel)</option>
+              <option value="bus">bus (szyna)</option>
+              <option value="device_stroke">device_stroke (obrys)</option>
+              <option value="frame">frame (ramka)</option>
+              <option value="dash">dash (przerywana)</option>
+              <option value="crossing">crossing (bez połączenia)</option>
+              <option value="leader">leader (odnośnik)</option>
+              <option value="other">other</option>
+            </select>
+          </label>
+          <label>Grupa:
+            <select id="line-group"><option value="">—</option></select>
+          </label>
+          <button id="eyedropper-btn" type="button" title="Pipeta: kliknij piksel obrazu">⊙ Pipeta</button>
+        </span>
+      </div>
       <canvas id="canvas" width="800" height="600"></canvas>
-      <p id="hint">Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu</p>
+      <p id="hint">Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb</p>
     </section>
     <aside id="annotations-panel">
       <h2>Elementy na stronie</h2>
       <ul id="annotation-list"></ul>
+      <h2 id="lines-heading">Linie na stronie</h2>
+      <ul id="line-list"></ul>
       <button id="save-btn" type="button">Zapisz strone</button>
       <button id="save-all-btn" type="button">Zapisz wszystkie</button>
       <button id="export-btn" type="button">Eksport YOLO + JSON</button>
       <p id="save-status" class="muted"></p>
     </aside>
   </main>
-  <script src="/static/app.js?v=20"></script>
+  <script src="/static/app.js?v=21"></script>
 </body>
 </html>
