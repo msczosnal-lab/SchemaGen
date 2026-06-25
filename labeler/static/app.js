@@ -1270,6 +1270,29 @@ function isTypingField(el) {
 
 canvas.addEventListener("mousedown", (e) => {
   if (e.button !== 0) return;
+  if (mode === MODE_LINE) {
+    const { cx, cy } = clientToCanvas(e);
+    const pt = canvasToImage(cx, cy);
+    if (eyedropperArmed) {
+      applyEyedropper(pt.x, pt.y);
+      return;
+    }
+    if (!activeLine) {
+      const hit = hitTestLine(pt);
+      if (hit >= 0) {
+        selectLine(hit);
+        return;
+      }
+      activeLine = { points: [] };
+    }
+    const last = activeLine.points[activeLine.points.length - 1];
+    if (!last || Math.hypot(pt.x - last[0], pt.y - last[1]) > 2 / scale) {
+      activeLine.points.push([pt.x, pt.y]);
+    }
+    cursorImgPt = { x: pt.x, y: pt.y };
+    redraw();
+    return;
+  }
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
   clickSelectCandidate = bboxes.findIndex(
