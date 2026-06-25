@@ -1305,6 +1305,13 @@ canvas.addEventListener("mousedown", (e) => {
 });
 
 canvas.addEventListener("mousemove", (e) => {
+  if (mode === MODE_LINE) {
+    if (!activeLine) return;
+    const { cx, cy } = clientToCanvas(e);
+    cursorImgPt = canvasToImage(cx, cy);
+    redraw();
+    return;
+  }
   if (!drawing) return;
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
