@@ -181,4 +181,13 @@ class LineTracer:
                 color = _sample_color(bgr, (x1, y1, x2, y2))
                 segments.append(LineSegment(x1, y1, x2, y2, detected_color=color))
 
-        return _merge_collinear(segments)
+        merged = _merge_collinear(segments)
+        # Po scaleniu probkuj kolor ponownie wzdluz finalnej geometrii — odporne
+        # na to, ze czesc surowych segmentow Hougha lezy na krawedzi (tlo).
+        for seg in merged:
+            resampled = _sample_color(
+                bgr, (int(seg.x1), int(seg.y1), int(seg.x2), int(seg.y2)), samples=15
+            )
+            if resampled:
+                seg.detected_color = resampled
+        return merged
