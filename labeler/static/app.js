@@ -1466,8 +1466,21 @@ document.addEventListener("keydown", (e) => {
 pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
 pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
+document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
+document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
+document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  eyedropperArmed = !eyedropperArmed;
+  canvas.style.cursor = eyedropperArmed ? "cell" : "crosshair";
+  saveStatusEl.textContent = eyedropperArmed
+    ? "Pipeta uzbrojona — kliknij piksel obrazu"
+    : "Pipeta wyłączona";
+});
+
 async function init() {
   lastUsedTag = loadLastUsedTag();
+  await loadSemanticGroups();
+  setMode(MODE_BBOX);
   await loadPages();
   reportRecoveryHints();
   if (pageIds.length && currentPageId == null) {
@@ -1476,6 +1489,7 @@ async function init() {
     updatePageNav();
   }
   await ensurePaletteCache("");
+  renderLineList();
   updateSaveStatus();
 }
 
