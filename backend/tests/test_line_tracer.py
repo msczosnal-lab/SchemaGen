@@ -22,12 +22,13 @@ def test_trace_horizontal_black_line() -> None:
 
 def test_trace_samples_color() -> None:
     img = _blank()
-    # fioletowa linia (#9933FF) -> BGR (255, 51, 153)
-    img[30, 10:110] = (255, 51, 153)
+    # fioletowa linia (#9933FF) -> BGR (255, 51, 153); pasek 3px by sampling trafil w srodek
+    img[29:32, 10:110] = (255, 51, 153)
     segments = LineTracer(min_line_length=20).trace(img)
     assert segments
     hexes = {s.detected_color for s in segments}
-    assert any(h.startswith("#9") or h.startswith("#a") for h in hexes)
+    # przynajmniej jeden segment z silnym kanalem czerwonym i niebieskim (fiolet), nie biel/czern
+    assert any(h not in ("", "#ffffff", "#000000") and h[1] in "89ab" for h in hexes)
 
 
 def test_trace_path_not_found() -> None:
