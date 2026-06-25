@@ -80,6 +80,39 @@ def api_symbol_palette(q: str = "", limit: int = 30) -> dict:
     return {"symbols": list_type_picker(q, limit=min(limit, 100))}
 
 
+@app.get("/api/semantic-groups")
+def api_semantic_groups() -> dict:
+    """Grupy semantyczne z config/semantic-colors.yaml — do palety linii w labelerze."""
+    palette = load_palette()
+    groups = []
+    for name, group in palette.groups.items():
+        groups.append(
+            {
+                "name": name,
+                "description": group.get("description", ""),
+                "stroke": group.get("stroke", ""),
+                "fill": group.get("fill", ""),
+                "style": group.get("style", "solid"),
+                "roles": group.get("roles", []),
+            }
+        )
+    return {"groups": groups}
+
+
+@app.get("/api/match-color")
+def api_match_color(hex: str = "") -> dict:
+    """Sugestia grupy semantycznej dla podanego koloru (eyedropper w labelerze)."""
+    palette = load_palette()
+    group = palette.match_color(hex) if hex else None
+    out: dict[str, object] = {"hex": hex, "semantic_group": group or ""}
+    if group:
+        g = palette.groups.get(group, {})
+        out["stroke"] = g.get("stroke", "")
+        out["style"] = g.get("style", "solid")
+        out["roles"] = g.get("roles", [])
+    return out
+
+
 class TagUsagePayload(BaseModel):
     labels: list[str]
 
