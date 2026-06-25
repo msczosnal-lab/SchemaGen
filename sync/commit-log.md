@@ -25,3 +25,4 @@
 | 2026-06-14 23:52 | Cursor | 0d64d7cb | [Cursor] labeler: bbox-first + symbol palette (prompt 010) |
 | 2026-06-15 19:22 | Cursor | 3f4294f0 | [Cursor] data: archive WRT01 legacy bboxes + reset labeler GT |
 | 2026-06-15 19:37 | Cursor | 4eb7f1f5 | [Cursor] labeler: tag usage counter + custom labels in picker |
+| 2026-06-25 17:11 | Claude | a4200e26 | [Claude] recognize: PaddleOCR engine (prompt 002-ocr) |
