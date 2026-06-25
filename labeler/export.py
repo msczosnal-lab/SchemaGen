@@ -9,10 +9,12 @@ from pathlib import Path
 import yaml
 
 from backend.geometry.bbox_layout import enrich_label_record
+from backend.geometry.row_layout import ContextResolver
 from backend.models.label import LabelRecord
 from backend.models.schema import (
     Component,
     Connection,
+    ContextAssignment,
     GraphicLine,
     SchemaMeta,
     SchemaModel,
@@ -54,6 +56,17 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
         SpatialRelation(from_id=r.from_id, to_id=r.to_id, relation=r.relation)
         for r in record.spatial_relations
     ]
+    ctx = ContextResolver().resolve(record.bboxes)
+    context_assignments = [
+        ContextAssignment(
+            bbox_id=a.bbox_id,
+            role=a.role,
+            row_index=a.row_index,
+            anchor_id=a.anchor_id,
+            strip_kind=a.strip_kind,
+        )
+        for a in ctx
+    ]
     graphic_lines = [
         GraphicLine(
             id=line.id,
@@ -76,6 +89,7 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
         graphic_lines=graphic_lines,
         connections=connections,
         spatial_relations=spatial_relations,
+        context_assignments=context_assignments,
         annotations=annotations,
     )
 

@@ -6,53 +6,56 @@
 
 ---
 
-## Stan (2026-06-15)
+## Stan (2026-06-24)
 
 | Prompt | Status |
 |--------|--------|
-| **010-labeler-bbox-first-palette** | ✅ DONE (Cursor) — bbox-first + paleta |
-| **005–006, 001 recognize** | ✅ BUILD M0 (stary GT — zarchiwizowany) |
+| **010-labeler-bbox-first-palette** | ✅ DONE |
+| **005–006, 001 recognize** | ✅ BUILD M0 + multi-class |
+| **train_cycle + val-pages** | ✅ DONE (Cursor) — `scripts/train_cycle.py`, `config/val-pages.yaml` |
+| **symbols_atomic_v1** | ✅ wytrenowany (mAP50≈0.15) |
+| **symbols_atomic_v2** | 🔄 trening w toku / Filip: `python scripts/train_cycle.py --name symbols_atomic_v2` |
 | **008a QET atlas** | ⛔ NIE UŻYWAĆ |
-| **002-ocr-engine** | ⏸ WSTRZYMANE (brak Claude) |
-| **002-labeler-lines-colors** | OPEN — filar: połączenia (GT) |
-| **003-line-tracer** | OPEN — filar: połączenia (runtime) |
-| **004-graph-builder** | OPEN — relacje (po filarach) |
+| **002-ocr-engine** | 🟢 GOTOWE DO CLAUDE — [`sync/PROMPT-CLAUDE-002-OCR.md`](PROMPT-CLAUDE-002-OCR.md) |
+| **002-labeler-lines-colors** | OPEN — po OCR: [`sync/PROMPT-CLAUDE-002-LINES.md`](PROMPT-CLAUDE-002-LINES.md) |
+| **003-line-tracer** | OPEN — w PROMPT-CLAUDE-002-LINES |
+| **004-graph-builder** | OPEN — po filarach |
 
-**WRT01:** DONE. **Stanley 229:** DONE/w toku. **Adamed AGV SA2** — 200 PNG w `data/raw/`.
+**Dane:** 75+ stron GT, autolabel +138 stron (2026-06-24) — **wymaga review w labelerze** przed treningiem na surowych propozycjach.
 
 ---
 
-## Aktywne zadanie — PRIORYTET (Filip)
+## Aktywne zadanie — Claude (PRIORYTET)
 
 | Pole | Wartosc |
 |------|---------|
-| **Cel** | Oznaczanie **Adamed AGV SA2** — bbox-first + paleta |
-| **Pliki** | `data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p*.png` (p000…p199) |
-| **Źródło** | `sync/sources/22_A_153_PL_Adamed_AGV_SA2_20250706.pdf` |
+| **Cel** | Filar **tekst** — PaddleOCR offline |
+| **Prompt** | [`sync/prompts/002-ocr-engine.md`](prompts/002-ocr-engine.md) |
+| **Start** | [`sync/PROMPT-CLAUDE-002-OCR.md`](PROMPT-CLAUDE-002-OCR.md) |
 
-### Kroki Filip
+### Po OCR (kolejna sesja Claude)
 
-1. Odśwież labeler (F5) — na liście szukaj `22_A_153_PL_Adamed_AGV_SA2`
-2. Zacznij od **`_p000`** (lub reprezentatywnych stron)
-3. Bbox → typ (ostatni typ zapamiętywany) → Ctrl+S
+[`sync/PROMPT-CLAUDE-002-LINES.md`](PROMPT-CLAUDE-002-LINES.md) — labeler linie + line tracer.
 
-### Kolejne projekty
+---
 
-| Projekt | Stron | PDF |
-|---------|------:|-----|
-| Adamed INTEROL SA1 | 99 | `22_A_153_PL_Adamed_INTEROL_SA1_20250729.pdf` |
-| Norblin Cars | 199 | `20_A_022_PL_Norblin_Cars_2022-06-26.pdf` |
+## Aktywne zadanie — Filip
 
-### Cursor (równolegle, bez pełnego kodu Cowork)
+| Pole | Wartosc |
+|------|---------|
+| **Review autolabel** | `python -m labeler.app` (incognito) — strony p051+ z propozycjami modelu |
+| **Pętla treningowa** | `python scripts/train_cycle.py --name symbols_atomic_v2` |
+| **Ocena** | `data/output/preview_batch/symbols_atomic_v2/index.html` |
 
-- `011-ingest-batch` — ingest PDF → PNG (kolejne projekty)
-- `011-bbox-crops` — spec cropów ze skanu
-- `docs/data-layout.md`
+### Cykl (powtarzalny)
 
-### Czego NIE robić
+```powershell
+python scripts/autolabel.py --all-unlabeled --conf 0.3 --apply
+python -m labeler.app
+python scripts/train_cycle.py
+```
 
-- Atlas QET, OCR/line tracer (stuby Cowork)
-- Nie używaj starego `symbols_v1.onnx` jako benchmarku nowych bboxów
+Log: `data/models/train_cycle_log.jsonl` · audyt: `data/output/class_report_audit.json`
 
 ---
 

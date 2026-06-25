@@ -55,6 +55,16 @@ class SpatialRelation(BaseModel):
     relation: Literal["contains", "left_of", "right_of", "above", "below"]
 
 
+class ContextAssignment(BaseModel):
+    """Przypisanie kontekstowe bboxa w wierszu (GT / resolver)."""
+
+    bbox_id: str
+    role: str
+    row_index: int
+    anchor_id: str | None = None
+    strip_kind: str | None = None
+
+
 class GraphicLine(BaseModel):
     """Linia graficzna na schemacie — niekoniecznie polaczenie elektryczne."""
 
@@ -85,6 +95,7 @@ class SchemaModel(BaseModel):
     graphic_lines: list[GraphicLine] = Field(default_factory=list)
     connections: list[Connection] = Field(default_factory=list)
     spatial_relations: list[SpatialRelation] = Field(default_factory=list)
+    context_assignments: list[ContextAssignment] = Field(default_factory=list)
     potentials: list[str] = Field(default_factory=list)
     blocks: list[str] = Field(default_factory=list)
     annotations: list[str] = Field(default_factory=list)

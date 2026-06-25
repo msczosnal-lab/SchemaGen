@@ -1,0 +1,37 @@
+# Role klas w treningu YOLO vs GT relacji (config/train-classes.yaml).
+#
+# Semantyka wierszy (Filip): obiekty w jednym rzędzie (wspólna oś Y).
+# Rząd złączek → listwa złączek LUB zwarta listwa złączek.
+# Oznaczniki przewodów → oznaczenie kabla. Złącza — rząd bez obiektu-nadzorcy.
+#
+# atomic:    idą do YOLO (puste = wszystko poza contextual/anchor)
+# contextual: GT w labelerze, resolver wierszy (faza 2), bez YOLO
+# anchor:    rezerwa pod przyszłe kotwice YOLO (obecnie puste — listwy tylko GT)
+
+roles:
+  atomic: []
+  anchor: []
+  contextual:
+    - zlaczka
+    - zlacze
+    - listwa_zlaczek
+    - zwarta_listwa_zlaczek
+    - oznaczenie_kabla
+    - oznaczenie_przewodu
+    - terminale_urzadzenia
+
+# Reguły wierszy dla ContextResolver (backend/geometry/row_layout.py)
+row_rules:
+  strip_members:
+    - zlaczka
+  strip_kinds:
+    - listwa_zlaczek
+    - zwarta_listwa_zlaczek
+  cable_members:
+    - oznaczenie_przewodu
+  cable_anchor:
+    - oznaczenie_kabla
+  device_terminals:
+    - terminale_urzadzenia
+  inline_no_parent:
+    - zlacze

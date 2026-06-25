@@ -45,6 +45,20 @@
         }
       }
     },
+    "context_assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["bbox_id", "role", "row_index"],
+        "properties": {
+          "bbox_id": { "type": "string" },
+          "role": { "type": "string" },
+          "row_index": { "type": "integer" },
+          "anchor_id": { "type": "string" },
+          "strip_kind": { "type": "string" }
+        }
+      }
+    },
     "connections": {
       "type": "array",
       "items": {

@@ -16,8 +16,11 @@ from typing import Iterable
 import yaml
 
 from functools import lru_cache
+from typing import Literal
 
-from backend.paths import CONFIG, SYMBOL_PALETTE
+from backend.paths import CONFIG, SYMBOL_PALETTE, TRAIN_CLASSES
+
+TrainRole = Literal["atomic", "contextual", "anchor"]
 
 
 _PL = str.maketrans({"\u0142": "l", "\u0141": "L"})  # l z kreska -> l (NFKD go nie rozklada)
@@ -50,6 +53,58 @@ def _palette_raw() -> list[dict]:
 
 
 CLASS_GROUPS = CONFIG / "class-groups.yaml"
+
+
+@lru_cache(maxsize=1)
+def load_train_roles() -> dict[str, frozenset[str]]:
+    """Role klas z config/train-classes.yaml."""
+    empty: frozenset[str] = frozenset()
+    if not TRAIN_CLASSES.exists():
+        return {"atomic": empty, "contextual": empty, "anchor": empty}
+    data = yaml.safe_load(TRAIN_CLASSES.read_text(encoding="utf-8")) or {}
+    roles = data.get("roles") or {}
+    contextual = frozenset(roles.get("contextual") or data.get("contextual") or [])
+    return {
+        "atomic": frozenset(roles.get("atomic") or []),
+        "contextual": contextual,
+        "anchor": frozenset(roles.get("anchor") or []),
+    }
+
+
+def class_train_role(
+    cls: str,
+    roles: dict[str, frozenset[str]] | None = None,
+) -> TrainRole:
+    r = roles if roles is not None else load_train_roles()
+    if cls in r["contextual"]:
+        return "contextual"
+    if cls in r["anchor"]:
+        return "anchor"
+    return "atomic"
+
+
+@lru_cache(maxsize=1)
+def load_yolo_exclude_classes() -> frozenset[str]:
+    """Klasy bez eksportu YOLO = contextual + anchor."""
+    r = load_train_roles()
+    return r["contextual"] | r["anchor"]
+
+
+def is_yolo_exportable(
+    tag: str,
+    palette_map: dict[str, str] | None = None,
+) -> bool:
+    """Czy bbox z tym tagiem trafia do eksportu/treningu YOLO."""
+    cls = tag_to_class(tag, palette_map)
+    if cls is None:
+        return False
+    roles = load_train_roles()
+    role = class_train_role(cls, roles)
+    if role != "atomic":
+        return False
+    if roles["atomic"]:
+        return cls in roles["atomic"]
+    return True
 
 
 @lru_cache(maxsize=1)
@@ -99,13 +154,19 @@ def tag_to_class(
     return gmap.get(cls, cls)
 
 
-def class_distribution(records: Iterable, palette_map: dict[str, str] | None = None) -> Counter:
+def class_distribution(
+    records: Iterable,
+    palette_map: dict[str, str] | None = None,
+    *,
+    yolo_only: bool = False,
+) -> Counter:
     pmap = palette_map if palette_map is not None else load_palette_map()
+    exclude = load_yolo_exclude_classes() if yolo_only else frozenset()
     dist: Counter = Counter()
     for rec in records:
         for b in rec.bboxes:
             cls = tag_to_class(b.tag, pmap)
-            if cls:
+            if cls and cls not in exclude:
                 dist[cls] += 1
     return dist
 
@@ -125,7 +186,7 @@ def build_class_map(
     """
     pmap = load_palette_map()
     records = list(records)
-    dist = class_distribution(records, pmap)
+    dist = class_distribution(records, pmap, yolo_only=True)
 
     kept = {c: n for c, n in dist.items() if n >= min_count}
     rare = {c: n for c, n in dist.items() if n < min_count}
@@ -148,7 +209,7 @@ def resolve_class_id(
 ) -> int | None:
     """Id klasy dla bboxa wg jego tagu. None = pomin (bez tagu / klasa odfiltrowana)."""
     cls = tag_to_class(tag, palette_map)
-    if cls is None:
+    if cls is None or cls in load_yolo_exclude_classes():
         return None
     if cls in class_map:
         return class_map[cls]

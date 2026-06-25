@@ -21,6 +21,9 @@ import cv2
 
 from backend.paths import MODELS, RAW, REGISTRY_PATH
 from backend.runtime_config import yolo_conf_threshold
+from backend.db import load_annotation
+from backend.geometry.row_layout import ContextResolver, group_into_rows
+from backend.models.label import LabelRecord
 from labeler.export import load_class_map
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
@@ -55,6 +58,11 @@ def main() -> int:
     ap.add_argument("--version", default=None)
     ap.add_argument("--model", type=Path, default=None)
     ap.add_argument("--out", type=Path, default=OUT_DIR)
+    ap.add_argument(
+        "--gt-context",
+        action="store_true",
+        help="naloz GT context_assignments z bazy (wiersze Y, kotwice listwy/kabla)",
+    )
     args = ap.parse_args()
 
     conf = args.conf if args.conf is not None else yolo_conf_threshold()
@@ -94,9 +102,34 @@ def main() -> int:
             cv2.rectangle(img, (x, y), (int(d.x + d.width), int(d.y + d.height)), c, 3)
             cv2.putText(img, f"{d.class_name} {d.confidence:.0%}", (x + 2, max(y - 5, 14)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, c, 2, cv2.LINE_AA)
+
+        ctx_count = 0
+        if args.gt_context:
+            data = load_annotation(page.stem)
+            if data:
+                record = LabelRecord.model_validate(data)
+                ctx = ContextResolver().resolve(record.bboxes)
+                ctx_count = len(ctx)
+                by_id = {b.id: b for b in record.bboxes}
+                for row in group_into_rows(record.bboxes):
+                    y_line = int(row.mean_cy)
+                    cv2.line(img, (0, y_line), (img.shape[1], y_line), (255, 128, 0), 1)
+                for a in ctx:
+                    b = by_id.get(a.bbox_id)
+                    if not b:
+                        continue
+                    cx, cy = int(b.x + b.width / 2), int(b.y + b.height / 2)
+                    label = a.role
+                    if a.strip_kind:
+                        label += f"->{a.strip_kind}"
+                    cv2.circle(img, (cx, cy), 4, (0, 200, 255), -1)
+                    cv2.putText(img, label, (cx + 4, cy - 4),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 200, 255), 1, cv2.LINE_AA)
+
         name = f"{page.stem}.png"
         cv2.imwrite(str(args.out / name), img)
         per_page.append({"page": page.stem, "image": name, "count": len(dets),
+                         "ctx_gt": ctx_count,
                          "by_class": dict(counts.most_common())})
         print(f"{page.stem}: {len(dets)} detekcji")
 
@@ -105,8 +138,9 @@ def main() -> int:
     for p in per_page:
         chips = " ".join(f"<span class='chip'>{_esc(k)}: {v}</span>"
                          for k, v in p["by_class"].items()) or "<span class='muted'>0</span>"
+        ctx_note = f", {p['ctx_gt']} ctx GT" if args.gt_context else ""
         sections.append(
-            f"<section><h2>{_esc(p['page'])} <small>{p['count']} detekcji</small></h2>"
+            f"<section><h2>{_esc(p['page'])} <small>{p['count']} detekcji{ctx_note}</small></h2>"
             f"<div class='chips'>{chips}</div>"
             f"<div class='imgwrap'><img src='{p['image']}' loading='lazy'></div></section>"
         )

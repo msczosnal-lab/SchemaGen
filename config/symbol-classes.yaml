@@ -11,9 +11,6 @@ classes:
 - cewka_zaworow
 - ekranowanie_kabla
 - gniazdo_rj_45
-- listwa_zlaczek
-- oznaczenie_kabla
-- oznaczenie_przewodu
 - polaczenie_przewodow
 - przekaznik_polaryzowany
 - strzalka_potencjalu_wejsciowa
@@ -24,9 +21,7 @@ classes:
 - styki_nc
 - styki_przekaznika
 - terminal_plc
+- terminal_przylaczeniowy
 - terminal_sterownika_safety
 - urzadzenie
 - wylacznik_nadpradowy
-- zlacze
-- zlaczka
-- zwarta_listwa_zlaczek

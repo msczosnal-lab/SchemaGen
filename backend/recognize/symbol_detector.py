@@ -7,6 +7,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
+from backend.geometry.row_layout import dedup_detections_by_row
 from backend.ingest.image_utils import load_bgr
 from backend.models.detection import SymbolDetection
 from backend.runtime_config import yolo_conf_threshold, yolo_imgsz
@@ -182,4 +183,4 @@ class OnnxSymbolDetector:
                     height=float(hs[i]),
                 )
             )
-        return detections
+        return dedup_detections_by_row(detections)

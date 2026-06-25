@@ -4,6 +4,36 @@
 
 ---
 
+## 2026-06-24 [Cursor] — Pętla treningowa + handoff Claude OCR
+
+Temat: **train_cycle, stały val, autolabel batch, delegacja filarów tekst/linie**
+
+### Co zrobione (Cursor)
+
+- `scripts/train_cycle.py` — export → train → ONNX → preview + log JSONL
+- `config/val-pages.yaml` — 6 stron Adamed (p025–p050) jako stały val
+- `train/dataset_export.py` — podział train/val ze stałej listy
+- Audyt: `data/output/class_report_audit.json` (75 stron, 2762 bbox, 24 klasy YOLO)
+- Autolabel: `data/output/autolabel_batch_log.json` (+138 stron, 782 propozycje)
+
+### Filip — teraz
+
+1. **Review autolabel** w labelerze (incognito) — propozycje modelu wymagają akceptacji
+2. `python scripts/train_cycle.py --name symbols_atomic_v2`
+3. Galeria: `data/output/preview_batch/symbols_atomic_v2/index.html`
+
+### Claude — PRIORYTET #1
+
+[`sync/PROMPT-CLAUDE-002-OCR.md`](PROMPT-CLAUDE-002-OCR.md) — **002-ocr-engine** (PaddleOCR)
+
+Po OCR: [`sync/PROMPT-CLAUDE-002-LINES.md`](PROMPT-CLAUDE-002-LINES.md) — linie w labelerze + line tracer.
+
+Handoff: [`sync/KOLEJNE-ZADANIE.md`](KOLEJNE-ZADANIE.md)
+
+Commit pending: `[Cursor] train: train_cycle + fixed val-pages + autolabel batch`
+
+---
+
 ## 2026-06-15 [Filip/Cursor] — Reset WRT01, archiwum starych bboxów
 
 Temat: **WRT01 od zera — workflow bbox-first + paleta (010). Claude wstrzymany.**

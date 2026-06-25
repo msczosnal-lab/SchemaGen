@@ -98,3 +98,44 @@ def test_export_yolo_empty_tag_skipped() -> None:
         path = export_yolo(record, Path(tmp))
         text = path.read_text(encoding="utf-8").strip()
         assert text == ""  # pominiety
+
+
+def test_label_to_schema_context_assignments() -> None:
+    record = LabelRecord(
+        page_id="ctx",
+        image_path="ctx.png",
+        image_width=200,
+        image_height=200,
+        bboxes=[
+            BboxAnnotation(id="z1", class_name="element", x=10, y=50, width=6, height=6,
+                           tag="złączka"),
+            BboxAnnotation(id="lst", class_name="element", x=5, y=48, width=40, height=10,
+                           tag="listwa złączek"),
+        ],
+    )
+    model = label_to_schema(record)
+    assert model.context_assignments
+    z1 = next(a for a in model.context_assignments if a.bbox_id == "z1")
+    assert z1.role == "zlaczka"
+    assert z1.anchor_id == "lst"
+
+
+def test_export_yolo_contextual_tag_skipped() -> None:
+    """Klasy kontekstowe (train-classes.yaml) zostaja w GT, nie w YOLO."""
+    record = LabelRecord(
+        page_id="ctx",
+        image_path="test.png",
+        image_width=100,
+        image_height=100,
+        bboxes=[
+            BboxAnnotation(id="a", class_name="element", x=10, y=10, width=20, height=20,
+                           tag="silnik"),
+            BboxAnnotation(id="b", class_name="element", x=40, y=10, width=10, height=10,
+                           tag="złączka"),
+        ],
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        path = export_yolo(record, Path(tmp))
+        lines = [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+        assert len(lines) == 1
+        assert lines[0].split()[0] == "0"  # tylko silnik -> motor

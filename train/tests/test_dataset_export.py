@@ -42,6 +42,15 @@ def test_split_train_val_deterministic() -> None:
     assert not ({r.page_id for r in train_recs} & {r.page_id for r in val_recs})
 
 
+def test_split_fixed_val_pages() -> None:
+    recs = [_record(f"p{i}") for i in range(10)]
+    recs[3].page_id = "val_a"
+    recs[7].page_id = "val_b"
+    train_recs, val_recs = split_train_val(recs, val_page_ids=frozenset({"val_a", "val_b"}))
+    assert {r.page_id for r in val_recs} == {"val_a", "val_b"}
+    assert {r.page_id for r in train_recs} == {f"p{i}" for i in range(10) if i not in (3, 7)}
+
+
 def test_split_single_record_shared() -> None:
     recs = [_record("only")]
     train_recs, val_recs = split_train_val(recs)

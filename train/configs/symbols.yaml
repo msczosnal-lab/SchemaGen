@@ -1,8 +1,9 @@
 # YOLOv8n — RTX 2080 (8GB VRAM)
+# UWAGA: train/train_symbols.py czyta imgsz/batch z config/runtime.yaml (nie ten plik).
 model: yolov8n.pt
-epochs: 50
-batch: 8
-imgsz: 640
+epochs: 150
+batch: 4
+imgsz: 1536
 device: 0
 workers: 4
-patience: 15
+patience: 30

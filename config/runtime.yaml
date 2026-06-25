@@ -1,4 +1,4 @@
 # YOLO / ONNX — RTX 2080 8 GB
-yolo_imgsz: 1280
+yolo_imgsz: 1536
 yolo_batch: 4
-yolo_conf_threshold: 0.15
+yolo_conf_threshold: 0.25

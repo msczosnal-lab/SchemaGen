@@ -12,8 +12,20 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import sys
+from pathlib import Path
 
-from backend.class_map import build_class_map, class_distribution, load_palette_map
+# Uruchomienie: python scripts/class_report.py (bez wymogu pip install -e .)
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from backend.class_map import (
+    build_class_map,
+    class_distribution,
+    load_palette_map,
+    load_yolo_exclude_classes,
+)
 from backend.models.label import LabelRecord
 from backend.paths import DB_PATH
 
@@ -46,14 +58,20 @@ def main() -> int:
         return 1
 
     pmap = load_palette_map()
-    dist = class_distribution(recs, pmap)
+    dist_all = class_distribution(recs, pmap)
+    dist = class_distribution(recs, pmap, yolo_only=True)
+    exclude = load_yolo_exclude_classes()
     class_map, _ = build_class_map(recs, min_count=args.min_count, bucket_rare=False)
 
     total_bbox = sum(len(r.bboxes) for r in recs)
-    tagged = sum(dist.values())
+    tagged = sum(dist_all.values())
+    contextual_n = sum(dist_all[c] for c in exclude if c in dist_all)
     print(f"Stron: {len(recs)} | bbox: {total_bbox} | otagowanych: {tagged} "
           f"| bez tagu (pominiete): {total_bbox - tagged}")
-    print(f"Klas (po min-count={args.min_count}): {len(class_map)}\n")
+    if exclude:
+        print(f"Kontekstowe (bez YOLO, GT relacji): {contextual_n} bbox w klasach: "
+              f"{', '.join(sorted(exclude))}")
+    print(f"Klas YOLO (po min-count={args.min_count}): {len(class_map)}\n")
     print(f"{'id':>3}  {'klasa':<32} {'instancji':>9}")
     print("-" * 48)
     for name, idx in sorted(class_map.items(), key=lambda kv: kv[1]):

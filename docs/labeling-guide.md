@@ -4,7 +4,9 @@ Wizja trzech filarow: [`schematic-interpretation.md`](schematic-interpretation.m
 
 ## Cel (etap 1 — symbole graficzne)
 
-Tworzysz ground truth bboxow do treningu YOLO (klasa `element`) i JSON/schema.
+Tworzysz ground truth bboxow do JSON/schema i — dla klas **atomowych** — do treningu YOLO.
+
+Pelna instrukcja treningu: [`../TRENING-SIEC.md`](../TRENING-SIEC.md)
 
 ## Workflow labelera (prompt 010)
 
@@ -26,23 +28,40 @@ Skroty: `/` = focus wyszukiwarki typu, strzalki = zmiana strony.
 - **Czestotliwosc:** licznik uzyc w SQLite — bez filtra najczesciej uzywane hasla na gorze listy
 - **Nieprzypisany bbox:** szary, przerywany obrys — mozna zapisac, ale warto uzupelnic typ
 
-## Klasa YOLO
+## Klasa YOLO (multi-class)
 
-Zobacz `config/symbol-classes.yaml` — na etapie 1 tylko **`element`**. Haslo (`tag`) idzie do JSON, **nie** do pliku YOLO `.txt`.
+Zobacz `config/symbol-classes.yaml` — lista klas **atomowych** (auto-generowana przy eksporcie).
+
+Typ wpisujesz w polu **`tag`**. Eksport YOLO bierze tag → klase kanoniczna (`backend/class_map.py`).
+
+### Klasy kontekstowe (bez YOLO)
+
+Oznaczaj w labelerze — potrzebne do GT relacji i `ContextResolver` — ale **nie ucz** ich w YOLO (`config/train-classes.yaml`):
+
+| Rząd | Tagi (przykłady) |
+|------|------------------|
+| złączki → listwa / zwarta listwa | `złączka`, `listwa złączek`, `zwarta listwa złączek` |
+| złącza (rząd bez „listy”) | `złącze` |
+| oznaczniki → oznaczenie kabla | `oznaczenie przewodu`, `oznaczenie kabla` |
+| terminale urządzenia | `terminale urządzenia` |
+
+**W YOLO zostają** m.in. `terminal_plc`, `relay`, `styki`, `led`.
+
+Przy eksporcie `.schema.json` powstaje tez `context_assignments[]` (wiersze + kotwice).
 
 ## Hierarchia bboxow
 
-Duzy bbox-blok (np. `modul zasilania`) + mniejsze symbole w srodku — system sam wykrywa `parent_id`, `depth`, `rel_bbox`. Eksport YOLO = wszystkie prostokaty.
+Duzy bbox-blok (np. `modul zasilania`) + mniejsze symbole w srodku — system sam wykrywa `parent_id`, `depth`, `rel_bbox`. Eksport YOLO = tylko klasy atomowe (nie kontekstowe).
 
 ## Zlozone urzadzenia (device_block)
 
-Na razie: **jeden obrys** + haslo blokowe (`szafa`, `listwa zaciskow`). Terminali nie oznaczaj — osobny tryb pozniej ([`docs/adr/device-block-stub.md`](adr/device-block-stub.md)).
+Na razie: **jeden obrys** + haslo blokowe (`szafa`, `listwa zaciskow`). Terminali urządzenia oznaczaj osobno w rzędzie na skraju bloku ([`docs/adr/device-block-stub.md`](adr/device-block-stub.md)).
 
 ## Po eksporcie
 
 Pliki w `data/labeled/`:
-- `labels/*.txt` — YOLO (klasa `element`)
-- `*.schema.json` — SchemaModel GT z `tag`
+- `labels/*.txt` — YOLO (tylko klasy atomowe)
+- `*.schema.json` — SchemaModel GT z `tag`, `spatial_relations`, `context_assignments`
 - `data.yaml` — konfig treningu
 
 ## Nastepne filary (nie w tym labelerze jeszcze)

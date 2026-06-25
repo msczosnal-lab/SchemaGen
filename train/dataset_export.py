@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,10 +24,14 @@ import yaml
 
 from backend.db import list_pages, load_annotation
 from backend.models.label import LabelRecord
-from backend.paths import LABELED, RAW
+from backend.paths import LABELED, RAW, SYMBOL_CLASSES, VAL_PAGES
 from labeler.export import find_raw_image, yolo_label_lines
-from backend.class_map import build_class_map, load_palette_map
-from backend.paths import SYMBOL_CLASSES
+from backend.class_map import (
+    build_class_map,
+    load_palette_map,
+    load_yolo_exclude_classes,
+    tag_to_class,
+)
 
 
 def load_labeled_records() -> list[LabelRecord]:
@@ -45,13 +50,39 @@ def load_labeled_records() -> list[LabelRecord]:
     return records
 
 
+def load_val_page_ids() -> frozenset[str]:
+    """page_id ze stalym zestawem val (config/val-pages.yaml)."""
+    if not VAL_PAGES.exists():
+        return frozenset()
+    data = yaml.safe_load(VAL_PAGES.read_text(encoding="utf-8")) or {}
+    pages = data.get("val_pages") or []
+    return frozenset(str(p) for p in pages if p)
+
+
 def split_train_val(
-    records: list[LabelRecord], val_ratio: float = 0.2
+    records: list[LabelRecord],
+    val_ratio: float = 0.2,
+    val_page_ids: frozenset[str] | None = None,
 ) -> tuple[list[LabelRecord], list[LabelRecord]]:
-    """Deterministyczny podzial (sort po page_id). **Ostatnie** strony ida do val.
+    """Podzial train/val.
+
+    Gdy ``config/val-pages.yaml`` ma wpisy (lub przekazano ``val_page_ids``),
+    strony z tej listy ida wylacznie do val; reszta do train.
+    W przeciwnym razie: deterministyczny podzial — ostatnie strony po sortowaniu
+    ``page_id`` (``val_ratio``).
 
     Przy <=1 rekordzie ta sama strona trafia do train i val (za malo danych).
     """
+    fixed = val_page_ids if val_page_ids is not None else load_val_page_ids()
+    if fixed:
+        val = [r for r in records if r.page_id in fixed]
+        train = [r for r in records if r.page_id not in fixed]
+        if train and val:
+            return sorted(train, key=lambda r: r.page_id), sorted(
+                val, key=lambda r: r.page_id
+            )
+        # Brak dopasowania (test/fixture lub val bez adnotacji) — fallback ratio.
+
     ordered = sorted(records, key=lambda r: r.page_id)
     n = len(ordered)
     if n <= 1:
@@ -119,13 +150,22 @@ def export_dataset(
     raw = raw_dir or RAW
     recs = records if records is not None else load_labeled_records()
     palette_map = load_palette_map()
+    exclude = load_yolo_exclude_classes()
     class_map, distribution = build_class_map(
         recs, min_count=min_count, bucket_rare=bucket_rare
     )
+    dist_all: Counter = Counter()
+    for rec in recs:
+        for b in rec.bboxes:
+            cls = tag_to_class(b.tag, palette_map)
+            if cls:
+                dist_all[cls] += 1
+    contextual_excluded = {c: dist_all[c] for c in exclude if c in dist_all}
     if not class_map:
         class_map = {"element": 0}
     persist_class_map(class_map)
 
+    fixed_val = load_val_page_ids()
     train, val = split_train_val(recs, val_ratio)
     out.mkdir(parents=True, exist_ok=True)
     n_train = _write_split(train, out, "train", class_map, raw, palette_map)
@@ -144,11 +184,14 @@ def export_dataset(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "classes": {name: idx for name, idx in class_map.items()},
         "val_ratio": val_ratio,
+        "fixed_val_pages": sorted(fixed_val) if fixed_val else [],
         "train_pages": [r.page_id for r in train],
         "val_pages": [r.page_id for r in val],
         "train_count": n_train,
         "val_count": n_val,
         "total_bboxes": sum(len(r.bboxes) for r in recs),
+        "yolo_bboxes": sum(distribution.values()),
+        "contextual_excluded": contextual_excluded,
         "num_classes": len(class_map),
         "min_count": min_count,
         "excluded_classes": {

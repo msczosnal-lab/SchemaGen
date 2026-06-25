@@ -2,6 +2,10 @@
 
 from backend.class_map import (
     build_class_map,
+    class_train_role,
+    is_yolo_exportable,
+    load_train_roles,
+    load_yolo_exclude_classes,
     normalize_tag,
     resolve_class_id,
     slugify,
@@ -71,12 +75,39 @@ def test_min_count_excludes_when_not_bucketing():
 
 
 def test_group_merge_from_config():
-    # config/class-groups.yaml: dwa scalenia
+    # config/class-groups.yaml: scalenia wylaczone (2026-06-20) — kazda klasa osobno
     assert tag_to_class("złączka") == "zlaczka"
-    assert tag_to_class("terminal przyłączeniowy") == "zlaczka"
+    assert tag_to_class("terminal przyłączeniowy") == "terminal_przylaczeniowy"
     assert tag_to_class("listwa złączek") == "listwa_zlaczek"
-    assert tag_to_class("terminale urządzenia") == "listwa_zlaczek"
-    # osobno (NIE scalane)
+    assert tag_to_class("terminale urządzenia") == "terminale_urzadzenia"
     assert tag_to_class("złącze") == "zlacze"
     assert tag_to_class("terminal plc") == "terminal_plc"
     assert tag_to_class("silnik") == "motor"
+
+
+def test_load_train_roles():
+    roles = load_train_roles()
+    assert "zlaczka" in roles["contextual"]
+    assert class_train_role("zlaczka") == "contextual"
+    assert class_train_role("motor") == "atomic"
+
+
+def test_contextual_classes_excluded_from_yolo():
+    exclude = load_yolo_exclude_classes()
+    for cls in (
+        "zlaczka", "zlacze", "listwa_zlaczek", "oznaczenie_kabla",
+        "oznaczenie_przewodu", "terminale_urzadzenia",
+    ):
+        assert cls in exclude
+    assert "motor" not in exclude
+    assert "terminal_plc" not in exclude
+    assert is_yolo_exportable("silnik") is True
+    assert is_yolo_exportable("złączka") is False
+    assert is_yolo_exportable("złącze") is False
+    assert is_yolo_exportable("terminal plc") is True
+    recs = [_rec("p1", ["silnik", "złączka", "złączka"])]
+    cmap, dist = build_class_map(recs)
+    assert "motor" in cmap
+    assert "zlaczka" not in cmap
+    assert dist.get("motor") == 1
+    assert resolve_class_id("złączka", cmap) is None
