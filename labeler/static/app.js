@@ -34,6 +34,37 @@ let paletteCache = [];
 let paletteCacheQuery = null;
 let paletteSearchTimer = null;
 
+// --- Tryb linii (prompt 002) ---
+const MODE_BBOX = "bbox";
+const MODE_LINE = "line";
+let mode = MODE_BBOX;
+let lines = [];                 // {id, points:[[x,y],...], role, style, semantic_group, color_ref}
+let activeLine = null;          // rysowana linia: {points:[...]}
+let selectedLineIdx = -1;
+let cursorImgPt = null;         // podgląd "gumki" do następnego punktu
+let eyedropperArmed = false;
+let semanticGroups = [];        // [{name, stroke, fill, style, roles, description}]
+const DEFAULT_LINE_ROLE = "wire";
+const LINE_STROKE = 3;
+const LINE_POINT_R = 4;
+
+const LINE_ROLE_COLORS = {
+  wire: "#111111",
+  bus: "#c026d3",
+  device_stroke: "#0066CC",
+  frame: "#00AA44",
+  dash: "#888888",
+  crossing: "#d97706",
+  leader: "#6b7280",
+  other: "#6b7280",
+};
+
+function lineStrokeColor(line) {
+  const grp = semanticGroups.find((g) => g.name === line.semantic_group);
+  if (grp && grp.stroke) return grp.stroke;
+  return LINE_ROLE_COLORS[line.role] || "#111111";
+}
+
 const editorHint = document.getElementById("editor-hint");
 const pagePrevBtn = document.getElementById("page-prev");
 const pageNextBtn = document.getElementById("page-next");
@@ -78,6 +109,7 @@ function suggestedTag(b) {
 function capturePageState() {
   return {
     bboxes: JSON.parse(JSON.stringify(bboxes)),
+    lines: JSON.parse(JSON.stringify(lines)),
     nextSeq,
     image_width: bgImage ? bgImage.naturalWidth : canvas.width,
     image_height: bgImage ? bgImage.naturalHeight : canvas.height,
