@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-06-25 [ZW] — Prompt 002-ocr: PaddleOcrEngine (filar TEKST)
+
+Temat: **OCR offline PaddleOCR — `extract_text` + `TextDetection`. Testy bez pobierania modeli.**
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `backend/recognize/ocr_engine.py` | `TextDetection` (dataclass: text, bbox=[x1,y1,x2,y2], confidence) + `PaddleOcrEngine.extract_text()` |
+| `backend/tests/test_ocr_engine.py` | 5 testów: parsowanie 2 detekcji, pusta strona, linia malformed, guard braku biblioteki, degradacja kwargs |
+
+### Decyzje techniczne
+
+- **Leniwy import** `paddleocr` (wzór jak onnxruntime w `symbol_detector`). Brak biblioteki → `ImportError` z hintem `pip install paddlepaddle paddleocr`.
+- **Konstruktor bez zmian** `PaddleOcrEngine(use_gpu=True)` — dodany opcjonalny `lang="en"` (default zgodny z GraphBuilder, który tworzy bez argumentów).
+- **bbox**: PaddleOCR zwraca poligon 4-punktowy → rzut na prostokąt osiowy `[min x, min y, max x, max y]` w pikselach oryginału.
+- **Tolerancja wersji PaddleOCR**: `_build_engine` próbuje kolejno `use_gpu/show_log` (2.x) → minimalne kwargi (3.x usunęło te argumenty). `_run_engine` preferuje `.ocr(cls=True)`, fallback `.predict()`.
+- **Język/PL**: default `lang='en'`. Dla diakrytyków PL użyj `PaddleOcrEngine(lang='latin')` — model latin obejmuje polskie znaki. Do potwierdzenia na realnych stronach.
+
+### Testy
+
+```
+pytest backend/tests labeler/tests  →  93 passed
+```
+(w sandboxie doinstalowane: pydantic, fastapi, opencv-headless, numpy, pyyaml, pillow, httpx, svgwrite, pytest)
+
+### Filip — smoke u siebie (RTX 2080)
+
+```powershell
+pip install paddlepaddle-gpu paddleocr   # CPU: paddlepaddle paddleocr
+python -c "from backend.recognize.ocr_engine import PaddleOcrEngine; import glob; e=PaddleOcrEngine(use_gpu=True); print(e.extract_text(glob.glob('data/raw/*.png')[0])[:5])"
+```
+
+Modele PaddleOCR pobierają się raz przy 1. uruchomieniu (online) — potem offline. [RYZYKO] runtime backend/recognize ma być offline: pobranie modeli to jednorazowy setup, nie cloud API w runtime.
+
+### Nie ruszone
+
+GraphBuilder.build (NotImplementedError — prompt 004), line tracer (PROMPT-CLAUDE-002-LINES), atlas QET.
+
+---
+
 ## 2026-06-14 [ZW] — Prompt 008a: QET atlas extract → symbol-reference.yaml
 
 Temat: **Parser `.elmt` QET + renderer PNG + builder YAML + testy (faza 008a DONE).**
