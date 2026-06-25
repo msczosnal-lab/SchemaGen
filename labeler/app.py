@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.catalog import list_element_labels, register_labels
+from backend.colors.palette import load_palette
 from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
 from backend.geometry.bbox_layout import enrich_label_record
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
