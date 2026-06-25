@@ -1415,6 +1415,33 @@ document.addEventListener("keydown", (e) => {
     savePageToServer(currentPageId);
     return;
   }
+  if (e.key === "b" || e.key === "B") {
+    e.preventDefault();
+    setMode(MODE_BBOX);
+    return;
+  }
+  if (e.key === "l" || e.key === "L") {
+    e.preventDefault();
+    setMode(MODE_LINE);
+    return;
+  }
+  if (mode === MODE_LINE && e.key === "Enter") {
+    e.preventDefault();
+    finishActiveLine();
+    return;
+  }
+  if (e.key === "Escape") {
+    if (activeLine) {
+      e.preventDefault();
+      cancelActiveLine();
+      return;
+    }
+  }
+  if ((e.key === "Delete" || e.key === "Backspace") && mode === MODE_LINE && selectedLineIdx >= 0) {
+    e.preventDefault();
+    removeLineAt(selectedLineIdx);
+    return;
+  }
   if (e.key === "ArrowLeft") {
     e.preventDefault();
     navigatePage(-1);
