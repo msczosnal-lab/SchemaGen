@@ -140,6 +140,7 @@ function loadLocalDraft(pageId) {
 
 function applyPageState(state) {
   bboxes = state?.bboxes ? JSON.parse(JSON.stringify(state.bboxes)) : [];
+  lines = state?.lines ? JSON.parse(JSON.stringify(state.lines)) : [];
   sortBboxesNewestFirst();
   ensureSeqNumbers();
   if (state?.nextSeq && state.nextSeq > nextSeq) {
@@ -203,7 +204,14 @@ function buildSavePayload(pageId, state) {
         depth: b.depth || 0,
         rel_bbox: b.rel_bbox || [],
       })),
-      lines: [],
+      lines: (state.lines || []).map((l) => ({
+        id: l.id,
+        points: l.points,
+        role: l.role || DEFAULT_LINE_ROLE,
+        style: l.style || "solid",
+        semantic_group: l.semantic_group || "",
+        color_ref: l.color_ref || "",
+      })),
       texts: [],
       connections: [],
     },
