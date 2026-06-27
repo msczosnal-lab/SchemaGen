@@ -59,3 +59,18 @@ def test_bus_along_edge_demoted() -> None:
     bus = GraphicLine(id="gl", points=[[100, 200], [300, 200]], role="bus")  # dolny bok
     [out] = apply_sieve([bus], [COMP], [], edge_tol=6.0)
     assert out.role == "frame"
+
+
+def test_line_inside_component_demoted_other() -> None:
+    # tabelka wewnatrz terminala — cala w bbox [100,100,300,200]
+    inner = _wire([[150, 150], [250, 150]])
+    [out] = apply_sieve([inner], [COMP], [], edge_tol=6.0)
+    assert out.role == "other"
+    assert not LineClassifier.is_connection_candidate(out)
+
+
+def test_wire_crossing_boundary_stays_wire() -> None:
+    # przewod z wnetrza na zewnatrz (wychodzi poza prawy bok) -> zostaje wire
+    crossing = _wire([[250, 150], [400, 150]])
+    [out] = apply_sieve([crossing], [COMP], [], edge_tol=6.0)
+    assert out.role == "wire"
