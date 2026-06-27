@@ -62,3 +62,11 @@ def yolo_batch() -> int:
 
 def yolo_conf_threshold() -> float:
     return float(runtime_settings()["yolo_conf_threshold"])
+
+
+def roi_bottom_cut_frac() -> float:
+    """Ulamek wysokosci: linie w calosci ponizej sa pomijane. Clamp do (0, 1]."""
+    val = float(runtime_settings()["roi_bottom_cut_frac"])
+    if val <= 0.0 or val > 1.0:
+        return 1.0
+    return val
