@@ -102,6 +102,26 @@ def _is_box_edge(line: GraphicLine, components: list[Component], tol: float) -> 
     return False
 
 
+def _is_inside_component(line: GraphicLine, components: list[Component], margin: float) -> bool:
+    """True gdy CALA linia miesci sie w bbox symbolu (grafika wewnetrzna: tabelka/obrys).
+
+    Przewod laczacy wychodzi poza bbox (dotyka brzegu i idzie dalej) -> nie zlapany.
+    """
+    lb = _line_bbox(line.points)
+    for c in components:
+        b = c.bbox
+        if len(b) < 4:
+            continue
+        if (
+            lb[0] >= b[0] - margin
+            and lb[1] >= b[1] - margin
+            and lb[2] <= b[2] + margin
+            and lb[3] <= b[3] + margin
+        ):
+            return True
+    return False
+
+
 def _line_bbox(points: list[list[float]]) -> list[float]:
     xs = [pt[0] for pt in points]
     ys = [pt[1] for pt in points]
