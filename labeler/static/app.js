@@ -1119,10 +1119,11 @@ function setMode(next) {
   if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
   if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
   if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
+  updateLineToolbar();
   updateLineCursor();
   document.getElementById("hint").textContent =
     mode === MODE_LINE
-      ? "Linia: klik = zaznacz | N / Nowa linia = rysuj | Del = usun | Backspace = cofnij punkt"
+      ? "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt"
       : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb | Del = usun zazn. linie";
   redraw();
 }
@@ -1147,7 +1148,6 @@ function finishActiveLine() {
   };
   lines.push(line);
   activeLine = null;
-  lineDrawing = false;
   cursorImgPt = null;
   selectedLineIdx = lines.length - 1;
   updateLineCursor();
@@ -1159,7 +1159,6 @@ function finishActiveLine() {
 
 function cancelActiveLine() {
   activeLine = null;
-  lineDrawing = false;
   cursorImgPt = null;
   updateLineCursor();
   redraw();
@@ -1178,12 +1177,12 @@ function undoActiveLinePoint() {
 }
 
 function deleteSelectedLine() {
-  if (selectedLineIdx < 0) {
-    saveStatusEl.textContent = "Zaznacz linie (klik na schemacie lub na liscie) albo cofnij rysowanie: Backspace";
+  if (selectedLineIdx >= 0) {
+    removeLineAt(selectedLineIdx);
+    saveStatusEl.textContent = "Linia usunieta — Ctrl+S aby zapisac";
     return;
   }
-  removeLineAt(selectedLineIdx);
-  saveStatusEl.textContent = "Linia usunieta — Ctrl+S aby zapisac";
+  armLineDelete();
 }
 
 function removeLineAt(idx) {
@@ -1369,18 +1368,15 @@ canvas.addEventListener("mousedown", (e) => {
       applyEyedropper(raw.x, raw.y);
       return;
     }
-    const hit = hitTestLine(raw);
-    if (hit >= 0) {
-      if (activeLine) cancelActiveLine();
-      lineDrawing = false;
-      selectLine(hit);
-      updateLineCursor();
-      return;
-    }
-    if (!lineDrawing) {
-      selectedLineIdx = -1;
-      renderLineList();
-      redraw();
+    if (lineDeleteArmed) {
+      const hit = hitTestLine(raw);
+      if (hit >= 0) {
+        removeLineAt(hit);
+        disarmLineDelete();
+        saveStatusEl.textContent = "Linia usunieta — mozesz rysowac dalej (Ctrl+S = zapis)";
+      } else {
+        saveStatusEl.textContent = "Nie trafiono — kliknij istniejaca linie (Esc = anuluj)";
+      }
       return;
     }
     const pt = lineSnapPoint(raw, e.shiftKey);
@@ -1533,17 +1529,18 @@ document.addEventListener("keydown", (e) => {
     redraw();
     return;
   }
-  if (mode === MODE_LINE && (e.key === "n" || e.key === "N")) {
-    e.preventDefault();
-    startLineDrawing();
-    return;
-  }
   if (mode === MODE_LINE && e.key === "Enter") {
     e.preventDefault();
     finishActiveLine();
     return;
   }
   if (e.key === "Escape") {
+    if (lineDeleteArmed) {
+      e.preventDefault();
+      disarmLineDelete();
+      saveStatusEl.textContent = "Usuwanie anulowane";
+      return;
+    }
     if (activeLine) {
       e.preventDefault();
       cancelActiveLine();
@@ -1595,17 +1592,23 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
-document.getElementById("new-line-btn")?.addEventListener("click", () => {
-  if (mode !== MODE_LINE) setMode(MODE_LINE);
-  startLineDrawing();
-});
 document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
-  deleteSelectedLine();
+  if (lineDeleteArmed) {
+    disarmLineDelete();
+    saveStatusEl.textContent = "Usuwanie wylaczone";
+    return;
+  }
+  armLineDelete();
 });
 document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   eyedropperArmed = !eyedropperArmed;
+  if (eyedropperArmed) {
+    lineDeleteArmed = false;
+    if (activeLine) cancelActiveLine();
+  }
+  updateLineToolbar();
   updateLineCursor();
   saveStatusEl.textContent = eyedropperArmed
     ? "Pipeta uzbrojona — kliknij piksel obrazu"
