@@ -868,6 +868,7 @@ async function selectPage(pageId) {
   focusSearchIdx = null;
   selectedLineIdx = -1;
   activeLine = null;
+  lineDrawing = false;
   cursorImgPt = null;
 
   bgImage = await new Promise((resolve, reject) => {
