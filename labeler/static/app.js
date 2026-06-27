@@ -1085,10 +1085,10 @@ function setMode(next) {
   if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
   if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
   canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
-  document.getElementById("hint").textContent =
+    document.getElementById("hint").textContent =
     mode === MODE_LINE
-      ? "Linia: klik = punkt (orto H/V), Enter/dblklik = koniec, O = orto, Shift = wolny | Del | pipeta"
-      : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb";
+      ? "Linia: klik = punkt (orto), klik linii = zaznacz, Del/Usun = skasuj, Backspace = cofnij punkt"
+      : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb | Del = usun zazn. linie";
   redraw();
 }
 
@@ -1124,6 +1124,27 @@ function cancelActiveLine() {
   activeLine = null;
   cursorImgPt = null;
   redraw();
+}
+
+function undoActiveLinePoint() {
+  if (!activeLine?.points?.length) {
+    cancelActiveLine();
+    return;
+  }
+  activeLine.points.pop();
+  if (!activeLine.points.length) {
+    cursorImgPt = null;
+  }
+  redraw();
+}
+
+function deleteSelectedLine() {
+  if (selectedLineIdx < 0) {
+    saveStatusEl.textContent = "Zaznacz linie (klik na schemacie lub na liscie) albo cofnij rysowanie: Backspace";
+    return;
+  }
+  removeLineAt(selectedLineIdx);
+  saveStatusEl.textContent = "Linia usunieta — Ctrl+S aby zapisac";
 }
 
 function removeLineAt(idx) {
@@ -1167,7 +1188,7 @@ function pointSegDist(px, py, ax, ay, bx, by) {
 }
 
 function hitTestLine(pt) {
-  const tol = 6 / scale;
+  const tol = 10 / scale;
   for (let i = 0; i < lines.length; i++) {
     const pts = lines[i].points || [];
     for (let k = 0; k + 1 < pts.length; k++) {
@@ -1247,8 +1268,8 @@ function renderLineList() {
     const del = document.createElement("button");
     del.type = "button";
     del.className = "delete-btn";
-    del.textContent = "×";
-    del.title = "Usun linie";
+    del.textContent = "Usuń";
+    del.title = "Usun te linie";
     del.addEventListener("click", (e) => {
       e.stopPropagation();
       removeLineAt(i);
