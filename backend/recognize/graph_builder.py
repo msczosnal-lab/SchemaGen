@@ -242,6 +242,24 @@ def _edge_tol(size: tuple[int, int] | None) -> float:
     return max(6.0, 0.004 * max(w, h))
 
 
+def _apply_roi(
+    lines: list[GraphicLine], size: tuple[int, int] | None, frac: float
+) -> list[GraphicLine]:
+    """Usun linie w CALOSCI ponizej frac*H (dol arkusza). frac>=1 lub brak size -> no-op."""
+    if not size or frac >= 1.0:
+        return lines
+    cutoff = frac * size[1]
+    out: list[GraphicLine] = []
+    for ln in lines:
+        if not ln.points:
+            out.append(ln)
+            continue
+        top_y = min(p[1] for p in ln.points)  # najwyzszy punkt linii
+        if top_y < cutoff:  # linia siega obszaru rysunku -> zostaw
+            out.append(ln)
+    return out
+
+
 def _intersection_area(a: list[float], b: list[float]) -> float:
     """Pole przeciecia dwoch bboxow [x1,y1,x2,y2]. 0 gdy brak nakladania."""
     if len(a) < 4 or len(b) < 4:
