@@ -307,3 +307,11 @@ elements:
   label: strzalka_potencjalu_wejsciowa
   yolo_class: element
   created_at: '2026-06-27T08:49:07.468891+00:00'
+- id: urzadzenie
+  label: urzadzenie
+  yolo_class: element
+  created_at: '2026-06-27T09:20:14.160943+00:00'
+- id: terminal_przylaczeniowy
+  label: terminal_przylaczeniowy
+  yolo_class: element
+  created_at: '2026-06-27T09:20:14.160943+00:00'
