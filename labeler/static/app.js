@@ -1176,15 +1176,6 @@ function undoActiveLinePoint() {
   redraw();
 }
 
-function deleteSelectedLine() {
-  if (selectedLineIdx >= 0) {
-    removeLineAt(selectedLineIdx);
-    saveStatusEl.textContent = "Linia usunieta — Ctrl+S aby zapisac";
-    return;
-  }
-  armLineDelete();
-}
-
 function removeLineAt(idx) {
   if (idx < 0 || idx >= lines.length) return;
   lines.splice(idx, 1);

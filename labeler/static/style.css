@@ -188,6 +188,11 @@ li.annotation-accordion.unassigned.active .summary-line {
   border-radius: 4px; cursor: pointer; font-size: 0.85rem;
 }
 #eyedropper-btn:hover { background: #444; }
+#delete-line-btn.armed,
+#eyedropper-btn.armed {
+  box-shadow: 0 0 0 2px #fff inset;
+  outline: 2px solid #ffb020;
+}
 #lines-heading { margin-top: 10px; padding-top: 8px; border-top: 1px solid #444; }
 #line-list { margin-bottom: 8px; }
 .line-row {
