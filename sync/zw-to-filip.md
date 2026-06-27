@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-06-27 [ZW] — Kalibracja LineTracer: progi względne do rozdzielczości
+
+Temat: **Szum Hough (p040: 1321 linii przy 6617px) → progi auto-skalowane. frac 0.02 wybrany wzrokowo (Filip).**
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `backend/recognize/line_tracer.py` | `auto_line_params(w,h)` + `LineTracer._params()`. Progi `None` → auto wg `max(W,H)`: `min_line_length=0.02·max`, `hough=max(50,min_line_length)`, `max_line_gap=0.0015·max`. Jawne int nadal nadpisują (testy/kalibracja). |
+| `backend/tests/test_line_tracer.py` | +2 testy: skalowanie progów (6617→132/132/10; floory 20/50/4) + override jawnego param. |
+
+### Dlaczego
+
+- Sztywne `min_line_length=30` było absurdalnie małe na skanie 6617px (literka) → 1321 linii.
+- Kalibracja wzrokowa (throwaway `preview_calib.py`, nakładki w `data/output/calib/`): **frac 0.02 = optimum** na p040 i p035. 0.03 ucinał linię stycznika; niżej — szum.
+- Klasyfikator woła ~wszystko „wire/bus" (kolor czarny+oś) → redukcja szumu MUSI zejść z tracera, nie z klasyfikatora.
+
+### Testy
+
+```
+pytest backend/tests labeler/tests  →  116 passed (mount sandboxu flip-flopował na świeżych plikach;
+                                        kanon poprawny, 2 nowe asercje = arytmetyka, policzone ręcznie)
+```
+
+### Zostaje otwarte (następny krok)
+
+[RYZYKO] Przy frac 0.02 wciąż leci **nadłapanie**, którego progiem NIE usuniemy:
+1. **Obramówki urządzeń/terminali** klasyfikowane jako wire/bus (czarne, w osi, brak koloru sem. → default wire). To wada heurystyki klasyfikatora.
+2. **Artefakty z tekstu** (krótkie segmenty w osi).
+→ Potrzebne **sito po klasyfikacji** (np. odrzucanie segmentów tworzących zamknięte prostokąty = ramki; filtr na bliskość bbox-tekstu). Osobny temat.
+
+[RYZYKO] Fragmentacja: realny przewód bywa cięty na kawałki → `GraphBuilder` łączy tylko końce jednego segmentu (p040: 4 connections). Docelowo: scalanie łańcuchów wire/bus w polilinie przed szukaniem terminali.
+
+### Throwaway (skasować)
+
+`calib_lines.py`, `preview_calib.py` — pomoce kalibracyjne, nie część pipeline.
+
+---
+
 ## 2026-06-27 [ZW] — Prompt 004: GraphBuilder.build (składanie 3 filarów)
 
 Temat: **`build()` składa SchemaModel z detekcji + OCR + linii. Connection TYLKO z wire/bus.**
