@@ -45,10 +45,19 @@ let cursorImgPt = null;         // podgląd "gumki" do następnego punktu
 let eyedropperArmed = false;
 let semanticGroups = [];        // [{name, stroke, fill, style, roles, description}]
 const DEFAULT_LINE_ROLE = "wire";
-const LINE_STROKE = 3;
-const LINE_POINT_R = 4;
+const LINE_STROKE = 7;
+const LINE_POINT_R = 6;
 
-const LINE_ROLE_COLORS = {
+const LINE_ROLE_LABELS = {
+  wire: "Przewod",
+  bus: "Szyna",
+  device_stroke: "Obrys urz.",
+  frame: "Ramka",
+  dash: "Pomocnicza",
+  crossing: "Skrzyzowanie",
+  leader: "Odnośnik",
+  other: "Inne",
+};
   wire: "#111111",
   bus: "#c026d3",
   device_stroke: "#0066CC",
@@ -59,7 +68,7 @@ const LINE_ROLE_COLORS = {
   other: "#6b7280",
 };
 
-function lineStrokeColor(line) {
+const LINE_ROLE_COLORS = {
   const grp = semanticGroups.find((g) => g.name === line.semantic_group);
   if (grp && grp.stroke) return grp.stroke;
   return LINE_ROLE_COLORS[line.role] || "#111111";
@@ -556,7 +565,7 @@ function drawLineOnCanvas(line, i) {
   if (pts.length < 1) return;
   const color = lineStrokeColor(line);
   ctx.strokeStyle = color;
-  ctx.lineWidth = (i === selectedLineIdx ? LINE_STROKE + 1.5 : LINE_STROKE) / scale;
+  ctx.lineWidth = (i === selectedLineIdx ? LINE_STROKE + 3 : LINE_STROKE) / scale;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   applyLineDash(line);
@@ -1052,9 +1061,11 @@ function setMode(next) {
   const bboxBtn = document.getElementById("mode-bbox");
   const lineBtn = document.getElementById("mode-line");
   const toolbar = document.getElementById("line-toolbar");
+  const lineHelp = document.getElementById("line-help");
   if (bboxBtn) bboxBtn.classList.toggle("active", mode === MODE_BBOX);
   if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
   if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
+  if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
   canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
   document.getElementById("hint").textContent =
     mode === MODE_LINE
