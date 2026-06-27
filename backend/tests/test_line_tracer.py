@@ -56,3 +56,21 @@ def test_merge_keeps_separate_lines() -> None:
     b = LineSegment(0, 90, 50, 90, "#000000")  # daleko, rownolegla
     merged = _merge_collinear([a, b], angle_tol_deg=6, gap_tol=12)
     assert len(merged) == 2
+
+
+def test_auto_params_scale_with_resolution() -> None:
+    # frac 0.02 (skalibrowane na p040/p035). Adamed 6617x4678 -> min_line_length ~132.
+    min_len, hough, gap = auto_line_params(6617, 4678)
+    assert min_len == round(0.02 * 6617)  # 132
+    assert hough == min_len               # hough auto = max(50, min_len)
+    assert gap == round(0.0015 * 6617)    # 10
+
+    # mala strona -> podlogi (floory), nie zera
+    small_len, small_hough, small_gap = auto_line_params(120, 120)
+    assert small_len == 20 and small_hough == 50 and small_gap == 4
+
+
+def test_explicit_params_override_auto() -> None:
+    # jawny min_line_length nie jest nadpisywany przez auto-skalowanie
+    tracer = LineTracer(min_line_length=20)
+    assert tracer._params(6617, 4678)[0] == 20
