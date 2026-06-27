@@ -5,6 +5,51 @@
 
 ---
 
+## 2026-06-27 [ZW] — Sito linii: obramówki/tekst poza wire/bus
+
+Temat: **Filtr po klasyfikacji — odsiewa obramówki urządzeń i artefakty tekstu z kandydatów na Connection.**
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `backend/recognize/line_sieve.py` | NOWY. `apply_sieve(lines, components, text_bboxes, edge_tol)` — czyste funkcje. wire/bus wzdłuż boku bbox symbolu → `frame`; krótki segment w bbox tekstu OCR → `other`. Nie rusza nie-kandydatów. |
+| `backend/recognize/graph_builder.py` | `build()`: OCR raz (texts współdzielone tag+sito), `apply_sieve` po `classify` przed `connections`; `_edge_tol(size)`. |
+| `backend/tests/test_line_sieve.py` | NOWY — 7 testów: górny/lewy/dolny bok→frame, przewód prostopadły (dotyka punktowo)→wire, daleko→wire, tekst→other, nie-kandydat nietknięty. |
+
+### Kluczowa heurystyka (rozróżnienie ramka vs przewód)
+
+- **Obramówka** biegnie *wzdłuż* krawędzi bbox (równolegle, pokrycie ≥60% krótszego zakresu, w tolerancji `edge_tol = max(6, 0.004·max(W,H))`).
+- **Przewód** *dotyka* krawędzi punktowo i idzie prostopadle na zewnątrz → pokrycie ~0 → zostaje wire.
+- Wykorzystuje bbox symboli z YOLO (filar już mamy) — zero nowych danych.
+
+### Testy
+
+```
+pytest backend/tests labeler/tests  →  123 passed  (+7 sito; 0 regresji; połączenie wire z test_build nietknięte)
+```
+
+### Filip — walidacja wzrokowa (RTX 2080)
+
+```powershell
+.venv311\Scripts\python.exe smoke_graph.py *p040*   # i *p035*
+```
+
+Zapisze `data/output/calib/<strona>_graph.png` + wypisze histogram ról i connections. Sprawdź:
+1. Czy obramówki urządzeń/terminali są **szare** (frame), a nie zielone/niebieskie.
+2. Czy artefakty tekstu są **żółte** (other).
+3. Czy realne przewody zostały **zielone/niebieskie** (wire/bus).
+4. Histogram `graphic_lines per rola` — ile zeszło z wire/bus do frame/other.
+
+[RYZYKO] Sito łapie ramki tylko tam, gdzie YOLO wykrył symbol. Terminale bez detekcji → ich obramówki przejdą. Jak dużo zostaje — zgłoś, rozważymy detekcję prostokątów niezależną od bbox.
+[RYZYKO] Fragmentacja (4 connections na p040) **nieruszona** — to osobny krok: scalanie łańcuchów wire/bus w polilinie.
+
+### Throwaway (skasować)
+
+`calib_lines.py`, `preview_calib.py`, `smoke_graph.py`.
+
+---
+
 ## 2026-06-27 [ZW] — Kalibracja LineTracer: progi względne do rozdzielczości
 
 Temat: **Szum Hough (p040: 1321 linii przy 6617px) → progi auto-skalowane. frac 0.02 wybrany wzrokowo (Filip).**
