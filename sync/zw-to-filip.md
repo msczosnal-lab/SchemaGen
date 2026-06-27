@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-06-27 [ZW] — Fix izolacji testów OCR (4 czerwone na .venv311)
+
+Temat: **`test_ocr_engine` failowało na PC Filip — delegacja do subprocesu omijała wstrzykniętą atrapę. Fix test-only.**
+
+### Przyczyna
+
+`PaddleOcrEngine.extract_text` deleguje do workera OCR (subprocess), gdy istnieje `.venv-ocr` **lub** `torch` w procesie. Fixture `_engine_with` wstrzykiwał atrapę silnika, ale nie wyłączał `_subprocess_ok` → na PC Filip (`.venv-ocr` obecny) testy szły do realnego workera → `RuntimeError: brak pliku page.png`. W sandboxie ZW (bez `.venv-ocr`) przechodziły — stąd nie wykryte wcześniej.
+
+### Fix (tylko testy, zero zmian w `ocr_engine.py`)
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/tests/test_ocr_engine.py` | `_engine_with` + test ImportError: `eng._subprocess_ok = False` → wymuszenie ścieżki in-process (atrapa zamiast workera). |
+
+### Wynik (Filip, .venv311)
+
+Przed: `125 passed, 4 failed` (wszystkie 4 = OCR subprocess, **nie regresja** — mój kod 004/sito/ROI zielony). Po fixie oczekiwane **129 passed**.
+
+---
+
 ## 2026-06-27 [ZW] — ROI: ucięcie dołu arkusza (config, stały %)
 
 Temat: **Pomijanie linii z dołu strony (tabliczka rysunkowa / tabelki) — próg w configu.**
