@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-06-27 [ZW] — ROI: ucięcie dołu arkusza (config, stały %)
+
+Temat: **Pomijanie linii z dołu strony (tabliczka rysunkowa / tabelki) — próg w configu.**
+
+### Co zrobione (kod)
+
+| Plik | Zmiana |
+|------|--------|
+| `config/runtime.yaml` | + `roi_bottom_cut_frac: 0.85` (pomiń dolne 15%). Zmieniasz tutaj, bez ruszania kodu. |
+| `backend/runtime_config.py` | + `roi_bottom_cut_frac()` (clamp do (0,1], default 1.0 = bez cięcia). |
+| `backend/recognize/graph_builder.py` | + `_apply_roi(lines, size, frac)` po sicie: usuwa linie, których NAJWYŻSZY punkt jest poniżej `frac·H`. Linia sięgająca obszaru rysunku zostaje. |
+| `backend/tests/test_graph_builder.py` | +2 testy ROI (dół odcięty, linia sięgająca rysunku zostaje; no-op gdy frac≥1 lub brak rozmiaru). |
+
+### Decyzja (Filip)
+
+Stały % na teraz (`0.85`), per-arkusz/format dostroimy później. Detekcja ramki rysunku — odrzucona na ten etap.
+
+[RYZYKO] Stały % zakłada podobny layout; jeśli tabliczka ma różną wysokość na różnych arkuszach — podnieś/obniż `roi_bottom_cut_frac`. ROI tnie tylko **linie** (nie symbole/OCR) — to wystarcza dla połączeń.
+
+### Po smoke u Ciebie
+
+Odpal ponownie `smoke_graph.py *p040*` — dolne tabelki powinny zniknąć z nakładki. Jak za dużo/za mało ucięte, zmień `roi_bottom_cut_frac` w `config/runtime.yaml` (np. 0.80 / 0.90) i powtórz.
+
+---
+
 ## 2026-06-27 [ZW] — Smoke p040/p035 + sito wnętrza bbox + semantyka bus
 
 Temat: **Walidacja wzrokowa sita (feedback Filip). Dodane odsiewanie grafiki wewnątrz bbox. Doprecyzowana semantyka `bus`.**
