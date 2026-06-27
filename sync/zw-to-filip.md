@@ -5,6 +5,51 @@
 
 ---
 
+## 2026-06-27 [ZW] — Prompt 004: GraphBuilder.build (składanie 3 filarów)
+
+Temat: **`build()` składa SchemaModel z detekcji + OCR + linii. Connection TYLKO z wire/bus.**
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `backend/recognize/graph_builder.py` | `build()` — orkiestracja: detect→components(source=yolo), OCR→tag dopasowany do bbox + `annotations[]`, trace+classify→`graphic_lines[]`, wire/bus→`connections[]`, `meta.model_version` z registry, `context_assignments` (best-effort `resolve_context`) |
+| `backend/tests/test_graph_builder.py` | nowy — 7 testów na mockach (bez GPU/paddle/CV) |
+
+### Logika `build(image_path, source)`
+
+1. `detect` → `Component[]` (`id=sym_i`, `bbox=[x1,y1,x2,y2]`, `source="yolo"`).
+2. OCR: tekst z najwiekszym przecieciem z bbox symbolu → `Component.tag`; reszta → `annotations[]`.
+3. `trace` + `classify(image_size)` → `graphic_lines[]`.
+4. **Connection tylko gdy** `is_connection_candidate(line)` (role wire|bus). Konce linii → najblizszy symbol (tolerancja terminala `max(12px, 0.012·max(W,H))`); `from`/`to` = id symboli, dedup par. `kind`: grupa PE → `pe`, inaczej `power`.
+5. `meta.source`, `meta.model_version` = aktywny model z `registry.json`.
+
+### Zasady domenowe (utrzymane)
+
+- **GraphicLine ≠ Connection.** `device_stroke`/`frame`/`dash`/`crossing` → tylko `graphic_lines`, NIGDY `connections` (test to weryfikuje).
+- Filary 001/002/003 użyte jako gotowe — bez przepisywania. Lazy-init gdy GraphBuilder bez wstrzyknietych zaleznosci (runtime czyta model z registry).
+
+### Testy
+
+```
+pytest backend/tests labeler/tests          →  116 passed
+python -m backend.cli validate schema/fixtures/page1_expected.json  →  approved (0 errors)
+```
+
+[RYZYKO] Heurystyka `from`/`to` jest na poziomie **symbolu**, nie terminala (fixture GT ma `F1:2`/`U1:L1` — to recznе GT, nie target build). Terminale + `potential` = osobny krok po GT linii (p030).
+[RYZYKO] `potential` zawsze `""` — brak odczytu etykiet przewodu. Do rozbudowy gdy OCR poda etykiety na liniach.
+[RYZYKO] Próg terminala kalibrowany na rozmiar strony — sprawdź na realnym skanie (Adamed p035) czy konce wire trafiaja w bbox symboli.
+
+### Filip — smoke u siebie (RTX 2080)
+
+```powershell
+python -c "from backend.recognize.pipeline import recognize_file; m=recognize_file('data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p035.png'); print(len(m.components),'komp',len(m.graphic_lines),'linii',len(m.connections),'conn')"
+```
+
+NIE ruszane: atlas QET, trening YOLO/train_cycle, labeler, scripts/preview_*.
+
+---
+
 ## 2026-06-25 [ZW] — Prompt 002+003: filar POŁĄCZENIA (labeler linie + line tracer)
 
 Temat: **Tryb polyline w labelerze + LineTracer/LineClassifier OpenCV. Linia ≠ Connection.**
