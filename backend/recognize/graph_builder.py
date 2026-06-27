@@ -127,9 +127,8 @@ class GraphBuilder:
         return self._ocr or PaddleOcrEngine()
 
     # -------------------------------------------------------------------- OCR
-    def _assign_tags(self, image_path: str, components: list[Component]) -> list[str]:
+    def _assign_tags(self, texts, components: list[Component]) -> list[str]:
         """Dopasuj tekst do symbolu (bbox OCR ∩ bbox symbolu). Reszta -> annotations."""
-        texts = self._ocr_engine().extract_text(image_path)
         annotations: list[str] = []
         # najlepsze dopasowanie tekst->symbol po polu przeciecia
         for t in texts:
@@ -229,6 +228,14 @@ def _terminal_tol(size: tuple[int, int] | None) -> float:
         return TERMINAL_TOL_MIN
     w, h = size
     return max(TERMINAL_TOL_MIN, TERMINAL_TOL_FRAC * max(w, h))
+
+
+def _edge_tol(size: tuple[int, int] | None) -> float:
+    """Tolerancja 'linia lezy na boku bbox' — grubosc obrysu/rejestracja skanu."""
+    if not size:
+        return 6.0
+    w, h = size
+    return max(6.0, 0.004 * max(w, h))
 
 
 def _intersection_area(a: list[float], b: list[float]) -> float:
