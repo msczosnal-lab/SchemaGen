@@ -6,30 +6,33 @@
 
 ---
 
-## Stan (2026-06-25)
+## Stan (2026-06-27)
 
 | Prompt | Status |
 |--------|--------|
 | **010-labeler-bbox-first-palette** | ✅ DONE |
 | **005–006, 001 recognize, train_cycle** | ✅ DONE |
 | **symbols_atomic_v2** | ✅ mAP50≈0.92, aktywny w registry |
-| **002-ocr-engine** | ✅ DONE — smoke OK (~75%, mały/pionowy tekst akceptowane) |
+| **002-ocr-engine** | ✅ DONE — smoke OK (~75%) |
 | **002-labeler-lines-colors** | ✅ DONE (Claude) |
-| **003-line-tracer** | ✅ DONE — smoke OK (progi Hough: backlog) |
-| **004-graph-builder** | 🟢 **AKTYWNE dla Claude** → [`PROMPT-CLAUDE-004.md`](PROMPT-CLAUDE-004.md) |
+| **003-line-tracer** | ✅ DONE — progi Hough: backlog |
+| **004-graph-builder** | ✅ DONE (Claude) — smoke na **p040** |
 | **008a QET atlas** | ⛔ NIE UŻYWAĆ |
+
+**Strona referencyjna GT linii + walidacja e2e:**  
+`22_A_153_PL_Adamed_AGV_SA2_20250706_p040` (Filip, 2026-06-27)
 
 ---
 
-## Aktywne zadanie — Claude (PRIORYTET)
+## Aktywne zadanie — Claude
 
 | Pole | Wartosc |
 |------|---------|
-| **Cel** | **GraphBuilder.build()** — SchemaModel z 3 filarów |
-| **Start** | [`sync/PROMPT-CLAUDE-004.md`](PROMPT-CLAUDE-004.md) |
-| **Spec** | `sync/prompts/004-graph-builder.md` |
+| **Cel** | Poprawki po smoke **p040** (gdy Filip/Cursor zgłoszą `## Poprawka`) |
+| **Backlog** | tolerancja końców wire→bbox, progi Hough, terminale w Connection |
+| **Start** | czekaj na wynik smoke / diff GT vs runtime |
 
-**Nie ruszaj:** atlas QET, trening GPU, preview scripts.
+**Nie ruszaj:** atlas QET, trening GPU, labeler (GT linii DONE na p040).
 
 ---
 
@@ -37,16 +40,29 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Claude** | Wklej `PROMPT-CLAUDE-004.md` → GraphBuilder |
-| **Labeler L** | GT wire/bus na 2–3 stronach (p030) — pod walidację connections |
+| **GT linii** | ✅ DONE — **p040** |
+| **Smoke pipeline** | `recognize_file` na p040 → ocena connections od–do |
 | **Review autolabel** | bbox p051+ (incognito) |
 | **train_cycle** | dopiero po poprawionym GT bbox |
 
-### Cykl YOLO (gdy GT poprawione)
+```powershell
+python -c "from backend.recognize.pipeline import recognize_file; m=recognize_file('data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p040.png'); print(len(m.components),'sym', len(m.graphic_lines),'linii', len(m.connections),'conn')"
+```
+
+### Cykl YOLO (gdy GT bbox poprawione)
 
 ```powershell
 python scripts/train_cycle.py
 ```
+
+---
+
+## Aktywne zadanie — Cursor
+
+| Pole | Wartosc |
+|------|---------|
+| **Cel** | `scripts/preview_schema.py` — overlay bbox + linie + connections na **p040** |
+| **Cel** | diff GT labeler vs `recognize_file` (graphic_lines, connections) |
 
 ---
 
