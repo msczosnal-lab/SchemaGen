@@ -40,7 +40,7 @@ const MODE_LINE = "line";
 let mode = MODE_BBOX;
 let lines = [];                 // {id, points:[[x,y],...], role, style, semantic_group, color_ref}
 let activeLine = null;          // rysowana linia: {points:[...]}
-let lineDrawing = false;        // true dopiero po N / „Nowa linia”
+let lineDeleteArmed = false;    // po „Usuń linię” — klik na linii kasuje
 let selectedLineIdx = -1;
 let cursorImgPt = null;         // podgląd "gumki" do następnego punktu
 let eyedropperArmed = false;
@@ -868,7 +868,7 @@ async function selectPage(pageId) {
   focusSearchIdx = null;
   selectedLineIdx = -1;
   activeLine = null;
-  lineDrawing = false;
+  lineDeleteArmed = false;
   cursorImgPt = null;
 
   bgImage = await new Promise((resolve, reject) => {
@@ -1071,31 +1071,43 @@ async function loadSemanticGroups() {
   }
 }
 
+function updateLineToolbar() {
+  const delBtn = document.getElementById("delete-line-btn");
+  const dropBtn = document.getElementById("eyedropper-btn");
+  if (delBtn) delBtn.classList.toggle("armed", lineDeleteArmed);
+  if (dropBtn) dropBtn.classList.toggle("armed", eyedropperArmed);
+}
+
 function updateLineCursor() {
   if (mode !== MODE_LINE) {
     canvas.style.cursor = "default";
     return;
   }
   if (eyedropperArmed) canvas.style.cursor = "cell";
-  else if (lineDrawing) canvas.style.cursor = "crosshair";
-  else canvas.style.cursor = "default";
+  else if (lineDeleteArmed) canvas.style.cursor = "pointer";
+  else canvas.style.cursor = "crosshair";
 }
 
-function startLineDrawing() {
-  lineDrawing = true;
-  activeLine = null;
-  cursorImgPt = null;
+function armLineDelete() {
+  if (activeLine) cancelActiveLine();
+  lineDeleteArmed = true;
   eyedropperArmed = false;
+  updateLineToolbar();
   updateLineCursor();
-  saveStatusEl.textContent = "Rysowanie: klik = punkt, Enter = koniec, Esc = anuluj";
-  redraw();
+  saveStatusEl.textContent = "Usuwanie: kliknij linie na schemacie (Esc = anuluj)";
+}
+
+function disarmLineDelete() {
+  lineDeleteArmed = false;
+  updateLineToolbar();
+  updateLineCursor();
 }
 
 function setMode(next) {
   mode = next;
   if (mode !== MODE_LINE) {
     activeLine = null;
-    lineDrawing = false;
+    lineDeleteArmed = false;
     cursorImgPt = null;
     eyedropperArmed = false;
   }
