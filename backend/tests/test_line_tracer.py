@@ -1,4 +1,4 @@
-"""Testy LineTracer — wykrywanie segmentow + sampling koloru."""
+"""Testy LineTracer — wykrywanie segmentow + sampling koloru + auto-progi."""
 
 import numpy as np
 
@@ -59,7 +59,7 @@ def test_merge_keeps_separate_lines() -> None:
 
 
 def test_auto_params_scale_with_resolution() -> None:
-    # frac 0.02 (skalibrowane na p040/p035). Adamed 6617x4678 -> min_line_length ~132.
+    # frac 0.02 (skalibrowane wzrokowo na p040/p035). Adamed 6617 -> min_line_length ~132.
     min_len, hough, gap = auto_line_params(6617, 4678)
     assert min_len == round(0.02 * 6617)  # 132
     assert hough == min_len               # hough auto = max(50, min_len)
