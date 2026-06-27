@@ -1338,7 +1338,8 @@ canvas.addEventListener("mousemove", (e) => {
   if (mode === MODE_LINE) {
     if (!activeLine) return;
     const { cx, cy } = clientToCanvas(e);
-    cursorImgPt = canvasToImage(cx, cy);
+    const raw = canvasToImage(cx, cy);
+    cursorImgPt = lineSnapPoint(raw, e.shiftKey);
     redraw();
     return;
   }
@@ -1453,6 +1454,13 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "l" || e.key === "L") {
     e.preventDefault();
     setMode(MODE_LINE);
+    return;
+  }
+  if (mode === MODE_LINE && (e.key === "o" || e.key === "O")) {
+    e.preventDefault();
+    lineOrtho = !lineOrtho;
+    saveStatusEl.textContent = lineOrtho ? "Orto H/V: wlaczone" : "Orto H/V: wylaczone";
+    redraw();
     return;
   }
   if (mode === MODE_LINE && e.key === "Enter") {
