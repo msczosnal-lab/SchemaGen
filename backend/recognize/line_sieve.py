@@ -1,10 +1,12 @@
 """Sito po klasyfikacji: usuwa z kandydatow Connection linie, ktore NIE sa przewodami.
 
-Dwa przecieki przy progu frac 0.02 (kalibracja 2026-06-27):
+Przecieki przy progu frac 0.02 (kalibracja 2026-06-27, feedback Filip):
 1. Obramowki urzadzen/terminali — biegna WZDLUZ krawedzi bbox symbolu (rownolegle,
    duze pokrycie). Realny przewod DOTYKA krawedzi punktowo i idzie prostopadle na
-   zewnatrz — to je rozroznia. Taka linia -> rola "frame".
-2. Artefakty tekstu — krotkie segmenty wpadajace w bbox OCR. -> rola "other".
+   zewnatrz — to je rozroznia. -> rola "frame".
+2. Grafika WEWNATRZ bbox (tabelki w terminalach, obrysy wewnetrzne) — cala linia
+   miesci sie w bbox symbolu. Przewod laczacy wychodzi poza bbox. -> rola "other".
+3. Artefakty tekstu — krotkie segmenty wpadajace w bbox OCR. -> rola "other".
 
 Czyste funkcje (bez I/O). Nie rusza linii niebedacych kandydatami (wire/bus).
 """
@@ -17,7 +19,7 @@ from backend.models.schema import Component, GraphicLine
 from backend.recognize.line_classifier import LineClassifier
 
 AXIS_TOL_DEG = 8.0
-EDGE_OVERLAP_MIN = 0.6
+EDGE_OVERLAP_MIN = 0.6   # min. pokrycie wspolnego zakresu (linia wzdluz boku bbox)
 
 
 def apply_sieve(
@@ -29,6 +31,10 @@ def apply_sieve(
     text_margin: float = 2.0,
     inside_margin: float = 2.0,
 ) -> list[GraphicLine]:
+    """Linie z poprawiona rola: bok bbox->frame, wnetrze bbox->other, tekst->other.
+
+    Kolejnosc: bok > wnetrze > tekst > bez zmian. Nie-kandydaci (poza wire/bus) nietknieci.
+    """
     out: list[GraphicLine] = []
     for ln in lines:
         if not LineClassifier.is_connection_candidate(ln):
@@ -45,13 +51,14 @@ def apply_sieve(
     return out
 
 
-def _endpoints(line):
+def _endpoints(line: GraphicLine) -> tuple[list[float], list[float]] | None:
     if len(line.points) < 2:
         return None
     return line.points[0], line.points[-1]
 
 
-def _orientation(p, q):
+def _orientation(p: list[float], q: list[float]) -> str | None:
+    """'h' / 'v' / None — czy segment jest w osi (poziom/pion)."""
     ang = math.degrees(math.atan2(abs(q[1] - p[1]), abs(q[0] - p[0])))
     if ang <= AXIS_TOL_DEG:
         return "h"
@@ -60,7 +67,8 @@ def _orientation(p, q):
     return None
 
 
-def _overlap_frac(a0, a1, b0, b1):
+def _overlap_frac(a0: float, a1: float, b0: float, b1: float) -> float:
+    """Pokrycie wzgledem KROTSZEGO z zakresow [a0,a1] i [b0,b1]."""
     lo, hi = max(min(a0, a1), min(b0, b1)), min(max(a0, a1), max(b0, b1))
     inter = hi - lo
     if inter <= 0:
@@ -69,7 +77,8 @@ def _overlap_frac(a0, a1, b0, b1):
     return inter / shortest if shortest > 0 else 0.0
 
 
-def _is_box_edge(line, components, tol):
+def _is_box_edge(line: GraphicLine, components: list[Component], tol: float) -> bool:
+    """True gdy linia biegnie wzdluz boku ktoregos bbox (obramowka, nie przewod)."""
     ep = _endpoints(line)
     if ep is None:
         return False
@@ -83,43 +92,56 @@ def _is_box_edge(line, components, tol):
         x1, y1, x2, y2 = c.bbox[0], c.bbox[1], c.bbox[2], c.bbox[3]
         if orient == "h":
             yline = (p[1] + q[1]) / 2
-            for yside in (y1, y2):
+            for yside in (y1, y2):  # gora / dol
                 if abs(yline - yside) <= tol and _overlap_frac(p[0], q[0], x1, x2) >= EDGE_OVERLAP_MIN:
                     return True
-        else:
+        else:  # 'v'
             xline = (p[0] + q[0]) / 2
-            for xside in (x1, x2):
+            for xside in (x1, x2):  # lewa / prawa
                 if abs(xline - xside) <= tol and _overlap_frac(p[1], q[1], y1, y2) >= EDGE_OVERLAP_MIN:
                     return True
     return False
 
 
-def _is_inside_component(line, components, margin):
+def _is_inside_component(line: GraphicLine, components: list[Component], margin: float) -> bool:
+    """True gdy CALA linia miesci sie w bbox symbolu (grafika wewnetrzna: tabelka/obrys).
+
+    Przewod laczacy wychodzi poza bbox (dotyka brzegu i idzie dalej) -> nie zlapany.
+    """
     lb = _line_bbox(line.points)
     for c in components:
         b = c.bbox
         if len(b) < 4:
             continue
-        if (lb[0] >= b[0] - margin and lb[1] >= b[1] - margin
-                and lb[2] <= b[2] + margin and lb[3] <= b[3] + margin):
+        if (
+            lb[0] >= b[0] - margin
+            and lb[1] >= b[1] - margin
+            and lb[2] <= b[2] + margin
+            and lb[3] <= b[3] + margin
+        ):
             return True
     return False
 
 
-def _line_bbox(points):
+def _line_bbox(points: list[list[float]]) -> list[float]:
     xs = [pt[0] for pt in points]
     ys = [pt[1] for pt in points]
     return [min(xs), min(ys), max(xs), max(ys)]
 
 
-def _is_text_artifact(line, text_bboxes, margin):
+def _is_text_artifact(line: GraphicLine, text_bboxes: list[list[float]], margin: float) -> bool:
+    """True gdy bbox linii miesci sie (z marginesem) w ktoryms bbox tekstu OCR."""
     if not text_bboxes:
         return False
     lb = _line_bbox(line.points)
     for tb in text_bboxes:
         if len(tb) < 4:
             continue
-        if (lb[0] >= tb[0] - margin and lb[1] >= tb[1] - margin
-                and lb[2] <= tb[2] + margin and lb[3] <= tb[3] + margin):
+        if (
+            lb[0] >= tb[0] - margin
+            and lb[1] >= tb[1] - margin
+            and lb[2] <= tb[2] + margin
+            and lb[3] <= tb[3] + margin
+        ):
             return True
     return False
