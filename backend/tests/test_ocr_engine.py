@@ -22,6 +22,9 @@ class _FakePaddle:
 def _engine_with(result) -> PaddleOcrEngine:
     eng = PaddleOcrEngine(use_gpu=False)
     eng._engine = _FakePaddle(result)  # pomija _ensure_engine / import paddleocr
+    # KLUCZOWE: wymus in-process. Bez tego, gdy istnieje .venv-ocr (PC Filip),
+    # extract_text deleguje do subprocesu i ignoruje wstrzyknieta atrape.
+    eng._subprocess_ok = False
     return eng
 
 
