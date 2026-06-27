@@ -16,6 +16,11 @@ from backend.models.schema import GraphicLine
 from backend.recognize.line_tracer import LineSegment
 
 
+# Role linii tworzace kandydatow na Connection:
+# - wire = przewod (kabel, linia laczaca dwa terminale)
+# - bus  = SZYNA ZBIORCZA (busbar) — przewod zbiorczy potencjalu, rysowany jako
+#   dluga linia w osi. To NIE listwa zlaczek: listwa to KOMPONENT (filar symboli,
+#   row_layout: strip_members/strip_kinds), nie rola linii.
 CONNECTION_ROLES = frozenset({"wire", "bus"})
 
 # Geometria: linia uznana za "dluga" (kandydat na szyne) gdy >= tego progu (px),
