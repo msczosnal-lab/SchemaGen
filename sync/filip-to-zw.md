@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-06-27 [Filip] — GT linii DONE, strona testowa p040
+
+Temat: **Linie oznaczone. Walidacja e2e na p040.**
+
+| Pole | Wartosc |
+|------|---------|
+| **GT linii** | ✅ `22_A_153_PL_Adamed_AGV_SA2_20250706_p040` |
+| **Smoke Cursor** | 9 sym, 1321 linii (Hough), **4 conn**, 72 OCR |
+
+### Następne
+
+- Filip: ocena 4 connections vs GT od–do na p040
+- Cursor: `preview_schema.py` + diff GT vs runtime
+- Claude: poprawki po feedbacku (Hough / tolerancja końców wire)
+
+---
+
 ## 2026-06-25 [Cursor] — Commit OCR/preview + handoff Claude 004
 
 Temat: **Smoke OCR/linie zaakceptowany. Claude → GraphBuilder.**
