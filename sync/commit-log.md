@@ -33,3 +33,4 @@
 | 2026-06-27 14:56 | Claude | 14b4716e | [Claude] recognize: line tracer resolution-relative thresholds (frac 0.02) |
 | 2026-06-27 15:00 | Claude | d6eceb92 | [Claude] recognize: line sieve (frame/text out of wire/bus) |
 | 2026-06-27 15:23 | Claude | 15d36adf | [Claude] recognize: sieve inside-bbox + bus=busbar semantics |
+| 2026-06-27 15:30 | Claude | aa62b221 | [Claude] recognize: ROI bottom cut (config roi_bottom_cut_frac) |
