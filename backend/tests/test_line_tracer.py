@@ -2,7 +2,12 @@
 
 import numpy as np
 
-from backend.recognize.line_tracer import LineSegment, LineTracer, _merge_collinear
+from backend.recognize.line_tracer import (
+    LineSegment,
+    LineTracer,
+    auto_line_params,
+    _merge_collinear,
+)
 
 
 def _blank(w: int = 120, h: int = 120) -> np.ndarray:
