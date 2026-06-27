@@ -33,7 +33,14 @@ def ingest_settings() -> dict:
 def runtime_settings() -> dict:
     return _load_yaml(
         RUNTIME_CFG,
-        {"yolo_imgsz": 1280, "yolo_batch": 4, "yolo_conf_threshold": 0.15},
+        {
+            "yolo_imgsz": 1280,
+            "yolo_batch": 4,
+            "yolo_conf_threshold": 0.15,
+            # ROI: pomijaj linie w calosci ponizej tego ulamka wysokosci strony
+            # (tabliczka/tabelki na dole arkusza). 1.0 = bez ciecia.
+            "roi_bottom_cut_frac": 1.0,
+        },
     )
 
 
