@@ -1335,6 +1335,13 @@ canvas.addEventListener("mousedown", (e) => {
         return;
       }
       activeLine = { points: [] };
+    } else {
+      const hit = hitTestLine(pt);
+      if (hit >= 0) {
+        cancelActiveLine();
+        selectLine(hit);
+        return;
+      }
     }
     const last = activeLine.points[activeLine.points.length - 1];
     if (!last || Math.hypot(pt.x - last[0], pt.y - last[1]) > 2 / scale) {
@@ -1495,11 +1502,25 @@ document.addEventListener("keydown", (e) => {
       cancelActiveLine();
       return;
     }
+    if (selectedLineIdx >= 0) {
+      e.preventDefault();
+      selectedLineIdx = -1;
+      renderLineList();
+      redraw();
+      return;
+    }
   }
-  if ((e.key === "Delete" || e.key === "Backspace") && mode === MODE_LINE && selectedLineIdx >= 0) {
-    e.preventDefault();
-    removeLineAt(selectedLineIdx);
-    return;
+  if (e.key === "Delete" || e.key === "Backspace") {
+    if (mode === MODE_LINE && activeLine?.points?.length) {
+      e.preventDefault();
+      undoActiveLinePoint();
+      return;
+    }
+    if (selectedLineIdx >= 0) {
+      e.preventDefault();
+      removeLineAt(selectedLineIdx);
+      return;
+    }
   }
   if (e.key === "ArrowLeft") {
     e.preventDefault();
@@ -1527,6 +1548,10 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
+document.getElementById("delete-line-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  deleteSelectedLine();
+});
 document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   eyedropperArmed = !eyedropperArmed;
