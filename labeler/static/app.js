@@ -43,6 +43,7 @@ let activeLine = null;          // rysowana linia: {points:[...]}
 let selectedLineIdx = -1;
 let cursorImgPt = null;         // podgląd "gumki" do następnego punktu
 let eyedropperArmed = false;
+let lineOrtho = true;           // H/V od poprzedniego punktu (Shift = wolny kat)
 let semanticGroups = [];        // [{name, stroke, fill, style, roles, description}]
 const DEFAULT_LINE_ROLE = "wire";
 const LINE_STROKE = 7;
@@ -1033,6 +1034,21 @@ function roleDefaultStyle(role) {
   return role === "dash" ? "dashed" : "solid";
 }
 
+/** Orto: ostatni punkt + kursor → tylko poziomo lub pionowo (blizsza os). */
+function applyLineOrtho(anchor, raw, orthoOn) {
+  if (!anchor || !orthoOn) return raw;
+  const dx = Math.abs(raw.x - anchor[0]);
+  const dy = Math.abs(raw.y - anchor[1]);
+  if (dx >= dy) return { x: raw.x, y: anchor[1] };
+  return { x: anchor[0], y: raw.y };
+}
+
+function lineSnapPoint(raw, shiftKey) {
+  const orthoOn = lineOrtho && !shiftKey;
+  const anchor = activeLine?.points?.length ? activeLine.points[activeLine.points.length - 1] : null;
+  return applyLineOrtho(anchor, raw, orthoOn);
+}
+
 async function loadSemanticGroups() {
   try {
     const data = await fetchJson("/api/semantic-groups");
@@ -1071,7 +1087,7 @@ function setMode(next) {
   canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
   document.getElementById("hint").textContent =
     mode === MODE_LINE
-      ? "Linia: klik = punkt, Enter/dblklik = zakończ, Esc = anuluj | Del = usuń | pipeta = kolor"
+      ? "Linia: klik = punkt (orto H/V), Enter/dblklik = koniec, O = orto, Shift = wolny | Del | pipeta"
       : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb";
   redraw();
 }
@@ -1285,7 +1301,8 @@ canvas.addEventListener("mousedown", (e) => {
   if (e.button !== 0) return;
   if (mode === MODE_LINE) {
     const { cx, cy } = clientToCanvas(e);
-    const pt = canvasToImage(cx, cy);
+    const raw = canvasToImage(cx, cy);
+    const pt = lineSnapPoint(raw, e.shiftKey);
     if (eyedropperArmed) {
       applyEyedropper(pt.x, pt.y);
       return;
