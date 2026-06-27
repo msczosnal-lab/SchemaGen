@@ -40,6 +40,7 @@ const MODE_LINE = "line";
 let mode = MODE_BBOX;
 let lines = [];                 // {id, points:[[x,y],...], role, style, semantic_group, color_ref}
 let activeLine = null;          // rysowana linia: {points:[...]}
+let lineDrawing = false;        // true dopiero po N / „Nowa linia”
 let selectedLineIdx = -1;
 let cursorImgPt = null;         // podgląd "gumki" do następnego punktu
 let eyedropperArmed = false;
@@ -1069,10 +1070,31 @@ async function loadSemanticGroups() {
   }
 }
 
+function updateLineCursor() {
+  if (mode !== MODE_LINE) {
+    canvas.style.cursor = "default";
+    return;
+  }
+  if (eyedropperArmed) canvas.style.cursor = "cell";
+  else if (lineDrawing) canvas.style.cursor = "crosshair";
+  else canvas.style.cursor = "default";
+}
+
+function startLineDrawing() {
+  lineDrawing = true;
+  activeLine = null;
+  cursorImgPt = null;
+  eyedropperArmed = false;
+  updateLineCursor();
+  saveStatusEl.textContent = "Rysowanie: klik = punkt, Enter = koniec, Esc = anuluj";
+  redraw();
+}
+
 function setMode(next) {
   mode = next;
   if (mode !== MODE_LINE) {
     activeLine = null;
+    lineDrawing = false;
     cursorImgPt = null;
     eyedropperArmed = false;
   }
@@ -1084,10 +1106,10 @@ function setMode(next) {
   if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
   if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
   if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
-  canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
-    document.getElementById("hint").textContent =
+  updateLineCursor();
+  document.getElementById("hint").textContent =
     mode === MODE_LINE
-      ? "Linia: klik = punkt (orto), klik linii = zaznacz, Del/Usun = skasuj, Backspace = cofnij punkt"
+      ? "Linia: klik = zaznacz | N / Nowa linia = rysuj | Del = usun | Backspace = cofnij punkt"
       : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb | Del = usun zazn. linie";
   redraw();
 }
@@ -1112,8 +1134,10 @@ function finishActiveLine() {
   };
   lines.push(line);
   activeLine = null;
+  lineDrawing = false;
   cursorImgPt = null;
   selectedLineIdx = lines.length - 1;
+  updateLineCursor();
   markPageDirty();
   redraw();
   renderLineList();
@@ -1122,7 +1146,9 @@ function finishActiveLine() {
 
 function cancelActiveLine() {
   activeLine = null;
+  lineDrawing = false;
   cursorImgPt = null;
+  updateLineCursor();
   redraw();
 }
 
@@ -1188,9 +1214,12 @@ function pointSegDist(px, py, ax, ay, bx, by) {
 }
 
 function hitTestLine(pt) {
-  const tol = 10 / scale;
-  for (let i = 0; i < lines.length; i++) {
+  const tol = Math.max(LINE_STROKE * 1.5, 14 / scale);
+  for (let i = lines.length - 1; i >= 0; i--) {
     const pts = lines[i].points || [];
+    for (const p of pts) {
+      if (Math.hypot(pt.x - p[0], pt.y - p[1]) <= tol) return i;
+    }
     for (let k = 0; k + 1 < pts.length; k++) {
       if (pointSegDist(pt.x, pt.y, pts[k][0], pts[k][1], pts[k + 1][0], pts[k + 1][1]) <= tol) {
         return i;
@@ -1323,26 +1352,26 @@ canvas.addEventListener("mousedown", (e) => {
   if (mode === MODE_LINE) {
     const { cx, cy } = clientToCanvas(e);
     const raw = canvasToImage(cx, cy);
-    const pt = lineSnapPoint(raw, e.shiftKey);
     if (eyedropperArmed) {
-      applyEyedropper(pt.x, pt.y);
+      applyEyedropper(raw.x, raw.y);
       return;
     }
-    if (!activeLine) {
-      const hit = hitTestLine(pt);
-      if (hit >= 0) {
-        selectLine(hit);
-        return;
-      }
-      activeLine = { points: [] };
-    } else {
-      const hit = hitTestLine(pt);
-      if (hit >= 0) {
-        cancelActiveLine();
-        selectLine(hit);
-        return;
-      }
+    const hit = hitTestLine(raw);
+    if (hit >= 0) {
+      if (activeLine) cancelActiveLine();
+      lineDrawing = false;
+      selectLine(hit);
+      updateLineCursor();
+      return;
     }
+    if (!lineDrawing) {
+      selectedLineIdx = -1;
+      renderLineList();
+      redraw();
+      return;
+    }
+    const pt = lineSnapPoint(raw, e.shiftKey);
+    if (!activeLine) activeLine = { points: [] };
     const last = activeLine.points[activeLine.points.length - 1];
     if (!last || Math.hypot(pt.x - last[0], pt.y - last[1]) > 2 / scale) {
       activeLine.points.push([pt.x, pt.y]);
@@ -1491,6 +1520,11 @@ document.addEventListener("keydown", (e) => {
     redraw();
     return;
   }
+  if (mode === MODE_LINE && (e.key === "n" || e.key === "N")) {
+    e.preventDefault();
+    startLineDrawing();
+    return;
+  }
   if (mode === MODE_LINE && e.key === "Enter") {
     e.preventDefault();
     finishActiveLine();
@@ -1548,6 +1582,10 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
+document.getElementById("new-line-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  startLineDrawing();
+});
 document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   deleteSelectedLine();
@@ -1555,7 +1593,7 @@ document.getElementById("delete-line-btn")?.addEventListener("click", () => {
 document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   eyedropperArmed = !eyedropperArmed;
-  canvas.style.cursor = eyedropperArmed ? "cell" : "crosshair";
+  updateLineCursor();
   saveStatusEl.textContent = eyedropperArmed
     ? "Pipeta uzbrojona — kliknij piksel obrazu"
     : "Pipeta wyłączona";
