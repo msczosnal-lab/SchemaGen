@@ -27,8 +27,13 @@ def apply_sieve(
     *,
     edge_tol: float = 6.0,
     text_margin: float = 2.0,
+    inside_margin: float = 2.0,
 ) -> list[GraphicLine]:
-    """Zwraca linie z poprawiona rola: obramowki->frame, tekst->other. Reszta bez zmian."""
+    """Zwraca linie z poprawiona rola: obramowki/wnetrze->frame/other, tekst->other.
+
+    Kolejnosc: bok bbox (frame) > wnetrze bbox (other) > tekst (other) > bez zmian.
+    Reszta (nie wire/bus) nietknieta.
+    """
     out: list[GraphicLine] = []
     for ln in lines:
         if not LineClassifier.is_connection_candidate(ln):
@@ -36,6 +41,8 @@ def apply_sieve(
             continue
         if _is_box_edge(ln, components, edge_tol):
             out.append(ln.model_copy(update={"role": "frame"}))
+        elif _is_inside_component(ln, components, inside_margin):
+            out.append(ln.model_copy(update={"role": "other"}))
         elif _is_text_artifact(ln, text_bboxes, text_margin):
             out.append(ln.model_copy(update={"role": "other"}))
         else:
