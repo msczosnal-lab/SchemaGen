@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from backend.models.detection import SymbolDetection
 from backend.models.schema import GraphicLine
-from backend.recognize.graph_builder import GraphBuilder
+from backend.recognize.graph_builder import GraphBuilder, _apply_roi
 from backend.recognize.ocr_engine import TextDetection
 
 
@@ -142,3 +142,19 @@ def test_pe_group_sets_pe_kind() -> None:
     gb = _builder(detections=_two_symbols(), texts=[], lines=[wire])
     model = gb.build("page.png")
     assert model.connections[0].kind == "pe"
+
+
+def test_roi_drops_lines_fully_below_cutoff() -> None:
+    size = (1000, 1000)  # cutoff przy frac 0.85 -> y=850
+    top = GraphicLine(id="a", points=[[10, 100], [200, 100]], role="wire")
+    bottom = GraphicLine(id="b", points=[[10, 900], [200, 900]], role="wire")  # tabliczka
+    spanning = GraphicLine(id="c", points=[[10, 800], [10, 950]], role="wire")  # siega rysunku
+    out = _apply_roi([top, bottom, spanning], size, 0.85)
+    ids = {ln.id for ln in out}
+    assert ids == {"a", "c"}  # dol odciety, linia siegajaca rysunku zostaje
+
+
+def test_roi_noop_when_disabled_or_no_size() -> None:
+    lines = [GraphicLine(id="a", points=[[10, 900], [200, 900]], role="wire")]
+    assert len(_apply_roi(lines, (1000, 1000), 1.0)) == 1   # frac>=1 = bez ciecia
+    assert len(_apply_roi(lines, None, 0.85)) == 1          # brak size = no-op
