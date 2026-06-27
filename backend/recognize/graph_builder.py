@@ -27,6 +27,7 @@ from backend.models.schema import (
 from backend.geometry.row_layout import ContextAssignment, ContextResolver
 from backend.paths import REGISTRY_PATH
 from backend.recognize.line_classifier import LineClassifier
+from backend.recognize.line_sieve import apply_sieve
 from backend.recognize.line_tracer import LineTracer
 from backend.recognize.ocr_engine import PaddleOcrEngine
 from backend.recognize.symbol_detector import OnnxSymbolDetector
@@ -75,13 +76,22 @@ class GraphBuilder:
         ]
 
         # 2) OCR -> dopasuj tagi do bbox; reszta tekstu -> annotations[]
-        annotations = self._assign_tags(image_path, components)
+        texts = self._ocr_engine().extract_text(image_path)
+        annotations = self._assign_tags(texts, components)
 
         # 3) Trace + classify -> graphic_lines
         segments = self._trace(image_path)
         graphic_lines = self._classify(segments, size)
 
-        # 4) Connections WYLACZNIE z linii wire/bus
+        # 3b) Sito: obramowki bbox -> frame, artefakty tekstu -> other (poza wire/bus)
+        graphic_lines = apply_sieve(
+            graphic_lines,
+            components,
+            [t.bbox for t in texts],
+            edge_tol=_edge_tol(size),
+        )
+
+        # 4) Connections WYLACZNIE z linii wire/bus (po sicie)
         connections = self._build_connections(graphic_lines, components, size)
 
         # 5) Kontekst (best-effort na bboxach detekcji + tagach OCR)
