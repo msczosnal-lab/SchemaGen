@@ -4,6 +4,76 @@
 
 ---
 
+## 2026-06-25 [Cursor] — Commit OCR/preview + handoff Claude 004
+
+Temat: **Smoke OCR/linie zaakceptowany. Claude → GraphBuilder.**
+
+### Commit
+
+`[Cursor] scripts: OCR worker venv + preview_lines + line tracer sampling`
+
+### Claude — START
+
+Wklej: [`sync/PROMPT-CLAUDE-004.md`](PROMPT-CLAUDE-004.md)
+
+### Filip równolegle
+
+- Labeler tryb **L** — GT linii p030
+- Review autolabel bbox p051+
+
+---
+
+Temat: **Smoke OCR i linii na Adamed. GraphBuilder (004) dalej dla Claude.**
+
+### OCR (DONE smoke)
+
+- `.venv-ocr` — paddle 2.6 + paddleocr 2.9 **bez torch** (`scripts/setup_ocr_venv.ps1`)
+- `scripts/ocr_worker.py` + delegacja w `PaddleOcrEngine` (auto gdy `.venv-ocr` lub torch w procesie)
+- p035: **70 detekcji** z `import torch` w rodzicu — OK
+
+### Linie (smoke + Poprawka)
+
+- `scripts/preview_lines.py` — galeria overlay role/grupa
+- p035: ~1672 segmentów — **za dużo szumu** (Hough łapie tekst/tło). Zgłosić kalibrację progów.
+
+### Testy
+
+```
+pytest backend/tests labeler/tests train/tests  →  120 passed
+```
+
+### Następne
+
+- Claude: **004-graph-builder** (gdy Filip zaakceptuje smoke)
+- Filip: labeler tryb L, review autolabel bbox
+
+Commit pending: `[Cursor] scripts: OCR worker venv + preview_lines`
+
+---
+
+Temat: **Push Claude (`96809b50`) zintegrowany. Konflikt w `line_classifier` rozwiązany.**
+
+### Git
+
+- `git pull` → fast-forward + stash pop
+- Konflikt: `line_classifier._role_for` — **zostaje wersja Claude** (`_color_role_hint`, dash/device_stroke przed bus; `wire` z palety nie blokuje bus)
+- `line_tracer`: Claude re-sample po merge + Cursor sampling w pasie prostopadłym
+
+### Testy
+
+```
+pytest backend/tests labeler/tests train/tests
+```
+
+### Następne
+
+- Claude: **004-graph-builder**
+- Filip: labeler tryb L (GT linii), smoke Hough na Adamed p025–p035
+
+Commit pending: `[Cursor] merge: line tracer sampling pas + sync po pull Claude 002/003`
+
+---
+
 ## 2026-06-25 [Filip/Cursor] — 002 OCR DONE → Claude: linie + line tracer
 
 Temat: **PaddleOCR wdrożony. Następny filar: połączenia (GT + runtime).**

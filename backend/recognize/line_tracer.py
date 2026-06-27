@@ -54,21 +54,34 @@ def _bgr_to_hex(b: int, g: int, r: int) -> str:
 
 
 def _sample_color(bgr: np.ndarray, seg: tuple[int, int, int, int], samples: int = 9) -> str:
-    """Mediana koloru wzdluz srodka segmentu (odporna na tlo/antialiasing)."""
+    """Kolor linii: w pasie prostopadlym wybierz piksel najdalej od bialego tla."""
     x1, y1, x2, y2 = seg
     h, w = bgr.shape[:2]
+    dx, dy = x2 - x1, y2 - y1
+    length = math.hypot(dx, dy) or 1.0
+    nx, ny = -dy / length, dx / length
     pts_b: list[int] = []
     pts_g: list[int] = []
     pts_r: list[int] = []
     for i in range(samples):
         t = i / max(samples - 1, 1)
-        x = int(round(x1 + (x2 - x1) * t))
-        y = int(round(y1 + (y2 - y1) * t))
-        if 0 <= x < w and 0 <= y < h:
-            px = bgr[y, x]
-            pts_b.append(int(px[0]))
-            pts_g.append(int(px[1]))
-            pts_r.append(int(px[2]))
+        cx = x1 + (x2 - x1) * t
+        cy = y1 + (y2 - y1) * t
+        best_d = -1
+        best_px: tuple[int, int, int] | None = None
+        for offset in range(-3, 4):
+            x = int(round(cx + nx * offset))
+            y = int(round(cy + ny * offset))
+            if 0 <= x < w and 0 <= y < h:
+                b, g, r = (int(v) for v in bgr[y, x])
+                d = abs(b - 255) + abs(g - 255) + abs(r - 255)
+                if d > best_d:
+                    best_d = d
+                    best_px = (b, g, r)
+        if best_px is not None:
+            pts_b.append(best_px[0])
+            pts_g.append(best_px[1])
+            pts_r.append(best_px[2])
     if not pts_b:
         return ""
     return _bgr_to_hex(

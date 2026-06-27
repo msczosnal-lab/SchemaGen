@@ -1,0 +1,4 @@
+# OCR subprocess venv — bez torch (konflikt z paddle-gpu w .venv311).
+# Instalacja: powershell -ExecutionPolicy Bypass -File scripts/setup_ocr_venv.ps1
+paddlepaddle==2.6.2
+paddleocr==2.9.1

@@ -85,3 +85,42 @@ def test_build_engine_degrades_kwargs() -> None:
     built = eng._build_engine(_StrictPaddle)
     assert isinstance(built, _StrictPaddle)
     assert seen["lang"] == "latin"
+
+
+def test_parse_predict_dict_format() -> None:
+    raw = [{
+        "rec_texts": ["-K1", "MOTOR"],
+        "rec_scores": [0.98, 0.91],
+        "rec_polys": [
+            [[10, 20], [60, 20], [60, 40], [10, 40]],
+            [[100, 200], [180, 205], [180, 230], [100, 225]],
+        ],
+    }]
+    dets = PaddleOcrEngine._parse(raw)
+    assert len(dets) == 2
+    assert dets[0].text == "-K1"
+    assert dets[0].bbox == [10.0, 20.0, 60.0, 40.0]
+
+
+def test_extract_text_uses_subprocess_when_torch_loaded(monkeypatch, tmp_path) -> None:
+    import sys
+
+    img = tmp_path / "page.png"
+    img.write_bytes(b"fake")
+
+    monkeypatch.setitem(sys.modules, "torch", object())
+
+    payload = [{"text": "ABC", "bbox": [1, 2, 3, 4], "confidence": 0.5}]
+
+    def _fake_run(cmd, **kwargs):
+        class _Proc:
+            returncode = 0
+            stdout = __import__("json").dumps(payload)
+            stderr = ""
+
+        return _Proc()
+
+    monkeypatch.setattr("backend.recognize.ocr_engine.subprocess.run", _fake_run)
+    dets = PaddleOcrEngine(use_gpu=False, lang="en").extract_text(img)
+    assert len(dets) == 1
+    assert dets[0].text == "ABC"

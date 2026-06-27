@@ -13,10 +13,10 @@
 | **010-labeler-bbox-first-palette** | ✅ DONE |
 | **005–006, 001 recognize, train_cycle** | ✅ DONE |
 | **symbols_atomic_v2** | ✅ mAP50≈0.92, aktywny w registry |
-| **002-ocr-engine** | ✅ DONE (Claude) — `PaddleOcrEngine` |
-| **002-labeler-lines-colors** | 🟢 **AKTYWNE dla Claude** |
-| **003-line-tracer** | OPEN — w tej samej sesji co linie |
-| **004-graph-builder** | OPEN — po filarach |
+| **002-ocr-engine** | ✅ DONE — smoke OK (~75%, mały/pionowy tekst akceptowane) |
+| **002-labeler-lines-colors** | ✅ DONE (Claude) |
+| **003-line-tracer** | ✅ DONE — smoke OK (progi Hough: backlog) |
+| **004-graph-builder** | 🟢 **AKTYWNE dla Claude** → [`PROMPT-CLAUDE-004.md`](PROMPT-CLAUDE-004.md) |
 | **008a QET atlas** | ⛔ NIE UŻYWAĆ |
 
 ---
@@ -25,11 +25,11 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **Cel** | Filar **połączenia** — GT linii w labelerze + LineTracer |
-| **Start** | [`sync/PROMPT-CLAUDE-002-LINES.md`](PROMPT-CLAUDE-002-LINES.md) |
-| **Prompty** | `002-labeler-lines-colors.md`, `003-line-tracer-classifier.md` |
+| **Cel** | **GraphBuilder.build()** — SchemaModel z 3 filarów |
+| **Start** | [`sync/PROMPT-CLAUDE-004.md`](PROMPT-CLAUDE-004.md) |
+| **Spec** | `sync/prompts/004-graph-builder.md` |
 
-**Nie ruszaj:** GraphBuilder (004), atlas QET, trening GPU.
+**Nie ruszaj:** atlas QET, trening GPU, preview scripts.
 
 ---
 
@@ -37,9 +37,10 @@
 
 | Pole | Wartosc |
 |------|---------|
-| **OCR smoke** | `pip install paddlepaddle-gpu paddleocr` → `python scripts/preview_ocr.py --page data/raw/..._p035.png --lang latin` |
-| **Review autolabel** | labeler (incognito) — propozycje modelu na stronach p051+ |
-| **YOLO ocena** | `data/output/preview_batch/symbols_atomic_v2/index.html` |
+| **Claude** | Wklej `PROMPT-CLAUDE-004.md` → GraphBuilder |
+| **Labeler L** | GT wire/bus na 2–3 stronach (p030) — pod walidację connections |
+| **Review autolabel** | bbox p051+ (incognito) |
+| **train_cycle** | dopiero po poprawionym GT bbox |
 
 ### Cykl YOLO (gdy GT poprawione)
 

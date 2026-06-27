@@ -45,8 +45,8 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=5)
     ap.add_argument("--offset", type=int, default=0)
     ap.add_argument("--lang", default="en", help="en | latin (PL diakrytyki)")
-    ap.add_argument("--use-gpu", action="store_true", default=True)
-    ap.add_argument("--cpu", action="store_true", help="wymus CPU")
+    ap.add_argument("--use-gpu", action="store_true", help="GPU w workerze OCR")
+    ap.add_argument("--cpu", action="store_true", help="wymus CPU (domyslnie gdy brak --use-gpu)")
     ap.add_argument("--out", type=Path, default=OUT_DIR)
     args = ap.parse_args()
 
@@ -60,7 +60,7 @@ def main() -> int:
         print("[BLAD] Brak stron.")
         return 1
 
-    use_gpu = not args.cpu
+    use_gpu = args.use_gpu and not args.cpu
     try:
         engine = PaddleOcrEngine(use_gpu=use_gpu, lang=args.lang)
     except ImportError as exc:
