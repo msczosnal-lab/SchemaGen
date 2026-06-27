@@ -28,3 +28,4 @@
 | 2026-06-25 17:11 | Claude | a4200e26 | [Claude] recognize: PaddleOCR engine (prompt 002-ocr) |
 | 2026-06-25 18:54 | Claude | 96809b50 | [Claude] labeler: linie + line tracer (prompt 002/003) |
 | 2026-06-27 10:27 | Cursor | 91603f0b | [Cursor] scripts: OCR worker venv + preview_lines + line tracer sampling |
+| 2026-06-27 10:28 | Claude | 5d2183fb | [Claude] recognize: graph builder (prompt 004) |
