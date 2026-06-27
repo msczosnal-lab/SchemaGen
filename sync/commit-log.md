@@ -31,3 +31,4 @@
 | 2026-06-27 10:28 | Claude | 5d2183fb | [Claude] recognize: graph builder (prompt 004) |
 | 2026-06-27 10:29 | Claude | 62002fd6 | [Claude] recognize: graph builder (prompt 004) |
 | 2026-06-27 14:56 | Claude | 14b4716e | [Claude] recognize: line tracer resolution-relative thresholds (frac 0.02) |
+| 2026-06-27 15:00 | Claude | d6eceb92 | [Claude] recognize: line sieve (frame/text out of wire/bus) |
