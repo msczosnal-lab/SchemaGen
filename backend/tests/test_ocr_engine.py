@@ -70,6 +70,7 @@ def test_missing_paddleocr_raises_import_error(monkeypatch) -> None:
 
     monkeypatch.setattr(builtins, "__import__", _fake_import)
     eng = PaddleOcrEngine(use_gpu=False)
+    eng._subprocess_ok = False  # wymus in-process -> _ensure_engine -> import paddleocr
     with pytest.raises(ImportError, match="pip install"):
         eng.extract_text("page.png")
 
