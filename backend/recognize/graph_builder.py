@@ -26,6 +26,7 @@ from backend.models.schema import (
 )
 from backend.geometry.row_layout import ContextAssignment, ContextResolver
 from backend.paths import REGISTRY_PATH
+from backend.runtime_config import roi_bottom_cut_frac
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve
 from backend.recognize.line_tracer import LineTracer
@@ -91,7 +92,10 @@ class GraphBuilder:
             edge_tol=_edge_tol(size),
         )
 
-        # 4) Connections WYLACZNIE z linii wire/bus (po sicie)
+        # 3c) ROI: odetnij linie z dolu arkusza (tabliczka/tabelki) — config
+        graphic_lines = _apply_roi(graphic_lines, size, roi_bottom_cut_frac())
+
+        # 4) Connections WYLACZNIE z linii wire/bus (po sicie + ROI)
         connections = self._build_connections(graphic_lines, components, size)
 
         # 5) Kontekst (best-effort na bboxach detekcji + tagach OCR)
