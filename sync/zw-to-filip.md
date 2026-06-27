@@ -5,6 +5,55 @@
 
 ---
 
+## 2026-06-27 [ZW] — Smoke p040/p035 + sito wnętrza bbox + semantyka bus
+
+Temat: **Walidacja wzrokowa sita (feedback Filip). Dodane odsiewanie grafiki wewnątrz bbox. Doprecyzowana semantyka `bus`.**
+
+### Wynik smoke (Filip, RTX 2080)
+
+| Strona | components | wire | bus | frame | other | connections |
+|--------|-----------:|-----:|----:|------:|------:|------------:|
+| p040 | 9 | 133 | 6 | 20 | 64 | 3 |
+| p035 | 24 | 182 | 11 | 21 | 41 | 10 |
+
+Sito ruszyło (frame+other zeszło z wire/bus). 3 terminale PLC poprawnie → frame.
+
+### Co poprawione (kod)
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/recognize/line_sieve.py` | + `_is_inside_component`: linia w całości w bbox symbolu (tabelka w terminalu, obrys wewnętrzny) → `other`. Przewód łączący wychodzi poza bbox → zostaje. Kolejność sita: bok→frame, wnętrze→other, tekst→other. |
+| `backend/tests/test_line_sieve.py` | +2 testy (wnętrze→other, przekraczająca granicę→wire). |
+| `backend/recognize/line_classifier.py` | Komentarz przy `CONNECTION_ROLES`: **bus = szyna zbiorcza (busbar)**, NIE listwa złączek (listwa = komponent, filar symboli `row_layout strip_*`). Zachowanie bez zmian. |
+
+### Semantyka bus (ustalone z Filipem)
+
+- `bus` = **szyna zbiorcza** (busbar) — długa linia w osi, kandydat na Connection. OK.
+- **Listwa złączek** ≠ linia — to symbol (bbox + strip w `row_layout`). Nie dotyczy ról linii.
+
+### [BŁĄD]/[RYZYKO] z feedbacku — otwarte
+
+1. [RYZYKO] **Dół rysunku** (tabelki pod schematem) łapane. Filip: „odetnijmy dół jako nieistotny". → ROI/crop — wymaga decyzji (stały % wysokości vs detekcja ramki rysunku). **Nie zrobione** — czeka na ustalenie.
+2. [RYZYKO] **OCR pomija tekst** → nieodczytany napis dostaje zieloną (wire). Sito tekstu nie ma bbox-a do złapania. Część (przy/w symbolu) łapie nowe sito wnętrza; reszta zostaje. Głębszy fix = recall OCR.
+3. [RYZYKO] **Recall linii** (p035: 2 środkowe linie + przerywana kabla nieodczytane). Hough gubi cienkie/przerywane między równoległymi. Osobny temat (parametry/segmentacja).
+4. [RYZYKO] **Fragmentacja** → connections wciąż zaniżone (3/10). Scalanie łańcuchów wire/bus — nieruszone.
+
+### Testy / [BŁĄD] środowiska
+
+[BŁĄD] Sandbox tej sesji **uszkadzał świeżo zapisywane pliki przy synchronizacji** (obcinał w połowie). Pliki kanoniczne w workspace Filipa są **kompletne i poprawne** (zweryfikowane odczytem). **Nie udało się** odpalić pełnego `pytest` po ostatniej zmianie. Wcześniejszy pełny przebieg: **123 passed**. Nowe gałęzie (wnętrze bbox) to trywialna logika zawierania (lustro przefiltrowanego testu tekstu).
+
+**Filip — potwierdź u siebie:**
+```
+pytest backend/tests labeler/tests
+```
+Oczekiwane: zielone (≈127). Jeśli coś czerwone — wklej, poprawię.
+
+### Throwaway (skasować)
+
+`calib_lines.py`, `preview_calib.py`, `smoke_graph.py`.
+
+---
+
 ## 2026-06-27 [ZW] — Sito linii: obramówki/tekst poza wire/bus
 
 Temat: **Filtr po klasyfikacji — odsiewa obramówki urządzeń i artefakty tekstu z kandydatów na Connection.**
