@@ -156,14 +156,38 @@ def _extend_along(
     return (pmin[0], pmin[1], pmax[0], pmax[1])
 
 
+# Progi Hough wzgledne do rozdzielczosci strony — skany roznia sie skala
+# (Adamed ~6600px vs WRT01). Skalibrowane wzrokowo na p040/p035 (Filip, 2026-06-27):
+# frac 0.02 lapie wszystkie przewody bez ucinania (0.03 gubil linie stycznika).
+MIN_LEN_FRAC = 0.02      # min_line_length = frac * max(W, H)
+GAP_FRAC = 0.0015        # max_line_gap   = frac * max(W, H)
+MIN_LEN_FLOOR = 20
+HOUGH_FLOOR = 50
+GAP_FLOOR = 4
+
+
+def auto_line_params(w: int, h: int) -> tuple[int, int, int]:
+    """Progi Hough z rozmiaru strony -> (min_line_length, hough_threshold, max_line_gap)."""
+    big = max(w, h)
+    min_len = max(MIN_LEN_FLOOR, round(MIN_LEN_FRAC * big))
+    hough = max(HOUGH_FLOOR, min_len)
+    gap = max(GAP_FLOOR, round(GAP_FRAC * big))
+    return int(min_len), int(hough), int(gap)
+
+
 class LineTracer:
+    """Wykrywanie segmentow. Progi None -> auto wg rozdzielczosci (auto_line_params).
+
+    Jawne wartosci (int) nadpisuja auto-skalowanie — uzywane w testach i kalibracji.
+    """
+
     def __init__(
         self,
         canny_low: int = 50,
         canny_high: int = 150,
-        hough_threshold: int = 50,
-        min_line_length: int = 30,
-        max_line_gap: int = 8,
+        hough_threshold: int | None = None,
+        min_line_length: int | None = None,
+        max_line_gap: int | None = None,
     ) -> None:
         self.canny_low = canny_low
         self.canny_high = canny_high
@@ -171,8 +195,22 @@ class LineTracer:
         self.min_line_length = min_line_length
         self.max_line_gap = max_line_gap
 
+    def _params(self, w: int, h: int) -> tuple[int, int, int]:
+        """Efektywne progi: jawne nadpisuja auto; hough auto = max(floor, min_line_length)."""
+        auto_len, auto_hough, auto_gap = auto_line_params(w, h)
+        min_len = self.min_line_length if self.min_line_length is not None else auto_len
+        hough = (
+            self.hough_threshold
+            if self.hough_threshold is not None
+            else max(HOUGH_FLOOR, min_len)
+        )
+        gap = self.max_line_gap if self.max_line_gap is not None else auto_gap
+        return int(min_len), int(hough), int(gap)
+
     def trace(self, image: "str | np.ndarray") -> list[LineSegment]:
         bgr = _to_bgr(image)
+        h, w = bgr.shape[:2]
+        min_line_length, hough_threshold, max_line_gap = self._params(w, h)
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
         # Schemat: ciemne linie na jasnym tle. Domkniecie cienkich przerw.
         edges = cv2.Canny(gray, self.canny_low, self.canny_high, apertureSize=3)
@@ -183,9 +221,9 @@ class LineTracer:
             edges,
             rho=1,
             theta=np.pi / 180,
-            threshold=self.hough_threshold,
-            minLineLength=self.min_line_length,
-            maxLineGap=self.max_line_gap,
+            threshold=hough_threshold,
+            minLineLength=min_line_length,
+            maxLineGap=max_line_gap,
         )
         segments: list[LineSegment] = []
         if raw is not None:
