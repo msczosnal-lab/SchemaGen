@@ -299,3 +299,11 @@ elements:
   label: buzzer
   yolo_class: element
   created_at: '2026-06-20T19:04:01.987310+00:00'
+- id: terminal_block
+  label: terminal_block
+  yolo_class: element
+  created_at: '2026-06-27T08:49:07.468891+00:00'
+- id: strzalka_potencjalu_wejsciowa
+  label: strzalka_potencjalu_wejsciowa
+  yolo_class: element
+  created_at: '2026-06-27T08:49:07.468891+00:00'
