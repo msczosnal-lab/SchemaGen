@@ -58,6 +58,8 @@ const LINE_ROLE_LABELS = {
   leader: "Odnośnik",
   other: "Inne",
 };
+
+const LINE_ROLE_COLORS = {
   wire: "#111111",
   bus: "#c026d3",
   device_stroke: "#0066CC",
@@ -68,7 +70,7 @@ const LINE_ROLE_LABELS = {
   other: "#6b7280",
 };
 
-const LINE_ROLE_COLORS = {
+function lineStrokeColor(line) {
   const grp = semanticGroups.find((g) => g.name === line.semantic_group);
   if (grp && grp.stroke) return grp.stroke;
   return LINE_ROLE_COLORS[line.role] || "#111111";
@@ -1222,7 +1224,7 @@ function renderLineList() {
     label.type = "button";
     label.className = "line-label";
     const grpTxt = line.semantic_group ? ` · ${line.semantic_group}` : "";
-    label.textContent = `${i + 1}. ${line.role}${grpTxt} (${line.points.length} pkt)`;
+    label.textContent = `${i + 1}. ${LINE_ROLE_LABELS[line.role] || line.role}${grpTxt} (${line.points.length} pkt)`;
     label.addEventListener("click", () => selectLine(i));
     row.appendChild(label);
 
@@ -1245,7 +1247,7 @@ function renderLineList() {
       ["wire", "bus", "device_stroke", "frame", "dash", "crossing", "leader", "other"].forEach((r) => {
         const o = document.createElement("option");
         o.value = r;
-        o.textContent = r;
+        o.textContent = LINE_ROLE_LABELS[r] || r;
         if (r === line.role) o.selected = true;
         roleSel.appendChild(o);
       });
