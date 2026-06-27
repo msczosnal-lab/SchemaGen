@@ -6,6 +6,7 @@ yolo_conf_threshold: 0.25
 # ROI: pomijaj linie w calosci ponizej tego ulamka wysokosci strony
 # (tabliczka rysunkowa / tabelki pod schematem).
 #   1.0  = bez ciecia
-#   0.85 = pomin dolne 15%
+#   0.93 = pomin dolne 7%  (pomiar Filip: tabliczka ~80px / 1150)
+#   0.85 = pomin dolne 15% (za duzo — zzeralo schemat)
 # Stala wartosc na razie; per-arkusz/format dostroimy pozniej.
-roi_bottom_cut_frac: 0.85
+roi_bottom_cut_frac: 0.93
