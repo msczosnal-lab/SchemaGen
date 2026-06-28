@@ -1144,6 +1144,39 @@ function addTerminalAt(idx, imgPt) {
   redraw();
 }
 
+function terminalAbsPos(b, t) {
+  return { x: b.x + t.x * b.width, y: b.y + t.y * b.height };
+}
+
+// Klik (event) -> wsp. obrazu, z uwzglednieniem aktywnego cropu w trybach review.
+function imgPointFromEvent(e) {
+  const { cx, cy } = clientToCanvas(e);
+  if (window.CropReview && CropReview.isCropActive()) {
+    return CropReview.imagePointFromCanvas(cx, cy);
+  }
+  return canvasToImage(cx, cy);
+}
+
+// Indeks terminala zaznaczonego bboxa pod kursorem (lub -1). Prog w px obrazu.
+function terminalHitTest(b, imgPt) {
+  const ts = b.terminals || [];
+  if (!ts.length) return -1;
+  const pxPerImg =
+    window.CropReview && CropReview.isCropActive() ? CropReview.cropPxPerImage() : scale || 1;
+  const tolImg = Math.max(8, (TERMINAL_R + 6) / (pxPerImg || 1));
+  let best = -1;
+  let bestD = tolImg;
+  ts.forEach((t, i) => {
+    const a = terminalAbsPos(b, t);
+    const d = Math.hypot(imgPt.x - a.x, imgPt.y - a.y);
+    if (d <= bestD) {
+      bestD = d;
+      best = i;
+    }
+  });
+  return best;
+}
+
 function removeTerminal(idx, termIdx) {
   const b = bboxes[idx];
   if (!b || !b.terminals) return;
