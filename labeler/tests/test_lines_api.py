@@ -13,6 +13,26 @@ from backend.recognize.line_classifier import LineClassifier
 client = TestClient(app)
 
 
+def test_derive_terminals_endpoint():
+    # dwa przewody dochodzace do gornej krawedzi bboxa [0,0,100,20] w x=20 i x=80
+    res = client.post(
+        "/api/derive-terminals",
+        json={
+            "bbox": [0, 0, 100, 20],
+            "lines": [
+                {"points": [[20, -40], [20, 0]], "role": "wire"},
+                {"points": [[80, -40], [80, 0]], "role": "wire"},
+            ],
+            "tol": 10,
+        },
+    )
+    assert res.status_code == 200
+    terms = res.json()["terminals"]
+    assert len(terms) == 2
+    assert sorted(round(t["x"], 2) for t in terms) == [0.2, 0.8]
+    assert all(t["y"] == 0.0 for t in terms)
+
+
 def test_semantic_groups_endpoint():
     res = client.get("/api/semantic-groups")
     assert res.status_code == 200
