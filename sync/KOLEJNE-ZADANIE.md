@@ -6,135 +6,59 @@
 
 ---
 
-## Stan (2026-06-28)
+## Stan (2026-06-28) — etap POŁĄCZENIA DONE
 
-| Prompt | Status |
-|--------|--------|
-| **crop-review GT (T/R/C)** | ✅ DONE (Cursor) — import draft, batch terminale, review bbox/conn |
+| Prompt / kamień | Status |
+|-----------------|--------|
+| **004-graph-builder / net-builder** | ✅ DONE — terminal=granica scalania, `--rebuild-conn` p040=**15** conn |
+| **Labeler edycja GT (T/R/C v34)** | ✅ DONE (ZW) — drag terminali, re-klasyfikacja R, conn C, linie L |
+| **crop-review + import draft** | ✅ DONE (Cursor) |
 | **010-labeler-bbox-first-palette** | ✅ DONE |
 | **symbols_atomic_v2** | ✅ mAP50≈0.92 |
-| **004-graph-builder** | ✅ DONE — p040 draft: 14 conn |
+| **Harness walidacji** | ✅ `preview_schema.py --rebuild-conn` + `[GT-conn]` (read-only) |
+| **Config runtime** | ✅ `terminal_tol_*`, `hough_*`, `connection_require_terminal: true` |
 
-**Strona referencyjna:** `22_A_153_PL_Adamed_AGV_SA2_20250706_p040` (draft runtime w SQLite)
+**Strona referencyjna:** `22_A_153_PL_Adamed_AGV_SA2_20250706_p040`
+
+**Cursor review:** pytest **151 passed**; regresja net_builder/sito OK.
 
 ---
 
-## Aktywne zadanie — Filip
+## Aktywne zadanie — Filip (~1 strona)
 
-| Pole | Wartosc |
+| Pole | Wartość |
 |------|---------|
-| **Review crop** | labeler tryby **T** (terminale), **R** (bbox), **C** (połączenia) na p040 |
-| **Akceptacja** | ✓ OK / ✕ usuń → Zapisz stronę |
+| **Cel** | Ręczne GT p040 — terminale i połączenia poprawione w labelerze |
+| **Workflow** | Ctrl+F5 → tryby **T → C → L** → poprawki → **Zapisz stronę** |
+| **Walidacja** | dopiero po Zapisz: `diff_gt_runtime.py --page p040` ma sens (GT ≠ draft) |
 
 ```powershell
-python -m labeler.app   # Ctrl+F5
+python -m labeler.app   # Ctrl+F5, app.js v34
 python scripts/diff_gt_runtime.py --page p040
-python scripts/preview_schema.py --page p040
+python scripts/preview_schema.py --page p040 --source gt --rebuild-conn
 ```
 
 ---
 
-## Aktywne zadanie — Claude
+## Aktywne zadanie — Claude (backlog)
 
-| Pole | Wartosc |
+| Pole | Wartość |
 |------|---------|
-| **Backlog** | tolerancja wire→bbox, progi Hough, poprawki po review Filipa |
+| **Strzałki potencjału** | scalanie o tej samej nazwie |
+| **derive_auto_terminals** | tuning poza p040 |
+| **Hough** | kalibracja per strona (pokrętła w `runtime.yaml`, tuning czeka) |
+| **Po GT p040** | ewentualnie `--rebuild-conn` na p027 po ręcznym GT |
+
+**Nie ruszaj:** trening YOLO, atlas QET, labeler (edycja GT DONE).
 
 ---
 
 ## Aktywne zadanie — Cursor
 
-| Pole | Wartosc |
+| Pole | Wartość |
 |------|---------|
-| **DONE** | `preview_schema.py`, `diff_gt_runtime.py`, crop-review labeler |
-
----
-
-## Stan archiwum (2026-06-27)
-
-| Prompt | Status |
-|--------|--------|
-| **010-labeler-bbox-first-palette** | ✅ DONE |
-| **005–006, 001 recognize, train_cycle** | ✅ DONE |
-| **symbols_atomic_v2** | ✅ mAP50≈0.92, aktywny w registry |
-| **002-ocr-engine** | ✅ DONE — smoke OK (~75%) |
-| **002-labeler-lines-colors** | ✅ DONE (Claude) |
-| **003-line-tracer** | ✅ DONE — progi Hough: backlog |
-| **004-graph-builder** | ✅ DONE (Claude) — smoke na **p040** |
-| **008a QET atlas** | ⛔ NIE UŻYWAĆ |
-
-**Strona referencyjna GT linii + walidacja e2e:**  
-`22_A_153_PL_Adamed_AGV_SA2_20250706_p040` (Filip, 2026-06-27)
-
----
-
-## Aktywne zadanie — Claude
-
-| Pole | Wartosc |
-|------|---------|
-| **Backlog** | tolerancja wire→bbox, progi Hough, poprawki po review Filipa |
-
-**Nie ruszaj:** atlas QET, trening GPU.
-
----
-
-## Aktywne zadanie — Filip
-
-| Pole | Wartosc |
-|------|---------|
-| **Review crop** | tryby T/R/C na p040 |
-
----
-
-## Aktywne zadanie — Cursor
-
-| Pole | Wartosc |
-|------|---------|
-| **DONE** | crop-review + import draft + preview/diff |
-
----
-
-## (archiwum) Poprzednie zadania
-
-## Aktywne zadanie — Claude
-
-| Pole | Wartosc |
-|------|---------|
-| **Cel** | Poprawki po smoke **p040** (gdy Filip/Cursor zgłoszą `## Poprawka`) |
-| **Backlog** | tolerancja końców wire→bbox, progi Hough, terminale w Connection |
-| **Start** | czekaj na wynik smoke / diff GT vs runtime |
-
-**Nie ruszaj:** atlas QET, trening GPU, labeler (GT linii DONE na p040).
-
----
-
-## Aktywne zadanie — Filip
-
-| Pole | Wartosc |
-|------|---------|
-| **GT linii** | ✅ DONE — **p040** |
-| **Smoke pipeline** | `recognize_file` na p040 → ocena connections od–do |
-| **Review autolabel** | bbox p051+ (incognito) |
-| **train_cycle** | dopiero po poprawionym GT bbox |
-
-```powershell
-python -c "from backend.recognize.pipeline import recognize_file; m=recognize_file('data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p040.png'); print(len(m.components),'sym', len(m.graphic_lines),'linii', len(m.connections),'conn')"
-```
-
-### Cykl YOLO (gdy GT bbox poprawione)
-
-```powershell
-python scripts/train_cycle.py
-```
-
----
-
-## Aktywne zadanie — Cursor
-
-| Pole | Wartosc |
-|------|---------|
-| **Cel** | `scripts/preview_schema.py` — overlay bbox + linie + connections na **p040** |
-| **Cel** | diff GT labeler vs `recognize_file` (graphic_lines, connections) |
+| **DONE** | review sesji ZW 2026-06-28, pytest, KOLEJNE-ZADANIE zaktualizowane |
+| **Czekaj** | wynik `diff_gt_runtime` po ręcznym GT Filipa |
 
 ---
 

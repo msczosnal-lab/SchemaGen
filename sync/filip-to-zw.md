@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-06-28 [Cursor] — Review sesji ZW: pytest OK (151 passed)
+
+Temat: **Zamknięcie etapu POŁĄCZENIA (net-builder + labeler GT + harness).**
+
+| Pole | Wartość |
+|------|---------|
+| **git pull** | main up to date; commity ZW 2026-06-28 lokalnie (`ea7343bb` net-builder, `3c4f2c77` labeler auto-zaciski) |
+| **pytest** | `backend/tests` + `labeler/tests` → **151 passed** (7.7s) |
+| **`--rebuild-conn` p040** | **15** par `[GT-conn]`, bez gwiazdy `8:mostek`; overlay zapisany |
+| **Review net_builder** | fragmentacja 1 net ✓, T-junction ✓, listwa 2 nety ✓ (`test_two_wires_to_same_terminal_not_merged_into_star`), strict `require_terminal` ✓ |
+| **Review sito** | `recover_terminal_bridges` krok 4b w graph_builder; +4 testy mostków w `test_line_sieve.py` |
+| **Config** | `connection_require_terminal: true` w `runtime.yaml` — runtime `recognize_file` może dać mniej conn niż rebuild na czystym GT (oczekiwane) |
+
+### Etap DONE (Cursor akceptuje)
+
+- Algorytm connections na czystym GT (`--rebuild-conn`)
+- Labeler edycja GT T/R/C v34 (drag terminali, conn C, linie L)
+- `config/runtime.yaml` pokrętła + harness walidacji
+
+### Następne — Filip
+
+1. Labeler Ctrl+F5, tryby **T → C → L** na p040
+2. Ręczna korekta terminali/połączeń → **Zapisz** (GT ≠ draft)
+3. `diff_gt_runtime.py --page p040` — pierwsza sensowna walidacja
+
+### Backlog — Claude (nie teraz)
+
+- Scalanie „Strzałek potencjału” o tej samej nazwie
+- `derive_auto_terminals` poza p040
+- Kalibracja Hough per strona
+
+---
+
 ## 2026-06-27 [Filip] — GT linii DONE, strona testowa p040
 
 Temat: **Linie oznaczone. Walidacja e2e na p040.**
