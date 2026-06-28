@@ -2147,6 +2147,10 @@ document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   }
   armLineDelete();
 });
+document.getElementById("clear-lines-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  clearAllLines();
+});
 document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   eyedropperArmed = !eyedropperArmed;
