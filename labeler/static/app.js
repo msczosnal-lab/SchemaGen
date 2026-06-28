@@ -1123,18 +1123,28 @@ function setMode(next) {
   }
   const bboxBtn = document.getElementById("mode-bbox");
   const lineBtn = document.getElementById("mode-line");
+  const termBtn = document.getElementById("mode-terminal");
   const toolbar = document.getElementById("line-toolbar");
   const lineHelp = document.getElementById("line-help");
   if (bboxBtn) bboxBtn.classList.toggle("active", mode === MODE_BBOX);
   if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
+  if (termBtn) termBtn.classList.toggle("active", mode === MODE_TERMINAL);
   if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
   if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
+  const termPanel = document.getElementById("terminal-panel");
+  if (termPanel) termPanel.classList.toggle("hidden", mode !== MODE_TERMINAL);
   updateLineToolbar();
   updateLineCursor();
-  document.getElementById("hint").textContent =
-    mode === MODE_LINE
-      ? "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt"
-      : "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L = tryb | Del = usun zazn. linie";
+  let hint;
+  if (mode === MODE_LINE) {
+    hint = "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt";
+  } else if (mode === MODE_TERMINAL) {
+    hint = "Terminale: zaznacz bbox, klik przy krawedzi = zacisk (snap). Nazwa edytowalna po prawej. T/B/L = tryb";
+  } else {
+    hint = "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L/T = tryb | Del = usun zazn. linie";
+  }
+  document.getElementById("hint").textContent = hint;
+  renderTerminalList();
   redraw();
 }
 
