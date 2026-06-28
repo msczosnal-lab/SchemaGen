@@ -50,6 +50,32 @@ def load_gt_schema(page_id: str):
     return label_to_schema(record)
 
 
+def rebuild_connections_from_gt(schema, size):
+    """Przebuduj connections net-builderem na CZYSTYM GT (symbole+linie+terminale).
+
+    Izoluje logike polaczen od bledow YOLO/Hough/derive. Krok identyczny jak w
+    GraphBuilder: auto-zaciski gdy brak GT terminali -> odzysk mostkow -> net-builder.
+    """
+    tol = _terminal_tol(size)
+    cands = [
+        ln for ln in schema.graphic_lines
+        if LineClassifier.is_connection_candidate(ln) and len(ln.points) >= 2
+    ]
+    for c in schema.components:
+        if not c.terminals:
+            c.terminals = derive_auto_terminals(c, cands, tol)
+    schema.graphic_lines = recover_terminal_bridges(
+        schema.graphic_lines, schema.components, bridge_tol=tol
+    )
+    conns, pots = build_connections(
+        schema.graphic_lines, schema.components,
+        join_tol=tol, terminal_tol=tol, require_terminal=_require_terminal(),
+    )
+    schema.connections = conns
+    schema.potentials = pots
+    return schema
+
+
 # Kolory BGR
 _C_WIRE = (40, 200, 40)      # zielony — wykryty przewod
 _C_BUS = (220, 120, 0)       # niebieski — szyna (deprecated, gdyby byl)
