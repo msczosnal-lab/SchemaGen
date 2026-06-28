@@ -40,14 +40,28 @@ python scripts/preview_schema.py --page p040 --source gt --rebuild-conn
 
 ---
 
+## Wniosek sesji 2026-06-28 (ZW) — net-builder OK, bloker = detekcja listwy
+
+Walidacja na p040: net-builder na **czystym GT** = 15 czystych połączeń (zero gwiazdy).
+Runtime (YOLO) wciąż robi gwiazdę do `sym_0:2`, bo **YOLO wykrywa 9 z 19 elementów** —
+nie zna złączek/mostków/strzałek potencjału. Gwiazda w runtime = skutek braku detekcji
+listwy, NIE błąd net-buildera. Stare GT-connections wyczyszczone (`clear_gt_connections.py`).
+Decyzja: **connections = wynik algorytmu, nie GT.**
+
+**NASTĘPNY KAMIEŃ:** detekcja elementów listwy (złączka / mostek / strzałka potencjału) —
+doznaczenie klas + re-train YOLO, albo proceduralna detekcja listwy. Bez tego runtime nie
+odtworzy topologii listew.
+
+---
+
 ## Aktywne zadanie — Claude (backlog)
 
 | Pole | Wartość |
 |------|---------|
-| **Strzałki potencjału** | scalanie o tej samej nazwie |
+| **Detekcja listwy** | złączka/mostek/strzałka — filar SYMBOLE (po doznaczeniu Filipa) |
+| **Strzałki potencjału** | scalanie o tej samej nazwie w jeden potencjał |
 | **derive_auto_terminals** | tuning poza p040 |
-| **Hough** | kalibracja per strona (pokrętła w `runtime.yaml`, tuning czeka) |
-| **Po GT p040** | ewentualnie `--rebuild-conn` na p027 po ręcznym GT |
+| **Hough** | kalibracja per strona (pokrętła w `runtime.yaml`) |
 
 **Nie ruszaj:** trening YOLO, atlas QET, labeler (edycja GT DONE).
 
