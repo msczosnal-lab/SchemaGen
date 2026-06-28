@@ -237,36 +237,6 @@ def _intersection_area(a: list[float], b: list[float]) -> float:
     return (ix2 - ix1) * (iy2 - iy1)
 
 
-def _point_bbox_dist(point: list[float], bbox: list[float]) -> float:
-    """Odleglosc punktu od prostokata [x1,y1,x2,y2] (0 gdy w srodku)."""
-    if len(bbox) < 4:
-        return float("inf")
-    px, py = point[0], point[1]
-    dx = max(bbox[0] - px, 0.0, px - bbox[2])
-    dy = max(bbox[1] - py, 0.0, py - bbox[3])
-    return (dx * dx + dy * dy) ** 0.5
-
-
-def _nearest_component(
-    point: list[float], components: list[Component], max_dist: float
-) -> Component | None:
-    best: Component | None = None
-    best_d = max_dist
-    for c in components:
-        d = _point_bbox_dist(point, c.bbox)
-        if d <= best_d:
-            best_d = d
-            best = c
-    return best
-
-
-def _kind_for(line: GraphicLine) -> str:
-    group = (line.semantic_group or "").lower()
-    if group in _PE_GROUPS or "pe" in group:
-        return "pe"
-    return "power"
-
-
 def _model_version() -> str:
     try:
         if REGISTRY_PATH.exists():
