@@ -231,7 +231,7 @@ def post_import_runtime_draft(page_id: str, force: bool = False) -> dict:
 def get_annotations(page_id: str) -> dict:
     data = load_annotation(page_id)
     if not data:
-        return {"page_id": page_id, "bboxes": [], "texts": [], "connections": []}
+        return {"page_id": page_id, "bboxes": [], "texts": [], "lines": [], "connections": []}
     # Migracja w locie: stare rekordy bez hierarchii dostaja parent_id/depth/rel_bbox.
     has_hierarchy = any(b.get("parent_id") for b in data.get("bboxes", []))
     if data.get("bboxes") and not has_hierarchy and not data.get("spatial_relations"):

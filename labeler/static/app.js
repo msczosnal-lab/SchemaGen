@@ -1217,10 +1217,11 @@ function clearTerminals() {
 }
 
 function iterateBbox(dir) {
-  if (window.CropReview && CropReview.isCropActive()) {
-    CropReview.reviewStep(dir);
-    return;
-  }
+    if (window.CropReview && CropReview.isCropActive()) {
+      CropReview.reviewStep(dir);
+      renderConnectionList();
+      return;
+    }
   if (!bboxes.length) return;
   let i = selectedIdx;
   i = i < 0 ? (dir > 0 ? 0 : bboxes.length - 1) : (i + dir + bboxes.length) % bboxes.length;

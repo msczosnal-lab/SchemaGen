@@ -330,6 +330,7 @@
       reviewQueue = buildConnectionReviewQueue();
     }
     markPageDirty();
+    if (typeof renderConnectionList === "function") renderConnectionList();
     if (!reviewQueue.length) {
       saveStatusEl.textContent = "Kolejka review pusta";
       return;

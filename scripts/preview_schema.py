@@ -30,8 +30,6 @@ def _find_image(page_id: str) -> Path | None:
         p = RAW / f"{page_id}{ext}"
         if p.exists():
             return p
-    if not page_id.endswith(".png"):
-        return _find_image(page_id if page_id.endswith(".png") else page_id)
     return None
 
 
