@@ -5,6 +5,46 @@
 
 ---
 
+## 2026-06-27 [ZW] — Faza B: podgląd auto-zacisków + iteracja po bboxach (labeler)
+
+Temat: **Przegląd terminali per bbox: auto z linii, ◀▶ po bboxach, „tylko bboxy", przyciski cofania (bez polegania na klawiszu).**
+
+### Co zrobione (kod) — `app.js?v=29`
+
+| Plik | Zmiana |
+|------|--------|
+| `labeler/app.py` | NOWY endpoint `POST /api/derive-terminals` (bbox + linie → zaciski) wołający `net_builder.derive_auto_terminals` — **ten sam algorytm co runtime**. |
+| `labeler/static/index.html` | panel terminali: `◀ bbox` / `bbox ▶` / `⤓ Auto z linii` / `✕ ostatni` / `Wyczyść` + checkbox `tylko bboxy (ukryj linie)`. |
+| `labeler/static/app.js` | `deriveTerminalsForSelected()` (POST), `iterateBbox(±1)` (przy przejściu auto-liczy zaciski gdy bbox pusty), `removeLastTerminal`/`clearTerminals` (przyciski — niezależne od klawiatury), `hideLinesReview` (redraw bez linii). |
+| `labeler/static/style.css` | layout kontrolek. |
+| `labeler/tests/test_lines_api.py` | +test endpointu derive. |
+
+### Workflow przeglądu (Twój scenariusz)
+
+1. Tryb **T**, zaznacz **„tylko bboxy"** → linie znikają, widać same bboxy.
+2. **bbox ▶** — przechodzi po bboxach; dla każdego **automatycznie liczy zaciski z linii** (czerwone kropki + nazwa).
+3. Potwierdzasz/poprawiasz: **✕ ostatni** / **Wyczyść** / klik = dodaj / edycja nazwy po prawej.
+4. **bbox ▶** do następnego. Na końcu **Zapisz**.
+
+### „Cofanie nie działało"
+
+Backspace mógł nie łapać (focus/cache). Dlatego **✕ ostatni** to teraz przycisk (pewny). Fix klawisza zostaje, ale nie jest wymagany. **Ctrl+F5** w przeglądarce — inaczej stary JS.
+
+### Weryfikacja
+
+[BŁĄD środowiska] Sandbox dalej psuł pliki przy zapisie — **nie odpaliłem pytest/UI**. Kanon poprawny (odczyt). Algorytm `derive_auto_terminals` sprawdzony wcześniej w izolacji.
+
+**Filip — uruchom:**
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests
+.venv311\Scripts\python.exe -m labeler.app      # Ctrl+F5!
+```
+Oczekiwane: pytest zielony (~142). Labeler: ▶ iteruje, auto-zaciski się pojawiają, ✕/Wyczyść działają.
+
+[RYZYKO] Auto-zaciski łapią przewody **dochodzące do krawędzi**. Wewnętrzne mostki w listwie (linie w całości w bboxie) wymagają jeszcze integracji sita — osobny krok.
+
+---
+
 ## 2026-06-27 [ZW] — Terminale: fix bugów UI + auto-zaciski z linii (runtime)
 
 Temat: **Poprawki zgłoszone przez Filipa (widoczność, Backspace kasował bbox) + auto-zaciski z kontaktu linia↔krawędź.**
