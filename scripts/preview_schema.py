@@ -182,6 +182,16 @@ def main() -> int:
         p = OUT_DIR / f"{page_id}_runtime.png"
         cv2.imwrite(str(p), draw_schema(img, schema, "runtime"))
         written.append(str(p))
+        # Diagnostyka: tryb strict + ile polaczen ma adres terminala vs luzny 'comp'
+        n_term = sum(
+            1 for c in schema.connections
+            if ":" in str(c.from_ref) and ":" in str(c.to)
+        )
+        print(
+            f"[diag] connection_require_terminal={_require_terminal()} | "
+            f"connections={len(schema.connections)} "
+            f"(oba konce na terminalu: {n_term}, z luznym 'comp': {len(schema.connections) - n_term})"
+        )
         meta = OUT_DIR / f"{page_id}_runtime.json"
         meta.write_text(
             json.dumps(
