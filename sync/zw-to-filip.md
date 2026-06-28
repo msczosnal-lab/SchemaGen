@@ -5,6 +5,52 @@
 
 ---
 
+## 2026-06-27 [ZW] — Terminale (etap 2) — tryb w labelerze (UI) + eksport
+
+Temat: **Tryb „Terminale" w labelerze: klik przy krawędzi stawia zacisk (snap), nazwa edytowalna, eksport do `Component.terminals`.**
+
+### Decyzje UX (Filip)
+
+Snap do krawędzi obrysu; auto-numeracja 1,2,3 z edycją; dowolny bbox.
+
+### Co zrobione (kod)
+
+| Plik | Zmiana |
+|------|--------|
+| `labeler/static/index.html` | przycisk `⊙ Terminale`, panel `#terminal-panel` (lista zacisków), `app.js?v=27`. |
+| `labeler/static/app.js` | tryb `MODE_TERMINAL` (klawisz **T**): klik przy krawędzi zaznaczonego bboxa → zacisk, pozycja **względna 0–1**, snap do najbliższej krawędzi; rysowanie kropek; lista z edycją id + Del; zapis w `bbox.terminals[]` (payload + localStorage), wczytywanie przy otwarciu strony. |
+| `labeler/static/style.css` | style panelu/wierszy zacisków. |
+| `labeler/export.py` | `BboxAnnotation.terminals` → `Component.terminals` w `label_to_schema`. |
+| `labeler/tests/test_export.py` | +test mapowania terminali w eksporcie. |
+
+### Weryfikacja
+
+Backend (model + eksport + net-builder terminali) — przez `pytest` u Ciebie. **UI nie testowane w przeglądarce** (brak przeglądarki po mojej stronie) — proszę o test ręczny.
+
+### Filip — test
+
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests
+python -m labeler.app   # localhost:8765
+```
+
+Ręcznie w labelerze:
+1. Wczytaj stronę, narysuj/zaznacz bbox.
+2. **T** (lub ⊙ Terminale) → klik przy krawędzi bboxa → zacisk (snap do krawędzi).
+3. Po prawej zmień nazwę (np. `1`, `L+`, `I0.0`), usuń ✕.
+4. Zapisz → odśwież → zaciski wracają.
+5. Eksport → `*.schema.json` ma `Component.terminals`.
+
+[RYZYKO] Tryb terminali wymaga **zaznaczonego bboxa**; klik przy krawędzi zaznaczonego dodaje zacisk, klik na innym bboxie go zaznacza.
+[RYZYKO] Sito wciąż zje mostki (linie w bbox) zanim dojdą do net-buildera — **integracja sita to następny krok**, żeby mostki terminal↔terminal faktycznie wyszły jako `Connection link`.
+
+### Następne (B end-to-end)
+
+1. Integracja sita: nie demotuj linii, której końce trafiają w 2 terminale.
+2. (później) detekcja terminali w runtime (teraz tylko GT z labelera).
+
+---
+
 ## 2026-06-27 [ZW] — Terminale (etap 2) — faza backendowa: model + net-builder
 
 Temat: **Złączki/terminale jako węzły, żeby mostki (terminal↔terminal) były realnymi Connection. Wybrana Opcja B (`terminals[]`).**
