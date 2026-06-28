@@ -49,3 +49,4 @@
 | 2026-06-28 20:26 | Claude | 6c3dcbb1 | [Claude] labeler: review nawigacja strzalkami/scroll (nie zmienia stron) + edycja GT linie/bbox/conn |
 | 2026-06-28 20:32 | Claude | 7fe24380 | [Claude] preview --rebuild-conn: net-builder na czystym GT + review nawigacja strzalki/scroll |
 | 2026-06-28 20:43 | Claude | ea7343bb | [Claude] net-builder: terminal=granica scalania (koniec gwiazdy listwy) + czytelne nazwy nr:nazwa:term |
+| 2026-06-28 20:45 | Claude | 3c4f2c77 | [Claude] labeler: auto-zaciski tylko uzupelniaja puste bboxy (nie nadpisuja recznych GT terminali) |

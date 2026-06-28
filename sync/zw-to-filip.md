@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-06-28 [ZW] — Fix: auto-zaciski nie nadpisują ręcznych terminali GT
+
+Temat: **Wejście w tryb T (auto-derive całej strony) kasowało ręcznie ustawione zaciski. Teraz auto tylko uzupełnia puste bboxy.**
+
+| Plik | Zmiana |
+|------|--------|
+| `labeler/static/crop_review.js` (v34) | `deriveTerminalsForPage`: pomija bboxy, które już mają terminale (zachowuje ręczne GT); status „dodano X, zachowano Y". |
+
+Podgląd `scripts/preview_schema.py --rebuild-conn` jest **tylko-do-odczytu** — nie zapisuje do bazy; nie on niszczył terminale.
+
+**Wynik net-buildera na GT p040: 15 czystych połączeń** (par), bez gwiazdy — fix „terminal=granica scalania" potwierdzony wzrokowo przez Filipa.
+
+**Backlog:** scalanie „Strzałek potencjału" o tej samej nazwie w jeden potencjał (elektrycznie ten sam węzeł bez przewodu) — czeka na decyzję.
+
+---
+
 ## 2026-06-28 [ZW] — Net-builder: terminal = granica scalania (koniec sztucznej gwiazdy) + czytelne nazwy
 
 Temat: **Reguła „jedna linia ≠ dwa połączenia": union-find nie scala linii stykających się NA węźle (terminal/komponent). Listwa złączek przestaje kolapsować w jeden net z gwiazdą do arbitralnego terminala.**

@@ -3,5 +3,4 @@
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
-[Claude] labeler: auto-zaciski tylko uzupelniaja puste bboxy (nie nadpisuja recznych GT terminali)
 
