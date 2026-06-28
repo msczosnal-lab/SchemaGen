@@ -48,3 +48,4 @@
 | 2026-06-28 20:20 | Claude | b7f77cbe | [Claude] labeler: edycja GT — wyczysc/trwale usuwanie linii, edytowalne connections, re-klasyfikacja bbox w review |
 | 2026-06-28 20:26 | Claude | 6c3dcbb1 | [Claude] labeler: review nawigacja strzalkami/scroll (nie zmienia stron) + edycja GT linie/bbox/conn |
 | 2026-06-28 20:32 | Claude | 7fe24380 | [Claude] preview --rebuild-conn: net-builder na czystym GT + review nawigacja strzalki/scroll |
+| 2026-06-28 20:43 | Claude | ea7343bb | [Claude] net-builder: terminal=granica scalania (koniec gwiazdy listwy) + czytelne nazwy nr:nazwa:term |
