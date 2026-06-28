@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-06-28 [ZW] — Labeler: edycja GT (linie/bbox/connections) — domknięcie trybu wzorca
+
+Temat: **Wyczyść wszystkie linie + trwałe usuwanie linii; edycja bboxów (re-klasyfikacja) i connections (from/to/kind/usuń) w review. Razem z drag terminali = pełna edycja wzorca.**
+
+### Co zrobione (`app.js`/`crop_review.js`/`index.html` v32)
+
+| Element | Zmiana |
+|---------|--------|
+| **Wyczyść wszystkie linie** | nowy przycisk `🗑 Wyczyść wszystkie linie` w toolbarze L (z potwierdzeniem). |
+| **Usuwanie linii — bez porzucania** | „Usuń linię" zostaje aktywne po skasowaniu — kasujesz kolejne, **Esc = koniec** (wcześniej wyłączało się po jednej). |
+| **Edycja connections** | lista połączeń: `from`/`to` jako selecty (id bboxów, zachowuje adres `comp:terminal`), `kind` (power/pe/link), `✕` usuń. Zmiana → markPageDirty → redraw. |
+| **Re-klasyfikacja bbox w review (R)** | panel review ma picker typu dla aktualnego bboxa — zmieniasz klasę bez wychodzenia z cropu (ten sam picker co w trybie B). |
+| **Edycja terminali (T)** | (poprzedni wpis) drag = popraw, klik = dodaj, ✕ = usuń. |
+
+### Filip — TEST (Ctrl+F5!)
+
+- Tryb **L**: „Usuń linię" → klikaj kolejne; „Wyczyść wszystkie linie" → potwierdź.
+- Tryb **R**: ◀/▶ po bboxach, pod przyciskami zmień typ; ✕ usuń, ✓ akceptuj.
+- Tryb **C**: zmień `from`/`to`/`kind` w liście, ✕ usuń połączenie.
+- Tryb **T**: przeciągnij/dodaj/usuń zacisk.
+- **Zapisz** → masz prawdziwy GT (≠ runtime) → `diff_gt_runtime` zaczyna walidować.
+
+[BŁĄD środowiska] Mount sandboxu obcina `app.js`/`crop_review.js` przy odczycie (flip-flop) — **nie zlintowałem**. Kanon kompletny (Edit). Zwaliduj Ctrl+F5; jak coś w konsoli przeglądarki czerwone — wklej, poprawię.
+
+---
+
 ## 2026-06-28 [ZW] — Diagnoza p040 + edycja terminali w labelerze + sito strict + overlay trasowany
 
 Temat: **GT p040 = niepoprawiony draft runtime (pętla — diff nic nie waliduje). Daję narzędzia: overlay po realnej ścieżce, sito „od-do terminala", ręczna edycja terminali w labelerze (zrywa pętlę).**
