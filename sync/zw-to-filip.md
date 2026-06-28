@@ -5,6 +5,44 @@
 
 ---
 
+## 2026-06-27 [ZW] — Terminale (etap 2) — faza backendowa: model + net-builder
+
+Temat: **Złączki/terminale jako węzły, żeby mostki (terminal↔terminal) były realnymi Connection. Wybrana Opcja B (`terminals[]`).**
+
+### Dlaczego B
+
+Mostek łączy złączki. Połączenie potrzebuje 2 węzłów. Listwa = jeden bbox = jeden węzeł → mostek „wewnątrz" nie ma czego łączyć. `terminals[]` robi z zacisków osobno adresowalne punkty (`component_id:terminal_id`).
+
+### Co zrobione (faza backendowa)
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/models/schema.py` | NOWY `Terminal` (id, x, y wzgl. 0–1, name); `Component.terminals[]`. |
+| `backend/models/label.py` | NOWY `Terminal`; `BboxAnnotation.terminals[]` (GT z labelera). |
+| `backend/recognize/net_builder.py` | Koniec przewodu → `comp:terminal` (gdy komponent ma terminale, w granicach tol; inaczej fallback `comp`). Net z 2 terminalami **tego samego** komponentu → `Connection kind="link"` (mostek). Różne komponenty → kabel (power/pe). |
+| `backend/tests/test_net_builder.py` | +3 testy: mostek terminal↔terminal = link; przewód → adres `comp:term`; fallback gdy koniec daleko od terminala. |
+
+### Weryfikacja
+
+Net-builder (bazowy + terminale) sprawdzony w izolacji. Pełny `pytest` u Ciebie (sandbox ZW psuł świeże pliki — kanon poprawny, potwierdzony odczytem).
+
+### [RYZYKO] / co zostaje do END-TO-END (B nie działa jeszcze w całości)
+
+1. **Tryb terminali w labelerze (UI)** — żeby było gdzie postawić terminale (klik na obrysie, nazwa). Duży kawałek frontendu. **Bez tego `terminals[]` jest puste.**
+2. **Sito zjada mostki** — `line_sieve` demotuje linie w całości wewnątrz bbox do `other` ZANIM trafią do net-buildera. Trzeba: nie demotować linii, której końce trafiają w 2 terminale. Integracja po UI.
+3. **Runtime**: YOLO nie wykrywa terminali — `terminals[]` pochodzi z GT (labeler). Detekcja terminali = osobny, późniejszy temat.
+
+Czyli: model + logika grafu gotowe (kontrakt ustalony, testowalne). Wartość end-to-end po UI labelera + integracji sita.
+
+### Filip — uruchom
+
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests
+```
+Oczekiwane zielone (~139).
+
+---
+
 ## 2026-06-27 [ZW] — ADR model połączeń: Krok 1 — kontrakt + klasyfikator (bus wycofany)
 
 Temat: **Przyjęty [ADR connection-model](../docs/adr/connection-model.md). Krok 1/3: kontrakt + klasyfikator.**
