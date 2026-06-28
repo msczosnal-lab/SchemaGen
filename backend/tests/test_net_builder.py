@@ -94,6 +94,16 @@ def test_mostek_between_terminals_same_component_is_link() -> None:
     assert conns[0].kind == "link"  # dwa terminale tego samego komponentu
 
 
+def test_derive_auto_terminals_from_wire_contacts() -> None:
+    comp = Component(id="X1", type="terminal_block", bbox=[0, 0, 100, 20], source="yolo")
+    l1 = _wire([[20, -40], [20, 0]])   # konczy na gornej krawedzi w x=20
+    l2 = _wire([[80, -40], [80, 0]])   # konczy na gornej krawedzi w x=80
+    terms = derive_auto_terminals(comp, [l1, l2], tol=10)
+    assert len(terms) == 2
+    assert sorted(round(t.x, 2) for t in terms) == [0.2, 0.8]
+    assert all(t.y == 0.0 for t in terms)  # snap do gornej krawedzi
+
+
 def test_wire_resolves_to_terminal_address() -> None:
     X1 = _block_with_terminals()
     A2 = Component(id="A2", type="x", bbox=[-60, 0, -20, 20], source="yolo")  # prawa krawedz x=-20
