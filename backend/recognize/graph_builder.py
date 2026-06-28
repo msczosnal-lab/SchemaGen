@@ -27,7 +27,7 @@ from backend.geometry.row_layout import ContextAssignment, ContextResolver
 from backend.paths import REGISTRY_PATH
 from backend.runtime_config import roi_bottom_cut_frac
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.line_sieve import apply_sieve
+from backend.recognize.line_sieve import apply_sieve, recover_terminal_bridges
 from backend.recognize.line_tracer import LineTracer
 from backend.recognize.net_builder import (
     build_connections as build_net_connections,
@@ -104,6 +104,13 @@ class GraphBuilder:
         for c in components:
             if not c.terminals:
                 c.terminals = derive_auto_terminals(c, candidate_lines, tol)
+
+        # 4b) Odzysk mostkow w listwie: linie zdemotowane do 'other' przez sito, ktorych
+        #     konce trafiaja w 2 terminale tego samego komponentu, wracaja jako wire
+        #     (mostek terminal<->terminal -> Connection kind="link").
+        graphic_lines = recover_terminal_bridges(
+            graphic_lines, components, bridge_tol=tol
+        )
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
         connections, potentials = build_net_connections(
