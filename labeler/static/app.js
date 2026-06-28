@@ -2094,12 +2094,12 @@ document.addEventListener("keydown", (e) => {
   }
   if (e.key === "ArrowLeft") {
     e.preventDefault();
-    navigatePage(-1);
+    reviewOrPageStep(-1);
     return;
   }
   if (e.key === "ArrowRight") {
     e.preventDefault();
-    navigatePage(1);
+    reviewOrPageStep(1);
     return;
   }
   if (e.key === "/" && expandedIdx >= 0) {
