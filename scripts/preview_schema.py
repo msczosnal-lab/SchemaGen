@@ -58,11 +58,11 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
         pts = np.array(ln.points, dtype=np.int32)
         if len(pts) >= 2:
             cv2.polylines(out, [pts], False, (40, 40, 40), 2, cv2.LINE_AA)
-    for conn in schema.connections:
+    for i, conn in enumerate(schema.connections):
         cv2.putText(
             out,
             f"{conn.from_ref}->{conn.to}",
-            (10, 30 + 18 * hash(conn.id) % 200),
+            (10, 30 + 18 * (i % 10)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,
             (0, 128, 0),

@@ -1217,11 +1217,11 @@ function clearTerminals() {
 }
 
 function iterateBbox(dir) {
-    if (window.CropReview && CropReview.isCropActive()) {
-      CropReview.reviewStep(dir);
-      renderConnectionList();
-      return;
-    }
+  if (window.CropReview && CropReview.isCropActive()) {
+    CropReview.reviewStep(dir);
+    renderConnectionList();
+    return;
+  }
   if (!bboxes.length) return;
   let i = selectedIdx;
   i = i < 0 ? (dir > 0 ? 0 : bboxes.length - 1) : (i + dir + bboxes.length) % bboxes.length;
@@ -1958,10 +1958,6 @@ document.getElementById("conn-next")?.addEventListener("click", () => CropReview
 document.getElementById("conn-accept")?.addEventListener("click", () => CropReview?.acceptReviewItem());
 document.getElementById("conn-reject")?.addEventListener("click", () => CropReview?.rejectReviewItem());
 document.getElementById("import-draft-btn")?.addEventListener("click", () => CropReview?.importRuntimeDraft());
-document.getElementById("term-only-bboxes")?.addEventListener("change", (e) => {
-  hideLinesReview = e.target.checked;
-  if (!CropReview?.isCropActive()) redraw();
-});
 document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   if (lineDeleteArmed) {
