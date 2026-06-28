@@ -8,16 +8,18 @@ from pydantic import BaseModel, Field
 
 LineRole = Literal[
     "wire",
-    "bus",
+    "bus",  # DEPRECATED (ADR connection-model): klasyfikator nie nadaje; szyna = wire + potential
     "device_stroke",
     "frame",
     "dash",
     "crossing",
     "leader",
+    "cable_marker",  # przerywana przecinajaca kable + etykieta (nazwa/typ/srednica) — adnotacja, nie Connection
     "other",
 ]
 LineStyle = Literal["solid", "dashed", "dotted"]
-ConnectionKind = Literal["power", "signal", "pe", "control", "other"]
+# "link" = mostek/zworka zlaczka<->zlaczka w listwie (terminal-link); rozne od kabla device<->device
+ConnectionKind = Literal["power", "signal", "pe", "control", "link", "other"]
 ComponentSource = Literal["yolo", "ocr", "manual", "block"]
 
 
