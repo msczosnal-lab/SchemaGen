@@ -28,8 +28,14 @@ def build_connections(
     *,
     join_tol: float,
     terminal_tol: float,
+    require_terminal: bool = False,
 ) -> tuple[list[Connection], list[str]]:
-    """Zwraca (connections, potentials). Connection tylko z nets wire/bus."""
+    """Zwraca (connections, potentials). Connection tylko z nets wire/bus.
+
+    require_terminal=True: wezel powstaje TYLKO gdy koniec linii trafia w konkretny
+    terminal (adres comp:terminal). Koniec ocierajacy sie o bbox bez terminala NIE
+    tworzy wezla -> znikaja falszywe polaczenia 'od srodka symbolu'.
+    """
     candidates = [ln for ln in lines if LineClassifier.is_connection_candidate(ln)]
     candidates = [ln for ln in candidates if len(ln.points) >= 2]
     nets = _group_into_nets(candidates, join_tol)
@@ -41,7 +47,7 @@ def build_connections(
 
     for net in nets:
         # node_id -> component_id wlasciciela (node = "comp" albo "comp:terminal")
-        nodes = _nodes_on_net(net, components, terminal_tol)
+        nodes = _nodes_on_net(net, components, terminal_tol, require_terminal)
         node_ids = sorted(nodes)
         if len(node_ids) < 2:
             continue
