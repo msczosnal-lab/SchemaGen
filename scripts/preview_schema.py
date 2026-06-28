@@ -208,8 +208,18 @@ def main() -> int:
     if args.source in ("gt", "both"):
         gt = load_gt_schema(page_id)
         if gt:
+            title = "GT"
+            if args.rebuild_conn:
+                gt = rebuild_connections_from_gt(gt, (img.shape[1], img.shape[0]))
+                title = "GT + conn z net-buildera"
+                print(
+                    f"[GT-conn] require_terminal={_require_terminal()} | "
+                    f"connections={len(gt.connections)} z czystego GT"
+                )
+                for c in gt.connections:
+                    print(f"  {c.from_ref} -> {c.to} ({c.kind})")
             p = OUT_DIR / f"{page_id}_gt.png"
-            cv2.imwrite(str(p), draw_schema(img, gt, "GT"))
+            cv2.imwrite(str(p), draw_schema(img, gt, title))
             written.append(str(p))
         else:
             print("GT: brak adnotacji w bazie")
