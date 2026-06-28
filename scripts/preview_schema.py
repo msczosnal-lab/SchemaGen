@@ -76,9 +76,10 @@ def _connected_nets(schema, size):
         if LineClassifier.is_connection_candidate(ln) and len(ln.points) >= 2
     ]
     comps_by_id = {c.id: c for c in schema.components}
+    req = _require_terminal()
     out = []
     for net in _group_into_nets(cands, tol):
-        nodes = _nodes_on_net(net, schema.components, tol)
+        nodes = _nodes_on_net(net, schema.components, tol, req)
         if len(nodes) < 2:
             continue
         polys = [ln.points for ln in net]
