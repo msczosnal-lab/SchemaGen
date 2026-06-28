@@ -78,17 +78,9 @@ class LineClassifier:
         if hint and hint != "wire":
             return hint
 
-        # 2) Geometria: dluga linia w osi -> szyna (bus) — nawet dla czarnej linii.
-        angle = seg.angle_deg
-        axis_aligned = (
-            angle <= AXIS_TOL_DEG
-            or angle >= 180.0 - AXIS_TOL_DEG
-            or abs(angle - 90.0) <= AXIS_TOL_DEG
-        )
-        if axis_aligned and seg.length >= bus_len:
-            return "bus"
-
-        # 3) Kolor kabla (czern/PE) lub domyslnie -> wire.
+        # 2) Kolor kabla (czern/PE) lub domyslnie -> wire.
+        #    "bus" WYCOFANE (ADR): dluga linia osiowa to tez wire; szyne robi net-builder
+        #    (wiele odczepow na wspolnym potencjale), nie rola linii.
         return "wire"
 
     def _color_role_hint(self, group: str | None) -> str | None:
