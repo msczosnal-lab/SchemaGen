@@ -5,6 +5,40 @@
 
 ---
 
+## 2026-06-28 [ZW] — Net-builder: terminal = granica scalania (koniec sztucznej gwiazdy) + czytelne nazwy
+
+Temat: **Reguła „jedna linia ≠ dwa połączenia": union-find nie scala linii stykających się NA węźle (terminal/komponent). Listwa złączek przestaje kolapsować w jeden net z gwiazdą do arbitralnego terminala.**
+
+### Diagnoza (z `--rebuild-conn` na GT p040)
+
+Hub `8:mostek:1` zbierał ~10 połączeń — cała listwa (złączki + mostki + dochodzące przewody) scalała się w jeden net, a emisja robiła gwiazdę do `node_ids[0]` (alfabetycznie `8:mostek`). Artefakt, nie topologia.
+
+### Fix (kod)
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/recognize/net_builder.py` | `_group_into_nets`/`_lines_joined` przyjmują `components`+`node_tol`; nowy `_point_at_node`. **Nie scalamy linii, których styk wypada na komponencie/terminalu** (granica — przewody się tam kończą, nie przechodzą). `build_connections` przekazuje components+terminal_tol. |
+| `scripts/preview_schema.py` | `--rebuild-conn` używa tego samego scalania; **czytelne nazwy `nr_bbox:nazwa:nr_term`** w wypisie i etykiety `nr:nazwa` na bboxach overlay (zamiast `element_<timestamp>`). |
+| `backend/tests/test_net_builder.py` | +test: dwa przewody do tej samej złączki = 2 osobne połączenia (nie gwiazda). |
+
+### Zachowanie (zweryfikowane w izolacji)
+
+- Listwa: 2 przewody na tę samą złączkę → **2 nety** (2 połączenia do niej), nie gwiazda.
+- Fragmentacja w wolnej przestrzeni → nadal **scalone** (1 net) — bez regresji.
+- T-złącze (odczep dotyka szyny w wolnej przestrzeni) → nadal **scalone**.
+
+### Filip — uruchom i wklej
+
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests -q
+.venv311\Scripts\python.exe scripts/preview_schema.py --page p040 --source gt --rebuild-conn
+```
+Każdy przewód → terminal, którego faktycznie dotyka. Wklej nową listę — ocenimy, czy topologia zgadza się z rysunkiem (i czy `8:mostek` to realna listwa zwarta).
+
+[BŁĄD środowiska] Mount obcina pliki — pytest/skrypt u Ciebie. Logika scalania zweryfikowana w izolacji (strip=2, frag=1, T=1).
+
+---
+
 ## 2026-06-28 [ZW] — GT bez connections: walidacja net-buildera na czystym GT
 
 Temat: **Decyzja Filipa: GT = symbole+linie+terminale; connections = wyłącznie wynik algorytmu. Harness: przelicz connections net-builderem na czystym GT (izolacja od błędów YOLO/Hough).**
