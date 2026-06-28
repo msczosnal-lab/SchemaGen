@@ -50,3 +50,4 @@
 | 2026-06-28 20:32 | Claude | 7fe24380 | [Claude] preview --rebuild-conn: net-builder na czystym GT + review nawigacja strzalki/scroll |
 | 2026-06-28 20:43 | Claude | ea7343bb | [Claude] net-builder: terminal=granica scalania (koniec gwiazdy listwy) + czytelne nazwy nr:nazwa:term |
 | 2026-06-28 20:45 | Claude | 3c4f2c77 | [Claude] labeler: auto-zaciski tylko uzupelniaja puste bboxy (nie nadpisuja recznych GT terminali) |
+| 2026-06-28 21:02 | Claude | 865b1aac | [Claude] sesja 2026-06-28: net-builder zwalidowany + clear_gt_connections; bloker = detekcja listwy |
