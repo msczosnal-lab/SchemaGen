@@ -29,7 +29,10 @@ from backend.runtime_config import roi_bottom_cut_frac
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve
 from backend.recognize.line_tracer import LineTracer
-from backend.recognize.net_builder import build_connections as build_net_connections
+from backend.recognize.net_builder import (
+    build_connections as build_net_connections,
+    derive_auto_terminals,
+)
 from backend.recognize.ocr_engine import PaddleOcrEngine
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
@@ -92,8 +95,17 @@ class GraphBuilder:
         # 3c) ROI: odetnij linie z dolu arkusza (tabliczka/tabelki) — config
         graphic_lines = _apply_roi(graphic_lines, size, roi_bottom_cut_frac())
 
-        # 4) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
+        # 4) Auto-zaciski: terminal = kontakt konca wire z krawedzia bboxa
+        #    (komponenty bez recznych terminali GT). Daje adresowanie comp:terminal.
         tol = _terminal_tol(size)
+        candidate_lines = [
+            ln for ln in graphic_lines if LineClassifier.is_connection_candidate(ln)
+        ]
+        for c in components:
+            if not c.terminals:
+                c.terminals = derive_auto_terminals(c, candidate_lines, tol)
+
+        # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
         connections, potentials = build_net_connections(
             graphic_lines, components, join_tol=tol, terminal_tol=tol
         )
