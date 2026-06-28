@@ -155,6 +155,78 @@ def post_derive_terminals(body: DeriveTerminalsPayload) -> dict:
     return {"terminals": [{"id": t.id, "x": t.x, "y": t.y} for t in terms]}
 
 
+class BboxDeriveItem(BaseModel):
+    id: str
+    bbox: list[float]  # [x1, y1, x2, y2]
+
+
+class DeriveTerminalsPagePayload(BaseModel):
+    bboxes: list[BboxDeriveItem] = []
+    lines: list[dict] = []
+    tol: float = 12.0
+
+
+def _graphic_lines_from_payload(raw_lines: list[dict]) -> list[GraphicLine]:
+    return [
+        GraphicLine(
+            id=str(i),
+            points=ln.get("points", []),
+            role=_gt_line_role(ln.get("role", "wire")),
+        )
+        for i, ln in enumerate(raw_lines)
+    ]
+
+
+@app.post("/api/derive-terminals-page")
+def post_derive_terminals_page(body: DeriveTerminalsPagePayload) -> dict:
+    """Auto-zaciski dla wszystkich bboxow strony (batch)."""
+    lines = _graphic_lines_from_payload(body.lines)
+    results: dict[str, list[dict[str, float | str]]] = {}
+    for item in body.bboxes:
+        comp = Component(id=item.id, type="_", bbox=item.bbox)
+        terms = derive_auto_terminals(comp, lines, body.tol)
+        results[item.id] = [{"id": t.id, "x": t.x, "y": t.y} for t in terms]
+    with_terms = sum(1 for v in results.values() if v)
+    return {
+        "results": results,
+        "with_terminals": with_terms,
+        "total": len(results),
+    }
+
+
+@app.post("/api/import-runtime-draft/{page_id}")
+def post_import_runtime_draft(page_id: str, force: bool = False) -> dict:
+    """Draft GT z recognize_file → SQLite (status draft)."""
+    if not force:
+        existing = load_annotation(page_id)
+        if existing and existing.get("bboxes"):
+            raise HTTPException(
+                409,
+                f"Strona {page_id} ma juz bboxy — uzyj ?force=true",
+            )
+    path = None
+    for ext in (".png", ".jpg", ".jpeg"):
+        candidate = RAW / f"{page_id}{ext}"
+        if candidate.exists():
+            path = candidate
+            break
+    if path is None:
+        raise HTTPException(404, f"Brak obrazu: {page_id}")
+    schema = recognize_file(str(path))
+    w, h = image_size_for_page(page_id)
+    record = schema_to_label_record(page_id, schema, w, h)
+    save_annotation(page_id, record.model_dump())
+    upsert_page(page_id, f"{page_id}{path.suffix}", status="draft")
+    return {
+        "status": "draft",
+        "page_id": page_id,
+        "bbox_count": len(record.bboxes),
+        "line_count": len(record.lines),
+        "connection_count": len(record.connections),
+        "terminal_count": sum(len(b.terminals) for b in record.bboxes),
+    }
+
+
 @app.get("/api/annotations/{page_id}")
 def get_annotations(page_id: str) -> dict:
     data = load_annotation(page_id)
