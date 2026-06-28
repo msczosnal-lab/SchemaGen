@@ -558,10 +558,12 @@ function redraw() {
   for (let i = bboxes.length - 1; i >= 0; i--) {
     drawBboxOnCanvas(bboxes[i], i);
   }
-  for (let i = 0; i < lines.length; i++) {
-    drawLineOnCanvas(lines[i], i);
+  if (!hideLinesReview) {
+    for (let i = 0; i < lines.length; i++) {
+      drawLineOnCanvas(lines[i], i);
+    }
+    drawActiveLine();
   }
-  drawActiveLine();
   drawTerminals();
   ctx.restore();
 }
