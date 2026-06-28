@@ -52,8 +52,11 @@ const LINE_POINT_R = 6;
 
 // --- Tryb terminali (ADR connection-model, etap 2) ---
 const MODE_TERMINAL = "terminal";
-const TERMINAL_R = 10;           // promien kropki zacisku (px ekranu / scale)
-let hideLinesReview = false;     // tryb przegladu terminali: "tylko bboxy" (ukryj linie)
+const MODE_REVIEW_BBOX = "review_bbox";
+const MODE_CONNECTION = "connection";
+const TERMINAL_R = 10;
+let hideLinesReview = false;
+let connections = [];             // ConnectionAnnotation GT / draft
 
 const LINE_ROLE_LABELS = {
   wire: "Przewod",
@@ -128,6 +131,7 @@ function capturePageState() {
   return {
     bboxes: JSON.parse(JSON.stringify(bboxes)),
     lines: JSON.parse(JSON.stringify(lines)),
+    connections: JSON.parse(JSON.stringify(connections)),
     nextSeq,
     image_width: bgImage ? bgImage.naturalWidth : canvas.width,
     image_height: bgImage ? bgImage.naturalHeight : canvas.height,
@@ -159,6 +163,7 @@ function loadLocalDraft(pageId) {
 function applyPageState(state) {
   bboxes = state?.bboxes ? JSON.parse(JSON.stringify(state.bboxes)) : [];
   lines = state?.lines ? JSON.parse(JSON.stringify(state.lines)) : [];
+  connections = state?.connections ? JSON.parse(JSON.stringify(state.connections)) : [];
   sortBboxesNewestFirst();
   ensureSeqNumbers();
   if (state?.nextSeq && state.nextSeq > nextSeq) {
@@ -171,8 +176,9 @@ function pageStateScore(state) {
   if (!state) return -1;
   const bboxN = state.bboxes?.length || 0;
   const lineN = state.lines?.length || 0;
+  const connN = state.connections?.length || 0;
   const termN = (state.bboxes || []).reduce((n, b) => n + (b.terminals?.length || 0), 0);
-  return bboxN * 1_000_000 + lineN * 1_000 + termN;
+  return bboxN * 1_000_000 + lineN * 1_000 + connN * 100 + termN;
 }
 
 function countUnassigned() {
@@ -245,8 +251,13 @@ function buildSavePayload(pageId, state) {
         semantic_group: l.semantic_group || "",
         color_ref: l.color_ref || "",
       })),
+      connections: (state.connections || []).map((c) => ({
+        id: c.id,
+        from: c.from || c.from_ref || "",
+        to: c.to || "",
+        kind: c.kind || "power",
+      })),
       texts: [],
-      connections: [],
     },
   };
 }
@@ -559,6 +570,11 @@ function drawBboxOnCanvas(b, i) {
 }
 
 function redraw() {
+  if (window.CropReview && CropReview.isCropActive()) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    CropReview.drawCropOverlay();
+    return;
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(originX, originY);
