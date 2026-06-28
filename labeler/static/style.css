@@ -203,6 +203,16 @@ li.annotation-accordion.unassigned.active .summary-line {
 .terminal-row { display: flex; gap: 6px; align-items: center; margin: 3px 0; }
 .terminal-row input { flex: 1 1 auto; min-width: 0; padding: 3px 6px; }
 .terminal-row .delete-btn { border-radius: 6px; padding: 0 10px; }
+#review-bbox-panel, #connection-panel { margin-top: 10px; padding-top: 8px; border-top: 1px solid #444; }
+#review-bbox-panel.hidden, #connection-panel.hidden { display: none; }
+.review-controls { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.review-controls button { padding: 4px 10px; font-size: 12px; }
+.ok-btn { background: #2ecc71; border: none; color: #fff; border-radius: 4px; cursor: pointer; }
+.secondary-btn { margin-top: 8px; padding: 6px 10px; background: #555; border: none; color: #eee; border-radius: 4px; cursor: pointer; width: 100%; }
+.connection-row { font-size: 0.85rem; padding: 3px 0; color: #ccc; }
+#mode-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.mode-btn { padding: 5px 10px; font-size: 0.85rem; }
+.mode-btn.active { background: #4a9eff; color: #fff; border-color: #4a9eff; }
 .line-row {
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 6px;
