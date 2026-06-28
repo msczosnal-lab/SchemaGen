@@ -148,6 +148,54 @@ def _resolve_node(
     return (c.id, c.id)
 
 
+def derive_auto_terminals(
+    component: Component, lines: list[GraphicLine], tol: float
+) -> list[Terminal]:
+    """Auto-zaciski z punktow, gdzie koniec linii wire dotyka krawedzi bboxa.
+
+    Filip: 'terminal jest tam, gdzie linia wychodzi w krawedz bboxa'. Kontakty
+    przyciagane do krawedzi (rel 0..1), deduplikowane, numerowane 1,2,3...
+    """
+    b = component.bbox
+    if len(b) < 4:
+        return []
+    contacts: list[tuple[float, float]] = []  # bezwzgledne punkty kontaktu
+    for ln in lines:
+        if not LineClassifier.is_connection_candidate(ln) or len(ln.points) < 2:
+            continue
+        for ep in (ln.points[0], ln.points[-1]):
+            if _point_bbox_dist(ep, b) <= tol:
+                snapped = _snap_to_edge_abs(ep, b)
+                if not any(math.hypot(snapped[0] - c[0], snapped[1] - c[1]) <= tol for c in contacts):
+                    contacts.append(snapped)
+    x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
+    w = (x2 - x1) or 1.0
+    h = (y2 - y1) or 1.0
+    contacts.sort(key=lambda p: (round(p[1], 1), round(p[0], 1)))
+    out: list[Terminal] = []
+    for i, (ax, ay) in enumerate(contacts):
+        out.append(Terminal(id=str(i + 1), x=round((ax - x1) / w, 4), y=round((ay - y1) / h, 4)))
+    return out
+
+
+def _snap_to_edge_abs(point: list[float], b: list[float]) -> tuple[float, float]:
+    """Przyciagnij punkt do najblizszej krawedzi bboxa (wsp. bezwzgledne)."""
+    x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
+    px = min(max(point[0], x1), x2)
+    py = min(max(point[1], y1), y2)
+    d = {"l": px - x1, "r": x2 - px, "t": py - y1, "b": y2 - py}
+    edge = min(d, key=d.get)
+    if edge == "l":
+        px = x1
+    elif edge == "r":
+        px = x2
+    elif edge == "t":
+        py = y1
+    else:
+        py = y2
+    return (px, py)
+
+
 def _nearest_terminal(point: list[float], comp: Component, tol: float):
     """Najblizszy terminal komponentu (pozycja wzgledna -> bezwzgledna), w granicach tol."""
     b = comp.bbox
