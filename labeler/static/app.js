@@ -561,7 +561,34 @@ function redraw() {
     drawLineOnCanvas(lines[i], i);
   }
   drawActiveLine();
+  drawTerminals();
   ctx.restore();
+}
+
+function drawTerminals() {
+  for (let i = 0; i < bboxes.length; i++) {
+    const b = bboxes[i];
+    const ts = b.terminals || [];
+    if (!ts.length) continue;
+    const sel = i === selectedIdx;
+    for (const t of ts) {
+      const ax = b.x + t.x * b.width;
+      const ay = b.y + t.y * b.height;
+      ctx.beginPath();
+      ctx.arc(ax, ay, TERMINAL_R / scale, 0, Math.PI * 2);
+      ctx.fillStyle = sel ? "#e8590c" : "#1098ad";
+      ctx.fill();
+      ctx.lineWidth = 1.5 / scale;
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+      const label = (t.name || t.id || "").toString();
+      if (label && sel) {
+        ctx.font = `${12 / scale}px sans-serif`;
+        ctx.fillStyle = "#141414";
+        ctx.fillText(label, ax + (TERMINAL_R + 2) / scale, ay - (TERMINAL_R) / scale);
+      }
+    }
+  }
 }
 
 function applyLineDash(line) {
