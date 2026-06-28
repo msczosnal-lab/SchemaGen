@@ -30,6 +30,7 @@ from backend.runtime_config import roi_bottom_cut_frac
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve
 from backend.recognize.line_tracer import LineTracer
+from backend.recognize.net_builder import build_connections as build_net_connections
 from backend.recognize.ocr_engine import PaddleOcrEngine
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
@@ -37,9 +38,6 @@ from backend.recognize.symbol_detector import OnnxSymbolDetector
 # ktorej uznajemy ze linia "wchodzi" w symbol. Skalowana z rozmiarem strony.
 TERMINAL_TOL_FRAC = 0.012
 TERMINAL_TOL_MIN = 12.0
-
-# semantic_group / role -> ConnectionKind
-_PE_GROUPS = frozenset({"pe", "pe_wire", "ground", "earth"})
 
 
 class GraphBuilder:
