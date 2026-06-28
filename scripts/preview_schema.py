@@ -130,7 +130,7 @@ def _connected_nets(schema, size):
     comps_by_id = {c.id: c for c in schema.components}
     req = _require_terminal()
     out = []
-    for net in _group_into_nets(cands, tol):
+    for net in _group_into_nets(cands, tol, schema.components, tol):
         nodes = _nodes_on_net(net, schema.components, tol, req)
         if len(nodes) < 2:
             continue
