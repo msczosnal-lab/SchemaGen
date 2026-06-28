@@ -1123,6 +1123,65 @@ function updateTerminalId(idx, termIdx, value) {
   redraw();
 }
 
+async function deriveTerminalsForSelected() {
+  const b = bboxes[selectedIdx];
+  if (!b) {
+    saveStatusEl.textContent = "Najpierw zaznacz bbox";
+    return;
+  }
+  const imgMax = Math.max(bgImage?.naturalWidth || 0, bgImage?.naturalHeight || 0);
+  const tol = Math.max(12, 0.012 * imgMax);
+  try {
+    const res = await fetchJson("/api/derive-terminals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bbox: [b.x, b.y, b.x + b.width, b.y + b.height],
+        lines: lines.map((l) => ({ points: l.points, role: l.role || "wire" })),
+        tol,
+      }),
+    });
+    b.terminals = (res.terminals || []).map((t) => ({ id: t.id, x: t.x, y: t.y, name: "" }));
+    markPageDirty();
+    renderTerminalList();
+    redraw();
+    saveStatusEl.textContent = `Auto-zaciski: ${b.terminals.length} (sprawdź/popraw, ▶ = następny bbox)`;
+  } catch (err) {
+    saveStatusEl.textContent = "Błąd auto-zacisków: " + err.message;
+  }
+}
+
+function removeLastTerminal() {
+  const b = bboxes[selectedIdx];
+  if (b && (b.terminals || []).length) {
+    b.terminals.pop();
+    markPageDirty();
+    renderTerminalList();
+    redraw();
+  }
+}
+
+function clearTerminals() {
+  const b = bboxes[selectedIdx];
+  if (b) {
+    b.terminals = [];
+    markPageDirty();
+    renderTerminalList();
+    redraw();
+  }
+}
+
+function iterateBbox(dir) {
+  if (!bboxes.length) return;
+  let i = selectedIdx;
+  i = i < 0 ? (dir > 0 ? 0 : bboxes.length - 1) : (i + dir + bboxes.length) % bboxes.length;
+  selectBbox(i);
+  // wycentruj/pokaż w statusie; auto-zaciski gdy bbox jeszcze bez terminali
+  const b = bboxes[i];
+  saveStatusEl.textContent = `bbox ${i + 1}/${bboxes.length}: #${b.seq || ""} ${(b.tag || b.class_name || "").trim()}`;
+  if (!(b.terminals || []).length) deriveTerminalsForSelected();
+}
+
 function renderTerminalList() {
   const panel = document.getElementById("terminal-panel");
   const list = document.getElementById("terminal-list");
