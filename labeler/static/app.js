@@ -1269,6 +1269,27 @@ function renderTerminalList() {
   });
 }
 
+function renderConnectionList() {
+  const list = document.getElementById("connection-list");
+  const head = document.getElementById("connection-head");
+  if (!list) return;
+  list.innerHTML = "";
+  if (head) head.textContent = `Połączenia (${connections.length})`;
+  if (!connections.length) {
+    const li = document.createElement("li");
+    li.className = "muted";
+    li.textContent = "Import draft (runtime) lub zapisz po review.";
+    list.appendChild(li);
+    return;
+  }
+  connections.forEach((c, i) => {
+    const li = document.createElement("li");
+    li.className = "connection-row";
+    li.textContent = `${c.from || c.from_ref} → ${c.to} (${c.kind || "power"})`;
+    list.appendChild(li);
+  });
+}
+
 // ===== Linie (prompt 002) =====
 
 const roleSelect = () => document.getElementById("line-role");
@@ -1679,27 +1700,9 @@ canvas.addEventListener("mousedown", (e) => {
     return;
   }
   if (mode === MODE_TERMINAL) {
-    const { cx, cy } = clientToCanvas(e);
-    const pt = canvasToImage(cx, cy);
-    const margin = 12 / scale;
-    const sel = bboxes[selectedIdx];
-    const nearSel =
-      sel &&
-      pt.x >= sel.x - margin && pt.x <= sel.x + sel.width + margin &&
-      pt.y >= sel.y - margin && pt.y <= sel.y + sel.height + margin;
-    if (nearSel) {
-      addTerminalAt(selectedIdx, pt);
-      return;
-    }
-    const hit = bboxes.findIndex(
-      (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
-    );
-    if (hit >= 0) {
-      selectBbox(hit);
-      saveStatusEl.textContent = "Bbox zaznaczony — klik przy krawędzi dodaje zacisk";
-    } else {
-      saveStatusEl.textContent = "Najpierw zaznacz bbox, potem dodawaj zaciski";
-    }
+    return;
+  }
+  if (mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
     return;
   }
   const { cx, cy } = clientToCanvas(e);
@@ -1840,6 +1843,17 @@ document.addEventListener("keydown", (e) => {
     setMode(MODE_TERMINAL);
     return;
   }
+  if (e.key === "r" || e.key === "R") {
+    e.preventDefault();
+    setMode(MODE_REVIEW_BBOX);
+    return;
+  }
+  if (e.key === "c" || e.key === "C") {
+    if (mode === MODE_LINE) return;
+    e.preventDefault();
+    setMode(MODE_CONNECTION);
+    return;
+  }
   if (mode === MODE_LINE && (e.key === "o" || e.key === "O")) {
     e.preventDefault();
     lineOrtho = !lineOrtho;
@@ -1923,14 +1937,28 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 document.getElementById("mode-terminal")?.addEventListener("click", () => setMode(MODE_TERMINAL));
-document.getElementById("term-auto")?.addEventListener("click", deriveTerminalsForSelected);
+document.getElementById("mode-review-bbox")?.addEventListener("click", () => setMode(MODE_REVIEW_BBOX));
+document.getElementById("mode-connection")?.addEventListener("click", () => setMode(MODE_CONNECTION));
+document.getElementById("term-auto")?.addEventListener("click", () => {
+  if (window.CropReview) CropReview.deriveTerminalsForPage().then(() => redraw());
+  else deriveTerminalsForSelected();
+});
 document.getElementById("term-undo")?.addEventListener("click", removeLastTerminal);
 document.getElementById("term-clear")?.addEventListener("click", clearTerminals);
 document.getElementById("term-prev")?.addEventListener("click", () => iterateBbox(-1));
 document.getElementById("term-next")?.addEventListener("click", () => iterateBbox(1));
+document.getElementById("review-prev")?.addEventListener("click", () => CropReview?.reviewStep(-1));
+document.getElementById("review-next")?.addEventListener("click", () => CropReview?.reviewStep(1));
+document.getElementById("review-accept")?.addEventListener("click", () => CropReview?.acceptReviewItem());
+document.getElementById("review-reject")?.addEventListener("click", () => CropReview?.rejectReviewItem());
+document.getElementById("conn-prev")?.addEventListener("click", () => CropReview?.reviewStep(-1));
+document.getElementById("conn-next")?.addEventListener("click", () => CropReview?.reviewStep(1));
+document.getElementById("conn-accept")?.addEventListener("click", () => CropReview?.acceptReviewItem());
+document.getElementById("conn-reject")?.addEventListener("click", () => CropReview?.rejectReviewItem());
+document.getElementById("import-draft-btn")?.addEventListener("click", () => CropReview?.importRuntimeDraft());
 document.getElementById("term-only-bboxes")?.addEventListener("change", (e) => {
   hideLinesReview = e.target.checked;
-  redraw();
+  if (!CropReview?.isCropActive()) redraw();
 });
 document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
@@ -1954,6 +1982,8 @@ document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
     ? "Pipeta uzbrojona — kliknij piksel obrazu"
     : "Pipeta wyłączona";
 });
+
+window._cropRedraw = redraw;
 
 async function init() {
   lastUsedTag = loadLastUsedTag();
