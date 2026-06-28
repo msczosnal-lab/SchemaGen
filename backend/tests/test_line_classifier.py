@@ -5,11 +5,12 @@ from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_tracer import LineSegment
 
 
-def test_connection_candidate_wire_and_bus() -> None:
+def test_connection_candidate_only_wire() -> None:
+    # ADR connection-model: "bus" wycofane -> tylko wire jest kandydatem na Connection
     wire = GraphicLine(id="w", points=[[0, 0], [1, 1]], role="wire")
     bus = GraphicLine(id="b", points=[[0, 0], [1, 1]], role="bus")
     assert LineClassifier.is_connection_candidate(wire)
-    assert LineClassifier.is_connection_candidate(bus)
+    assert not LineClassifier.is_connection_candidate(bus)
 
 
 def test_connection_candidate_rejects_device_stroke() -> None:
