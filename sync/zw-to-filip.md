@@ -23,9 +23,9 @@ Labeler (v34): edycja terminali (drag/dodaj/usuń), auto-derive nie nadpisuje r�
 
 **Detekcja elementów listwy** (złączka / mostek / strzałka potencjału) — doznaczenie klas + re-train YOLO, albo proceduralna detekcja. Bez tego runtime nie odtworzy topologii listew. Potem: scalanie strzałek potencjału po nazwie; tuning `derive_auto_terminals` poza p040.
 
-### Smoke końcowy (Filip potwierdził)
+### Smoke końcowy (Cursor potwierdził 2026-06-28)
 
-`pytest backend/tests labeler/tests` → 148 passed (przed tą rundą; +nowe testy do potwierdzenia). `--rebuild-conn` p040 = 15 conn czystych. `diff_gt_runtime` po czyszczeniu = GT 0 conn (oczekiwane).
+`pytest backend/tests labeler/tests -q` → **151 passed**. `--rebuild-conn` p040 = **15** conn czystych. GT po `clear_gt_connections.py --apply`: 0 conn (oczekiwane). Sesja zamknięta — następny kamień: detekcja listwy (filar SYMBOLE).
 
 ---
 

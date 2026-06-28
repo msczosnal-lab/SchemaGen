@@ -4,36 +4,44 @@
 
 ---
 
-## 2026-06-28 [Cursor] — Review sesji ZW: pytest OK (151 passed)
+## 2026-06-28 [Cursor] — Domknięcie sesji ZW: pytest OK (151 passed)
 
-Temat: **Zamknięcie etapu POŁĄCZENIA (net-builder + labeler GT + harness).**
+Temat: **Sesja ZW zamknięta. Filar POŁĄCZENIA DONE. Następny kamień = filar SYMBOLE (detekcja listwy).**
 
 | Pole | Wartość |
 |------|---------|
-| **git pull** | main up to date; commity ZW 2026-06-28 lokalnie (`ea7343bb` net-builder, `3c4f2c77` labeler auto-zaciski) |
-| **pytest** | `backend/tests` + `labeler/tests` → **151 passed** (7.7s) |
-| **`--rebuild-conn` p040** | **15** par `[GT-conn]`, bez gwiazdy `8:mostek`; overlay zapisany |
-| **Review net_builder** | fragmentacja 1 net ✓, T-junction ✓, listwa 2 nety ✓ (`test_two_wires_to_same_terminal_not_merged_into_star`), strict `require_terminal` ✓ |
-| **Review sito** | `recover_terminal_bridges` krok 4b w graph_builder; +4 testy mostków w `test_line_sieve.py` |
-| **Config** | `connection_require_terminal: true` w `runtime.yaml` — runtime `recognize_file` może dać mniej conn niż rebuild na czystym GT (oczekiwane) |
+| **git pull** | main up to date; commit ZW `865b1aac` (+ `clear_gt_connections.py`, zw-to-filip ZAMKNIĘCIE) |
+| **pytest** | `backend/tests` + `labeler/tests` → **151 passed** (4.3s) |
+| **Nowe testy** | `test_net_builder`: +3 (`star`, `require_terminal`×2); `test_line_sieve`: +4 (mostki, `recover_terminal_bridges`) |
+| **`--rebuild-conn` p040** | **15** par `[GT-conn]`, bez gwiazdy `8:mostek` |
+| **GT po czyszczeniu** | `clear_gt_connections.py --apply` → 19 bbox, 17 linii, **0 conn** (connections = wynik algorytmu) |
 
-### Etap DONE (Cursor akceptuje)
+### Review diffów (Cursor akceptuje)
 
-- Algorytm connections na czystym GT (`--rebuild-conn`)
-- Labeler edycja GT T/R/C v34 (drag terminali, conn C, linie L)
-- `config/runtime.yaml` pokrętła + harness walidacji
+| Moduł | Werdykt |
+|-------|---------|
+| `net_builder.py` | terminal=granica scalania — listwa 2 nety, fragmentacja/T bez regresji |
+| `line_sieve.py` | `recover_terminal_bridges` + ochrona mostków terminal↔terminal |
+| `graph_builder.py` | krok 4b recover, `connection_require_terminal` z config |
+| `preview_schema.py` | `--rebuild-conn`, overlay trasowany, `[GT-conn]` read-only |
+| `clear_gt_connections.py` | NOWY — czyści stale conn w SQLite, zostawia bbox/linie/terminale |
 
-### Następne — Filip
+### Wniosek sesji (potwierdzony)
 
-1. Labeler Ctrl+F5, tryby **T → C → L** na p040
-2. Ręczna korekta terminali/połączeń → **Zapisz** (GT ≠ draft)
-3. `diff_gt_runtime.py --page p040` — pierwsza sensowna walidacja
+- **Net-builder OK** na czystym GT (15 conn).
+- **Bloker runtime:** YOLO wykrywa **9 z 19** bbox na p040 — brak złączek/mostków/strzałek potencjału. Gwiazda runtime → skutek detekcji, nie net-buildera.
+- **Decyzja:** connections w GT nie są wzorcem; walidacja przez `--rebuild-conn` / runtime po poprawie detekcji.
 
-### Backlog — Claude (nie teraz)
+### Następny kamień — Filip (filar SYMBOLE)
 
-- Scalanie „Strzałek potencjału” o tej samej nazwie
-- `derive_auto_terminals` poza p040
-- Kalibracja Hough per strona
+1. Doznaczenie klas listwy (złączka / mostek / strzałka potencjału) na p040+ — **decyzja o re-train YOLO** (następna sesja, nie teraz)
+2. Po detekcji: `diff_gt_runtime` / `--rebuild-conn` na runtime ma sens
+
+**NIE teraz:** atlas QET, trening YOLO bez decyzji Filipa.
+
+### Backlog — Claude
+
+- Scalanie strzałek potencjału po nazwie; `derive_auto_terminals` poza p040; tuning Hough
 
 ---
 
