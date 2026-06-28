@@ -1051,7 +1051,101 @@ function removeBboxAt(idx) {
 function selectBbox(idx) {
   selectedIdx = idx;
   renderAnnotationList();
+  renderTerminalList();
   redraw();
+}
+
+// ===== Terminale (ADR connection-model, etap 2) =====
+
+function nextTerminalId(b) {
+  const used = new Set((b.terminals || []).map((t) => String(t.id)));
+  let n = 1;
+  while (used.has(String(n))) n += 1;
+  return String(n);
+}
+
+function snapTerminalRel(b, imgPt) {
+  // pozycja wzgledna [0,1], przyciagnieta do najblizszej krawedzi bboxa
+  const rx = Math.max(0, Math.min(1, (imgPt.x - b.x) / (b.width || 1)));
+  const ry = Math.max(0, Math.min(1, (imgPt.y - b.y) / (b.height || 1)));
+  const dLeft = rx, dRight = 1 - rx, dTop = ry, dBottom = 1 - ry;
+  const m = Math.min(dLeft, dRight, dTop, dBottom);
+  let x = rx, y = ry;
+  if (m === dLeft) x = 0;
+  else if (m === dRight) x = 1;
+  else if (m === dTop) y = 0;
+  else y = 1;
+  return { x: +x.toFixed(4), y: +y.toFixed(4) };
+}
+
+function addTerminalAt(idx, imgPt) {
+  const b = bboxes[idx];
+  if (!b) return;
+  b.terminals = b.terminals || [];
+  const rel = snapTerminalRel(b, imgPt);
+  b.terminals.push({ id: nextTerminalId(b), x: rel.x, y: rel.y, name: "" });
+  markPageDirty();
+  renderTerminalList();
+  redraw();
+}
+
+function removeTerminal(idx, termIdx) {
+  const b = bboxes[idx];
+  if (!b || !b.terminals) return;
+  b.terminals.splice(termIdx, 1);
+  markPageDirty();
+  renderTerminalList();
+  redraw();
+}
+
+function updateTerminalId(idx, termIdx, value) {
+  const b = bboxes[idx];
+  if (!b || !b.terminals || !b.terminals[termIdx]) return;
+  const v = (value || "").trim();
+  if (v) b.terminals[termIdx].id = v;
+  markPageDirty();
+  redraw();
+}
+
+function renderTerminalList() {
+  const panel = document.getElementById("terminal-panel");
+  const list = document.getElementById("terminal-list");
+  const head = document.getElementById("terminal-head");
+  if (!panel || !list) return;
+  list.innerHTML = "";
+  const b = bboxes[selectedIdx];
+  if (head) {
+    head.textContent = b
+      ? `Zaciski — #${b.seq || ""} ${(b.tag || b.class_name || "").trim()}`
+      : "Zaciski — (zaznacz bbox)";
+  }
+  if (!b) return;
+  const ts = b.terminals || [];
+  if (!ts.length) {
+    const li = document.createElement("li");
+    li.className = "muted";
+    li.textContent = "Brak zacisków. Klik przy krawędzi bboxa dodaje zacisk.";
+    list.appendChild(li);
+    return;
+  }
+  ts.forEach((t, ti) => {
+    const row = document.createElement("li");
+    row.className = "terminal-row";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = t.id;
+    input.title = "Nazwa/adres zacisku (np. 1, L+, I0.0)";
+    input.addEventListener("change", () => updateTerminalId(selectedIdx, ti, input.value));
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "✕";
+    del.title = "Usuń zacisk";
+    del.addEventListener("click", () => removeTerminal(selectedIdx, ti));
+    row.appendChild(input);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
 }
 
 // ===== Linie (prompt 002) =====
