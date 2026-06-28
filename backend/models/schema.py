@@ -36,6 +36,18 @@ class UserIntent(BaseModel):
     control: str = ""
 
 
+class Terminal(BaseModel):
+    """Punkt podlaczenia (zacisk) na obrysie komponentu (ADR connection-model, etap 2).
+
+    Pozycja wzgledna w bboxie: x, y w [0, 1]. Adres polaczenia = f"{component_id}:{id}".
+    """
+
+    id: str
+    x: float
+    y: float
+    name: str = ""
+
+
 class Component(BaseModel):
     id: str
     type: str
@@ -49,6 +61,7 @@ class Component(BaseModel):
     parent_id: str = ""
     depth: int = 0
     rel_bbox: list[float] = Field(default_factory=list)
+    terminals: list[Terminal] = Field(default_factory=list)
 
 
 class SpatialRelation(BaseModel):
