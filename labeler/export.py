@@ -19,6 +19,7 @@ from backend.models.schema import (
     SchemaMeta,
     SchemaModel,
     SpatialRelation,
+    Terminal,
 )
 from backend.paths import CONFIG, LABELED, RAW
 from backend.class_map import build_class_map, load_palette_map, resolve_class_id
@@ -49,6 +50,9 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
             parent_id=b.parent_id,
             depth=b.depth,
             rel_bbox=b.rel_bbox,
+            terminals=[
+                Terminal(id=t.id, x=t.x, y=t.y, name=t.name) for t in b.terminals
+            ],
         )
         for b in record.bboxes
     ]
