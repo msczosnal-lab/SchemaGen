@@ -84,6 +84,26 @@ _C_TERM = (0, 215, 255)      # zolty — terminal
 _C_CONN = (40, 40, 230)      # czerwony — logiczne polaczenie (Connection)
 
 
+def _seq_map(schema) -> dict:
+    """component_id -> kolejny numer bboxa (1-based, jak w labelerze)."""
+    return {c.id: i + 1 for i, c in enumerate(schema.components)}
+
+
+def _comp_name(c) -> str:
+    return ((c.tag or c.type or "").strip()) or "?"
+
+
+def friendly_ref(ref: str, comps_by_id: dict, seq_by_id: dict) -> str:
+    """'element_..:1' -> 'nr_bbox:nazwa:nr_term' (czytelne dla czlowieka)."""
+    s = str(ref)
+    cid, sep, term = s.partition(":")
+    c = comps_by_id.get(cid)
+    if c is None:
+        return s
+    base = f"{seq_by_id.get(cid, '?')}:{_comp_name(c)}"
+    return f"{base}:{term}" if sep else base
+
+
 def _node_anchor(node_id: str, comps_by_id: dict) -> tuple[int, int] | None:
     """Punkt kotwicy dla node 'comp' lub 'comp:terminal' (srodek bbox / pozycja terminala)."""
     cid = str(node_id).split(":", 1)[0]
