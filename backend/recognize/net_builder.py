@@ -69,7 +69,12 @@ def build_connections(
 
 
 # ----------------------------------------------------------------- union-find
-def _group_into_nets(lines: list[GraphicLine], tol: float) -> list[list[GraphicLine]]:
+def _group_into_nets(
+    lines: list[GraphicLine],
+    tol: float,
+    components: list[Component] | None = None,
+    node_tol: float = 0.0,
+) -> list[list[GraphicLine]]:
     n = len(lines)
     parent = list(range(n))
 
@@ -84,7 +89,7 @@ def _group_into_nets(lines: list[GraphicLine], tol: float) -> list[list[GraphicL
 
     for i in range(n):
         for j in range(i + 1, n):
-            if _lines_joined(lines[i], lines[j], tol):
+            if _lines_joined(lines[i], lines[j], tol, components, node_tol):
                 union(i, j)
 
     groups: dict[int, list[GraphicLine]] = {}
@@ -93,15 +98,35 @@ def _group_into_nets(lines: list[GraphicLine], tol: float) -> list[list[GraphicL
     return list(groups.values())
 
 
-def _lines_joined(a: GraphicLine, b: GraphicLine, tol: float) -> bool:
-    """True gdy KONIEC jednej linii lezy na sciezce drugiej (zalamanie/odczep)."""
+def _lines_joined(
+    a: GraphicLine,
+    b: GraphicLine,
+    tol: float,
+    components: list[Component] | None = None,
+    node_tol: float = 0.0,
+) -> bool:
+    """True gdy KONIEC jednej linii lezy na sciezce drugiej (zalamanie/odczep w wolnej przestrzeni).
+
+    NIE scalamy, gdy styk wypada na wezle (terminal/komponent) — terminal to granica, na
+    ktorej przewody sie KONCZA, a nie przechodza. Dwa przewody na tej samej zlaczce = dwa
+    polaczenia do niej, nie jeden net (regula 'jedna linia != dwa polaczenia').
+    """
     for ep in (a.points[0], a.points[-1]):
-        if _endpoint_touches(ep, b, tol):
+        if _endpoint_touches(ep, b, tol) and not _point_at_node(ep, components, node_tol):
             return True
     for ep in (b.points[0], b.points[-1]):
-        if _endpoint_touches(ep, a, tol):
+        if _endpoint_touches(ep, a, tol) and not _point_at_node(ep, components, node_tol):
             return True
     return False
+
+
+def _point_at_node(
+    point: list[float], components: list[Component] | None, node_tol: float
+) -> bool:
+    """True gdy punkt lezy na komponencie/terminalu (granica scalania netow)."""
+    if not components or node_tol <= 0:
+        return False
+    return _nearest_component(point, components, node_tol) is not None
 
 
 def _endpoint_touches(pt: list[float], line: GraphicLine, tol: float) -> bool:
