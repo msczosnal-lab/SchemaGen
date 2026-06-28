@@ -1330,12 +1330,82 @@ function renderConnectionList() {
     list.appendChild(li);
     return;
   }
+  const compIds = bboxes.map((b) => b.id).filter(Boolean);
   connections.forEach((c, i) => {
     const li = document.createElement("li");
     li.className = "connection-row";
-    li.textContent = `${c.from || c.from_ref} → ${c.to} (${c.kind || "power"})`;
+    const fromRef = String(c.from || c.from_ref || "");
+    const toRef = String(c.to || "");
+
+    const fromSel = _connEndpointSelect(compIds, fromRef);
+    fromSel.title = "Zrodlo (from)";
+    fromSel.addEventListener("change", () => updateConnectionField(i, "from", fromSel.value));
+
+    const arrow = document.createElement("span");
+    arrow.textContent = " → ";
+
+    const toSel = _connEndpointSelect(compIds, toRef);
+    toSel.title = "Cel (to)";
+    toSel.addEventListener("change", () => updateConnectionField(i, "to", toSel.value));
+
+    const kindSel = document.createElement("select");
+    kindSel.title = "Rodzaj polaczenia";
+    ["power", "pe", "link"].forEach((k) => {
+      const o = document.createElement("option");
+      o.value = k;
+      o.textContent = k;
+      if ((c.kind || "power") === k) o.selected = true;
+      kindSel.appendChild(o);
+    });
+    kindSel.addEventListener("change", () => updateConnectionField(i, "kind", kindSel.value));
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "✕";
+    del.title = "Usun polaczenie";
+    del.addEventListener("click", () => removeConnection(i));
+
+    li.append(fromSel, arrow, toSel, kindSel, del);
     list.appendChild(li);
   });
+}
+
+// Select endpointu polaczenia: lista id bboxow + zachowanie biezacej wartosci (np. comp:terminal).
+function _connEndpointSelect(compIds, current) {
+  const sel = document.createElement("select");
+  const opts = new Set(compIds);
+  if (current) opts.add(current); // zachowaj adres comp:terminal nawet jak nie ma go na liscie
+  opts.forEach((id) => {
+    const o = document.createElement("option");
+    o.value = id;
+    o.textContent = id;
+    if (id === current) o.selected = true;
+    sel.appendChild(o);
+  });
+  return sel;
+}
+
+function updateConnectionField(i, field, value) {
+  const c = connections[i];
+  if (!c) return;
+  if (field === "from") {
+    c.from = value;
+    c.from_ref = value; // utrzymaj oba klucze spojne (eksport/draw)
+  } else {
+    c[field] = value;
+  }
+  markPageDirty();
+  renderConnectionList();
+  redraw();
+}
+
+function removeConnection(i) {
+  if (i < 0 || i >= connections.length) return;
+  connections.splice(i, 1);
+  markPageDirty();
+  renderConnectionList();
+  redraw();
 }
 
 // ===== Linie (prompt 002) =====
