@@ -93,8 +93,11 @@ class GraphBuilder:
         # 3c) ROI: odetnij linie z dolu arkusza (tabliczka/tabelki) — config
         graphic_lines = _apply_roi(graphic_lines, size, roi_bottom_cut_frac())
 
-        # 4) Connections WYLACZNIE z linii wire/bus (po sicie + ROI)
-        connections = self._build_connections(graphic_lines, components, size)
+        # 4) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
+        tol = _terminal_tol(size)
+        connections, potentials = build_net_connections(
+            graphic_lines, components, join_tol=tol, terminal_tol=tol
+        )
 
         # 5) Kontekst (best-effort na bboxach detekcji + tagach OCR)
         context_assignments = self._resolve_context_safe(detections, components)
@@ -109,6 +112,7 @@ class GraphBuilder:
             graphic_lines=graphic_lines,
             connections=connections,
             context_assignments=context_assignments,
+            potentials=potentials,
             annotations=annotations,
         )
 
