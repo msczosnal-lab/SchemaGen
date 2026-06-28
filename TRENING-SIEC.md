@@ -29,21 +29,23 @@ Dane lokalne (poza gitem): `data/schemagen.db`, `data/raw/*.png`.
 
 Na schemacie wiele obiektów ma sens **tylko w poziomym rzędzie** (wspólna oś Y). Odległości między elementami nie są ustandaryzowane. Na jednej stronie może być **wiele rzędów**. Rząd złączek tworzy **listwę złączek** lub **zwartą listwę złączek** (jeden rząd = jedna listwa), chyba że na tym samym Y widać **drugi oznacznik listy** — wtedy dwie listwy obok siebie.
 
-| Rząd składa się z… | Tworzy obiekt-nadzór? | Przykładowe tagi (bez YOLO) |
-|--------------------|----------------------|----------------------------|
-| złączki | tak → **listwa złączek** albo **zwarta listwa złączek** | `zlaczka`, `listwa_zlaczek`, `zwarta_listwa_zlaczek` |
+| Rząd składa się z… | Tworzy obiekt-nadzór? | Przykładowe tagi |
+|--------------------|----------------------|------------------|
+| złączki | tak → **listwa złączek** albo **zwarta listwa złączek** | `zlaczka` (YOLO), `listwa_zlaczek`, `zwarta_listwa_zlaczek` (GT) |
 | złącza | nie (rząd bez „listy”) | `zlacze` |
 | oznaczniki przewodów | tak → oznaczenie kabla | `oznaczenie_przewodu`, `oznaczenie_kabla` |
 | terminale urządzenia | nie (skraj bloku) | `terminale_urzadzenia` |
 
 **Wykluczone z YOLO** — oznaczaj dalej w labelerze (GT relacji):
 
-- `zlaczka`, `zlacze`
+- `zlacze`
 - `listwa_zlaczek`, `zwarta_listwa_zlaczek` (bbox całej listwy też tylko GT)
 - `oznaczenie_kabla`, `oznaczenie_przewodu`
 - `terminale_urzadzenia`
 
-**Zostają w YOLO** (klasy atomowe): m.in. `relay`, `terminal_plc`, `terminal_sterownika_safety`, `styki`, `led` — wszystko poza powyższą listą.
+**Klasy listwy w YOLO** (od 2026-06-28, prompt 011): `zlaczka`, `mostek`, `strzalka_potencjalu_wejsciowa`, `strzalka_potencjalu_wyjsciowa`.
+
+**Zostają w YOLO** (klasy atomowe): m.in. `relay`, `terminal_plc`, `zlaczka`, `mostek`, `styki`, `led` — wszystko poza powyższą listą wykluczeń.
 
 Parametry treningu: [`config/runtime.yaml`](config/runtime.yaml) — domyślnie `imgsz: 1536`, `batch: 4`, `conf: 0.25`.
 
