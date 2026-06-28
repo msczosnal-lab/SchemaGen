@@ -1730,10 +1730,10 @@ canvas.addEventListener("mousedown", (e) => {
       const hit = hitTestLine(raw);
       if (hit >= 0) {
         removeLineAt(hit);
-        disarmLineDelete();
-        saveStatusEl.textContent = "Linia usunieta — mozesz rysowac dalej (Ctrl+S = zapis)";
+        // narzedzie zostaje aktywne — mozesz kasowac kolejne linie (Esc = wyjdz)
+        saveStatusEl.textContent = "Linia usunieta — kliknij kolejna do usuniecia (Esc = koniec)";
       } else {
-        saveStatusEl.textContent = "Nie trafiono — kliknij istniejaca linie (Esc = anuluj)";
+        saveStatusEl.textContent = "Nie trafiono — kliknij istniejaca linie (Esc = koniec usuwania)";
       }
       return;
     }
