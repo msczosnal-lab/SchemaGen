@@ -1459,7 +1459,7 @@ function setMode(next) {
   if (mode === MODE_LINE) {
     hint = "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt";
   } else if (mode === MODE_TERMINAL) {
-    hint = "Terminale: crop bbox + auto-zaciski | ◀/▶ = następny | ✓ OK | ✕ odrzuć | Zapisz";
+    hint = "Terminale: klik = dodaj (snap do krawędzi), przeciągnij = popraw pozycję, ✕ w liście = usuń | ◀/▶ = następny bbox | Zapisz";
   } else if (mode === MODE_REVIEW_BBOX) {
     hint = "Review bbox: crop detekcji | ✓ akceptuj | ✕ usuń | ◀/▶ | R = tryb";
   } else if (mode === MODE_CONNECTION) {
