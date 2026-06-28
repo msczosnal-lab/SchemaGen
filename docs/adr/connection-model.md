@@ -1,6 +1,6 @@
 # ADR: model połączeń — typy Connection, linia opisu kabla, granica grafiki
 
-**Status:** Proposed — do review Filip
+**Status:** Accepted (2026-06-27, Filip) — implementacja krokami
 **Data:** 2026-06-27
 **Deciderzy:** Filip (Cursor), ZW (Claude)
 **Powiązane:** [`device-block-stub.md`](device-block-stub.md), [`schematic-interpretation.md`](../schematic-interpretation.md)
