@@ -64,6 +64,32 @@ def apply_sieve(
     return out
 
 
+def recover_terminal_bridges(
+    lines: list[GraphicLine],
+    components: list[Component],
+    *,
+    inside_margin: float = 2.0,
+    bridge_tol: float = 8.0,
+) -> list[GraphicLine]:
+    """Promuj z powrotem do 'wire' linie 'other' bedace mostkiem 2 terminali komponentu.
+
+    Wolane PO wyprowadzeniu terminali (auto/GT). W runtime sito biegnie zanim terminale
+    istnieja, wiec wewnetrzny mostek zostaje zdemotowany — ten przebieg go odzyskuje.
+    Nie rusza linii, ktore juz sa kandydatami, ani nie-other.
+    """
+    out: list[GraphicLine] = []
+    for ln in lines:
+        if ln.role != "other":
+            out.append(ln)
+            continue
+        comp = _containing_component(ln, components, inside_margin)
+        if comp is not None and _bridges_two_terminals(ln, comp, bridge_tol):
+            out.append(ln.model_copy(update={"role": "wire"}))
+        else:
+            out.append(ln)
+    return out
+
+
 def _endpoints(line: GraphicLine) -> tuple[list[float], list[float]] | None:
     if len(line.points) < 2:
         return None
