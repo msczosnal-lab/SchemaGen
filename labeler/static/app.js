@@ -571,21 +571,34 @@ function drawTerminals() {
     const ts = b.terminals || [];
     if (!ts.length) continue;
     const sel = i === selectedIdx;
+    const r = TERMINAL_R / scale;
     for (const t of ts) {
       const ax = b.x + t.x * b.width;
       const ay = b.y + t.y * b.height;
+      // biala otoczka (widoczna na czarnych liniach i bialym tle)
       ctx.beginPath();
-      ctx.arc(ax, ay, TERMINAL_R / scale, 0, Math.PI * 2);
-      ctx.fillStyle = sel ? "#e8590c" : "#1098ad";
+      ctx.arc(ax, ay, r + 2 / scale, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
       ctx.fill();
-      ctx.lineWidth = 1.5 / scale;
-      ctx.strokeStyle = "#fff";
+      // wypelnienie + ciemny kontur
+      ctx.beginPath();
+      ctx.arc(ax, ay, r, 0, Math.PI * 2);
+      ctx.fillStyle = sel ? "#fa5252" : "#f76707";
+      ctx.fill();
+      ctx.lineWidth = 2 / scale;
+      ctx.strokeStyle = "#1a1a1a";
       ctx.stroke();
+      // etykieta zawsze (na bialym tle dla czytelnosci)
       const label = (t.name || t.id || "").toString();
-      if (label && sel) {
-        ctx.font = `${12 / scale}px sans-serif`;
-        ctx.fillStyle = "#141414";
-        ctx.fillText(label, ax + (TERMINAL_R + 2) / scale, ay - (TERMINAL_R) / scale);
+      if (label) {
+        ctx.font = `bold ${14 / scale}px sans-serif`;
+        const tx = ax + (r + 4 / scale);
+        const ty = ay - (r + 2 / scale);
+        ctx.lineWidth = 3 / scale;
+        ctx.strokeStyle = "#ffffff";
+        ctx.strokeText(label, tx, ty);
+        ctx.fillStyle = "#1a1a1a";
+        ctx.fillText(label, tx, ty);
       }
     }
   }
