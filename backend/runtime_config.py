@@ -40,6 +40,15 @@ def runtime_settings() -> dict:
             # ROI: pomijaj linie w calosci ponizej tego ulamka wysokosci strony
             # (tabliczka/tabelki na dole arkusza). 1.0 = bez ciecia.
             "roi_bottom_cut_frac": 1.0,
+            # Tolerancja terminala (px) — skalowana z rozdzielczoscia strony.
+            "terminal_tol_frac": 0.012,
+            "terminal_tol_min": 12.0,
+            # Progi Hough (LineTracer) — frac wzgledem max(W,H) + floory.
+            "hough_min_len_frac": 0.02,
+            "hough_gap_frac": 0.0015,
+            "hough_min_len_floor": 20,
+            "hough_threshold_floor": 50,
+            "hough_gap_floor": 4,
         },
     )
 
@@ -70,3 +79,23 @@ def roi_bottom_cut_frac() -> float:
     if val <= 0.0 or val > 1.0:
         return 1.0
     return val
+
+
+def terminal_tol_frac() -> float:
+    return float(runtime_settings()["terminal_tol_frac"])
+
+
+def terminal_tol_min() -> float:
+    return float(runtime_settings()["terminal_tol_min"])
+
+
+def hough_params() -> dict:
+    """Progi Hough z configu (frac wzgledem max(W,H) + floory)."""
+    s = runtime_settings()
+    return {
+        "min_len_frac": float(s["hough_min_len_frac"]),
+        "gap_frac": float(s["hough_gap_frac"]),
+        "min_len_floor": int(s["hough_min_len_floor"]),
+        "threshold_floor": int(s["hough_threshold_floor"]),
+        "gap_floor": int(s["hough_gap_floor"]),
+    }
