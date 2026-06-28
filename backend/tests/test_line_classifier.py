@@ -37,10 +37,11 @@ def test_classify_purple_matches_inverter_device_stroke() -> None:
     assert not LineClassifier.is_connection_candidate(line)
 
 
-def test_classify_long_axis_line_is_bus() -> None:
+def test_classify_long_axis_line_is_wire() -> None:
+    # ADR: dluga linia osiowa NIE jest juz "bus" -> zostaje wire (szyne robi net-builder)
     seg = LineSegment(0, 5, 500, 5, detected_color="#000000")
     [line] = LineClassifier().classify([seg], bus_min_length=400)
-    assert line.role == "bus"
+    assert line.role == "wire"
     assert LineClassifier.is_connection_candidate(line)
 
 

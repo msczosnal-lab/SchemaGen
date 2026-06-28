@@ -38,8 +38,8 @@ def test_bend_90_degrees_is_one_net() -> None:
 
 
 def test_T_junction_three_symbols_share_potential() -> None:
-    # szyna A-B (pozioma) + odczep w polowie do C -> net z 3 symbolami
-    bus = _wire([[40, 60], [200, 60]], role="bus")
+    # szyna A-B (pozioma, wire) + odczep w polowie do C -> net z 3 symbolami
+    bus = _wire([[40, 60], [200, 60]])  # ADR: szyna = wire (nie osobna rola bus)
     tap = _wire([[120, 60], [120, 60], [400, 60]])  # koniec (120,60) na szynie, drugi przy C
     conns, pots = build_connections([bus, tap], [A, B, C], join_tol=10, terminal_tol=10)
     ids = {frozenset((c.from_ref, c.to)) for c in conns}
