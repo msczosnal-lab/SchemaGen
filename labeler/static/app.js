@@ -1737,6 +1737,20 @@ canvas.addEventListener("mousedown", (e) => {
     return;
   }
   if (mode === MODE_TERMINAL) {
+    if (selectedIdx < 0) return;
+    const b = bboxes[selectedIdx];
+    if (!b) return;
+    const imgPt = imgPointFromEvent(e);
+    const hit = terminalHitTest(b, imgPt);
+    if (hit >= 0) {
+      // chwyt istniejacego terminala -> przeciaganie (poprawa pozycji)
+      draggingTerminal = { idx: selectedIdx, termIdx: hit };
+      terminalDragMoved = false;
+      canvas.style.cursor = "grabbing";
+    } else {
+      // klik na pusto przy krawedzi -> nowy terminal (snap do krawedzi)
+      addTerminalAt(selectedIdx, imgPt);
+    }
     return;
   }
   if (mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
@@ -1754,6 +1768,18 @@ canvas.addEventListener("mousedown", (e) => {
 });
 
 canvas.addEventListener("mousemove", (e) => {
+  if (mode === MODE_TERMINAL) {
+    if (!draggingTerminal) return;
+    const b = bboxes[draggingTerminal.idx];
+    const t = b && b.terminals && b.terminals[draggingTerminal.termIdx];
+    if (!t) return;
+    const rel = snapTerminalRel(b, imgPointFromEvent(e));
+    t.x = rel.x;
+    t.y = rel.y;
+    terminalDragMoved = true;
+    redraw();
+    return;
+  }
   if (mode === MODE_LINE) {
     if (!activeLine) return;
     const { cx, cy } = clientToCanvas(e);
