@@ -36,3 +36,4 @@
 | 2026-06-27 15:30 | Claude | aa62b221 | [Claude] recognize: ROI bottom cut (config roi_bottom_cut_frac) |
 | 2026-06-27 20:46 | Claude | e2a67dbc | [Claude] tests: force in-process OCR (fix .venv-ocr subprocess leak) |
 | 2026-06-28 10:46 | Claude | e72a78ff | [Claude] recognize: net builder (merge wire/bus segments into nets) |
+| 2026-06-28 11:57 | Claude | 44102029 | [Claude] docs: ADR connection model (cable/link/bus, sieve fix plan) |
