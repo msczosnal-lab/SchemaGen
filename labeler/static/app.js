@@ -1210,6 +1210,10 @@ function updateLineToolbar() {
 }
 
 function updateLineCursor() {
+  if (mode === MODE_TERMINAL) {
+    canvas.style.cursor = "crosshair";
+    return;
+  }
   if (mode !== MODE_LINE) {
     canvas.style.cursor = "default";
     return;
