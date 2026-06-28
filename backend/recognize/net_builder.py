@@ -38,7 +38,7 @@ def build_connections(
     """
     candidates = [ln for ln in lines if LineClassifier.is_connection_candidate(ln)]
     candidates = [ln for ln in candidates if len(ln.points) >= 2]
-    nets = _group_into_nets(candidates, join_tol)
+    nets = _group_into_nets(candidates, join_tol, components, terminal_tol)
 
     connections: list[Connection] = []
     potentials: list[str] = []
