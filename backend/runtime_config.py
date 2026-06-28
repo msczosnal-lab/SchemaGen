@@ -91,6 +91,11 @@ def terminal_tol_min() -> float:
     return float(runtime_settings()["terminal_tol_min"])
 
 
+def connection_require_terminal() -> bool:
+    """True -> Connection tylko gdy oba konce trafiaja w terminal (comp:terminal)."""
+    return bool(runtime_settings()["connection_require_terminal"])
+
+
 def hough_params() -> dict:
     """Progi Hough z configu (frac wzgledem max(W,H) + floory)."""
     s = runtime_settings()

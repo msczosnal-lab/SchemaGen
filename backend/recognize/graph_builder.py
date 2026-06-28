@@ -26,6 +26,7 @@ from backend.models.schema import (
 from backend.geometry.row_layout import ContextAssignment, ContextResolver
 from backend.paths import REGISTRY_PATH
 from backend.runtime_config import (
+    connection_require_terminal,
     roi_bottom_cut_frac,
     terminal_tol_frac,
     terminal_tol_min,
