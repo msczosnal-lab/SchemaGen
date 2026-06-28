@@ -1553,6 +1553,22 @@ function removeLineAt(idx) {
   updateSaveStatus();
 }
 
+function clearAllLines() {
+  if (!lines.length) {
+    saveStatusEl.textContent = "Brak linii do usuniecia";
+    return;
+  }
+  if (!confirm(`Usunac wszystkie linie (${lines.length})? Tej operacji nie cofniesz.`)) return;
+  const n = lines.length;
+  lines = [];
+  selectedLineIdx = -1;
+  markPageDirty();
+  redraw();
+  renderLineList();
+  updateSaveStatus();
+  saveStatusEl.textContent = `Usunieto ${n} linii — Ctrl+S = zapis`;
+}
+
 function selectLine(idx) {
   selectedLineIdx = idx;
   renderLineList();
