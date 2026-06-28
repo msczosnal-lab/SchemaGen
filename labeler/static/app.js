@@ -2000,8 +2000,19 @@ canvas.addEventListener("mouseup", (e) => {
   }
 });
 
+let lastReviewWheel = 0;
 canvas.addEventListener("wheel", (e) => {
   e.preventDefault();
+  const inReview =
+    mode === MODE_TERMINAL || mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION;
+  // W trybie review scroll przewija kolejke (Ctrl = zoom). 1 ruch = 1 krok (debounce).
+  if (inReview && !e.ctrlKey && !e.metaKey) {
+    const now = Date.now();
+    if (now - lastReviewWheel < 120) return;
+    lastReviewWheel = now;
+    reviewOrPageStep(e.deltaY > 0 ? 1 : -1);
+    return;
+  }
   const { cx, cy } = clientToCanvas(e);
   const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
   originX = cx - factor * (cx - originX);
