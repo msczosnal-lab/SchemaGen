@@ -1245,7 +1245,7 @@ function renderTerminalList() {
   if (!ts.length) {
     const li = document.createElement("li");
     li.className = "muted";
-    li.textContent = "Brak zacisków. Klik przy krawędzi bboxa dodaje zacisk.";
+    li.textContent = "Auto-zaciski z linii (wejście w T). Popraw: ✕ ostatni / Wyczyść.";
     list.appendChild(li);
     return;
   }
@@ -1331,8 +1331,8 @@ function updateLineToolbar() {
 }
 
 function updateLineCursor() {
-  if (mode === MODE_TERMINAL) {
-    canvas.style.cursor = "crosshair";
+  if (mode === MODE_TERMINAL || mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+    canvas.style.cursor = "default";
     return;
   }
   if (mode !== MODE_LINE) {
@@ -1360,6 +1360,11 @@ function disarmLineDelete() {
 }
 
 function setMode(next) {
+  if (mode !== next && window.CropReview) {
+    if (mode === MODE_TERMINAL || mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+      CropReview.exitCropModes();
+    }
+  }
   mode = next;
   drawing = false;
   drawMoved = false;
@@ -1373,30 +1378,51 @@ function setMode(next) {
   const bboxBtn = document.getElementById("mode-bbox");
   const lineBtn = document.getElementById("mode-line");
   const termBtn = document.getElementById("mode-terminal");
+  const reviewBtn = document.getElementById("mode-review-bbox");
+  const connBtn = document.getElementById("mode-connection");
   const toolbar = document.getElementById("line-toolbar");
   const lineHelp = document.getElementById("line-help");
   if (bboxBtn) bboxBtn.classList.toggle("active", mode === MODE_BBOX);
   if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
   if (termBtn) termBtn.classList.toggle("active", mode === MODE_TERMINAL);
+  if (reviewBtn) reviewBtn.classList.toggle("active", mode === MODE_REVIEW_BBOX);
+  if (connBtn) connBtn.classList.toggle("active", mode === MODE_CONNECTION);
   if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
   if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
   const termPanel = document.getElementById("terminal-panel");
+  const reviewPanel = document.getElementById("review-bbox-panel");
+  const connPanel = document.getElementById("connection-panel");
   if (termPanel) termPanel.classList.toggle("hidden", mode !== MODE_TERMINAL);
+  if (reviewPanel) reviewPanel.classList.toggle("hidden", mode !== MODE_REVIEW_BBOX);
+  if (connPanel) connPanel.classList.toggle("hidden", mode !== MODE_CONNECTION);
   updateLineToolbar();
   updateLineCursor();
   let hint;
   if (mode === MODE_LINE) {
     hint = "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt";
   } else if (mode === MODE_TERMINAL) {
-    hint = "Terminale: zaznacz bbox, klik przy krawedzi = zacisk (snap). Nazwa edytowalna po prawej. T/B/L = tryb";
+    hint = "Terminale: crop bbox + auto-zaciski | ◀/▶ = następny | ✓ OK | ✕ odrzuć | Zapisz";
+  } else if (mode === MODE_REVIEW_BBOX) {
+    hint = "Review bbox: crop detekcji | ✓ akceptuj | ✕ usuń | ◀/▶ | R = tryb";
+  } else if (mode === MODE_CONNECTION) {
+    hint = "Review połączeń: 2 bbox + linia | ✓ OK | ✕ usuń conn | ◀/▶ | C = tryb";
   } else {
-    hint = "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L/T = tryb | Del = usun zazn. linie";
+    hint = "Bbox → typ → Zapisz | Ctrl+S | Import draft | B/L/T/R/C = tryby";
   }
   document.getElementById("hint").textContent = hint;
-  if (mode === MODE_TERMINAL && selectedIdx < 0 && bboxes.length) {
-    selectBbox(0);
+  if (mode === MODE_TERMINAL && window.CropReview) {
+    CropReview.enterTerminalMode();
+  } else if (mode === MODE_REVIEW_BBOX && window.CropReview) {
+    CropReview.startReviewQueue("bbox");
+  } else if (mode === MODE_CONNECTION && window.CropReview) {
+    if (!connections.length) {
+      saveStatusEl.textContent = "Brak connections — Import draft lub GraphBuilder";
+    } else {
+      CropReview.startReviewQueue("connection");
+    }
   }
   renderTerminalList();
+  renderConnectionList();
   redraw();
 }
 
