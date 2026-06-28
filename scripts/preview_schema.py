@@ -19,7 +19,7 @@ from backend.db import load_annotation
 from backend.models.label import LabelRecord
 from backend.paths import RAW
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.graph_builder import _terminal_tol
+from backend.recognize.graph_builder import _require_terminal, _terminal_tol
 from backend.recognize.net_builder import _group_into_nets, _nodes_on_net
 from backend.recognize.pipeline import recognize_file
 from labeler.export import label_to_schema

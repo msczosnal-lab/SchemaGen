@@ -120,7 +120,11 @@ class GraphBuilder:
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
         connections, potentials = build_net_connections(
-            graphic_lines, components, join_tol=tol, terminal_tol=tol
+            graphic_lines,
+            components,
+            join_tol=tol,
+            terminal_tol=tol,
+            require_terminal=_require_terminal(),
         )
 
         # 6) Kontekst (best-effort na bboxach detekcji + tagach OCR)
@@ -213,6 +217,13 @@ def _image_size(image_path: str) -> tuple[int, int] | None:
         return (int(w), int(h))
     except Exception:
         return None
+
+
+def _require_terminal() -> bool:
+    try:
+        return connection_require_terminal()
+    except Exception:
+        return False
 
 
 def _terminal_tol(size: tuple[int, int] | None) -> float:
