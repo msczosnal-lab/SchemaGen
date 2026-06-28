@@ -34,4 +34,4 @@ hough_gap_floor: 4
 # true  -> znikaja falszywe polaczenia 'od srodka symbolu' i bledne terminale; ryzyko: symbol
 #          bez wykrytego terminala nie polaczy sie wcale.
 # false -> luzny kontakt konca z bboxem tez tworzy wezel (dotychczasowe zachowanie).
-connection_require_terminal: false
+connection_require_terminal: true
