@@ -122,19 +122,25 @@
         }),
       });
       const results = res.results || {};
+      let filled = 0;
+      let kept = 0;
       for (const b of bboxes) {
+        if (b.terminals && b.terminals.length) {
+          kept += 1; // ZACHOWAJ reczne GT — auto tylko uzupelnia puste, nigdy nie kasuje
+          continue;
+        }
         b.terminals = (results[b.id] || []).map((t) => ({
           id: t.id,
           x: t.x,
           y: t.y,
           name: "",
         }));
+        if (b.terminals.length) filled += 1;
       }
       pageTerminalsDerived = true;
       markPageDirty();
-      const wt = res.with_terminals ?? 0;
-      const tot = res.total ?? bboxes.length;
-      saveStatusEl.textContent = `Auto-zaciski: ${wt}/${tot} bbox ma zaciski`;
+      saveStatusEl.textContent =
+        `Auto-zaciski: dodano ${filled} bbox, zachowano ${kept} z recznymi (nic nie nadpisano)`;
       return true;
     } catch (err) {
       saveStatusEl.textContent = "Błąd auto-zacisków: " + err.message;
