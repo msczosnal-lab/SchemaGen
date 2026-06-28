@@ -19,6 +19,8 @@ from backend.tag_usage import record_tag_usage
 from backend.type_picker import list_type_picker
 from labeler.export import export_all, write_data_yaml
 from backend.models.label import LabelRecord
+from backend.models.schema import Component, GraphicLine
+from backend.recognize.net_builder import derive_auto_terminals
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
