@@ -5,6 +5,51 @@
 
 ---
 
+## 2026-06-28 [Claude] — SYMBOLE: klasy listwy w YOLO (prompt 011), czeka re-train
+
+**Decyzja Filipa:** GT p040 gotowe (19 bbox). Re-train YOLO: **TAK**.
+
+### Zmiany (kod — bez treningu GPU)
+
+| Plik | Zmiana |
+|------|--------|
+| `config/train-classes.yaml` | `zlaczka` wypada z `contextual` → atomic (YOLO) |
+| `config/symbol-palette.yaml` | +`zlaczka`, `mostek`, strzałki potencjału; `crossing` ≠ mostek |
+| `config/element-catalog.yaml` | `yolo_class` dla złączka/mostek/strzałek |
+| `backend/tests/test_class_map.py` | +test mostek→mostek; zlaczka exportable |
+| `labeler/tests/test_export.py` | contextual test na `złącze` (nie złączka) |
+| `train/tests/test_dataset_export.py` | +test_export_strip_classes |
+| `sync/prompts/011-strip-yolo-classes.md` | NOWY — instrukcja re-train dla Filipa |
+| `TRENING-SIEC.md` | zaktualizowana lista klas YOLO vs contextual |
+
+### class_report (po zmianie)
+
+- **YOLO:** `zlaczka` 646, `mostek` 247, strzałki 71+195 (69 klas łącznie)
+- **Contextual:** 854 bbox (listwa_zlaczek, oznaczenia, zlacze, terminale_urzadzenia)
+
+### pytest
+
+`backend/tests` + `labeler/tests` + `train/tests` → **164 passed**
+
+### Runtime p040 (stary model symbols_atomic_v2 — bez re-train)
+
+- **9/19 bbox** — bez zmian do czasu nowego ONNX
+- GT `--rebuild-conn` = **15 conn** (referencja net-buildera OK)
+
+### Filip — następny krok (GPU)
+
+```powershell
+python scripts/class_report.py
+python -m train.dataset_export --min-count 5
+python -m train.train_symbols --name symbols_strip_v1 --batch 4
+python -m train.export_onnx --version symbols_strip_v1
+python scripts/preview_schema.py --page p040 --source runtime
+```
+
+Oczekiwane po re-train: **~19/19 bbox**, brak gwiazdy do `sym_0`, runtime connections bliżej GT.
+
+---
+
 ## 2026-06-28 [ZW] — ZAMKNIĘCIE SESJI: net-builder zwalidowany, bloker = detekcja listwy
 
 ### Wynik (definitywny)
