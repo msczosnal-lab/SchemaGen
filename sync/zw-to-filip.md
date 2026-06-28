@@ -5,6 +5,56 @@
 
 ---
 
+## 2026-06-28 [ZW] — Backlog runtime: mostki w sicie + kalibracja z config
+
+Temat: **Sito nie zjada mostków terminal↔terminal. terminal_tol i progi Hough przeniesione do `config/runtime.yaml` (kalibracja p040/p027 bez edycji kodu).**
+
+### 1. Sito + mostki w listwie (sekcja 2c)
+
+`line_sieve` demotował do `other` każdą linię w całości w bboxie — także wewnętrzny mostek listwy → nie docierał do net-buildera.
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/recognize/line_sieve.py` | `apply_sieve(..., bridge_tol=8.0)`: linia wewnątrz bbox, której **końce trafiają w 2 różne terminale tego samego komponentu**, zostaje `wire` (kandydat → `Connection kind="link"`). `_is_inside_component` → `_containing_component` (zwraca komponent); nowy `_bridges_two_terminals`. Nowy `recover_terminal_bridges()` — promuje `other`→`wire` PO wyprowadzeniu terminali (runtime: sito biegnie zanim terminale istnieją). |
+| `backend/recognize/graph_builder.py` | krok 4b: `recover_terminal_bridges` po `derive_auto_terminals`, przed net-builderem. |
+| `backend/tests/test_line_sieve.py` | +4 testy: mostek zostaje wire; linia wewn. bez 2 term → other; recover other→wire; recover nie rusza zwykłego other. |
+
+[RYZYKO] Ochrona działa, gdy komponent ma terminale (GT/import-draft, albo auto-zaciski z przewodów dochodzących do krawędzi). Mostek **bez** żadnego przewodu krawędziowego na listwie nie wygeneruje terminali → nie zostanie odzyskany. Detekcja terminali w runtime to osobny temat.
+
+### 2. terminal_tol i progi Hough z config (sekcja 2a, 2b)
+
+Zamiast zgadywać magiczne liczby bez GPU — **przeniosłem progi do `config/runtime.yaml`**, żebyś kalibrował na p040/p027 i od razu widział wynik smoke, bez edycji kodu.
+
+| Plik | Zmiana |
+|------|--------|
+| `config/runtime.yaml` | + `terminal_tol_frac` (0.012), `terminal_tol_min` (12.0); + `hough_min_len_frac` (0.02), `hough_gap_frac` (0.0015), `hough_min_len_floor` (20), `hough_threshold_floor` (50), `hough_gap_floor` (4). Komentarze z kierunkiem strojenia (za dużo/za mało conn / segmentów). |
+| `backend/runtime_config.py` | + `terminal_tol_frac()`, `terminal_tol_min()`, `hough_params()`. Defaulty = obecne wartości (zero zmian zachowania). |
+| `backend/recognize/graph_builder.py` | `_terminal_tol()` czyta config (fallback na stałe). |
+| `backend/recognize/line_tracer.py` | `auto_line_params()` + `_params()` czytają `hough_params()` (fallback na stałe modułu). |
+
+**Wartości domyślne = identyczne z dotychczasowymi** → bez configa pipeline liczy tak samo (zweryfikowane: p040 6617px → min_len/hough/gap = 132/132/10 jak wcześniej).
+
+### Jak kalibrujesz (bez kodu)
+
+- **Za dużo szumu Hough** (p040 ~1321 segm.): podnieś `hough_min_len_frac` 0.02 → 0.025/0.03, powtórz smoke. Gubi cienkie wire → obniż.
+- **Mało/fałszywe connections**: zmień `terminal_tol_frac` (0.009 = ciaśniej, 0.016 = luźniej).
+
+### Weryfikacja
+
+[BŁĄD środowiska] Mount sandboxu w tej sesji **dalej obcina pliki przy odczycie** (`cp`/`cat`/pytest na mountcie czytają `test_net_builder.py` ucięte na linii 75) — pliki kanoniczne w repo są **kompletne** (potwierdzone Edit/Read). **Nie odpaliłem pytest na repo.** Logikę nowych funkcji (`_bridges_two_terminals`, `recover_terminal_bridges`, `auto_line_params` z config, `_terminal_tol`) zweryfikowałem **w izolacji** (transkrypcja + scenariusze) — wszystkie przeszły.
+
+**Filip — uruchom (obowiązkowy smoke z promptu):**
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests -q
+.venv311\Scripts\python.exe scripts/diff_gt_runtime.py --page p040
+python -c "from backend.recognize.pipeline import recognize_file; m=recognize_file('data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p040.png'); print(len(m.connections),'conn', len(m.graphic_lines),'linii')"
+```
+Oczekiwane: pytest zielony (~24+4 nowe sito). p040: mostki listwy powinny teraz wyjść jako `Connection kind="link"` (jeśli listwa ma terminale z przewodów krawędziowych). Wklej liczby conn + ile segmentów — dostroję `frac` w configu, jeśli trzeba.
+
+[RYZYKO] Sekcja 1 (poprawki po smoke) — **czekam na Twój `## Poprawka`** w aktywnym prompcie. Sekcja 3 (Fix class w trybie R / edycja from-to w C) — nietknięte (UI, nie testowalne po mojej stronie); zrobię na Twoje słowo.
+
+---
+
 ## 2026-06-27 [ZW] — Faza B: podgląd auto-zacisków + iteracja po bboxach (labeler)
 
 Temat: **Przegląd terminali per bbox: auto z linii, ◀▶ po bboxach, „tylko bboxy", przyciski cofania (bez polegania na klawiszu).**
