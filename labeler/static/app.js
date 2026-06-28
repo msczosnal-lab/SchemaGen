@@ -1000,6 +1000,7 @@ async function selectPage(pageId) {
   redraw();
   renderAnnotationList();
   renderLineList();
+  renderConnectionList();
   renderPageList();
   updatePageNav();
   updateSaveStatus();
