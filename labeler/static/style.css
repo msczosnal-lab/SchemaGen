@@ -197,6 +197,9 @@ li.annotation-accordion.unassigned.active .summary-line {
 #line-list { margin-bottom: 8px; }
 #terminal-panel { margin-top: 10px; padding-top: 8px; border-top: 1px solid #444; }
 #terminal-panel.hidden { display: none; }
+#terminal-controls { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+#terminal-controls button { padding: 3px 8px; font-size: 12px; }
+#terminal-controls .term-toggle { display: flex; align-items: center; gap: 4px; font-size: 12px; flex-basis: 100%; }
 .terminal-row { display: flex; gap: 6px; align-items: center; margin: 3px 0; }
 .terminal-row input { flex: 1 1 auto; min-width: 0; padding: 3px 6px; }
 .terminal-row .delete-btn { border-radius: 6px; padding: 0 10px; }

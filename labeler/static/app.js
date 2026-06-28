@@ -1845,6 +1845,15 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 document.getElementById("mode-terminal")?.addEventListener("click", () => setMode(MODE_TERMINAL));
+document.getElementById("term-auto")?.addEventListener("click", deriveTerminalsForSelected);
+document.getElementById("term-undo")?.addEventListener("click", removeLastTerminal);
+document.getElementById("term-clear")?.addEventListener("click", clearTerminals);
+document.getElementById("term-prev")?.addEventListener("click", () => iterateBbox(-1));
+document.getElementById("term-next")?.addEventListener("click", () => iterateBbox(1));
+document.getElementById("term-only-bboxes")?.addEventListener("change", (e) => {
+  hideLinesReview = e.target.checked;
+  redraw();
+});
 document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   if (lineDeleteArmed) {
