@@ -18,9 +18,11 @@ from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
 from backend.tag_usage import record_tag_usage
 from backend.type_picker import list_type_picker
 from labeler.export import export_all, write_data_yaml
+from labeler.runtime_draft import image_size_for_page, schema_to_label_record
 from backend.models.label import LabelRecord
 from backend.models.schema import Component, GraphicLine
 from backend.recognize.net_builder import derive_auto_terminals
+from backend.recognize.pipeline import recognize_file
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
