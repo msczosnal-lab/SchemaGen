@@ -159,6 +159,7 @@ def _extend_along(
 # Progi Hough wzgledne do rozdzielczosci strony — skany roznia sie skala
 # (Adamed ~6600px vs WRT01). Skalibrowane wzrokowo na p040/p035 (Filip, 2026-06-27):
 # frac 0.02 lapie wszystkie przewody bez ucinania (0.03 gubil linie stycznika).
+# Wartosci ponizej to FALLBACK; zrodlo prawdy (kalibracja p040/p027): config/runtime.yaml.
 MIN_LEN_FRAC = 0.02      # min_line_length = frac * max(W, H)
 GAP_FRAC = 0.0015        # max_line_gap   = frac * max(W, H)
 MIN_LEN_FLOOR = 20
@@ -166,12 +167,29 @@ HOUGH_FLOOR = 50
 GAP_FLOOR = 4
 
 
+def _hough_cfg() -> dict:
+    """Progi z config/runtime.yaml; fallback na stale modulu gdy config niedostepny."""
+    try:
+        from backend.runtime_config import hough_params
+
+        return hough_params()
+    except Exception:
+        return {
+            "min_len_frac": MIN_LEN_FRAC,
+            "gap_frac": GAP_FRAC,
+            "min_len_floor": MIN_LEN_FLOOR,
+            "threshold_floor": HOUGH_FLOOR,
+            "gap_floor": GAP_FLOOR,
+        }
+
+
 def auto_line_params(w: int, h: int) -> tuple[int, int, int]:
     """Progi Hough z rozmiaru strony -> (min_line_length, hough_threshold, max_line_gap)."""
+    cfg = _hough_cfg()
     big = max(w, h)
-    min_len = max(MIN_LEN_FLOOR, round(MIN_LEN_FRAC * big))
-    hough = max(HOUGH_FLOOR, min_len)
-    gap = max(GAP_FLOOR, round(GAP_FRAC * big))
+    min_len = max(int(cfg["min_len_floor"]), round(cfg["min_len_frac"] * big))
+    hough = max(int(cfg["threshold_floor"]), min_len)
+    gap = max(int(cfg["gap_floor"]), round(cfg["gap_frac"] * big))
     return int(min_len), int(hough), int(gap)
 
 
