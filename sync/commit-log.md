@@ -38,3 +38,4 @@
 | 2026-06-28 10:46 | Claude | e72a78ff | [Claude] recognize: net builder (merge wire/bus segments into nets) |
 | 2026-06-28 11:57 | Claude | 44102029 | [Claude] docs: ADR connection model (cable/link/bus, sieve fix plan) |
 | 2026-06-28 12:46 | Claude | a6cb66c0 | [Claude] model: ADR step1 - drop bus role, add link/cable_marker (contract+classifier) |
+| 2026-06-28 13:03 | Claude | 00b49310 | [Claude] model: terminals[] + terminal-aware net builder (mostek=link) |
