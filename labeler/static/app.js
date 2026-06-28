@@ -746,6 +746,19 @@ function updatePageNav() {
   pageNextBtn.disabled = idx >= total - 1;
 }
 
+// Strzalki/scroll: w trybie review przewijaj kolejke (bbox/conn/terminal), inaczej zmien strone.
+function reviewOrPageStep(dir) {
+  if (mode === MODE_TERMINAL) {
+    iterateBbox(dir);
+    return;
+  }
+  if (mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+    if (window.CropReview) CropReview.reviewStep(dir);
+    return;
+  }
+  navigatePage(dir);
+}
+
 async function navigatePage(delta) {
   if (!pageIds.length) return;
   let idx = currentPageIndex();
