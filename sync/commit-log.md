@@ -52,3 +52,4 @@
 | 2026-06-28 20:45 | Claude | 3c4f2c77 | [Claude] labeler: auto-zaciski tylko uzupelniaja puste bboxy (nie nadpisuja recznych GT terminali) |
 | 2026-06-28 21:02 | Claude | 865b1aac | [Claude] sesja 2026-06-28: net-builder zwalidowany + clear_gt_connections; bloker = detekcja listwy |
 | 2026-06-28 21:05 | Claude | 41cc4820 | [Claude] sesja 2026-06-28: net-builder zwalidowany + clear_gt_connections; bloker = detekcja listwy |
+| 2026-06-28 21:21 | Claude | 22560d77 | [Claude] symbole: klasy listwy w YOLO (prompt 011) — zlaczka/mostek atomic, paleta, testy eksportu |
