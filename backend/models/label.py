@@ -20,6 +20,15 @@ LineRole = Literal[
 LineStyle = Literal["solid", "dashed", "dotted"]
 
 
+class Terminal(BaseModel):
+    """Zacisk na obrysie komponentu (ADR connection-model, etap 2). x,y wzgledne [0,1]."""
+
+    id: str
+    x: float
+    y: float
+    name: str = ""
+
+
 class BboxAnnotation(BaseModel):
     id: str
     class_name: str
@@ -34,6 +43,7 @@ class BboxAnnotation(BaseModel):
     parent_id: str = ""
     depth: int = 0
     rel_bbox: list[float] = Field(default_factory=list)  # [rx, ry, rw, rh] wzgledem rodzica
+    terminals: list[Terminal] = Field(default_factory=list)
 
 
 class SpatialRelation(BaseModel):
