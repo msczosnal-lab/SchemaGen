@@ -55,9 +55,10 @@ def test_non_candidate_untouched() -> None:
     assert out.role == "device_stroke"  # nie ruszamy nie-kandydatow
 
 
-def test_bus_along_edge_demoted() -> None:
-    bus = GraphicLine(id="gl", points=[[100, 200], [300, 200]], role="bus")  # dolny bok
-    [out] = apply_sieve([bus], [COMP], [], edge_tol=6.0)
+def test_long_wire_along_edge_demoted() -> None:
+    # dluga wire wzdluz dolnego boku bbox = obramowka (ADR: bus wycofane, dluga linia = wire)
+    wire = GraphicLine(id="gl", points=[[100, 200], [300, 200]], role="wire")
+    [out] = apply_sieve([wire], [COMP], [], edge_tol=6.0)
     assert out.role == "frame"
 
 
