@@ -216,11 +216,12 @@ class LineTracer:
     def _params(self, w: int, h: int) -> tuple[int, int, int]:
         """Efektywne progi: jawne nadpisuja auto; hough auto = max(floor, min_line_length)."""
         auto_len, auto_hough, auto_gap = auto_line_params(w, h)
+        threshold_floor = int(_hough_cfg()["threshold_floor"])
         min_len = self.min_line_length if self.min_line_length is not None else auto_len
         hough = (
             self.hough_threshold
             if self.hough_threshold is not None
-            else max(HOUGH_FLOOR, min_len)
+            else max(threshold_floor, min_len)
         )
         gap = self.max_line_gap if self.max_line_gap is not None else auto_gap
         return int(min_len), int(hough), int(gap)
