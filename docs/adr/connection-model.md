@@ -1,4 +1,4 @@
-# ADR: model połączeń — typy Connection vs grafika
+# ADR: model połączeń — typy Connection, linia opisu kabla, granica grafiki
 
 **Status:** Proposed — do review Filip
 **Data:** 2026-06-27
@@ -7,104 +7,85 @@
 
 ## Kontekst
 
-Po wdrożeniu filaru połączeń (GraphBuilder 004 + sito + net-builder) walidacja wzrokowa na p040/p035 ujawniła, że **model „co jest połączeniem" jest niedospecyfikowany** — w jednej sesji dwa razy źle potraktowałem realne sygnały:
+Walidacja filaru połączeń (GraphBuilder 004 + sito + net-builder) na p040/p035 pokazała, że model „co jest połączeniem" jest niedospecyfikowany. Decyzje Filipa po przeglądzie nakładek:
 
-1. **Mostki w listwie** (poziome odcinki wewnątrz listwy złączek) zostały skasowane przez sito „wnętrza bbox" jako tabelka. To **realne połączenia** — łączą złączki, nie kable. Inny typ niż kabel device↔device.
-2. **Niebieskie (`bus`)** myli realną szynę zbiorczą z obramówką urządzenia, której sito nie złapało.
+1. **Bez osobnego typu „szyna/bus".** Linia z wieloma odczepami to **jeden kabel (potencjał) + odczepy**, nie odrębny typ. (Przy okazji znika problem „niebieskie = potencjał albo ramka" — nie ma już roli `bus`.)
+2. **Nowy typ linii `cable_marker`** — przerywana, która **przecina** kable; ma etykietę literową na końcu: nazwa/typ kabla i/lub średnice przewodów. To **adnotacja opisująca kable, nie połączenie**.
+3. **Mostki w listwie** (regresja z tej sesji) — realne połączenia złączka↔złączka, inny typ niż kabel. Sito niesłusznie je kasowało.
 
-Siły w grze:
-- Klepanie heurystyk bez taksonomii → ciągłe przeróbki (regresja mostków to dowód).
-- Brak modelu terminali (device_block etap 2 jeszcze nie zrobiony) — nie wiemy, *gdzie* są punkty podłączenia.
-- Kontrakt `SchemaModel` (Pydantic) nie powinien się zmieniać bez zgody; rozszerzenia enuma są OK.
+Siły: brak modelu terminali (device_block etap 2); kontrakt `SchemaModel` (Pydantic) zmieniamy świadomie (rozszerzenia enuma OK, usuwanie wartości = ryzyko).
 
 ## Decyzja
 
-Ustalamy **taksonomię połączeń** i **granicę Connection vs grafika**, oraz minimalne mapowanie na `SchemaModel`. Implementacja w krokach (ten ADR to model; kod osobno).
+### 1. Typy POŁĄCZEŃ (Connection)
 
-### 1. Taksonomia połączeń
+| Typ | Co łączy | Reprezentacja |
+|-----|----------|---------------|
+| **kabel** | symbol ↔ symbol | `Connection` `kind ∈ {power, signal, pe, control}` |
+| **mostek (terminal-link)** | złączka ↔ złączka w listwie/bloku | `Connection` `kind = "link"` (NOWY) |
 
-| Typ | Co łączy | Rysunek | Reprezentacja |
-|-----|----------|---------|---------------|
-| **kabel** | symbol ↔ symbol (device↔device) | linia `wire` między urządzeniami | `Connection` `kind ∈ {power, signal, pe, control}` |
-| **mostek (terminal-link)** | złączka ↔ złączka w listwie/bloku | krótki odcinek wewnątrz `device_block` łączący terminale | `Connection` `kind = "link"` (NOWY) |
-| **szyna / potencjał** | net wieloodczepowy (≥3 punkty) | długa linia `bus` + odczepy | `Connection.potential = net_k` (już jest); nie nowy `kind` |
+**Szyna NIE jest osobnym typem.** Net z wieloma odczepami = jeden kabel = wspólny `potential` (`net_k`), a każdy odczep to `Connection` z tym potencjałem. Net-builder już to robi (gwiazda + `potential`).
 
-### 2. Co JEST połączeniem, co NIE
+### 2. Rola linii `cable_marker` (NOWA) — opis kabla
 
-**Connection:** net `wire`/`bus` łączący ≥2 punkty podłączenia (symbol lub terminal).
+**Co:** linia **przerywana** przecinająca jeden lub więcej kabli (`wire`), z **etykietą na końcu** (OCR): nazwa/typ kabla, średnice żył.
 
-**Grafika (NIGDY Connection):** `frame` (obrys urządzenia), `leader` (linia do tekstu), `crossing` bez kropki, **tabelka** (gęsta siatka linii wewnątrz bbox, bez funkcji łączenia).
+**Czym jest:** **adnotacja**, NIGDY `Connection`. Tworzy relację: `cable_marker` → kable, które przecina + dane z etykiety (nazwa/typ/średnica).
 
-**Kluczowa korekta:** linia wewnątrz bbox **nie jest automatycznie grafiką**. Rozróżnienie:
-- łączy dwa punkty podłączenia (przeciwległe strefy terminali) → **mostek** (Connection),
-- część gęstej siatki równoległych krótkich linii → **tabelka** (grafika).
+**Wartość:** z tego powstaje **lista kablowa** prosto ze schematu (nazwa kabla + przekrój + które żyły obejmuje). Łączy się z domeną listy kablowej (skill `naftoport-lista-kabli`).
 
-### 3. Mapowanie na SchemaModel
+### 3. Granica: co JEST połączeniem, co NIE
 
-- `ConnectionKind`: **dodać `"link"`** → `{power, signal, pe, control, link, other}`.
-- `Connection.potential`: `net_k` dla szyn (bez zmian).
-- `Connection.from/to`: na teraz `component_id`. Docelowo (device-block etap 2) `component_id:terminal_id` — zgodnie z [`device-block-stub.md`](device-block-stub.md).
+**Connection:** net `wire` łączący ≥2 punkty podłączenia (symbol/terminal).
+**Grafika / adnotacja (NIGDY Connection):** `frame` (obrys), `cable_marker` (opis kabla), `leader` (linia do tekstu), `crossing` bez kropki, **tabelka** (gęsta siatka wewnątrz bbox).
+**Korekta regresji:** linia wewnątrz bbox nie jest automatycznie grafiką — mostek terminal↔terminal to połączenie; tylko gęsta siatka = tabelka.
 
-## Opcje rozważane (jak modelować mostki / naprawić regresję)
+### 4. Mapowanie na SchemaModel
 
-### Opcja A — typ symbolu rozstrzyga (pragmatyczna, TERAZ)
-Sito „wnętrza bbox" demotuje linie **tylko wewnątrz prostych symboli** (bezpiecznik, stycznik — tam linia wewnętrzna = obrys/szum). Wewnątrz `device_block` (listwa, moduł — z palety `symbol-palette.yaml`) **nie demotuje** — odcinki traktuje jako kandydatów na mostki (`kind="link"`).
+| Pole | Zmiana | Ryzyko |
+|------|--------|--------|
+| `ConnectionKind` | += `"link"` | Niskie (additive) |
+| `LineRole` | += `"cable_marker"` | Niskie (additive) |
+| `LineRole` `"bus"` | **deprecated** — klasyfikator przestaje ją nadawać (długie linie → `wire`); wartość zostaje w enumie dla wstecznej zgodności | Niskie (nie usuwamy z Literal) |
+| `Connection.potential` | szyna/odczepy = `net_k` (bez zmian) | — |
+| `Connection.from/to` | teraz `component_id`; docelowo `component_id:terminal_id` (device-block etap 2) | — |
 
-| Wymiar | Ocena |
-|--------|-------|
-| Złożoność | Niska |
-| Koszt | Mały (typ z palety już mamy) |
-| Poprawność | Średnia — tabelki wewnątrz device_block dalej mogą przejść jako link |
-| Zależności | Typ `device_block` musi być w detekcji/palecie |
+## Opcje rozważane
 
-**Plusy:** cofa regresję, wykorzystuje istniejący podział symbol/device_block.
-**Minusy:** nie odróżnia mostka od tabelki *wewnątrz* device_block.
+### Mostek terminal-link — jak odróżnić od tabelki wewnątrz bbox
 
-### Opcja B — model terminali (DOCELOWA, etap 2)
-`terminals[]` w bboxie (device-block etap 2). Mostek = odcinek między dwoma terminalami; tabelka = nie trafia w terminale.
+**A — typ symbolu rozstrzyga (TERAZ).** Sito demotuje wnętrze tylko *prostych* symboli; wnętrza `device_block` (listwa/moduł z palety) nie kasuje → odcinki = kandydaci na `link`. Tanie, ale tabelka w device_block może przejść jako link.
 
-| Wymiar | Ocena |
-|--------|-------|
-| Złożoność | Wysoka |
-| Koszt | Duży — tryb terminali w labelerze + GT |
-| Poprawność | Wysoka |
-| Zależności | device-block etap 2 |
+**B — model terminali (DOCELOWA, etap 2).** `terminals[]` w bboxie; mostek = odcinek między terminalami. Poprawne, ale wymaga trybu terminali w labelerze + GT.
 
-**Plusy:** rozstrzyga mostek vs tabelka jednoznacznie.
-**Minusy:** za wcześnie — blokuje na pracy labelera/GT.
+**C — heurystyka tabela-vs-mostek.** Gęsta siatka ≥N równoległych krótkich = tabela; pojedyncza poprzeczka = mostek. Bez zmian modelu, krucha.
 
-### Opcja C — heurystyka tabela-vs-mostek (geometria)
-Odróżnij gęstą siatkę (≥N równoległych krótkich linii blisko siebie = tabela) od pojedynczej poprzeczki (= mostek).
+**Rekomendacja:** A + C teraz, B docelowo.
 
-| Wymiar | Ocena |
-|--------|-------|
-| Złożoność | Średnia |
-| Koszt | Średni |
-| Poprawność | Średnia — krucha na realnych skanach |
-| Zależności | Brak |
+### cable_marker — jak wykryć
 
-**Plusy:** bez zmian modelu, działa też tam gdzie typ symbolu niepewny.
-**Minusy:** progi do strojenia, łamliwa.
+**Sygnały:** (1) styl **przerywany** (`dash`), (2) **przecina** ≥1 net `wire` (krzyżuje, nie kończy się na nim), (3) **etykieta OCR na końcu** (litera/symbol + ewent. liczba = średnica).
 
-## Analiza trade-off
+**Heurystyka v1:** linia dashed, której ścieżka krzyżuje ≥1 wire (przecięcie w środku, nie na końcu), a w pobliżu jednego z końców jest tekst OCR → `cable_marker`; przypnij etykietę i listę przeciętych nettów. Bez OCR na końcu → zostaw `dash` (niepewne).
 
-Najważniejszy konflikt: **poprawność teraz vs nakład**. B jest poprawne, ale wymaga pracy GT/labelera (etap 2) — blokuje. A jest tanie i cofa regresję, ale nie rozdziela mostka od tabelki w device_block. C łata tę lukę geometrycznie, kruche.
+## Trade-off
 
-Rekomendacja: **A teraz + C jako sito drugiego rzędu wewnątrz device_block**, **B jako cel docelowy** (gdy ruszy tryb terminali). To cofa aktywną regresję małym kosztem, a gęste tabelki odsiewa heurystyką C, nie kasując pojedynczych mostków.
+- Usunięcie `bus` upraszcza model i kasuje błędne niebieskie, kosztem utraty geometrycznego sygnału „długa linia = szyna" — ale szyna i tak wychodzi z net-buildera (potencjał), więc strata pozorna.
+- `cable_marker` zależny od OCR etykiety — przy braku OCR część markerów zostanie jako `dash`. Akceptowalne (recall OCR to osobny temat).
+- Mostki: A+C to kompromis poprawność/nakład; B usuwa zgadywanie, ale później.
 
 ## Konsekwencje
 
-- **Łatwiejsze:** mostki w listwie przestają znikać (cofnięta regresja); `kind="link"` daje czytelny sygnał w grafie; szyny mają `potential`.
-- **Trudniejsze:** sito musi znać typ symbolu (device_block vs prosty) — wymaga typu w detekcji/palecie przy budowie grafu.
-- **Do rewizji:** gdy ruszy model terminali (B), `from/to` → `component_id:terminal_id`, a heurystyki A/C stają się zbędne dla device_block.
-- **Bus vs ramka (problem C z feedbacku):** częściowo poza tym ADR — `bus` jako rola geometryczna zostaje, ale ramka dłuższa niż bbox wymaga osobnego sygnału (np. domknięty prostokąt). Osobny, mniejszy temat.
+- **Łatwiejsze:** prostszy model (kabel + mostek; szyna = potencjał); znikają błędne `bus`; `cable_marker` daje listę kablową; mostki przestają znikać.
+- **Trudniejsze:** sito musi znać typ symbolu (device_block vs prosty); detekcja `cable_marker` zależy od OCR i geometrii przecięć.
+- **Do rewizji:** przy modelu terminali (B) `from/to` → `component_id:terminal_id`; heurystyki A/C zbędne dla device_block.
 
 ## Action Items
 
-1. [ ] Akceptacja taksonomii i `kind="link"` (Filip).
-2. [ ] `ConnectionKind` += `"link"` w `backend/models/schema.py` (po akceptacji — zmiana kontraktu).
-3. [ ] Sito: nie demotuj wnętrza `device_block`; demotuj wnętrze prostych symboli (Opcja A).
-4. [ ] Heurystyka C (tabela = gęsta siatka) jako sito drugiego rzędu wewnątrz device_block.
+1. [ ] Akceptacja: drop `bus` (deprecate), `kind="link"`, rola `cable_marker` (Filip).
+2. [ ] `backend/models/schema.py`: `ConnectionKind += "link"`; `LineRole += "cable_marker"`; komentarz „bus deprecated".
+3. [ ] `LineClassifier`: przestań nadawać `bus` (długie osiowe → `wire`); `CONNECTION_ROLES = {wire}`. Aktualizacja testów `test_line_classifier`.
+4. [ ] Sito: nie demotuj wnętrza `device_block` (Opcja A) + heurystyka tabela (C).
 5. [ ] net-builder: odcinki wewnątrz device_block → `Connection kind="link"`.
-6. [ ] (etap 2, osobny prompt) tryb terminali w labelerze → Opcja B.
-7. [ ] (osobno) bus vs ramka: sygnał domkniętego prostokąta.
+6. [ ] `cable_marker`: detekcja (dashed × przecięcie wire × etykieta OCR) → adnotacja + relacja marker→kable + spec.
+7. [ ] (etap 2, osobny prompt) tryb terminali w labelerze → Opcja B.
