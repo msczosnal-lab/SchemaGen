@@ -57,6 +57,8 @@ const MODE_CONNECTION = "connection";
 const TERMINAL_R = 10;
 let hideLinesReview = false;
 let connections = [];             // ConnectionAnnotation GT / draft
+let draggingTerminal = null;      // { idx, termIdx } podczas przeciagania terminala
+let terminalDragMoved = false;
 
 const LINE_ROLE_LABELS = {
   wire: "Przewod",
