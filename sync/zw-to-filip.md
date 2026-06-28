@@ -5,6 +5,48 @@
 
 ---
 
+## 2026-06-27 [ZW] — Terminale: fix bugów UI + auto-zaciski z linii (runtime)
+
+Temat: **Poprawki zgłoszone przez Filipa (widoczność, Backspace kasował bbox) + auto-zaciski z kontaktu linia↔krawędź.**
+
+### Bugfix labeler (UI) — `app.js?v=28`
+
+| Bug | Fix |
+|-----|-----|
+| Zaciski ledwo widoczne | Większe (r=10) kropki: biała otoczka + czerwone/pomarańczowe wypełnienie + ciemny kontur; **etykieta zawsze** (z białym obrysem tekstu). |
+| Backspace/Del kasował **bbox** zamiast cofać zacisk | W trybie terminali Backspace/Del cofa **ostatni zacisk** zaznaczonego bboxa i **nigdy** nie kasuje bboxa (wcześniej spadało do handlera kasującego zaznaczony bbox). |
+
+**Filip:** twardy refresh przeglądarki (Ctrl+F5) — inaczej stary JS z cache.
+
+### Auto-zaciski (runtime, Faza A — „oba" wg Twojej decyzji)
+
+Filip: „terminal jest tam, gdzie linia wychodzi w krawędź bboxa". Wdrożone:
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/recognize/net_builder.py` | `derive_auto_terminals(component, lines, tol)` — koniec wire dotykający krawędzi bboxa → zacisk (snap do krawędzi, rel 0–1, dedup, numeracja 1,2,3). |
+| `backend/recognize/graph_builder.py` | `build()`: komponenty bez ręcznych terminali dostają auto-zaciski z linii; połączenia stają się **`comp:terminal`** (zgodnie z fixturem GT `F1:2`). |
+| `backend/tests/test_net_builder.py` | +test `derive_auto_terminals`. |
+| `backend/tests/test_graph_builder.py` | asercja połączeń po komponencie (prefiks przed `:`), bo adres = `comp:terminal`. |
+
+### Weryfikacja
+
+[BŁĄD środowiska] Sandbox ZW psuł świeże pliki przy zapisie — **nie odpaliłem pytest ani nie przetestowałem UI w przeglądarce**. Kanon poprawny (potwierdzony odczytem). Logika net-buildera sprawdzona wcześniej w izolacji.
+
+**Filip — uruchom:**
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests
+.venv311\Scripts\python.exe -m labeler.app   # Ctrl+F5 w przeglądarce!
+```
+Oczekiwane: pytest zielony (~141). Labeler: zaciski wyraźne (czerwone + nazwa), Backspace cofa zacisk.
+
+### Zostaje (B end-to-end)
+
+1. **Podgląd auto-zacisków w labelerze** (Faza B — przycisk „zaciski z linii" wołający ten sam algorytm przez API).
+2. **Integracja sita**: mostki w listwie (linie wewnątrz bbox) są demotowane przed net-builderem → wewnętrzne mostki jeszcze nie wychodzą jako `link`. Auto-zaciski działają dla przewodów *dochodzących do krawędzi*.
+
+---
+
 ## 2026-06-27 [ZW] — Terminale (etap 2) — tryb w labelerze (UI) + eksport
 
 Temat: **Tryb „Terminale" w labelerze: klik przy krawędzi stawia zacisk (snap), nazwa edytowalna, eksport do `Component.terminals`.**
