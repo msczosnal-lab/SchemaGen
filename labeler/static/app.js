@@ -1521,6 +1521,30 @@ canvas.addEventListener("mousedown", (e) => {
     redraw();
     return;
   }
+  if (mode === MODE_TERMINAL) {
+    const { cx, cy } = clientToCanvas(e);
+    const pt = canvasToImage(cx, cy);
+    const margin = 12 / scale;
+    const sel = bboxes[selectedIdx];
+    const nearSel =
+      sel &&
+      pt.x >= sel.x - margin && pt.x <= sel.x + sel.width + margin &&
+      pt.y >= sel.y - margin && pt.y <= sel.y + sel.height + margin;
+    if (nearSel) {
+      addTerminalAt(selectedIdx, pt);
+      return;
+    }
+    const hit = bboxes.findIndex(
+      (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
+    );
+    if (hit >= 0) {
+      selectBbox(hit);
+      saveStatusEl.textContent = "Bbox zaznaczony — klik przy krawędzi dodaje zacisk";
+    } else {
+      saveStatusEl.textContent = "Najpierw zaznacz bbox, potem dodawaj zaciski";
+    }
+    return;
+  }
   const { cx, cy } = clientToCanvas(e);
   const pt = canvasToImage(cx, cy);
   clickSelectCandidate = bboxes.findIndex(
