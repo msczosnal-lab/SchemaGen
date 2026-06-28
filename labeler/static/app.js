@@ -1337,6 +1337,9 @@ function disarmLineDelete() {
 
 function setMode(next) {
   mode = next;
+  drawing = false;
+  drawMoved = false;
+  clickSelectCandidate = -1;
   if (mode !== MODE_LINE) {
     activeLine = null;
     lineDeleteArmed = false;
@@ -1366,6 +1369,9 @@ function setMode(next) {
     hint = "Bbox → typ → Zapisz | Ctrl+S | / = szukaj typu | B/L/T = tryb | Del = usun zazn. linie";
   }
   document.getElementById("hint").textContent = hint;
+  if (mode === MODE_TERMINAL && selectedIdx < 0 && bboxes.length) {
+    selectBbox(0);
+  }
   renderTerminalList();
   redraw();
 }
