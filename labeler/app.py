@@ -131,12 +131,22 @@ class DeriveTerminalsPayload(BaseModel):
     tol: float = 12.0
 
 
+def _gt_line_role(raw: str) -> str:
+    """GT labelera moze miec role bus (legacy) — dla auto-zaciskow traktuj jak wire."""
+    role = raw or "wire"
+    return "wire" if role == "bus" else role
+
+
 @app.post("/api/derive-terminals")
 def post_derive_terminals(body: DeriveTerminalsPayload) -> dict:
     """Auto-zaciski z kontaktu linia<->krawedz (ten sam algorytm co runtime)."""
     comp = Component(id="_", type="_", bbox=body.bbox)
     lines = [
-        GraphicLine(id=str(i), points=ln.get("points", []), role=ln.get("role", "wire"))
+        GraphicLine(
+            id=str(i),
+            points=ln.get("points", []),
+            role=_gt_line_role(ln.get("role", "wire")),
+        )
         for i, ln in enumerate(body.lines)
     ]
     terms = derive_auto_terminals(comp, lines, body.tol)

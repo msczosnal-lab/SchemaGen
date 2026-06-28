@@ -166,6 +166,15 @@ function applyPageState(state) {
   }
 }
 
+/** Im wyzszy wynik, tym pelniejszy stan strony (bbox + linie GT + terminale). */
+function pageStateScore(state) {
+  if (!state) return -1;
+  const bboxN = state.bboxes?.length || 0;
+  const lineN = state.lines?.length || 0;
+  const termN = (state.bboxes || []).reduce((n, b) => n + (b.terminals?.length || 0), 0);
+  return bboxN * 1_000_000 + lineN * 1_000 + termN;
+}
+
 function countUnassigned() {
   return bboxes.filter((b) => !(b.tag || "").trim()).length;
 }
@@ -947,16 +956,21 @@ async function selectPage(pageId) {
   }
 
   const cached = pageCache.get(pageId) || loadLocalDraft(pageId);
-  if (cached?.bboxes?.length >= serverBboxes.length) {
+  const serverState = {
+    bboxes: serverBboxes,
+    lines: serverLines,
+    nextSeq: cached?.nextSeq,
+    image_width: bgImage ? bgImage.naturalWidth : canvas.width,
+    image_height: bgImage ? bgImage.naturalHeight : canvas.height,
+  };
+  const pickCached = pageStateScore(cached) > pageStateScore(serverState);
+  if (pickCached) {
     applyPageState(cached);
-    if (cached.bboxes.length > serverBboxes.length) {
+    if ((cached.bboxes?.length || 0) > serverBboxes.length) {
       dirtyPages.add(pageId);
     }
   } else {
-    bboxes = serverBboxes;
-    lines = serverLines;
-    sortBboxesNewestFirst();
-    ensureSeqNumbers();
+    applyPageState(serverState);
     persistPageDraft(pageId);
   }
 
@@ -1129,6 +1143,11 @@ async function deriveTerminalsForSelected() {
     saveStatusEl.textContent = "Najpierw zaznacz bbox";
     return;
   }
+  if (!lines.length) {
+    saveStatusEl.textContent =
+      "Brak linii GT na stronie — najpierw tryb L, narysuj linie i Zapisz (Ctrl+S)";
+    return;
+  }
   const imgMax = Math.max(bgImage?.naturalWidth || 0, bgImage?.naturalHeight || 0);
   const tol = Math.max(12, 0.012 * imgMax);
   try {
@@ -1137,7 +1156,10 @@ async function deriveTerminalsForSelected() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         bbox: [b.x, b.y, b.x + b.width, b.y + b.height],
-        lines: lines.map((l) => ({ points: l.points, role: l.role || "wire" })),
+        lines: lines.map((l) => ({
+          points: l.points,
+          role: l.role === "bus" ? "wire" : (l.role || "wire"),
+        })),
         tol,
       }),
     });

@@ -33,6 +33,19 @@ def test_derive_terminals_endpoint():
     assert all(t["y"] == 0.0 for t in terms)
 
 
+def test_derive_terminals_accepts_legacy_bus_role():
+    res = client.post(
+        "/api/derive-terminals",
+        json={
+            "bbox": [0, 0, 100, 20],
+            "lines": [{"points": [[50, -40], [50, 0]], "role": "bus"}],
+            "tol": 10,
+        },
+    )
+    assert res.status_code == 200
+    assert len(res.json()["terminals"]) == 1
+
+
 def test_semantic_groups_endpoint():
     res = client.get("/api/semantic-groups")
     assert res.status_code == 200
