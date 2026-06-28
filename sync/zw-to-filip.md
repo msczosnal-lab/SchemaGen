@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-06-27 [ZW] — Warstwa 1: net-builder (scalanie segmentów wire/bus → Connection)
+
+Temat: **Pofragmentowane przewody scalane w sieci (nets). Connections przestają być zaniżone.**
+
+### Koncepcja (uzgodniona z Filipem)
+
+Pętla połączeń w dwóch warstwach. **Warstwa 1 (TA) — czysta geometria, bez GPU.** Warstwa 2 (re-detekcja YOLO sterowana topologią) — później, po walidacji.
+
+### Co zrobione (kod)
+
+| Plik | Rola |
+|------|------|
+| `backend/recognize/net_builder.py` | NOWY. `build_connections(lines, components, join_tol, terminal_tol)` → `(connections, potentials)`. Union-find segmentów wire/bus + przypięcie symboli + emisja. |
+| `backend/recognize/graph_builder.py` | `build()` używa net-buildera zamiast łączenia po końcach pojedynczego segmentu; `potentials` w SchemaModel. Usunięte stare `_build_connections` + helpery (przeniesione). |
+| `backend/tests/test_net_builder.py` | NOWY — 7 testów (scalanie 2 segmentów, załamanie 90°, T-junction 3 symbole+potential, skrzyżowanie bez końca NIE łączy, dangling, PE, device_stroke). |
+
+### Algorytm (v1)
+
+1. **Union-find**: łączę linie, których KONIEC dotyka ścieżki innej linii (załamanie / odczep T, tol). Skrzyżowanie w połowie segmentu (żaden koniec) → NIE łączę (bez kropki = brak połączenia).
+2. **Symbole na net**: bbox blisko końca którejkolwiek linii netu (terminal).
+3. **Emisja**: net z 2 symbolami → 1 Connection. Net z >2 (szyna/odczepy) → wspólny `potential` (`net_k` w `potentials[]`), gwiazda do kotwicy.
+
+### Weryfikacja
+
+net-builder: **7/7 scenariuszy OK** (uruchomione na żywym źródle modułu). Reszta przez `pytest` u Ciebie (sandbox ZW dalej psuł część plików przy zapisie — kanon poprawny).
+
+### Filip — uruchom
+
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests
+.venv311\Scripts\python.exe smoke_graph.py *p040*   # i *p035* — porownaj liczbe connections
+```
+
+Oczekiwane: testy zielone (≈136); connections **wyraźnie więcej** niż 3/10 (segmenty się scalają). Wklej nowe liczby — ocenimy, czy ruszać Warstwę 2 (odzysk brakujących symboli).
+
+[RYZYKO] v1 łączy tylko po stykających się końcach. Odczep kończący się DOKŁADNIE na szynie złapie (T-junction), ale jeśli koniec nie dochodzi do linii (przerwa > tol) — nie scali. Próg = `terminal_tol` (0.012·max). Jak za mało/za dużo łączy — dostroję.
+
+---
+
 ## 2026-06-27 [ZW] — Fix izolacji testów OCR (4 czerwone na .venv311)
 
 Temat: **`test_ocr_engine` failowało na PC Filip — delegacja do subprocesu omijała wstrzykniętą atrapę. Fix test-only.**
