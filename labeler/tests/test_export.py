@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 from labeler.export import export_yolo, label_to_schema
-from backend.models.label import BboxAnnotation, LabelRecord
+from backend.models.label import BboxAnnotation, LabelRecord, Terminal
 
 
 def test_label_to_schema() -> None:
@@ -19,6 +19,22 @@ def test_label_to_schema() -> None:
     )
     model = label_to_schema(record)
     assert model.components[0].type == "motor"
+
+
+def test_label_to_schema_maps_terminals() -> None:
+    record = LabelRecord(
+        page_id="t",
+        image_path="t.png",
+        bboxes=[
+            BboxAnnotation(
+                id="X1", class_name="terminal_block", x=0, y=0, width=100, height=20,
+                terminals=[Terminal(id="1", x=0.2, y=0.5), Terminal(id="2", x=0.8, y=0.5)],
+            )
+        ],
+    )
+    comp = label_to_schema(record).components[0]
+    assert [t.id for t in comp.terminals] == ["1", "2"]
+    assert comp.terminals[0].x == 0.2 and comp.terminals[0].y == 0.5
 
 
 def test_export_yolo_line() -> None:
