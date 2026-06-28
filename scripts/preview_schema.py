@@ -41,35 +41,85 @@ def load_gt_schema(page_id: str):
     return label_to_schema(record)
 
 
-def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
-    out = img.copy()
-    for c in schema.components:
-        if len(c.bbox) < 4:
-            continue
-        x1, y1, x2, y2 = map(int, c.bbox[:4])
-        cv2.rectangle(out, (x1, y1), (x2, y2), (0, 180, 255), 2)
+# Kolory BGR
+_C_WIRE = (40, 200, 40)      # zielony — wykryty przewod
+_C_BUS = (220, 120, 0)       # niebieski — szyna (deprecated, gdyby byl)
+_C_BBOX = (0, 150, 255)      # pomaranczowy — bbox symbolu
+_C_TERM = (0, 215, 255)      # zolty — terminal
+_C_CONN = (40, 40, 230)      # czerwony — logiczne polaczenie (Connection)
+
+
+def _anchor(ref: str, comps_by_id: dict) -> tuple[int, int] | None:
+    """Punkt kotwicy dla 'comp' lub 'comp:terminal' (srodek bbox / pozycja terminala)."""
+    cid = str(ref).split(":", 1)[0]
+    c = comps_by_id.get(cid)
+    if c is None or len(c.bbox) < 4:
+        return None
+    x1, y1, x2, y2 = c.bbox[:4]
+    if ":" in str(ref):
+        tid = str(ref).split(":", 1)[1]
         for t in c.terminals:
-            ax = int(x1 + t.x * (x2 - x1))
-            ay = int(y1 + t.y * (y2 - y1))
-            cv2.circle(out, (ax, ay), 6, (0, 0, 255), -1)
+            if str(t.id) == tid:
+                return int(x1 + t.x * (x2 - x1)), int(y1 + t.y * (y2 - y1))
+    return int((x1 + x2) / 2), int((y1 + y2) / 2)
+
+
+def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
+    # Przygas tlo (oryginalny schemat -> blady), zeby overlay byl czytelny
+    white = np.full_like(img, 255)
+    out = cv2.addWeighted(img, 0.30, white, 0.70, 0)
+
+    # 1) Wykryte przewody (kandydaci Connection) — wyrazny kolor wg roli
     for ln in schema.graphic_lines:
         if ln.role not in ("wire", "bus"):
             continue
         pts = np.array(ln.points, dtype=np.int32)
         if len(pts) >= 2:
-            cv2.polylines(out, [pts], False, (40, 40, 40), 2, cv2.LINE_AA)
-    for i, conn in enumerate(schema.connections):
-        cv2.putText(
-            out,
-            f"{conn.from_ref}->{conn.to}",
-            (10, 30 + 18 * (i % 10)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.45,
-            (0, 128, 0),
-            1,
-            cv2.LINE_AA,
-        )
-    cv2.putText(out, title, (10, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+            color = _C_BUS if ln.role == "bus" else _C_WIRE
+            cv2.polylines(out, [pts], False, color, 3, cv2.LINE_AA)
+
+    # 2) Bboxy symboli + terminale (z etykieta id)
+    for c in schema.components:
+        if len(c.bbox) < 4:
+            continue
+        x1, y1, x2, y2 = map(int, c.bbox[:4])
+        cv2.rectangle(out, (x1, y1), (x2, y2), _C_BBOX, 2)
+        for t in c.terminals:
+            ax = int(x1 + t.x * (x2 - x1))
+            ay = int(y1 + t.y * (y2 - y1))
+            cv2.circle(out, (ax, ay), 7, (255, 255, 255), -1)
+            cv2.circle(out, (ax, ay), 7, _C_TERM, 2)
+            cv2.circle(out, (ax, ay), 2, (0, 0, 0), -1)
+            cv2.putText(out, str(t.id), (ax + 8, ay - 6),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+
+    # 3) Logiczne polaczenia — czerwona linia miedzy kotwicami from/to
+    comps_by_id = {c.id: c for c in schema.components}
+    for conn in schema.connections:
+        a = _anchor(conn.from_ref, comps_by_id)
+        b = _anchor(conn.to, comps_by_id)
+        if a is None or b is None:
+            continue
+        dashed = conn.kind == "link"  # mostek listwy — odroznij
+        if dashed:
+            cv2.line(out, a, b, _C_CONN, 2, cv2.LINE_AA)
+            cv2.circle(out, a, 4, _C_CONN, -1)
+            cv2.circle(out, b, 4, _C_CONN, -1)
+        else:
+            cv2.line(out, a, b, _C_CONN, 2, cv2.LINE_AA)
+
+    # 4) Naglowek + legenda + licznik
+    cv2.putText(out, title, (10, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (200, 0, 0), 2)
+    legend = [
+        (f"connections: {len(schema.connections)}", _C_CONN),
+        (f"wire/bus linie: {sum(1 for l in schema.graphic_lines if l.role in ('wire','bus'))}", _C_WIRE),
+        (f"symbole: {len(schema.components)}", _C_BBOX),
+        ("terminale (zolte)", _C_TERM),
+    ]
+    for i, (txt, col) in enumerate(legend):
+        y = 54 + 22 * i
+        cv2.putText(out, txt, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(out, txt, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 1, cv2.LINE_AA)
     return out
 
 
