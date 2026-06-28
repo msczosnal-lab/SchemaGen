@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-06-28 [ZW] — GT bez connections: walidacja net-buildera na czystym GT
+
+Temat: **Decyzja Filipa: GT = symbole+linie+terminale; connections = wyłącznie wynik algorytmu. Harness: przelicz connections net-builderem na czystym GT (izolacja od błędów YOLO/Hough).**
+
+### Co zrobione
+
+| Plik | Zmiana |
+|------|--------|
+| `scripts/preview_schema.py` | Flaga `--rebuild-conn`: dla GT przelicza connections `build_connections` na komponentach+liniach z GT (auto-zaciski gdy brak GT terminali → odzysk mostków → net-builder). Overlay + wypis `[GT-conn]` z listą połączeń. |
+| nawigacja review (`app.js` v33) | (poprzedni wpis) strzałki ←/→ i scroll przewijają kolejkę T/R/C zamiast zmieniać stronę. |
+
+### Po co
+
+Dotąd nie dało się oddzielić błędów połączeń od błędów detekcji/Hougha. Teraz puszczam net-builder na **Twoim GT** (czyste symbole/linie/terminale) — jeśli connections nadal złe na idealnym wejściu, to bug net-buildera/derive; jeśli dobre, błędy runtime pochodzą z YOLO/Hough.
+
+### Filip — uruchom i wklej wynik
+
+```powershell
+.venv311\Scripts\python.exe scripts/preview_schema.py --page p040 --source gt --rebuild-conn
+```
+Zapisze `..._gt.png` (connections z net-buildera na GT) + wypisze `[GT-conn]` z listą `from -> to (kind)`. **Wklej tę listę + napisz, które połączenia są błędne** (np. „X1:2 -> K3 nie istnieje"). Z tym wchodzę w `derive_auto_terminals` i regułę „jedna linia ≠ dwa połączenia" — już mierząc na czystym wejściu.
+
+[BŁĄD środowiska] Mount obcina pliki — nie odpaliłem skryptu/pytest. Logika to złożenie sprawdzonych już funkcji (build_connections/derive/recover). Pełny przebieg u Ciebie.
+
+---
+
 ## 2026-06-28 [ZW] — Labeler: edycja GT (linie/bbox/connections) — domknięcie trybu wzorca
 
 Temat: **Wyczyść wszystkie linie + trwałe usuwanie linii; edycja bboxów (re-klasyfikacja) i connections (from/to/kind/usuń) w review. Razem z drag terminali = pełna edycja wzorca.**
