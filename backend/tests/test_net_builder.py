@@ -104,6 +104,33 @@ def test_derive_auto_terminals_from_wire_contacts() -> None:
     assert all(t.y == 0.0 for t in terms)  # snap do gornej krawedzi
 
 
+def test_require_terminal_drops_loose_bbox_contact() -> None:
+    # przewod laczy A2 (ma terminal t1) z X bez terminali. W trybie strict koniec przy X
+    # nie trafia w zaden terminal -> brak wezla -> brak polaczenia.
+    X = Component(id="X", type="x", bbox=[200, 0, 240, 20], source="yolo")  # bez terminali
+    A2 = Component(id="A2", type="x", bbox=[-60, 0, -20, 20], source="yolo",
+                   terminals=[Terminal(id="1", x=1.0, y=0.5)])  # t1 abs(-20,10)
+    wire = _wire([[-20, 10], [200, 10]])  # A2:t1 -> krawedz X (bez terminala)
+    strict, _ = build_connections([wire], [A2, X], join_tol=10, terminal_tol=10,
+                                  require_terminal=True)
+    assert strict == []
+    loose, _ = build_connections([wire], [A2, X], join_tol=10, terminal_tol=10,
+                                 require_terminal=False)
+    assert len(loose) == 1  # domyslnie luzny kontakt laczy
+
+
+def test_require_terminal_keeps_terminal_to_terminal() -> None:
+    # oba konce trafiaja w terminale -> strict zachowuje polaczenie
+    X1 = _block_with_terminals()
+    A2 = Component(id="A2", type="x", bbox=[-60, 0, -20, 20], source="yolo",
+                   terminals=[Terminal(id="1", x=1.0, y=0.5)])  # t1 abs(-20,10)
+    wire = _wire([[-20, 10], [20, 10]])  # A2:1 -> X1:1
+    conns, _ = build_connections([wire], [A2, X1], join_tol=10, terminal_tol=10,
+                                 require_terminal=True)
+    assert len(conns) == 1
+    assert {conns[0].from_ref, conns[0].to} == {"A2:1", "X1:1"}
+
+
 def test_wire_resolves_to_terminal_address() -> None:
     X1 = _block_with_terminals()
     A2 = Component(id="A2", type="x", bbox=[-60, 0, -20, 20], source="yolo")  # prawa krawedz x=-20
