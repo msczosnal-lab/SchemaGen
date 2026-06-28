@@ -127,13 +127,16 @@ def _pt_seg_dist(p: list[float], a: list[float], b: list[float]) -> float:
 
 # ------------------------------------------------------------- wezly na net
 def _nodes_on_net(
-    net: list[GraphicLine], components: list[Component], tol: float
+    net: list[GraphicLine],
+    components: list[Component],
+    tol: float,
+    require_terminal: bool = False,
 ) -> dict[str, str]:
     """Mapa node_id -> component_id. node = "comp" lub "comp:terminal" (gdy terminale)."""
     nodes: dict[str, str] = {}
     for line in net:
         for ep in (line.points[0], line.points[-1]):
-            res = _resolve_node(ep, components, tol)
+            res = _resolve_node(ep, components, tol, require_terminal)
             if res is not None:
                 node_id, comp_id = res
                 nodes[node_id] = comp_id
@@ -141,9 +144,16 @@ def _nodes_on_net(
 
 
 def _resolve_node(
-    point: list[float], components: list[Component], tol: float
+    point: list[float],
+    components: list[Component],
+    tol: float,
+    require_terminal: bool = False,
 ) -> tuple[str, str] | None:
-    """Koniec linii -> (node_id, component_id). Z terminalami: 'comp:term'; bez: 'comp'."""
+    """Koniec linii -> (node_id, component_id). Z terminalami: 'comp:term'; bez: 'comp'.
+
+    require_terminal=True: zwroc wezel TYLKO gdy koniec trafia w terminal; inaczej None
+    (luzny kontakt z bboxem nie tworzy polaczenia).
+    """
     c = _nearest_component(point, components, tol)
     if c is None:
         return None
@@ -151,6 +161,8 @@ def _resolve_node(
         t = _nearest_terminal(point, c, tol)
         if t is not None:
             return (f"{c.id}:{t.id}", c.id)
+    if require_terminal:
+        return None
     return (c.id, c.id)
 
 
