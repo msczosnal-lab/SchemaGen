@@ -1720,6 +1720,18 @@ document.addEventListener("keydown", (e) => {
     }
   }
   if (e.key === "Delete" || e.key === "Backspace") {
+    if (mode === MODE_TERMINAL) {
+      // w trybie terminali Backspace/Del cofa OSTATNI zacisk, NIGDY nie kasuje bboxa
+      e.preventDefault();
+      const b = bboxes[selectedIdx];
+      if (b && (b.terminals || []).length) {
+        b.terminals.pop();
+        markPageDirty();
+        renderTerminalList();
+        redraw();
+      }
+      return;
+    }
     if (mode === MODE_LINE && activeLine?.points?.length) {
       e.preventDefault();
       undoActiveLinePoint();
