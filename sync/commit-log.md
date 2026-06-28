@@ -40,3 +40,4 @@
 | 2026-06-28 12:46 | Claude | a6cb66c0 | [Claude] model: ADR step1 - drop bus role, add link/cable_marker (contract+classifier) |
 | 2026-06-28 13:03 | Claude | 00b49310 | [Claude] model: terminals[] + terminal-aware net builder (mostek=link) |
 | 2026-06-28 13:14 | Claude | 4741bdce | [Claude] labeler: terminal mode UI + export terminals (ADR etap 2) |
+| 2026-06-28 13:31 | Claude | 76d000c9 | [Claude] labeler: fix terminal visibility+backspace; auto-terminals from line contacts |

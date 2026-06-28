@@ -3,5 +3,4 @@
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
-[Claude] labeler: fix terminal visibility+backspace; auto-terminals from line contacts
 
