@@ -182,6 +182,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--page", required=True, help="page_id (stem w data/raw)")
     ap.add_argument("--source", choices=("gt", "runtime", "both"), default="both")
+    ap.add_argument(
+        "--rebuild-conn",
+        action="store_true",
+        help="GT: przelicz connections net-builderem na czystym GT (zamiast zapisanych)",
+    )
     args = ap.parse_args()
 
     page_id = args.page
