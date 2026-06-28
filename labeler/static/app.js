@@ -1408,6 +1408,16 @@ function removeConnection(i) {
   redraw();
 }
 
+// Review bbox: picker typu dla aktualnie przegladanego bboxa (zmiana klasy bez wychodzenia z cropu).
+function renderReviewBboxType() {
+  const cont = document.getElementById("review-bbox-type");
+  if (!cont) return;
+  cont.innerHTML = "";
+  if (mode !== MODE_REVIEW_BBOX || selectedIdx < 0 || !bboxes[selectedIdx]) return;
+  buildTypePicker(cont, selectedIdx);
+}
+window.renderReviewBboxType = renderReviewBboxType;
+
 // ===== Linie (prompt 002) =====
 
 const roleSelect = () => document.getElementById("line-role");
