@@ -5,6 +5,46 @@
 
 ---
 
+## 2026-06-28 [ZW] — Diagnoza p040 + edycja terminali w labelerze + sito strict + overlay trasowany
+
+Temat: **GT p040 = niepoprawiony draft runtime (pętla — diff nic nie waliduje). Daję narzędzia: overlay po realnej ścieżce, sito „od-do terminala", ręczna edycja terminali w labelerze (zrywa pętlę).**
+
+### Ustalenie (klucz)
+
+`recognize_file` = YOLO + OCR + Hough (potwierdzone w `pipeline.py`), **nie GT**. ALE `diff_gt_runtime` porównuje runtime z „GT" p040, a to **zaimportowany draft runtime** (`import_runtime_draft`). Bez ręcznej korekty GT match 14/14 jest samozwrotny. Diag potwierdził: 14/14 połączeń ma oba końce na terminalu → błędy to **źle postawione terminale**, nie luźny kontakt.
+
+### Co zrobione (kod)
+
+| Plik | Zmiana |
+|------|--------|
+| `scripts/preview_schema.py` | Overlay czytelny: tło przygaszone, wire=zielony, **connections=czerwony po REALNEJ ścieżce netu** (rekonstrukcja `_group_into_nets`/`_nodes_on_net` — ten sam tryb co runtime), terminale żółte z id, legenda. Wypis `[diag]` (tryb strict + ile conn na terminalu vs luźnych). |
+| `backend/recognize/net_builder.py` | `build_connections(..., require_terminal=False)`: w trybie strict węzeł powstaje TYLKO gdy koniec linii trafia w terminal (inaczej None) → znikają fałszywe „połączenia od środka symbolu". |
+| `backend/recognize/graph_builder.py` | czyta `connection_require_terminal()` z configu, przekazuje do net-buildera. |
+| `config/runtime.yaml`, `backend/runtime_config.py` | + `connection_require_terminal` (default false). |
+| `backend/tests/test_net_builder.py` | +2 testy strict (luźny kontakt odrzucony / terminal↔terminal zachowany). |
+| `labeler/static/app.js` (v32), `crop_review.js` (v32), `index.html` | **Tryb T = pełna edycja terminali**: klik przy bboxie = dodaj (snap do krawędzi), **przeciągnij = popraw pozycję** (to naprawia „terminal w złym miejscu"), ✕ w liście = usuń. Konwersja klik→obraz świadoma cropu (`imagePointFromCanvas`). |
+
+### Filip — TEST (Ctrl+F5!)
+
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests -q
+.venv311\Scripts\python.exe scripts/preview_schema.py --page p040      # nowy overlay + [diag]
+.venv311\Scripts\python.exe -m labeler.app                              # Ctrl+F5
+```
+Labeler, tryb **T**: zaznacz listwę z błędnym terminalem → **przeciągnij** zacisk na właściwą krawędź, ewent. klik = dodaj / ✕ = usuń → **Zapisz**. Od teraz GT≠runtime → diff zacznie coś znaczyć.
+
+`connection_require_terminal`: na p040 obojętny (wszystko już na terminalach) — zostaw `false`, użyteczny na stronach z luźnymi kontaktami.
+
+### Świadomie NIE zrobione (czekają na prawdziwy GT)
+
+[RYZYKO] **`derive_auto_terminals`** (źle stawia zacisk) i **reguła „jedna linia ≠ dwa połączenia"** — to strojenie backendu. Robienie tego bez poprawionego GT = znów pętla (stroję pod własny błąd). Najpierw popraw kilka terminali/conn na p040 ręcznie (tryb T/C) i Zapisz; wtedy mam wzorzec i naprawiam backend mierząc diff. Reguła #3 (współdzielenie linii) wymaga realnej topologii do walidacji.
+
+### Weryfikacja
+
+`crop_review.js` — `node --check` czysto. `app.js` — [BŁĄD środowiska] mount sandboxu obcina plik przy odczycie (1593/~2060 linii), **nie odpaliłem lintu/pytest na repo**; logika net-buildera strict zweryfikowana w izolacji (scenariusze przeszły). Pełny pytest + UI u Ciebie.
+
+---
+
 ## 2026-06-28 [ZW] — Backlog runtime: mostki w sicie + kalibracja z config
 
 Temat: **Sito nie zjada mostków terminal↔terminal. terminal_tol i progi Hough przeniesione do `config/runtime.yaml` (kalibracja p040/p027 bez edycji kodu).**
