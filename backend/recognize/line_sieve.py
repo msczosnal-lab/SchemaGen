@@ -8,6 +8,11 @@ Przecieki przy progu frac 0.02 (kalibracja 2026-06-27, feedback Filip):
    miesci sie w bbox symbolu. Przewod laczacy wychodzi poza bbox. -> rola "other".
 3. Artefakty tekstu — krotkie segmenty wpadajace w bbox OCR. -> rola "other".
 
+WYJATEK (mostek w listwie): linia w calosci w bbox, ktorej KONCE trafiaja w 2 ROZNE
+terminale tego samego komponentu, to mostek terminal<->terminal — NIE demotujemy
+(zostaje wire -> net-builder zrobi z niej Connection kind="link"). Bez tego sito
+zjadalo wewnetrzne mostki listwy zanim dotarly do net-buildera.
+
 Czyste funkcje (bez I/O). Nie rusza linii niebedacych kandydatami (wire/bus).
 """
 
