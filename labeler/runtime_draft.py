@@ -79,7 +79,7 @@ def schema_to_label_record(
 
     connections = [
         ConnectionAnnotation(
-            id=conn.id or f"conn_{i}",
+            id=f"conn_{i}",
             from_ref=conn.from_ref,
             to=conn.to,
             kind=conn.kind,
