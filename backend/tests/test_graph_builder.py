@@ -120,11 +120,12 @@ def test_ocr_tag_matched_to_symbol_and_rest_to_annotations() -> None:
     assert "-F1" not in model.annotations
 
 
-def test_bus_between_symbols_is_connection() -> None:
+def test_bus_role_deprecated_no_connection() -> None:
+    # ADR connection-model: rola "bus" wycofana -> nie jest kandydatem -> brak Connection
     bus = GraphicLine(id="gl_0", points=[[80, 70], [120, 70]], role="bus")
     gb = _builder(detections=_two_symbols(), texts=[], lines=[bus])
     model = gb.build("page.png")
-    assert len(model.connections) == 1
+    assert model.connections == []
 
 
 def test_wire_not_touching_symbols_no_connection() -> None:
