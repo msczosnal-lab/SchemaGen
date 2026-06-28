@@ -157,44 +157,6 @@ class GraphBuilder:
                 annotations.append(t.text)
         return annotations
 
-    # ------------------------------------------------------------- connections
-    def _build_connections(
-        self,
-        graphic_lines: list[GraphicLine],
-        components: list[Component],
-        size: tuple[int, int] | None,
-    ) -> list[Connection]:
-        tol = _terminal_tol(size)
-        connections: list[Connection] = []
-        seen: set[tuple[str, str, str]] = set()
-        for line in graphic_lines:
-            # KRYTYCZNE: tylko wire/bus. device_stroke/frame/dash/crossing -> pomin.
-            if not LineClassifier.is_connection_candidate(line):
-                continue
-            if len(line.points) < 2:
-                continue
-            a = line.points[0]
-            b = line.points[-1]
-            from_c = _nearest_component(a, components, tol)
-            to_c = _nearest_component(b, components, tol)
-            if from_c is None or to_c is None or from_c.id == to_c.id:
-                continue
-            kind = _kind_for(line)
-            key = (from_c.id, to_c.id, kind)
-            rkey = (to_c.id, from_c.id, kind)
-            if key in seen or rkey in seen:
-                continue
-            seen.add(key)
-            connections.append(
-                Connection(
-                    from_ref=from_c.id,
-                    to=to_c.id,
-                    potential="",
-                    kind=kind,
-                )
-            )
-        return connections
-
     # ----------------------------------------------------------------- context
     def _resolve_context_safe(self, detections, components) -> list[ContextAssignment]:
         try:
