@@ -16,12 +16,11 @@ from backend.models.schema import GraphicLine
 from backend.recognize.line_tracer import LineSegment
 
 
-# Role linii tworzace kandydatow na Connection:
-# - wire = przewod (kabel, linia laczaca dwa terminale)
-# - bus  = SZYNA ZBIORCZA (busbar) — przewod zbiorczy potencjalu, rysowany jako
-#   dluga linia w osi. To NIE listwa zlaczek: listwa to KOMPONENT (filar symboli,
-#   row_layout: strip_members/strip_kinds), nie rola linii.
-CONNECTION_ROLES = frozenset({"wire", "bus"})
+# Role linii tworzace kandydatow na Connection (ADR connection-model):
+# - wire = przewod/kabel laczacy. To JEDYNY kandydat.
+# "bus" WYCOFANE: szyna zbiorcza = jeden kabel (wire) z wieloma odczepami; net-builder
+# grupuje je przez `potential` (net_k). Klasyfikator nie nadaje juz roli "bus".
+CONNECTION_ROLES = frozenset({"wire"})
 
 # Geometria: linia uznana za "dluga" (kandydat na szyne) gdy >= tego progu (px),
 # o ile jest blisko osi (pozioma/pionowa). Mozna nadpisac przez image_size.

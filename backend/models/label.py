@@ -8,12 +8,13 @@ from pydantic import BaseModel, Field
 
 LineRole = Literal[
     "wire",
-    "bus",
+    "bus",  # DEPRECATED (ADR connection-model): szyna = wire + potential
     "device_stroke",
     "frame",
     "dash",
     "crossing",
     "leader",
+    "cable_marker",  # przerywana opisujaca kabel (nazwa/typ/srednica) — adnotacja
     "other",
 ]
 LineStyle = Literal["solid", "dashed", "dotted"]
