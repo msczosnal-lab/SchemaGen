@@ -1,8 +1,8 @@
 """Testy sita linii — obramowki bbox -> frame, tekst -> other, przewody zostaja."""
 
-from backend.models.schema import Component, GraphicLine
+from backend.models.schema import Component, GraphicLine, Terminal
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.line_sieve import apply_sieve
+from backend.recognize.line_sieve import apply_sieve, recover_terminal_bridges
 
 # Symbol: bbox [100,100,300,200] (x1,y1,x2,y2)
 COMP = Component(id="sym_0", type="relay", bbox=[100, 100, 300, 200], source="yolo")
