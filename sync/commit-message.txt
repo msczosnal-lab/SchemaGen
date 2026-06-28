@@ -3,4 +3,5 @@
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
+[Claude] preview --rebuild-conn: net-builder na czystym GT + review nawigacja strzalki/scroll
 
