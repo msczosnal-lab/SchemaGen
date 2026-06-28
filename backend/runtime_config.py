@@ -49,6 +49,8 @@ def runtime_settings() -> dict:
             "hough_min_len_floor": 20,
             "hough_threshold_floor": 50,
             "hough_gap_floor": 4,
+            # Strict: Connection tylko gdy oba konce trafiaja w terminal.
+            "connection_require_terminal": False,
         },
     )
 
