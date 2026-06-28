@@ -1813,6 +1813,18 @@ canvas.addEventListener("dblclick", (e) => {
 });
 
 canvas.addEventListener("mouseup", (e) => {
+  if (mode === MODE_TERMINAL) {
+    if (draggingTerminal) {
+      if (terminalDragMoved) {
+        markPageDirty();
+        renderTerminalList();
+      }
+      draggingTerminal = null;
+      terminalDragMoved = false;
+      canvas.style.cursor = "default";
+    }
+    return;
+  }
   if (mode === MODE_LINE) return;
   if (!drawing) return;
   drawing = false;
