@@ -5,6 +5,46 @@
 
 ---
 
+## 2026-06-27 [ZW] — ADR model połączeń: Krok 1 — kontrakt + klasyfikator (bus wycofany)
+
+Temat: **Przyjęty [ADR connection-model](../docs/adr/connection-model.md). Krok 1/3: kontrakt + klasyfikator.**
+
+### Decyzje ADR (zaakceptowane przez Filipa)
+
+- **`bus` wycofane** — szyna = jeden kabel (`wire`) z wieloma odczepami; grupowanie przez `potential` (net-builder). Znika błędne „niebieskie = potencjał albo ramka".
+- **`cable_marker`** — NOWA rola linii: przerywana przecinająca kable + etykieta (nazwa/typ/średnica) = adnotacja, NIE połączenie. Da listę kablową ze schematu.
+- **`link`** — NOWY `ConnectionKind`: mostek złączka↔złączka w listwie (terminal-link), różny od kabla device↔device.
+
+### Co zrobione (Krok 1)
+
+| Plik | Zmiana |
+|------|--------|
+| `backend/models/schema.py` | `LineRole += "cable_marker"`; `ConnectionKind += "link"`; `bus` oznaczone DEPRECATED (zostaje w enumie). |
+| `backend/models/label.py` | `LineRole += "cable_marker"` (spójność z labelerem). |
+| `backend/recognize/line_classifier.py` | Klasyfikator **nie nadaje już `bus`** (długa linia osiowa → `wire`); `CONNECTION_ROLES = {wire}`. |
+| `backend/tests/test_line_classifier.py` | bus nie jest kandydatem; długa linia → wire. |
+| `backend/tests/test_net_builder.py`, `test_graph_builder.py`, `test_line_sieve.py` | użycia `bus` → `wire` / test deprecacji bus. |
+
+### Weryfikacja
+
+Logika klasyfikatora sprawdzona w izolacji: **wire = kandydat, bus = NIE; długa linia → wire**. Reszta przez `pytest` u Ciebie (sandbox ZW dalej psuł pliki przy zapisie — kanon poprawny, potwierdzony odczytem).
+
+### Filip — uruchom
+
+```powershell
+.venv311\Scripts\python.exe -m pytest backend/tests labeler/tests
+```
+Oczekiwane: zielone (~136). Wklej, jak coś czerwone (poza znanymi — nic nie powinno).
+
+[RYZYKO] Labeler (`index.html`, `app.js`) wciąż oferuje „bus" w dropdownie — deprecated, ale nie usuwam (to labeler/010, nie rusza testów). Do sprzątnięcia osobno, jeśli chcesz.
+
+### Następne kroki ADR
+
+- **Krok 2:** sito mostków — nie kasuj wnętrza `device_block`, `kind="link"` (Opcja A + C).
+- **Krok 3:** detekcja `cable_marker` (dashed × przecięcie wire × etykieta OCR) → adnotacja + lista kablowa.
+
+---
+
 ## 2026-06-27 [ZW] — Warstwa 1: net-builder (scalanie segmentów wire/bus → Connection)
 
 Temat: **Pofragmentowane przewody scalane w sieci (nets). Connections przestają być zaniżone.**
