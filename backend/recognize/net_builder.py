@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 
-from backend.models.schema import Component, Connection, GraphicLine
+from backend.models.schema import Component, Connection, GraphicLine, Terminal
 from backend.recognize.line_classifier import LineClassifier
 
 # semantic_group -> ConnectionKind (PE wykrywany po nazwie grupy)
