@@ -119,18 +119,51 @@ def _pt_seg_dist(p: list[float], a: list[float], b: list[float]) -> float:
     return math.hypot(px - cx, py - cy)
 
 
-# ------------------------------------------------------------- symbole na net
-def _symbols_on_net(
+# ------------------------------------------------------------- wezly na net
+def _nodes_on_net(
     net: list[GraphicLine], components: list[Component], tol: float
-) -> list[str]:
-    """Id symboli (sort), ktorych bbox jest blisko konca ktorejs linii netu."""
-    found: set[str] = set()
+) -> dict[str, str]:
+    """Mapa node_id -> component_id. node = "comp" lub "comp:terminal" (gdy terminale)."""
+    nodes: dict[str, str] = {}
     for line in net:
         for ep in (line.points[0], line.points[-1]):
-            c = _nearest_component(ep, components, tol)
-            if c is not None:
-                found.add(c.id)
-    return sorted(found)
+            res = _resolve_node(ep, components, tol)
+            if res is not None:
+                node_id, comp_id = res
+                nodes[node_id] = comp_id
+    return nodes
+
+
+def _resolve_node(
+    point: list[float], components: list[Component], tol: float
+) -> tuple[str, str] | None:
+    """Koniec linii -> (node_id, component_id). Z terminalami: 'comp:term'; bez: 'comp'."""
+    c = _nearest_component(point, components, tol)
+    if c is None:
+        return None
+    if c.terminals:
+        t = _nearest_terminal(point, c, tol)
+        if t is not None:
+            return (f"{c.id}:{t.id}", c.id)
+    return (c.id, c.id)
+
+
+def _nearest_terminal(point: list[float], comp: Component, tol: float):
+    """Najblizszy terminal komponentu (pozycja wzgledna -> bezwzgledna), w granicach tol."""
+    b = comp.bbox
+    if len(b) < 4:
+        return None
+    x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
+    best = None
+    best_d = tol
+    for t in comp.terminals:
+        ax = x1 + t.x * (x2 - x1)
+        ay = y1 + t.y * (y2 - y1)
+        d = math.hypot(point[0] - ax, point[1] - ay)
+        if d <= best_d:
+            best_d = d
+            best = t
+    return best
 
 
 def _nearest_component(
