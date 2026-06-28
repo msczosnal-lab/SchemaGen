@@ -182,6 +182,7 @@
     }
     if (typeof renderTerminalList === "function") renderTerminalList();
     if (typeof renderAnnotationList === "function") renderAnnotationList();
+    if (typeof window.renderReviewBboxType === "function") window.renderReviewBboxType();
     if (typeof window._cropRedraw === "function") window._cropRedraw();
   }
 
