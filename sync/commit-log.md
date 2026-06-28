@@ -44,3 +44,4 @@
 | 2026-06-28 13:38 | Claude | 036650b1 | [Claude] labeler: phase B - terminal review (auto-derive endpoint, bbox iteration) |
 | 2026-06-28 19:09 | Claude | f9808b1b | [Claude] recognize: sito chroni mostki terminal-link + terminal_tol i progi Hough z config |
 | 2026-06-28 19:10 | Claude | 9777daf2 | [Claude] recognize: sito chroni mostki terminal-link + terminal_tol i progi Hough z config |
+| 2026-06-28 20:06 | Claude | 85d57d67 | [Claude] labeler: edycja terminali (drag/dodaj/usun) + overlay trasowany + sito strict od-do terminala |
