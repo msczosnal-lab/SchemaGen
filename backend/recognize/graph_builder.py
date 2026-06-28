@@ -110,7 +110,7 @@ class GraphBuilder:
             graphic_lines, components, join_tol=tol, terminal_tol=tol
         )
 
-        # 5) Kontekst (best-effort na bboxach detekcji + tagach OCR)
+        # 6) Kontekst (best-effort na bboxach detekcji + tagach OCR)
         context_assignments = self._resolve_context_safe(detections, components)
 
         return SchemaModel(
