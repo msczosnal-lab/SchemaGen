@@ -40,19 +40,25 @@ def build_connections(
     net_idx = 0
 
     for net in nets:
-        symbols = _symbols_on_net(net, components, terminal_tol)
-        if len(symbols) < 2:
+        # node_id -> component_id wlasciciela (node = "comp" albo "comp:terminal")
+        nodes = _nodes_on_net(net, components, terminal_tol)
+        node_ids = sorted(nodes)
+        if len(node_ids) < 2:
             continue
-        kind = _kind_for_net(net)
-        if len(symbols) == 2:
-            _add(connections, seen, symbols[0], symbols[1], kind, "")
+        base_kind = _kind_for_net(net)
+        if len(node_ids) == 2:
+            a, b = node_ids
+            # ten sam komponent (dwa jego terminale) = mostek (terminal-link)
+            kind = "link" if nodes[a] == nodes[b] else base_kind
+            _add(connections, seen, a, b, kind, "")
         else:
             net_id = f"net_{net_idx}"
             net_idx += 1
             potentials.append(net_id)
-            anchor = symbols[0]
-            for sym in symbols[1:]:
-                _add(connections, seen, sym, anchor, kind, net_id)
+            anchor = node_ids[0]
+            for nid in node_ids[1:]:
+                kind = "link" if nodes[nid] == nodes[anchor] else base_kind
+                _add(connections, seen, nid, anchor, kind, net_id)
     return connections, potentials
 
 
