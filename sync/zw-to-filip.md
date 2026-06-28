@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-06-28 [ZW] — ZAMKNIĘCIE SESJI: net-builder zwalidowany, bloker = detekcja listwy
+
+### Wynik (definitywny)
+
+- **Net-builder poprawny.** Na czystym GT p040 (`--rebuild-conn`) = **15 czystych połączeń**, zero sztucznej gwiazdy. Fix „terminal = granica scalania" działa.
+- **Runtime wciąż gwiazda do `sym_0:2`** — bo YOLO wykrywa **9 z 19** elementów (brak złączek/mostków/strzałek). Gwiazda runtime = skutek braku detekcji listwy, nie błąd net-buildera.
+- Stare GT-connections (14, z importu draftu) **wyczyszczone** (`scripts/clear_gt_connections.py --apply`). GT p040: 19 bbox, 17 linii, 0 conn. Connections = wynik algorytmu, nie wzorzec.
+
+### Co powstało w sesji (pliki)
+
+Backend: `net_builder.py` (mostki w sicie, strict `require_terminal`, **terminal=granica scalania**), `line_sieve.py` (recover mostków), `graph_builder.py` (config tol + require_terminal + recover), `line_tracer.py` (Hough z config), `runtime_config.py` + `config/runtime.yaml` (pokrętła). Testy: `test_line_sieve.py` (+4), `test_net_builder.py` (+3).
+Skrypty: `preview_schema.py` (overlay trasowany, `--rebuild-conn`, nazwy `nr:nazwa:term`), `clear_gt_connections.py` (NOWY).
+Labeler (v34): edycja terminali (drag/dodaj/usuń), auto-derive nie nadpisuje ręcznych, edytowalne connections, re-klasyfikacja bbox w R, „Wyczyść wszystkie linie", trwałe usuwanie linii, nawigacja review strzałki/scroll.
+
+### NASTĘPNY KAMIEŃ (do nowej sesji)
+
+**Detekcja elementów listwy** (złączka / mostek / strzałka potencjału) — doznaczenie klas + re-train YOLO, albo proceduralna detekcja. Bez tego runtime nie odtworzy topologii listew. Potem: scalanie strzałek potencjału po nazwie; tuning `derive_auto_terminals` poza p040.
+
+### Smoke końcowy (Filip potwierdził)
+
+`pytest backend/tests labeler/tests` → 148 passed (przed tą rundą; +nowe testy do potwierdzenia). `--rebuild-conn` p040 = 15 conn czystych. `diff_gt_runtime` po czyszczeniu = GT 0 conn (oczekiwane).
+
+---
+
 ## 2026-06-28 [ZW] — Fix: auto-zaciski nie nadpisują ręcznych terminali GT
 
 Temat: **Wejście w tryb T (auto-derive całej strony) kasowało ręcznie ustawione zaciski. Teraz auto tylko uzupełnia puste bboxy.**
