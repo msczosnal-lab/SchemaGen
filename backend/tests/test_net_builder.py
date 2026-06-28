@@ -104,6 +104,21 @@ def test_derive_auto_terminals_from_wire_contacts() -> None:
     assert all(t.y == 0.0 for t in terms)  # snap do gornej krawedzi
 
 
+def test_two_wires_to_same_terminal_not_merged_into_star() -> None:
+    # Dwa przewody dochodzace do TEJ SAMEJ zlaczki -> dwa osobne polaczenia do niej,
+    # NIE jeden net z gwiazda (terminal = granica scalania, nie przelot).
+    X1 = Component(id="X1", type="terminal_block", bbox=[90, 0, 110, 20], source="yolo",
+                   terminals=[Terminal(id="1", x=0.5, y=0.5)])  # abs (100,10)
+    Aa = _comp("Aa", [0, 0, 20, 20])     # prawa krawedz x=20
+    Bb = _comp("Bb", [180, 0, 200, 20])  # lewa krawedz x=180
+    wa = _wire([[20, 10], [100, 10]])    # Aa -> X1:1
+    wb = _wire([[180, 10], [100, 10]])   # Bb -> X1:1
+    conns, pots = build_connections([wa, wb], [Aa, Bb, X1], join_tol=10, terminal_tol=10)
+    pairs = {frozenset((c.from_ref, c.to)) for c in conns}
+    assert pairs == {frozenset(("Aa", "X1:1")), frozenset(("Bb", "X1:1"))}
+    assert pots == []  # brak wspolnego potencjalu/gwiazdy — to 2 osobne nety
+
+
 def test_require_terminal_drops_loose_bbox_contact() -> None:
     # przewod laczy A2 (ma terminal t1) z X bez terminali. W trybie strict koniec przy X
     # nie trafia w zaden terminal -> brak wezla -> brak polaczenia.
