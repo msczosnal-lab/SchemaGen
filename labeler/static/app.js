@@ -1678,6 +1678,11 @@ document.addEventListener("keydown", (e) => {
     setMode(MODE_LINE);
     return;
   }
+  if (e.key === "t" || e.key === "T") {
+    e.preventDefault();
+    setMode(MODE_TERMINAL);
+    return;
+  }
   if (mode === MODE_LINE && (e.key === "o" || e.key === "O")) {
     e.preventDefault();
     lineOrtho = !lineOrtho;
