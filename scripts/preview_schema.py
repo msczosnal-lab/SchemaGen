@@ -20,7 +20,13 @@ from backend.models.label import LabelRecord
 from backend.paths import RAW
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.graph_builder import _require_terminal, _terminal_tol
-from backend.recognize.net_builder import _group_into_nets, _nodes_on_net
+from backend.recognize.line_sieve import recover_terminal_bridges
+from backend.recognize.net_builder import (
+    _group_into_nets,
+    _nodes_on_net,
+    build_connections,
+    derive_auto_terminals,
+)
 from backend.recognize.pipeline import recognize_file
 from labeler.export import label_to_schema
 from labeler.runtime_draft import schema_to_label_record
