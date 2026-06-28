@@ -195,6 +195,11 @@ li.annotation-accordion.unassigned.active .summary-line {
 }
 #lines-heading { margin-top: 10px; padding-top: 8px; border-top: 1px solid #444; }
 #line-list { margin-bottom: 8px; }
+#terminal-panel { margin-top: 10px; padding-top: 8px; border-top: 1px solid #444; }
+#terminal-panel.hidden { display: none; }
+.terminal-row { display: flex; gap: 6px; align-items: center; margin: 3px 0; }
+.terminal-row input { flex: 1 1 auto; min-width: 0; padding: 3px 6px; }
+.terminal-row .delete-btn { border-radius: 6px; padding: 0 10px; }
 .line-row {
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   padding: 6px 8px; margin: 4px 0; background: #333; border-radius: 6px;
