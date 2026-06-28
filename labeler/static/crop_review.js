@@ -354,8 +354,28 @@
     }
   }
 
+  function imagePointFromCanvas(cx, cy) {
+    // Klik w canvasie -> wsp. obrazu, z uwzglednieniem aktywnego cropu.
+    if (!cropRect) return { x: cx, y: cy };
+    const sw = cropRect.x2 - cropRect.x1;
+    const sh = cropRect.y2 - cropRect.y1;
+    return {
+      x: cropRect.x1 + (cx * sw) / canvas.width,
+      y: cropRect.y1 + (cy * sh) / canvas.height,
+    };
+  }
+
+  function cropPxPerImage() {
+    // ile px canvasu przypada na 1 px obrazu (do progu trafienia w terminal)
+    if (!cropRect) return 1;
+    const sw = cropRect.x2 - cropRect.x1;
+    return sw > 0 ? canvas.width / sw : 1;
+  }
+
   window.CropReview = {
     isCropActive,
+    imagePointFromCanvas,
+    cropPxPerImage,
     drawCropOverlay,
     enterTerminalMode,
     exitCropModes,
