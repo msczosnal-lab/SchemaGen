@@ -20,22 +20,23 @@
 
 **Strona referencyjna:** `22_A_153_PL_Adamed_AGV_SA2_20250706_p040`
 
-**Cursor review:** pytest **151 passed**; regresja net_builder/sito OK.
+**Cursor review (domknięcie):** pytest **151 passed**; `--rebuild-conn` p040=15; GT conn wyczyszczone (`clear_gt_connections.py`).
 
 ---
 
-## Aktywne zadanie — Filip (~1 strona)
+## Aktywne zadanie — Filip (następny kamień: filar SYMBOLE)
 
 | Pole | Wartość |
 |------|---------|
-| **Cel** | Ręczne GT p040 — terminale i połączenia poprawione w labelerze |
-| **Workflow** | Ctrl+F5 → tryby **T → C → L** → poprawki → **Zapisz stronę** |
-| **Walidacja** | dopiero po Zapisz: `diff_gt_runtime.py --page p040` ma sens (GT ≠ draft) |
+| **Bloker** | YOLO: **9/19** bbox na p040 — brak złączek, mostków, strzałek potencjału |
+| **Cel** | Doznaczenie klas listwy w labelerze (p040, potem p051+) |
+| **Decyzja** | re-train YOLO — **następna sesja** (Filip); Cursor/Claude nie startują treningu bez decyzji |
+| **Walidacja po detekcji** | `recognize_file` / `diff_gt_runtime` / `--rebuild-conn` na runtime |
 
 ```powershell
-python -m labeler.app   # Ctrl+F5, app.js v34
-python scripts/diff_gt_runtime.py --page p040
-python scripts/preview_schema.py --page p040 --source gt --rebuild-conn
+python -m labeler.app   # Ctrl+F5 — bbox + klasy listwy
+python scripts/preview_schema.py --page p040 --source gt --rebuild-conn   # net-builder OK (15)
+python scripts/clear_gt_connections.py --page p040   # dry-run — GT bez conn
 ```
 
 ---
@@ -71,8 +72,8 @@ odtworzy topologii listew.
 
 | Pole | Wartość |
 |------|---------|
-| **DONE** | review sesji ZW 2026-06-28, pytest, KOLEJNE-ZADANIE zaktualizowane |
-| **Czekaj** | wynik `diff_gt_runtime` po ręcznym GT Filipa |
+| **DONE** | domknięcie sesji ZW 2026-06-28 — pytest 151, review diffów, wniosek w sync |
+| **Czekaj** | decyzja Filipa o re-train YOLO + doznaczenie klas listwy |
 
 ---
 

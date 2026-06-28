@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Claude] sesja 2026-06-28: net-builder zwalidowany + clear_gt_connections; bloker = detekcja listwy
