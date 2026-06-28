@@ -29,7 +29,7 @@ elements:
   created_at: '2026-06-15T17:35:05.185713+00:00'
 - id: złączka
   label: złączka
-  yolo_class: element
+  yolo_class: zlaczka
   created_at: '2026-06-15T17:35:05.185713+00:00'
 - id: listwa_złączek
   label: Listwa złączek
@@ -49,15 +49,15 @@ elements:
   created_at: '2026-06-15T17:39:25.108694+00:00'
 - id: mostek
   label: mostek
-  yolo_class: element
+  yolo_class: mostek
   created_at: '2026-06-15T17:42:37.079535+00:00'
 - id: strzałka_potencjału_wejściowa
   label: Strzałka potencjału (wejściowa)
-  yolo_class: element
+  yolo_class: strzalka_potencjalu_wejsciowa
   created_at: '2026-06-15T17:43:16.443500+00:00'
 - id: strzałka_potencjału_wyjściowa
   label: Strzałka potencjału (wyjściowa)
-  yolo_class: element
+  yolo_class: strzalka_potencjalu_wyjsciowa
   created_at: '2026-06-15T17:43:24.385142+00:00'
 - id: styki_przekaźnika
   label: styki przekaźnika

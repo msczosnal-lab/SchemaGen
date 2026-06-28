@@ -103,6 +103,15 @@ symbols:
     label_pl: listwa zaciskowa
     tag_prefix: X
     aliases: [listwa zaciskow]
+  - id: zlaczka
+    label_pl: złączka
+    tag_prefix: X
+  - id: mostek
+    label_pl: mostek
+  - id: strzalka_potencjalu_wejsciowa
+    label_pl: Strzałka potencjału (wejściowa)
+  - id: strzalka_potencjalu_wyjsciowa
+    label_pl: Strzałka potencjału (wyjściowa)
   - id: connector
     label_pl: wtyczka
     tag_prefix: X
@@ -136,7 +145,8 @@ symbols:
   - id: junction
     label_pl: węzeł
   - id: crossing
-    label_pl: mostek
+    label_pl: skrzyżowanie przewodów
+    aliases: [przejście przewodu]
   - id: heater
     label_pl: grzałka
   - id: fan

@@ -87,27 +87,37 @@ def test_group_merge_from_config():
 
 def test_load_train_roles():
     roles = load_train_roles()
-    assert "zlaczka" in roles["contextual"]
-    assert class_train_role("zlaczka") == "contextual"
+    assert "zlaczka" not in roles["contextual"]
+    assert class_train_role("zlaczka") == "atomic"
+    assert class_train_role("mostek") == "atomic"
     assert class_train_role("motor") == "atomic"
 
 
 def test_contextual_classes_excluded_from_yolo():
     exclude = load_yolo_exclude_classes()
     for cls in (
-        "zlaczka", "zlacze", "listwa_zlaczek", "oznaczenie_kabla",
+        "zlacze", "listwa_zlaczek", "oznaczenie_kabla",
         "oznaczenie_przewodu", "terminale_urzadzenia",
     ):
         assert cls in exclude
+    assert "zlaczka" not in exclude
+    assert "mostek" not in exclude
     assert "motor" not in exclude
     assert "terminal_plc" not in exclude
     assert is_yolo_exportable("silnik") is True
-    assert is_yolo_exportable("złączka") is False
+    assert is_yolo_exportable("złączka") is True
+    assert is_yolo_exportable("mostek") is True
     assert is_yolo_exportable("złącze") is False
     assert is_yolo_exportable("terminal plc") is True
     recs = [_rec("p1", ["silnik", "złączka", "złączka"])]
     cmap, dist = build_class_map(recs)
     assert "motor" in cmap
-    assert "zlaczka" not in cmap
+    assert "zlaczka" in cmap
     assert dist.get("motor") == 1
-    assert resolve_class_id("złączka", cmap) is None
+    assert dist.get("zlaczka") == 2
+    assert resolve_class_id("złączka", cmap) is not None
+
+
+def test_mostek_maps_to_mostek_not_crossing():
+    assert tag_to_class("mostek") == "mostek"
+    assert tag_to_class("skrzyżowanie przewodów") == "crossing"

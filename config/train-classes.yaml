@@ -6,13 +6,15 @@
 #
 # atomic:    idą do YOLO (puste = wszystko poza contextual/anchor)
 # contextual: GT w labelerze, resolver wierszy (faza 2), bez YOLO
-# anchor:    rezerwa pod przyszłe kotwice YOLO (obecnie puste — listwy tylko GT)
+# anchor:    rezerwa pod przyszłe kotwice YOLO (obecnie puste)
+#
+# 2026-06-28 (Filip): zlaczka + mostek → YOLO (filar SYMBOLE, prompt 011).
+# listwa_zlaczek / zwarta_listwa_zlaczek zostają contextual (bbox nadzoru wiersza).
 
 roles:
   atomic: []
   anchor: []
   contextual:
-    - zlaczka
     - zlacze
     - listwa_zlaczek
     - zwarta_listwa_zlaczek
