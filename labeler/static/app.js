@@ -1563,11 +1563,11 @@ function setMode(next) {
   if (mode === MODE_LINE) {
     hint = "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt";
   } else if (mode === MODE_TERMINAL) {
-    hint = "Terminale: klik = dodaj (snap do krawędzi), przeciągnij = popraw pozycję, ✕ w liście = usuń | ◀/▶ = następny bbox | Zapisz";
+    hint = "Terminale: klik = dodaj, przeciągnij = popraw, ✕ = usuń | strzałki ←/→ lub scroll = następny bbox | Zapisz";
   } else if (mode === MODE_REVIEW_BBOX) {
-    hint = "Review bbox: crop detekcji | ✓ akceptuj | ✕ usuń | ◀/▶ | R = tryb";
+    hint = "Review bbox: zmień typ poniżej | ✓ akceptuj | ✕ usuń | strzałki ←/→ lub scroll = przewijaj | R = tryb";
   } else if (mode === MODE_CONNECTION) {
-    hint = "Review połączeń: 2 bbox + linia | ✓ OK | ✕ usuń conn | ◀/▶ | C = tryb";
+    hint = "Review połączeń: edytuj from/to/kind w liście | ✕ usuń | strzałki ←/→ lub scroll = przewijaj | C = tryb";
   } else {
     hint = "Bbox → typ → Zapisz | Ctrl+S | Import draft | B/L/T/R/C = tryby";
   }
