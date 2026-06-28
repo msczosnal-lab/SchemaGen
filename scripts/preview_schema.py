@@ -167,12 +167,17 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
             cv2.circle(out, (ax, ay), 6, _C_CONN, -1)
             cv2.circle(out, (ax, ay), 6, (255, 255, 255), 1)
 
-    # 3) Bboxy symboli + terminale (z etykieta id)
-    for c in schema.components:
+    # 3) Bboxy symboli + terminale (z etykieta id). Etykieta = nr_bbox:nazwa.
+    for i, c in enumerate(schema.components):
         if len(c.bbox) < 4:
             continue
         x1, y1, x2, y2 = map(int, c.bbox[:4])
         cv2.rectangle(out, (x1, y1), (x2, y2), _C_BBOX, 2)
+        tag = f"{i + 1}:{_comp_name(c)}"
+        cv2.putText(out, tag, (x1, max(0, y1 - 6)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 3, cv2.LINE_AA)
+        cv2.putText(out, tag, (x1, max(0, y1 - 6)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (120, 60, 0), 1, cv2.LINE_AA)
         for t in c.terminals:
             ax = int(x1 + t.x * (x2 - x1))
             ay = int(y1 + t.y * (y2 - y1))
@@ -234,10 +239,16 @@ def main() -> int:
                 title = "GT + conn z net-buildera"
                 print(
                     f"[GT-conn] require_terminal={_require_terminal()} | "
-                    f"connections={len(gt.connections)} z czystego GT"
+                    f"connections={len(gt.connections)} z czystego GT "
+                    f"(format: nr_bbox:nazwa:nr_term)"
                 )
+                cbi = {c.id: c for c in gt.components}
+                sbi = _seq_map(gt)
                 for c in gt.connections:
-                    print(f"  {c.from_ref} -> {c.to} ({c.kind})")
+                    print(
+                        f"  {friendly_ref(c.from_ref, cbi, sbi)} -> "
+                        f"{friendly_ref(c.to, cbi, sbi)} ({c.kind})"
+                    )
             p = OUT_DIR / f"{page_id}_gt.png"
             cv2.imwrite(str(p), draw_schema(img, gt, title))
             written.append(str(p))
