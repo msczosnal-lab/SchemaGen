@@ -6,7 +6,51 @@
 
 ---
 
-## Stan (2026-06-27)
+## Stan (2026-06-28)
+
+| Prompt | Status |
+|--------|--------|
+| **crop-review GT (T/R/C)** | ✅ DONE (Cursor) — import draft, batch terminale, review bbox/conn |
+| **010-labeler-bbox-first-palette** | ✅ DONE |
+| **symbols_atomic_v2** | ✅ mAP50≈0.92 |
+| **004-graph-builder** | ✅ DONE — p040 draft: 14 conn |
+
+**Strona referencyjna:** `22_A_153_PL_Adamed_AGV_SA2_20250706_p040` (draft runtime w SQLite)
+
+---
+
+## Aktywne zadanie — Filip
+
+| Pole | Wartosc |
+|------|---------|
+| **Review crop** | labeler tryby **T** (terminale), **R** (bbox), **C** (połączenia) na p040 |
+| **Akceptacja** | ✓ OK / ✕ usuń → Zapisz stronę |
+
+```powershell
+python -m labeler.app   # Ctrl+F5
+python scripts/diff_gt_runtime.py --page p040
+python scripts/preview_schema.py --page p040
+```
+
+---
+
+## Aktywne zadanie — Claude
+
+| Pole | Wartosc |
+|------|---------|
+| **Backlog** | tolerancja wire→bbox, progi Hough, poprawki po review Filipa |
+
+---
+
+## Aktywne zadanie — Cursor
+
+| Pole | Wartosc |
+|------|---------|
+| **DONE** | `preview_schema.py`, `diff_gt_runtime.py`, crop-review labeler |
+
+---
+
+## Stan archiwum (2026-06-27)
 
 | Prompt | Status |
 |--------|--------|
@@ -23,6 +67,34 @@
 `22_A_153_PL_Adamed_AGV_SA2_20250706_p040` (Filip, 2026-06-27)
 
 ---
+
+## Aktywne zadanie — Claude
+
+| Pole | Wartosc |
+|------|---------|
+| **Backlog** | tolerancja wire→bbox, progi Hough, poprawki po review Filipa |
+
+**Nie ruszaj:** atlas QET, trening GPU.
+
+---
+
+## Aktywne zadanie — Filip
+
+| Pole | Wartosc |
+|------|---------|
+| **Review crop** | tryby T/R/C na p040 |
+
+---
+
+## Aktywne zadanie — Cursor
+
+| Pole | Wartosc |
+|------|---------|
+| **DONE** | crop-review + import draft + preview/diff |
+
+---
+
+## (archiwum) Poprzednie zadania
 
 ## Aktywne zadanie — Claude
 
