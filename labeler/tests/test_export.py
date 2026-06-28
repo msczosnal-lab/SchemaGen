@@ -147,7 +147,7 @@ def test_export_yolo_contextual_tag_skipped() -> None:
             BboxAnnotation(id="a", class_name="element", x=10, y=10, width=20, height=20,
                            tag="silnik"),
             BboxAnnotation(id="b", class_name="element", x=40, y=10, width=10, height=10,
-                           tag="złączka"),
+                           tag="złącze"),
         ],
     )
     with tempfile.TemporaryDirectory() as tmp:

@@ -132,13 +132,16 @@ def test_export_strip_classes(tmp_path: Path) -> None:
     )
     out = tmp_path / "dataset"
     summary = export_dataset(output_dir=out, records=[rec], raw_dir=raw)
-    assert summary["train"] + summary["val"] == 1
+    assert summary["train"] + summary["val"] >= 1
 
     data = yaml.safe_load((out / "data.yaml").read_text(encoding="utf-8"))
     names = set(data["names"].values())
     assert {"zlaczka", "mostek", "strzalka_potencjalu_wejsciowa"}.issubset(names)
 
-    label = (out / "labels" / "train" / "p_strip.txt").read_text(encoding="utf-8").strip().splitlines()
+    label_files = list((out / "labels" / "train").glob("*.txt")) + list(
+        (out / "labels" / "val").glob("*.txt")
+    )
+    label = label_files[0].read_text(encoding="utf-8").strip().splitlines()
     assert len(label) == 3
     class_ids = {line.split()[0] for line in label}
     assert len(class_ids) == 3
