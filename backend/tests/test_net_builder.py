@@ -74,3 +74,31 @@ def test_device_stroke_not_candidate() -> None:
     stroke = _wire([[40, 60], [200, 60]], role="device_stroke")
     conns, _ = build_connections([stroke], [A, B], join_tol=10, terminal_tol=10)
     assert conns == []
+
+
+# --- terminals[] (ADR etap 2): adresowanie comp:terminal + mostek terminal-link ---
+def _block_with_terminals() -> Component:
+    # listwa bbox [0,0,100,20]; t1 @ rel(0.2,0.5)->abs(20,10), t2 @ rel(0.8,0.5)->abs(80,10)
+    return Component(
+        id="X1", type="terminal_block", bbox=[0, 0, 100, 20], source="yolo",
+        terminals=[Terminal(id="1", x=0.2, y=0.5), Terminal(id="2", x=0.8, y=0.5)],
+    )
+
+
+def test_mostek_between_terminals_same_component_is_link() -> None:
+    X1 = _block_with_terminals()
+    bridge = _wire([[20, 10], [80, 10]])  # t1 <-> t2
+    conns, _ = build_connections([bridge], [X1], join_tol=10, terminal_tol=10)
+    assert len(conns) == 1
+    assert {conns[0].from_ref, conns[0].to} == {"X1:1", "X1:2"}
+    assert conns[0].kind == "link"  # dwa terminale tego samego komponentu
+
+
+def test_wire_resolves_to_terminal_address() -> None:
+    X1 = _block_with_terminals()
+    A2 = Component(id="A2", type="x", bbox=[-60, 0, -20, 20], source="yolo")  # prawa krawedz x=-20
+    wire = _wire([[-20, 10], [20, 10]])  # A2 -> terminal t1
+    conns, _ = build_connections([wire], [A2, X1], join_tol=10, terminal_tol=10)
+    assert len(conns) == 1
+    assert {conns[0].from_ref, conns[0].to} == {"A2", "X1:1"}
+    assert conns[0].kind == "power"  # rozne komponenty = kabel, nie link
