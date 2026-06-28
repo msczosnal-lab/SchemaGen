@@ -53,6 +53,7 @@ const LINE_POINT_R = 6;
 // --- Tryb terminali (ADR connection-model, etap 2) ---
 const MODE_TERMINAL = "terminal";
 const TERMINAL_R = 10;           // promien kropki zacisku (px ekranu / scale)
+let hideLinesReview = false;     // tryb przegladu terminali: "tylko bboxy" (ukryj linie)
 
 const LINE_ROLE_LABELS = {
   wire: "Przewod",
