@@ -1,7 +1,7 @@
 """Testy net-buildera (Warstwa 1): scalanie segmentow wire/bus w sieci -> Connection."""
 
 from backend.models.schema import Component, GraphicLine, Terminal
-from backend.recognize.net_builder import build_connections
+from backend.recognize.net_builder import build_connections, derive_auto_terminals
 
 
 def _comp(cid: str, bbox) -> Component:
