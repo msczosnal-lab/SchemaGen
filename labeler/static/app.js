@@ -962,19 +962,25 @@ async function selectPage(pageId) {
 
   let serverBboxes = [];
   let serverLines = [];
+  let serverConnections = [];
   try {
     const ann = await fetchJson(`/api/annotations/${pageId}`);
     serverBboxes = ann.bboxes || [];
     serverLines = ann.lines || [];
+    serverConnections = ann.connections || [];
   } catch {
     serverBboxes = [];
     serverLines = [];
+    serverConnections = [];
   }
+
+  if (window.CropReview) CropReview.onPageChange();
 
   const cached = pageCache.get(pageId) || loadLocalDraft(pageId);
   const serverState = {
     bboxes: serverBboxes,
     lines: serverLines,
+    connections: serverConnections,
     nextSeq: cached?.nextSeq,
     image_width: bgImage ? bgImage.naturalWidth : canvas.width,
     image_height: bgImage ? bgImage.naturalHeight : canvas.height,
@@ -1210,14 +1216,16 @@ function clearTerminals() {
 }
 
 function iterateBbox(dir) {
+  if (window.CropReview && CropReview.isCropActive()) {
+    CropReview.reviewStep(dir);
+    return;
+  }
   if (!bboxes.length) return;
   let i = selectedIdx;
   i = i < 0 ? (dir > 0 ? 0 : bboxes.length - 1) : (i + dir + bboxes.length) % bboxes.length;
   selectBbox(i);
-  // wycentruj/pokaż w statusie; auto-zaciski gdy bbox jeszcze bez terminali
   const b = bboxes[i];
   saveStatusEl.textContent = `bbox ${i + 1}/${bboxes.length}: #${b.seq || ""} ${(b.tag || b.class_name || "").trim()}`;
-  if (!(b.terminals || []).length) deriveTerminalsForSelected();
 }
 
 function renderTerminalList() {
