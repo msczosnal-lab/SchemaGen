@@ -1753,6 +1753,7 @@ pageNextBtn?.addEventListener("click", () => navigatePage(1));
 
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
+document.getElementById("mode-terminal")?.addEventListener("click", () => setMode(MODE_TERMINAL));
 document.getElementById("delete-line-btn")?.addEventListener("click", () => {
   if (mode !== MODE_LINE) setMode(MODE_LINE);
   if (lineDeleteArmed) {
