@@ -35,10 +35,13 @@ def apply_sieve(
     edge_tol: float = 6.0,
     text_margin: float = 2.0,
     inside_margin: float = 2.0,
+    bridge_tol: float = 8.0,
 ) -> list[GraphicLine]:
     """Linie z poprawiona rola: bok bbox->frame, wnetrze bbox->other, tekst->other.
 
     Kolejnosc: bok > wnetrze > tekst > bez zmian. Nie-kandydaci (poza wire/bus) nietknieci.
+    WYJATEK: mostek (konce w 2 roznych terminalach tego samego komponentu) zostaje wire.
+    `bridge_tol` = maks. odleglosc konca linii od terminala (px).
     """
     out: list[GraphicLine] = []
     for ln in lines:
@@ -47,8 +50,13 @@ def apply_sieve(
             continue
         if _is_box_edge(ln, components, edge_tol):
             out.append(ln.model_copy(update={"role": "frame"}))
-        elif _is_inside_component(ln, components, inside_margin):
-            out.append(ln.model_copy(update={"role": "other"}))
+            continue
+        inside = _containing_component(ln, components, inside_margin)
+        if inside is not None:
+            if _bridges_two_terminals(ln, inside, bridge_tol):
+                out.append(ln)  # mostek terminal<->terminal — zostaje kandydatem
+            else:
+                out.append(ln.model_copy(update={"role": "other"}))
         elif _is_text_artifact(ln, text_bboxes, text_margin):
             out.append(ln.model_copy(update={"role": "other"}))
         else:
