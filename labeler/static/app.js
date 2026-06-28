@@ -1148,6 +1148,17 @@ function terminalAbsPos(b, t) {
   return { x: b.x + t.x * b.width, y: b.y + t.y * b.height };
 }
 
+// Czy punkt jest przy bboxie (wewnatrz + pas marginesu) — zeby daleki klik nie dodawal terminala.
+function _nearBbox(b, imgPt) {
+  const m = Math.max(20, 0.4 * Math.min(b.width, b.height));
+  return (
+    imgPt.x >= b.x - m &&
+    imgPt.x <= b.x + b.width + m &&
+    imgPt.y >= b.y - m &&
+    imgPt.y <= b.y + b.height + m
+  );
+}
+
 // Klik (event) -> wsp. obrazu, z uwzglednieniem aktywnego cropu w trybach review.
 function imgPointFromEvent(e) {
   const { cx, cy } = clientToCanvas(e);
@@ -1747,8 +1758,8 @@ canvas.addEventListener("mousedown", (e) => {
       draggingTerminal = { idx: selectedIdx, termIdx: hit };
       terminalDragMoved = false;
       canvas.style.cursor = "grabbing";
-    } else {
-      // klik na pusto przy krawedzi -> nowy terminal (snap do krawedzi)
+    } else if (_nearBbox(b, imgPt)) {
+      // klik przy bboxie -> nowy terminal (snap do krawedzi); daleki klik ignorowany
       addTerminalAt(selectedIdx, imgPt);
     }
     return;
