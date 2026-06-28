@@ -116,8 +116,10 @@ def _is_box_edge(line: GraphicLine, components: list[Component], tol: float) -> 
     return False
 
 
-def _is_inside_component(line: GraphicLine, components: list[Component], margin: float) -> bool:
-    """True gdy CALA linia miesci sie w bbox symbolu (grafika wewnetrzna: tabelka/obrys).
+def _containing_component(
+    line: GraphicLine, components: list[Component], margin: float
+) -> Component | None:
+    """Komponent, ktorego bbox w CALOSCI zawiera linie (grafika wewnetrzna), albo None.
 
     Przewod laczacy wychodzi poza bbox (dotyka brzegu i idzie dalej) -> nie zlapany.
     """
@@ -132,8 +134,35 @@ def _is_inside_component(line: GraphicLine, components: list[Component], margin:
             and lb[2] <= b[2] + margin
             and lb[3] <= b[3] + margin
         ):
-            return True
-    return False
+            return c
+    return None
+
+
+def _bridges_two_terminals(line: GraphicLine, comp: Component, tol: float) -> bool:
+    """True gdy oba konce linii trafiaja w 2 ROZNE terminale `comp` (mostek w listwie)."""
+    if len(comp.terminals) < 2 or len(comp.bbox) < 4:
+        return False
+    ep = _endpoints(line)
+    if ep is None:
+        return False
+    x1, y1, x2, y2 = comp.bbox[0], comp.bbox[1], comp.bbox[2], comp.bbox[3]
+    w = (x2 - x1) or 1.0
+    h = (y2 - y1) or 1.0
+
+    def nearest_term_id(pt: list[float]) -> str | None:
+        best_id, best_d = None, tol
+        for t in comp.terminals:
+            ax = x1 + t.x * w
+            ay = y1 + t.y * h
+            d = math.hypot(pt[0] - ax, pt[1] - ay)
+            if d <= best_d:
+                best_d = d
+                best_id = t.id
+        return best_id
+
+    a_id = nearest_term_id(ep[0])
+    b_id = nearest_term_id(ep[1])
+    return a_id is not None and b_id is not None and a_id != b_id
 
 
 def _line_bbox(points: list[list[float]]) -> list[float]:
