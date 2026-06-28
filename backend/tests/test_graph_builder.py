@@ -76,10 +76,12 @@ def test_build_assembles_components_lines_connections() -> None:
     assert model.components[0].bbox == [20.0, 40.0, 80.0, 100.0]
     assert len(model.graphic_lines) == 1
 
-    # wire laczy oba symbole (konce na krawedziach bbox)
+    # wire laczy oba symbole (konce na krawedziach bbox). Auto-zaciski -> adres comp:terminal,
+    # wiec porownujemy po komponencie (prefiks przed ":").
     assert len(model.connections) == 1
     conn = model.connections[0]
-    assert {conn.from_ref, conn.to} == {"sym_0", "sym_1"}
+    ends = {conn.from_ref.split(":")[0], conn.to.split(":")[0]}
+    assert ends == {"sym_0", "sym_1"}
     assert conn.kind == "power"
 
 
