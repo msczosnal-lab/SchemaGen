@@ -42,3 +42,4 @@
 | 2026-06-28 13:14 | Claude | 4741bdce | [Claude] labeler: terminal mode UI + export terminals (ADR etap 2) |
 | 2026-06-28 13:31 | Claude | 76d000c9 | [Claude] labeler: fix terminal visibility+backspace; auto-terminals from line contacts |
 | 2026-06-28 13:38 | Claude | 036650b1 | [Claude] labeler: phase B - terminal review (auto-derive endpoint, bbox iteration) |
+| 2026-06-28 19:09 | Claude | f9808b1b | [Claude] recognize: sito chroni mostki terminal-link + terminal_tol i progi Hough z config |

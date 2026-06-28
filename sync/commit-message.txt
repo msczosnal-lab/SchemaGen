@@ -3,5 +3,4 @@
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
-[Claude] recognize: sito chroni mostki terminal-link + terminal_tol i progi Hough z config
 
