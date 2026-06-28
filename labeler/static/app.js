@@ -220,6 +220,12 @@ function buildSavePayload(pageId, state) {
         parent_id: b.parent_id || "",
         depth: b.depth || 0,
         rel_bbox: b.rel_bbox || [],
+        terminals: (b.terminals || []).map((t) => ({
+          id: t.id,
+          x: t.x,
+          y: t.y,
+          name: t.name || "",
+        })),
       })),
       lines: (state.lines || []).map((l) => ({
         id: l.id,
