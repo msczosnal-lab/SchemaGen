@@ -19,7 +19,6 @@ import json
 from backend.models.label import BboxAnnotation
 from backend.models.schema import (
     Component,
-    Connection,
     GraphicLine,
     SchemaMeta,
     SchemaModel,
