@@ -25,7 +25,11 @@ from backend.models.schema import (
 )
 from backend.geometry.row_layout import ContextAssignment, ContextResolver
 from backend.paths import REGISTRY_PATH
-from backend.runtime_config import roi_bottom_cut_frac
+from backend.runtime_config import (
+    roi_bottom_cut_frac,
+    terminal_tol_frac,
+    terminal_tol_min,
+)
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve, recover_terminal_bridges
 from backend.recognize.line_tracer import LineTracer
@@ -38,6 +42,7 @@ from backend.recognize.symbol_detector import OnnxSymbolDetector
 
 # Tolerancja terminala: maks. odleglosc konca linii od bbox symbolu (px), przy
 # ktorej uznajemy ze linia "wchodzi" w symbol. Skalowana z rozmiarem strony.
+# Wartosci domyslne (fallback gdy brak configu); zrodlo prawdy: config/runtime.yaml.
 TERMINAL_TOL_FRAC = 0.012
 TERMINAL_TOL_MIN = 12.0
 
@@ -210,10 +215,15 @@ def _image_size(image_path: str) -> tuple[int, int] | None:
 
 
 def _terminal_tol(size: tuple[int, int] | None) -> float:
+    try:
+        frac = terminal_tol_frac()
+        tmin = terminal_tol_min()
+    except Exception:
+        frac, tmin = TERMINAL_TOL_FRAC, TERMINAL_TOL_MIN
     if not size:
-        return TERMINAL_TOL_MIN
+        return tmin
     w, h = size
-    return max(TERMINAL_TOL_MIN, TERMINAL_TOL_FRAC * max(w, h))
+    return max(tmin, frac * max(w, h))
 
 
 def _edge_tol(size: tuple[int, int] | None) -> float:
