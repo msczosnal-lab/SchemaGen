@@ -315,3 +315,39 @@ elements:
   label: terminal_przylaczeniowy
   yolo_class: element
   created_at: '2026-06-27T09:20:14.160943+00:00'
+- id: iq3
+  label: IQ3
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: 1q4
+  label: 1Q4
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: stycznik_odcinajacy_sekcje_12
+  label: Stycznik odcinajacy sekcje 12
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_10
+  label: -KS2_10
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: a1
+  label: A1
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_12
+  label: -KS2_12
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_16
+  label: -KS2_16
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_17
+  label: KS2_17
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_18
+  label: -KS2_18
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
