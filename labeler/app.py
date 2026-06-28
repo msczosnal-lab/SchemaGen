@@ -125,6 +125,24 @@ def post_tag_usage(body: TagUsagePayload) -> dict:
     return {"status": "ok", **stats}
 
 
+class DeriveTerminalsPayload(BaseModel):
+    bbox: list[float]                 # [x1, y1, x2, y2] w pikselach obrazu
+    lines: list[dict] = []            # [{points:[[x,y]...], role}]
+    tol: float = 12.0
+
+
+@app.post("/api/derive-terminals")
+def post_derive_terminals(body: DeriveTerminalsPayload) -> dict:
+    """Auto-zaciski z kontaktu linia<->krawedz (ten sam algorytm co runtime)."""
+    comp = Component(id="_", type="_", bbox=body.bbox)
+    lines = [
+        GraphicLine(id=str(i), points=ln.get("points", []), role=ln.get("role", "wire"))
+        for i, ln in enumerate(body.lines)
+    ]
+    terms = derive_auto_terminals(comp, lines, body.tol)
+    return {"terminals": [{"id": t.id, "x": t.x, "y": t.y} for t in terms]}
+
+
 @app.get("/api/annotations/{page_id}")
 def get_annotations(page_id: str) -> dict:
     data = load_annotation(page_id)

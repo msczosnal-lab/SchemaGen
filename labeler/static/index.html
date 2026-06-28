@@ -61,6 +61,14 @@
       <ul id="line-list"></ul>
       <div id="terminal-panel" class="hidden">
         <h2 id="terminal-head">Zaciski — (zaznacz bbox)</h2>
+        <div id="terminal-controls">
+          <button id="term-prev" type="button" title="Poprzedni bbox">◀ bbox</button>
+          <button id="term-next" type="button" title="Następny bbox (auto-zaciski)">bbox ▶</button>
+          <button id="term-auto" type="button" title="Auto-zaciski z linii dla tego bboxa">⤓ Auto z linii</button>
+          <button id="term-undo" type="button" title="Cofnij ostatni zacisk">✕ ostatni</button>
+          <button id="term-clear" type="button" title="Usuń wszystkie zaciski tego bboxa">Wyczyść</button>
+          <label class="term-toggle"><input type="checkbox" id="term-only-bboxes"> tylko bboxy (ukryj linie)</label>
+        </div>
         <ul id="terminal-list"></ul>
       </div>
       <button id="save-btn" type="button">Zapisz strone</button>
