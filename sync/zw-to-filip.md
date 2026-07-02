@@ -5,6 +5,49 @@
 
 ---
 
+## 2026-07-02 [Claude] — SYMBOLE: orientacja mostka (8 klas D4, prompt 012)
+
+**Problem:** mostek (3 terminale) — jedyny element niewykrywany. Przyczyna: globalna
+augmentacja w train_symbols.py = 0 (schemat kierunkowy), a mostek występuje w 8
+orientacjach → każda to osobny wzorzec, za mało próbek każdej.
+
+**Decyzje Filipa:** sieć zwraca orientację (8 klas); lustro = nowy kształt (chiralny,
+pełne 8); mechanizm danych = syntetyczne kafelki.
+
+### Rozwiązanie (kod — bez treningu GPU)
+- **Grupa D4 + klasyfikacja eksemplarzem.** Nie da się poznać orientacji z samej
+  geometrii stubów (lustro daje ten sam zestaw krawędzi). Źródło klasy = 8
+  eksemplarzy (po jednym cropie na klasę), dopasowanie NCC na binaryzacji.
+- **Augmentacja offline D4:** z 1 realnego cropa → 8 zbalansowanych próbek (orbita).
+- **Kafelki:** orientacje wchodzą jako extra małe obrazy do splitu **train**;
+  globalne fliplr/flipud/degrees w train_symbols **zostają 0** (zero regresji klas
+  kierunkowych).
+- **Bez zmian w class_map/palecie/pickerze:** tag `mostek` przepisywany na
+  `mostek_rXX` PRZED build_class_map; picker labelera bez zmian (orientacja auto).
+
+### Pliki
+| Plik | Rola |
+|------|------|
+| `train/mostek_orient.py` | NOWY — D4, Cayley (samo-weryfik.), classify_crop, augment_d4, count_edge_crossings |
+| `train/mostek_tiles.py` | NOWY — expand_mostek_orientations, generate_tiles, write_tiles |
+| `train/dataset_export.py` | hook: maybe_expand_mostek (przed class_map) + maybe_write_mostek_tiles (po train) + manifest |
+| `backend/recognize/mostek_orient_map.py` | NOWY — 8 klas → (mostek, orientacja); common_terminal_side (config) |
+| `config/mostek-orient.yaml` | NOWY — kontrakt 8 klas, exemplar_dir, min_score, tile |
+| `train/tests/test_mostek_orient.py`, `test_mostek_tiles.py`, `backend/tests/test_mostek_orient_map.py` | testy (fixture) |
+
+### Testy
+`pytest backend/tests labeler/tests train/tests` → **188 passed** (env: doinstalowane
+fastapi/httpx/svgwrite/opencv — brak na sandboxie, nie dotyczy zmian).
+
+### Do zrobienia u Filipa (GPU + dane, poza gitem)
+1. Przygotuj **8 eksemplarzy** w `data/mostek_exemplars/` (nazwy = klasy: `mostek_r0.png` … `mostek_m270.png`).
+2. `python -m train.dataset_export --min-count 5` → sprawdź w manifest `mostek_orient` (rozkład) i `mostek_tiles` (liczba).
+3. Trening + ONNX + preview p040 (oczekiwane: mostek wykryty z orientacją).
+4. **[RYZYKO] Uzupełnij `common_terminal:` w config/mostek-orient.yaml** — dla kanonicznego r0 podaj krawędź terminala WSPÓLNEGO (top/right/bottom/left). Bez tego net_builder scala mostki jak dotychczas (geometrycznie), orientacja nie wpływa na podział potencjałów.
+5. [RYZYKO] bbox mostka musi być **ciasny** — eksport waliduje "dokładnie 3 stuby na krawędzi", inaczej [SKIP] (tag zostaje generyczny).
+
+---
+
 ## 2026-06-28 [Claude] — SYMBOLE: klasy listwy w YOLO (prompt 011), czeka re-train
 
 **Decyzja Filipa:** GT p040 gotowe (19 bbox). Re-train YOLO: **TAK**.
