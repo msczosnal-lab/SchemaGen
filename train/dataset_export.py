@@ -24,7 +24,7 @@ import yaml
 
 from backend.db import list_pages, load_annotation
 from backend.models.label import LabelRecord
-from backend.paths import LABELED, RAW, SYMBOL_CLASSES, VAL_PAGES
+from backend.paths import LABELED, RAW, ROOT, SYMBOL_CLASSES, VAL_PAGES
 from labeler.export import find_raw_image, yolo_label_lines
 from backend.class_map import (
     build_class_map,
