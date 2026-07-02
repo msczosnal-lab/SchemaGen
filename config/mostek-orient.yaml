@@ -1,0 +1,39 @@
+# Kontrakt orientacji mostka (filar SYMBOLE, prompt 012).
+#
+# Mostek ma 3 terminale i wystepuje w 8 orientacjach (grupa D4: 4 obroty x lustro).
+# Sam ksztalt lustrzany jest CHIRALNY (rozny od kazdego obrotu) -> pelne 8 klas.
+#
+# Labeler: pozostaje generyczny tag `mostek` (picker bez zmian). Orientacja jest
+# rozpoznawana AUTOMATYCZNIE przy eksporcie przez dopasowanie do 8 eksemplarzy
+# (train/mostek_tiles.py: expand_mostek_orientations). Kod: train/mostek_orient.py.
+#
+# Trening: globalna augmentacja w train/train_symbols.py ZOSTAJE 0 (klasy
+# kierunkowe). Orientacje mostka wchodza jako syntetyczne KAFELKI (extra obrazy
+# train), nie przez obrot stron.
+
+# Kolejnosc = indeks w grupie D4 (m*4 + r); r = obrot 90 CCW, m = lustro.
+classes:
+  - mostek_r0
+  - mostek_r90
+  - mostek_r180
+  - mostek_r270
+  - mostek_m0
+  - mostek_m90
+  - mostek_m180
+  - mostek_m270
+
+# Tag generyczny z labelera, ktory podlega ekspansji na orientacje.
+source_tag: mostek
+
+# 8 czystych cropow (po jednym na klase); nazwa pliku = nazwa klasy + .png/.jpg.
+# Brak kompletu -> modul no-op (degradacja do pojedynczej klasy `mostek`).
+exemplar_dir: data/mostek_exemplars
+
+# Prog NCC dopasowania eksemplarza. Ponizej -> orientacja niepewna, tag zostaje
+# generyczny `mostek` + wpis [SKIP] w logu eksportu.
+min_score: 0.55
+
+# Parametry kafelka syntetycznego.
+tile:
+  size: 96
+  margin: 8
