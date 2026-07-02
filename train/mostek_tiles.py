@@ -231,16 +231,31 @@ def write_tiles(
     images_dir: Path,
     labels_dir: Path,
     prefix: str,
+    class_id_map: dict[int, int] | None = None,
 ) -> int:
-    """Zapisz kafelki jako obraz+label YOLO (jedna linia). Zwraca liczbe."""
+    """Zapisz kafelki jako obraz+label YOLO (jedna linia). Zwraca liczbe.
+
+    `class_id_map` mapuje indeks orbity D4 (0..7 wg CLASS_NAMES) na id klasy w
+    datasecie (class_map). Brak -> tozsamosc (test/fixture).
+    """
     from PIL import Image
 
     images_dir.mkdir(parents=True, exist_ok=True)
     labels_dir.mkdir(parents=True, exist_ok=True)
     for i, (img, cls, (cx, cy, bw, bh)) in enumerate(tiles):
+        out_cls = class_id_map.get(cls, cls) if class_id_map else cls
         stem = f"{prefix}_{i:05d}"
         Image.fromarray(img).save(images_dir / f"{stem}.png")
         (labels_dir / f"{stem}.txt").write_text(
-            f"{cls} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}\n", encoding="utf-8"
+            f"{out_cls} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}\n", encoding="utf-8"
         )
     return len(tiles)
+
+
+def build_class_id_map(class_map: dict[str, int]) -> dict[int, int]:
+    """Orbita D4 (indeks 0..7 wg CLASS_NAMES) -> id klasy w datasecie."""
+    return {
+        i: class_map[name]
+        for i, name in enumerate(CLASS_NAMES)
+        if name in class_map
+    }
