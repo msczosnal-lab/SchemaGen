@@ -228,6 +228,8 @@ def export_dataset(
     out = output_dir or LABELED
     raw = raw_dir or RAW
     recs = records if records is not None else load_labeled_records()
+    # Filar SYMBOLE: tag `mostek` -> orientacja (8 klas) PRZED budowa class_map.
+    mostek_log = maybe_expand_mostek(recs, raw)
     palette_map = load_palette_map()
     exclude = load_yolo_exclude_classes()
     class_map, distribution = build_class_map(
@@ -249,6 +251,8 @@ def export_dataset(
     out.mkdir(parents=True, exist_ok=True)
     n_train = _write_split(train, out, "train", class_map, raw, palette_map)
     n_val = _write_split(val, out, "val", class_map, raw, palette_map)
+    # Syntetyczne kafelki orientacji mostka -> tylko split train (balans klas).
+    n_mostek_tiles = maybe_write_mostek_tiles(train, out, raw, class_map)
 
     data_yaml = {
         "path": str(out.resolve()),
@@ -272,6 +276,8 @@ def export_dataset(
         "yolo_bboxes": sum(distribution.values()),
         "contextual_excluded": contextual_excluded,
         "num_classes": len(class_map),
+        "mostek_orient": mostek_log,
+        "mostek_tiles": n_mostek_tiles,
         "min_count": min_count,
         "excluded_classes": {
             c: n for c, n in distribution.items()
