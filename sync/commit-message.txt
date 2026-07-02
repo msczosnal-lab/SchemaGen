@@ -1,1 +1,6 @@
-[Claude] SYMBOLE: orientacja mostka — 8 klas D4 + kafelki + eksemplarz (prompt 012), 188 passed
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
