@@ -42,6 +42,18 @@ MIN_SCORE = 0.55  # prog NCC — ponizej: orientacja niepewna -> generyczny most
 MOSTEK_TAG = "mostek"
 
 
+def load_mostek_config() -> dict:
+    """Wczytaj config/mostek-orient.yaml (parametry ekspansji + kafelkow)."""
+    import yaml
+
+    from backend.paths import CONFIG
+
+    path = CONFIG / "mostek-orient.yaml"
+    if not path.exists():
+        return {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
 @dataclass
 class MostekLog:
     resolved: dict[str, int] = field(default_factory=dict)  # klasa -> licznik
