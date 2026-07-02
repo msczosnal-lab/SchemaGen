@@ -34,6 +34,85 @@ from backend.class_map import (
 )
 
 
+def _load_page_images(records: list[LabelRecord], raw_dir: Path) -> dict:
+    """page_id -> tablica obrazu (grayscale) dla rekordow z dostepnym PNG."""
+    from PIL import Image
+    import numpy as np
+
+    out: dict = {}
+    for rec in records:
+        src = find_raw_image(rec, raw_dir)
+        if src is not None:
+            out[rec.page_id] = np.asarray(Image.open(src).convert("L"))
+    return out
+
+
+def maybe_expand_mostek(records: list[LabelRecord], raw_dir: Path) -> dict | None:
+    """Przepisz tagi `mostek` -> orientacja (8 klas), jesli sa eksemplarze.
+
+    No-op (None) gdy brak katalogu eksemplarzy — degradacja do 1 klasy `mostek`.
+    """
+    from train.mostek_tiles import (
+        expand_mostek_orientations,
+        load_exemplars,
+        load_mostek_config,
+    )
+
+    cfg = load_mostek_config()
+    templates = load_exemplars(ROOT / cfg.get("exemplar_dir", "data/mostek_exemplars"))
+    if templates is None:
+        return None
+    images = _load_page_images(records, raw_dir)
+    return expand_mostek_orientations(records, images, templates).as_dict()
+
+
+def maybe_write_mostek_tiles(
+    train_records: list[LabelRecord],
+    out: Path,
+    raw_dir: Path,
+    class_map: dict[str, int],
+) -> int:
+    """Wygeneruj i zapisz syntetyczne kafelki orientacji mostka do splitu train."""
+    from train.mostek_tiles import (
+        build_class_id_map,
+        generate_tiles,
+        load_exemplars,
+        load_mostek_config,
+        write_tiles,
+    )
+
+    cfg = load_mostek_config()
+    templates = load_exemplars(ROOT / cfg.get("exemplar_dir", "data/mostek_exemplars"))
+    if templates is None:
+        return 0
+    tile_cfg = cfg.get("tile", {}) or {}
+    size, margin = int(tile_cfg.get("size", 96)), int(tile_cfg.get("margin", 8))
+    images = _load_page_images(train_records, raw_dir)
+    id_map = build_class_id_map(class_map)
+    written = 0
+    for rec in train_records:
+        page = images.get(rec.page_id)
+        if page is None:
+            continue
+        boxes = [
+            (b.x, b.y, b.width, b.height)
+            for b in rec.bboxes
+            if b.tag.startswith("mostek_")
+        ]
+        if boxes:
+            tiles = generate_tiles(
+                page, boxes, templates, tile_size=size, margin=margin
+            )
+            written += write_tiles(
+                tiles,
+                out / "images" / "train",
+                out / "labels" / "train",
+                f"mostek_tile_{rec.page_id}",
+                class_id_map=id_map,
+            )
+    return written
+
+
 def load_labeled_records() -> list[LabelRecord]:
     """Rekordy z adnotacjami z SQLite (bbox>0, pomijajac strony `test_*`)."""
     records: list[LabelRecord] = []
