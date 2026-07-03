@@ -75,3 +75,4 @@
 | 2026-07-03 21:15 | Claude | 49ac65a6 | [Claude] element_review: klik=usun (czerwona ramka), zmiana klasy=niebieska, checkbox przejrzana per klasa (localStorage) |
 | 2026-07-03 21:16 | Claude | 2479877d | [Claude] apply_reassign: auto-szukanie reassignments.json w ~/Downloads i CWD |
 | 2026-07-03 21:17 | Claude | 451a47d8 | [Claude] apply_reassign: auto-szukanie reassignments.json w ~/Downloads i CWD |
+| 2026-07-03 21:44 | Claude | f8eae437 | [Claude] scripts/check_export - diagnostyka rozjazdu wymiarow PNG vs record (boxy YOLO) |
