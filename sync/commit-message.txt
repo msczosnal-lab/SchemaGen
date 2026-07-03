@@ -1,1 +1,1 @@
-[Claude] check_export: walidacja pokrycia (box eksportu -> najblizszy GT), koniec falszywych alarmow po indeksie
+[Claude] check_export: usun zbedny import load_class_map, tylko wymiary + pokrycie GT
