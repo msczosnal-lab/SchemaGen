@@ -80,3 +80,4 @@
 | 2026-07-03 21:48 | Claude | f43dd709 | [Claude] check_export: walidacja pokrycia (box eksportu -> najblizszy GT), koniec falszywych alarmow po indeksie |
 | 2026-07-03 21:50 | Claude | 9f5d57d9 | [Claude] check_export: usun zbedny import load_class_map, tylko wymiary + pokrycie GT |
 | 2026-07-03 22:06 | Claude | 6d5dc47d | [Claude] dataset_export czysci stare images/labels (sieroty train<->val); check_export bierze split z obrazem, 8 passed |
+| 2026-07-03 21:56 | Claude | cff8c7da | [Claude] dataset_export czysci stare images/labels (sieroty train<->val); check_export bierze split z obrazem, 8 passed |

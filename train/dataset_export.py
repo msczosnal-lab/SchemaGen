@@ -120,6 +120,53 @@ def maybe_write_mostek_tiles(
     return written
 
 
+def maybe_expand_orientations(records: list[LabelRecord], raw_dir: Path) -> dict | None:
+    """Ogolna ekspansja orientacji dla klas z config/orient-classes.yaml
+    (mostek + inne). Brak eksemplarzy/obrazow -> None."""
+    from train.orient import build_galleries, expand_orientations, load_orient_config
+
+    cfg = load_orient_config()
+    if not build_galleries(cfg):
+        return None
+    images = _load_page_images(records, raw_dir)
+    if not images:
+        return None
+    return expand_orientations(records, images, cfg).as_dict()
+
+
+def maybe_write_orient_tiles(
+    train_records: list[LabelRecord],
+    out: Path,
+    raw_dir: Path,
+    class_map: dict[str, int],
+) -> int:
+    """Kafelki orbity dla wszystkich klas orientowanych (tag = podklasa)."""
+    from train.orient import generate_orient_tiles, load_orient_config, parse_orient_tag
+    from train.mostek_tiles import write_tiles
+
+    cfg = load_orient_config()
+    images = _load_page_images(train_records, raw_dir)
+    written = 0
+    for rec in train_records:
+        page = images.get(rec.page_id)
+        if page is None:
+            continue
+        boxes = [
+            (b.x, b.y, b.width, b.height, b.tag)
+            for b in rec.bboxes
+            if parse_orient_tag(b.tag, cfg)
+        ]
+        if not boxes:
+            continue
+        tiles = generate_orient_tiles(page, boxes, cfg)
+        mapped = [(t, class_map[n], bb) for (t, n, bb) in tiles if n in class_map]
+        written += write_tiles(
+            mapped, out / "images" / "train", out / "labels" / "train",
+            f"orient_tile_{rec.page_id}",
+        )
+    return written
+
+
 def load_labeled_records() -> list[LabelRecord]:
     """Rekordy z adnotacjami z SQLite (bbox>0, pomijajac strony `test_*`)."""
     records: list[LabelRecord] = []
@@ -236,7 +283,7 @@ def export_dataset(
     raw = raw_dir or RAW
     recs = records if records is not None else load_labeled_records()
     # Filar SYMBOLE: tag `mostek` -> orientacja (8 klas) PRZED budowa class_map.
-    mostek_log = maybe_expand_mostek(recs, raw)
+    orient_log = maybe_expand_orientations(recs, raw)
     palette_map = load_palette_map()
     exclude = load_yolo_exclude_classes()
     class_map, distribution = build_class_map(
@@ -265,7 +312,7 @@ def export_dataset(
     n_train = _write_split(train, out, "train", class_map, raw, palette_map)
     n_val = _write_split(val, out, "val", class_map, raw, palette_map)
     # Syntetyczne kafelki orientacji mostka -> tylko split train (balans klas).
-    n_mostek_tiles = maybe_write_mostek_tiles(train, out, raw, class_map)
+    n_orient_tiles = maybe_write_orient_tiles(train, out, raw, class_map)
 
     data_yaml = {
         "path": str(out.resolve()),
@@ -289,8 +336,9 @@ def export_dataset(
         "yolo_bboxes": sum(distribution.values()),
         "contextual_excluded": contextual_excluded,
         "num_classes": len(class_map),
-        "mostek_orient": mostek_log,
-        "mostek_tiles": n_mostek_tiles,
+        "orient": orient_log,
+        "orient_tiles": n_orient_tiles,
+        "mostek_orient": orient_log,
         "min_count": min_count,
         "excluded_classes": {
             c: n for c, n in distribution.items()
