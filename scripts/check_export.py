@@ -15,9 +15,16 @@ import argparse
 
 from PIL import Image
 
+from collections import Counter
+
 from backend.db import list_pages, load_annotation
 from backend.models.label import LabelRecord
 from backend.paths import LABELED, RAW
+from backend.class_map import (
+    load_class_map,
+    load_yolo_exclude_classes,
+    tag_to_class,
+)
 from labeler.export import find_raw_image, yolo_label_lines
 from train.dataset_export import load_labeled_records
 
@@ -77,28 +84,55 @@ def main() -> None:
             print(f"  [BLAD] {len(over)} bboxow WYCHODZI poza record.image "
                   f"(zly scale?) np. {over[:3]}")
 
-        # GT vs eksport
-        lines = yolo_label_lines(rec)
+        # rozbicie tagow: dlaczego bboxy nie trafiaja do YOLO
+        cmap = load_class_map()
+        excl = load_yolo_exclude_classes()
+        stat = Counter()
+        examples = {}
+        for b in rec.bboxes:
+            tag = (b.tag or "").strip()
+            cls = tag_to_class(tag)
+            if not tag:
+                key = "PUSTY TAG -> pomijany"
+            elif cls is None:
+                key = f"tag '{tag}' -> brak klasy"
+            elif cls in excl:
+                key = f"{cls} -> KONTEKSTOWA (poza YOLO)"
+            elif cls in cmap:
+                key = f"{cls} -> YOLO ok"
+            else:
+                key = f"{cls} -> BRAK w class_map (pomijany!)"
+            stat[key] += 1
+            examples.setdefault(key, tag)
+        print(f"  class_map ma {len(cmap)} klas. Rozbicie {len(rec.bboxes)} bboxow:")
+        for k, n in stat.most_common():
+            print(f"    {n:4d}  {k}")
+
+        # GT vs eksport (pokrycie: kazdy box eksportu -> najblizszy GT)
         lp, split = _label_path(pid)
         exp = lp.read_text(encoding="utf-8").strip().splitlines() if lp else []
-        print(f"  bboxy GT: {len(rec.bboxes)} | linie yolo (re-gen): {len(lines)} | "
-              f"plik eksportu [{split}]: {len(exp)}")
-        if lp and len(exp) != len(lines):
-            print(f"  [RYZYKO] plik eksportu != swiezo wygenerowane -> stary eksport, ponow dataset_export")
-
-        # pierwsze 3 boxy: GT piksel vs denorm z labelu na FAKTYCZNY PNG
-        if png_sz and exp:
-            pw, ph = png_sz
-            print("  kontrola 3 boxow (GT px vs label→PNG px):")
-            for i, ln in enumerate(exp[:3]):
-                c, cx, cy, bw, bh = ln.split()
-                dx = (float(cx) - float(bw) / 2) * pw
-                dy = (float(cy) - float(bh) / 2) * ph
-                dw = float(bw) * pw
-                dh = float(bh) * ph
-                g = rec.bboxes[i] if i < len(rec.bboxes) else None
-                gt = f"GT[{g.x:.0f},{g.y:.0f},{g.width:.0f},{g.height:.0f}]" if g else "GT[?]"
-                print(f"    #{i} label->PNG[{dx:.0f},{dy:.0f},{dw:.0f},{dh:.0f}]  {gt}")
+        print(f"  bboxy GT: {len(rec.bboxes)} | plik eksportu [{split}]: {len(exp)}")
+        if not png_sz or not exp:
+            continue
+        pw, ph = png_sz
+        gt_centers = [(b.x + b.width / 2, b.y + b.height / 2) for b in rec.bboxes]
+        worst = 0.0
+        far = 0
+        for ln in exp:
+            _c, cx, cy, bw, bh = ln.split()
+            ex = float(cx) * pw
+            ey = float(cy) * ph
+            d = min((((ex - gx) ** 2 + (ey - gy) ** 2) ** 0.5) for gx, gy in gt_centers) if gt_centers else 9e9
+            worst = max(worst, d)
+            if d > 30:
+                far += 1
+        avg_side = sum(b.width + b.height for b in rec.bboxes) / (2 * max(1, len(rec.bboxes)))
+        print(f"  pokrycie: {len(exp)-far}/{len(exp)} boxow trafia w GT (<30px), "
+              f"max odleglosc={worst:.0f}px (sredni bok obiektu ~{avg_side:.0f}px)")
+        if far == 0:
+            print("  [OK] eksport pokrywa sie z GT — boxy na miejscu.")
+        else:
+            print(f"  [BLAD] {far} boxow eksportu daleko od GT -> realne przesuniecie/skala")
 
 
 if __name__ == "__main__":
