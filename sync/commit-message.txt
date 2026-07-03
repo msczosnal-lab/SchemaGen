@@ -1,1 +1,1 @@
-[Claude] element_review: retag przez dropdown klas + usun (sentinel); apply_reassign obsluguje usuwanie + backup bazy
+[Claude] widocznosc linii: miniatury z kontrastem+pogrubieniem (_thumb), binarize Otsu lapie szare linie (mostek NCC), 33 passed

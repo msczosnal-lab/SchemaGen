@@ -10,14 +10,11 @@ Wynik: data/output/mostek_orient_preview.html
 from __future__ import annotations
 
 import argparse
-import base64
-import io
-
-from PIL import Image
 
 from backend.paths import RAW, ROOT
 from train.dataset_export import load_labeled_records, _load_page_images
 from train.mostek_orient import CLASS_NAMES, _as_gallery, classify_gallery
+from scripts._thumb import thumb_b64
 from train.mostek_tiles import (
     MOSTEK_TAG,
     crop_bbox,
@@ -27,15 +24,11 @@ from train.mostek_tiles import (
 )
 
 
-def _png_b64(arr) -> str:
-    buf = io.BytesIO()
-    Image.fromarray(arr).convert("L").save(buf, format="PNG")
-    return base64.b64encode(buf.getvalue()).decode()
-
-
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="ile pokazac (0=wszystko)")
+    ap.add_argument("--thumb", type=int, default=96)
+    ap.add_argument("--thicken", type=int, default=1)
     args = ap.parse_args()
 
     cfg = load_mostek_config()
@@ -72,8 +65,8 @@ def main() -> None:
         cells.append(
             f'<div style="display:inline-block;margin:4px;text-align:center;'
             f'font:11px monospace;border:1px solid #ddd;padding:3px">'
-            f'<img src="data:image/png;base64,{_png_b64(crop)}" '
-            f'style="height:64px;image-rendering:pixelated;background:#fff"><br>'
+            f'<img src="data:image/png;base64,{thumb_b64(crop, args.thumb, args.thicken)}" '
+            f'style="height:{args.thumb}px;image-rendering:pixelated;background:#fff"><br>'
             f'<b>{name[7:]}</b> <span style="color:{color}">{score:.2f}</span><br>'
             f'<span style="color:#888">stub={cr} {pid[-4:]}</span></div>'
         )

@@ -124,12 +124,43 @@ def _to_gray(img: np.ndarray) -> np.ndarray:
     return img.astype(np.float32)
 
 
+def _otsu_threshold(g: np.ndarray) -> float:
+    """Prog Otsu (0..255) — adaptacyjny podzial tlo/tusz. Lapie SZARE linie,
+    ktore prog srodkowy gubi w tle. Zwraca srodek plateau maksimum."""
+    hist, _ = np.histogram(g, bins=256, range=(0.0, 255.0))
+    total = g.size
+    sum_all = float((np.arange(256) * hist).sum())
+    sum_b = 0.0
+    w_b = 0
+    best_v = -1.0
+    lo_i = hi_i = 127
+    for i in range(256):
+        w_b += int(hist[i])
+        if w_b == 0:
+            continue
+        w_f = total - w_b
+        if w_f == 0:
+            break
+        sum_b += i * float(hist[i])
+        m_b = sum_b / w_b
+        m_f = (sum_all - sum_b) / w_f
+        v = w_b * w_f * (m_b - m_f) ** 2
+        if v > best_v + 1e-9:
+            best_v, lo_i, hi_i = v, i, i
+        elif abs(v - best_v) <= 1e-9:
+            hi_i = i
+    return (lo_i + hi_i) / 2.0
+
+
 def binarize(img: np.ndarray, thresh: float | None = None) -> np.ndarray:
-    """Tusz=1, tlo=0. Prog: podany albo srodek zakresu (schemat = wysoki kontrast)."""
+    """Tusz=1, tlo=0. Prog: podany, albo Otsu (adaptacyjny — lapie szare linie).
+
+    Degeneracja (jednolity crop): fallback na srodek zakresu.
+    """
     g = _to_gray(img)
     if thresh is None:
         lo, hi = float(g.min()), float(g.max())
-        thresh = (lo + hi) / 2.0
+        thresh = _otsu_threshold(g) if hi > lo else (lo + hi) / 2.0
     return (g < thresh).astype(np.float32)  # ciemny tusz -> 1
 
 

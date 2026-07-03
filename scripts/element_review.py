@@ -12,27 +12,21 @@ Wynik: data/output/element_review.html
 from __future__ import annotations
 
 import argparse
-import base64
 import io
-
-from PIL import Image
 
 from backend.paths import RAW, ROOT
 from backend.class_map import tag_to_class
 from train.dataset_export import load_labeled_records, _load_page_images
 from train.mostek_tiles import crop_bbox
-
-
-def _png_b64(arr) -> str:
-    buf = io.BytesIO()
-    Image.fromarray(arr).convert("L").save(buf, format="PNG")
-    return base64.b64encode(buf.getvalue()).decode()
+from scripts._thumb import thumb_b64
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--class", dest="cls", default="", help="filtr: tylko ten tag/klasa")
     ap.add_argument("--limit", type=int, default=0, help="max cropow (0=wszystko)")
+    ap.add_argument("--thumb", type=int, default=96, help="wysokosc miniatury px")
+    ap.add_argument("--thicken", type=int, default=1, help="ile razy pogrubic linie")
     args = ap.parse_args()
 
     recs = load_labeled_records()
@@ -69,8 +63,8 @@ def main() -> None:
             f'style="display:inline-block;margin:3px;text-align:center;'
             f'font:10px monospace;border:1px solid #ddd;padding:2px;vertical-align:top">'
             f'<input type="checkbox" class="del" value="{val}" onchange="upd()"><br>'
-            f'<img src="data:image/png;base64,{_png_b64(crop)}" '
-            f'style="height:56px;image-rendering:pixelated;background:#fff"><br>'
+            f'<img src="data:image/png;base64,{thumb_b64(crop, args.thumb, args.thicken)}" '
+            f'style="height:{args.thumb}px;image-rendering:pixelated;background:#fff"><br>'
             f'<b>{cls}</b><br><span style="color:#888">{pid[-4:]}</span></label>'
         )
 
