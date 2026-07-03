@@ -65,3 +65,4 @@
 =======
 | 2026-07-03 19:58 | Claude | 6ce3ced8 | [Claude] mostek: eksemplarze z 1-2 cropow (D4) + pad-do-kwadratu + zawsze-przypisz; auto jako fallback |
 >>>>>>> Stashed changes
+| 2026-07-03 20:29 | Claude | 4130490e | [Claude] mostek: wiele grup eksemplarzy (mostek1/mostek2 -> 8 klas), galeria dopasowania |
