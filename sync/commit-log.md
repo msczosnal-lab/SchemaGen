@@ -71,3 +71,4 @@
 | 2026-07-03 20:52 | Claude | bc19aa40 | [Claude] element_review: retag przez dropdown klas + usun (sentinel); apply_reassign obsluguje usuwanie + backup bazy |
 | 2026-07-03 21:01 | Claude | 6c29d48e | [Claude] widocznosc linii: miniatury z kontrastem+pogrubieniem (_thumb), binarize Otsu lapie szare linie (mostek NCC), 33 passed |
 | 2026-07-03 21:03 | Claude | 1eb5f365 | [Claude] fix import _thumb (uruchamianie python scripts/x.py bez pakietu scripts) |
+| 2026-07-03 21:07 | Claude | 1caa0c2a | [Claude] element_review: przywrocony dropdown klasy per crop (retag) + usun; miniatury _thumb; import odporny |

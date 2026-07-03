@@ -1,1 +1,1 @@
-[Claude] element_review: przywrocony dropdown klasy per crop (retag) + usun; miniatury _thumb; import odporny
+[Claude] element_review: klik=usun (czerwona ramka), zmiana klasy=niebieska, checkbox przejrzana per klasa (localStorage)

@@ -1,12 +1,14 @@
-"""Przegladarka WSZYSTKICH oznaczonych elementow: retag lub usun (nie marnuj bboxow).
+"""Przegladarka WSZYSTKICH oznaczonych elementow: retag / usun / oznacz przejrzane.
 
-Crop + strona + <select> klasy (aktualna wybrana) + opcja "usun". Filtr po klasie,
-licznik zmian, przycisk pobrania `reassignments.json` (format apply_reassign.py):
-    [{"page_id","bbox_id","old","new_tag"}, ...]   (new_tag="__DELETE__" = usun)
+Interakcja:
+  - KLIK w crop  -> ramka CZERWONA = do usuniecia (klik ponownie cofa),
+  - zmiana klasy w <select> -> ramka NIEBIESKA = retag (kasuje ew. usuniecie),
+  - checkbox przy nazwie klasy (filtr) -> "przejrzana" (zapis w localStorage).
+Pobierz `reassignments.json` (format apply_reassign.py):
+    [{"page_id","bbox_id","old","new_tag"}]   new_tag="__DELETE__" = usun
 
-    python scripts/element_review.py
-    python scripts/element_review.py --class mostek
     python scripts/element_review.py --thumb 120 --thicken 2
+    python scripts/element_review.py --class mostek
 Wynik: data/output/element_review.html -> potem scripts/apply_reassign.py
 """
 from __future__ import annotations
@@ -37,7 +39,7 @@ def main() -> None:
     recs = load_labeled_records()
     imgs = _load_page_images(recs, RAW)
 
-    items = []  # (klasa, page_id, bbox_id, crop)
+    items = []
     seen_classes = set()
     for rec in recs:
         page = imgs.get(rec.page_id)
@@ -61,61 +63,94 @@ def main() -> None:
     dropdown = sorted(set(palette_order()) | set(MOSTEK_CLASSES) | seen_classes)
     filt_classes = sorted({it[0] for it in items})
     filter_btns = "".join(
-        f'<button onclick="flt(\'{c}\')">{c}</button> ' for c in filt_classes
+        f'<span class="fbtn" data-c="{c}"><button onclick="flt(\'{c}\')">{c}</button>'
+        f'<input type="checkbox" class="fchk" data-c="{c}" onchange="rev(this)" '
+        f'title="przejrzana"></span> '
+        for c in filt_classes
     )
 
     cells = []
     for cls, pid, bid, crop in items:
         cells.append(
-            f'<div class="cell" data-cls="{cls}" '
-            f'style="display:inline-block;margin:3px;text-align:center;'
-            f'font:10px monospace;border:1px solid #ddd;padding:2px;vertical-align:top">'
-            f'<img src="data:image/png;base64,{thumb_b64(crop, args.thumb, args.thicken)}" '
+            f'<div class="cell" data-cls="{cls}" data-del="0">'
+            f'<img onclick="toggleDel(this)" src="data:image/png;base64,'
+            f'{thumb_b64(crop, args.thumb, args.thicken)}" '
             f'style="height:{args.thumb}px;image-rendering:pixelated;background:#fff"><br>'
             f'<span style="color:#888">{pid[-4:]}</span><br>'
             f'<select class="cs" data-pid="{pid}" data-bid="{bid}" '
-            f'data-orig="{cls}" onchange="upd()"></select></div>'
+            f'data-orig="{cls}" onchange="onsel(this)"></select></div>'
         )
 
     html = f"""<html><head><meta charset="utf-8"><style>
-button{{margin:2px;cursor:pointer}} #bar{{position:sticky;top:0;background:#fff;
-padding:8px;border-bottom:2px solid #333;z-index:9}} select{{font:10px monospace;max-width:110px}}
-.chg select{{background:#fff3cd}} .del select{{background:#f8d7da}}</style></head><body>
+button{{margin:1px;cursor:pointer}} #bar{{position:sticky;top:0;background:#fff;
+padding:8px;border-bottom:2px solid #333;z-index:9}}
+.cell{{display:inline-block;margin:3px;text-align:center;font:10px monospace;
+border:3px solid #ddd;padding:2px;vertical-align:top;border-radius:4px}}
+.cell img{{cursor:pointer}} select{{font:10px monospace;max-width:110px}}
+.cell.chg{{border-color:#2563eb;background:#e8f0fe}}
+.cell.del{{border-color:#c0392b;background:#fde8e8}}
+.fbtn.done button{{background:#c8f7c5;text-decoration:line-through}}</style></head><body>
 <div id="bar">
   <b>Elementy: {len(items)}</b> &nbsp; zmian: <span id="cnt">0</span>
+  &nbsp; przejrzano klas: <span id="revcnt">0</span>/{len(filt_classes)}
   &nbsp;<button onclick="dl()">Pobierz reassignments.json</button>
-  &nbsp;<button onclick="rst()">Cofnij wszystkie</button><br>
+  &nbsp;<button onclick="rst()">Cofnij zmiany</button><br>
   Filtr: <button onclick="flt('')">[wszystkie]</button> {filter_btns}
 </div>
 <div id="grid">{''.join(cells)}</div>
 <script>
 const CLASSES={json.dumps(dropdown, ensure_ascii=False)};
 const DEL="__DELETE__";
+const RKEY="schemagen_reviewed:"+location.pathname;
+let REV=new Set(JSON.parse(localStorage.getItem(RKEY)||"[]"));
+// wypelnij dropdowny
 document.querySelectorAll('.cs').forEach(s=>{{
   const orig=s.dataset.orig; let h='';
   if(!CLASSES.includes(orig)) h+=`<option value="${{orig}}">${{orig}}</option>`;
   for(const c of CLASSES) h+=`<option value="${{c}}">${{c}}</option>`;
-  h+=`<option value="${{DEL}}">🗑 usun</option>`;
   s.innerHTML=h; s.value=orig;
 }});
+// przywroc "przejrzane"
+document.querySelectorAll('.fchk').forEach(cb=>{{
+  if(REV.has(cb.dataset.c)){{cb.checked=true; cb.closest('.fbtn').classList.add('done');}}
+}});
+updRev();
+function state(cell){{
+  if(cell.dataset.del==='1') return 'del';
+  const s=cell.querySelector('.cs');
+  if(s.value!==s.dataset.orig) return 'chg';
+  return '';
+}}
 function upd(){{
   let n=0;
-  document.querySelectorAll('.cs').forEach(s=>{{
-    const cell=s.closest('.cell'); const chg=s.value!==s.dataset.orig;
-    cell.classList.toggle('chg',chg && s.value!==DEL);
-    cell.classList.toggle('del',s.value===DEL);
-    if(chg) n++;
+  document.querySelectorAll('.cell').forEach(cell=>{{
+    const st=state(cell);
+    cell.classList.toggle('del',st==='del');
+    cell.classList.toggle('chg',st==='chg');
+    if(st) n++;
   }});
   document.getElementById('cnt').innerText=n;
 }}
-function rst(){{document.querySelectorAll('.cs').forEach(s=>s.value=s.dataset.orig);upd();}}
+function toggleDel(img){{const c=img.closest('.cell');
+  c.dataset.del=c.dataset.del==='1'?'0':'1'; upd();}}
+function onsel(s){{s.closest('.cell').dataset.del='0'; upd();}}  // zmiana klasy kasuje usuniecie
+function rst(){{document.querySelectorAll('.cell').forEach(c=>{{
+  c.dataset.del='0'; const s=c.querySelector('.cs'); s.value=s.dataset.orig;}}); upd();}}
+function rev(cb){{const c=cb.dataset.c;
+  if(cb.checked)REV.add(c); else REV.delete(c);
+  localStorage.setItem(RKEY,JSON.stringify([...REV]));
+  cb.closest('.fbtn').classList.toggle('done',cb.checked); updRev();}}
+function updRev(){{document.getElementById('revcnt').innerText=REV.size;}}
 function flt(c){{document.querySelectorAll('.cell').forEach(e=>{{
   e.style.display=(!c||e.dataset.cls===c)?'inline-block':'none';}});}}
 function dl(){{
   const out=[];
-  document.querySelectorAll('.cs').forEach(s=>{{
-    if(s.value!==s.dataset.orig) out.push({{page_id:s.dataset.pid,
-      bbox_id:s.dataset.bid, old:s.dataset.orig, new_tag:s.value}});
+  document.querySelectorAll('.cell').forEach(cell=>{{
+    const s=cell.querySelector('.cs'); let nt=null;
+    if(cell.dataset.del==='1') nt=DEL;
+    else if(s.value!==s.dataset.orig) nt=s.value;
+    if(nt!==null) out.push({{page_id:s.dataset.pid,bbox_id:s.dataset.bid,
+      old:s.dataset.orig,new_tag:nt}});
   }});
   const blob=new Blob([JSON.stringify(out)],{{type:'application/json'}});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
