@@ -1,1 +1,1 @@
-[Claude] widocznosc linii: miniatury z kontrastem+pogrubieniem (_thumb), binarize Otsu lapie szare linie (mostek NCC), 33 passed
+[Claude] fix import _thumb (uruchamianie python scripts/x.py bez pakietu scripts)

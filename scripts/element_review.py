@@ -18,7 +18,10 @@ from backend.paths import RAW, ROOT
 from backend.class_map import tag_to_class
 from train.dataset_export import load_labeled_records, _load_page_images
 from train.mostek_tiles import crop_bbox
-from scripts._thumb import thumb_b64
+try:
+    from scripts._thumb import thumb_b64
+except ModuleNotFoundError:
+    from _thumb import thumb_b64
 
 
 def main() -> None:

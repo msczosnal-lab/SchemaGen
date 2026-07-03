@@ -69,3 +69,4 @@
 | 2026-07-03 20:38 | Claude | 80eb2a6d | [Claude] mostek: scripts/mostek_preview_orient - wzrokowa weryfikacja przypisania orientacji |
 | 2026-07-03 20:46 | Claude | 75af1593 | [Claude] narzedzia QA: element_review (przegladarka wszystkich elementow + zaznaczanie) + apply_delete (usuwanie z bazy, dry-run/apply/backup) |
 | 2026-07-03 20:52 | Claude | bc19aa40 | [Claude] element_review: retag przez dropdown klas + usun (sentinel); apply_reassign obsluguje usuwanie + backup bazy |
+| 2026-07-03 21:01 | Claude | 6c29d48e | [Claude] widocznosc linii: miniatury z kontrastem+pogrubieniem (_thumb), binarize Otsu lapie szare linie (mostek NCC), 33 passed |

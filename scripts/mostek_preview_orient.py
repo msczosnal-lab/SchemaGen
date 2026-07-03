@@ -14,7 +14,10 @@ import argparse
 from backend.paths import RAW, ROOT
 from train.dataset_export import load_labeled_records, _load_page_images
 from train.mostek_orient import CLASS_NAMES, _as_gallery, classify_gallery
-from scripts._thumb import thumb_b64
+try:
+    from scripts._thumb import thumb_b64
+except ModuleNotFoundError:
+    from _thumb import thumb_b64
 from train.mostek_tiles import (
     MOSTEK_TAG,
     crop_bbox,
