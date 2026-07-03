@@ -7,8 +7,8 @@
     2. jesli jestesmy behind -> rebase --autostash na origin/<branch>
     3. jesli sa niezacommitowane zmiany -> add + commit (sync/commit-message.txt lub auto[<TAG>])
     4. push (jesli ahead)
-    5. heartbeat w konsoli + wykrycie commitu drugiego komputera
-    6. zapis statusu do sync/.status-<TAG>.json
+    5. log TYLKO przy zdarzeniach (NOWE/PULL/COMMIT/PUSH/KONFLIKT/BLAD)
+    6. zapis statusu do sync/.status-<TAG>.json (cicho)
 
   Tryb -PushOnNamedOnly (dla PC ZW / Claude):
     Cyklicznie tylko POBIERA (fetch + rebase --autostash) i trzyma repo w zgodzie
@@ -27,7 +27,7 @@
 param(
     [string]$RepoPath   = "C:\Users\ZW\Desktop\prywatne\automatyzacja\KodKlon\SchemaGen",
     [string]$Branch     = "main",
-    [int]   $IntervalSec = 10,
+    [int]   $IntervalSec = 5,
     [Parameter(Mandatory=$true)][string]$MachineTag,
     [switch]$Toast,
     [switch]$Once,
@@ -81,6 +81,7 @@ Log "Start daemona [$MachineTag], branch=$Branch, interval=${IntervalSec}s"
 Log "Repo: $RepoPath"
 
 $lastRemote = ""
+$pullOnlyNoted = $false
 
 do {
     try {
@@ -120,13 +121,19 @@ do {
         if ($dirty) {
             $pending = Get-PendingCommitMessage -RepoPath $RepoPath
             if ($PushOnNamedOnly -and -not $pending) {
-                Log "[PULL-ONLY] zmiany lokalne bez nazwanego commita - pomijam commit/push. Ustaw sync/commit-message.txt ([Claude] opis), aby wyslac."
+                if (-not $pullOnlyNoted) {
+                    Log "[PULL-ONLY] zmiany lokalne - czekam na nazwany commit (sync/commit-message.txt: [Claude] opis)."
+                    $pullOnlyNoted = $true
+                }
             } else {
                 $result = Invoke-GitSyncCommit -RepoPath $RepoPath -MachineTag $MachineTag
                 if ($result.Ok) {
                     Log "[COMMIT] $($result.Message)"
+                    $pullOnlyNoted = $false
                 }
             }
+        } else {
+            $pullOnlyNoted = $false
         }
 
         $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
@@ -159,14 +166,6 @@ do {
         if ($rh) { $rh = $rh.Trim() }
         $ahead  = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
         $behind = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
-        $mode = if ($PushOnNamedOnly) { " pull-only" } else { "" }
-        $hb = "{0}  czuwam [{1}{6}]  local={2} remote={3} ahead={4} behind={5}" -f (Get-Date -Format "HH:mm:ss"), $MachineTag, $lh, $rh, $ahead, $behind, $mode
-        if ($lh -eq $rh) {
-            Write-Host $hb -ForegroundColor DarkGray
-        } else {
-            Write-Host $hb -ForegroundColor Yellow
-        }
-
         $status = [ordered]@{
             machine    = $MachineTag
             time       = (Get-Date -Format "o")

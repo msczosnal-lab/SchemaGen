@@ -1,1 +1,1 @@
-[Claude] SYMBOLE: orientacja mostka z bboxow (auto C4 + kafelki D4), 190 passed
+[Claude] GitSync: cykl 5s, log tylko przy zdarzeniach, PULL-ONLY bez spamu
