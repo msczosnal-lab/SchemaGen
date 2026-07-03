@@ -1,1 +1,1 @@
-[Claude] GitSync: cykl 5s, log tylko przy zdarzeniach, PULL-ONLY bez spamu
+[Claude] mostek auto: bramka 3-stubow tylko diagnostyczna (nie odrzuca klasteryzacji)

@@ -54,3 +54,4 @@
 | 2026-06-28 21:05 | Claude | 41cc4820 | [Claude] sesja 2026-06-28: net-builder zwalidowany + clear_gt_connections; bloker = detekcja listwy |
 | 2026-06-28 21:21 | Claude | 22560d77 | [Claude] symbole: klasy listwy w YOLO (prompt 011) — zlaczka/mostek atomic, paleta, testy eksportu |
 | 2026-07-02 22:46 | Claude | f527c9f7 | [Claude] SYMBOLE: orientacja mostka — 8 klas D4 + kafelki + eksemplarz (prompt 012), 188 passed |
+| 2026-07-03 19:43 | Claude | dd3ad933 | [Claude] GitSync: cykl 5s, log tylko przy zdarzeniach, PULL-ONLY bez spamu |

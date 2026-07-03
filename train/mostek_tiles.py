@@ -154,9 +154,13 @@ def expand_mostek_orientations_auto(records, images_by_page, size=48, log=None):
     log.mode = "auto"
     good = []  # (bbox, crop)
     for _rec, b, crop in _iter_mostek_bboxes(records, images_by_page, log):
+        if crop.size == 0:
+            log.no_image += 1
+            continue
+        # bramka 3-stubow tylko DIAGNOSTYCZNIE (nie odrzuca) — klasteryzacja
+        # orientacji dziala niezaleznie od dokladnej ciasnosci bboxa.
         if count_edge_crossings(crop) != 3:
             log.skipped_crossings += 1
-            continue
         good.append((b, crop))
     if not good:
         return log
