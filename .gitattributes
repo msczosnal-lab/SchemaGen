@@ -13,3 +13,8 @@
 *.pt   binary
 *.elmt binary
 *.ico  binary
+
+# Logi append-only synchronizacji: auto-scalanie obu stron (koniec konfliktow rebase).
+sync/commit-log.md   merge=union
+sync/zw-to-filip.md  merge=union
+sync/filip-to-zw.md  merge=union

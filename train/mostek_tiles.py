@@ -28,7 +28,7 @@ from train.mostek_orient import (
     D4,
     assign_orientations_auto,
     augment_d4,
-    classify_crop,
+    classify_gallery,
     count_edge_crossings,
 )
 
@@ -91,24 +91,41 @@ def _orbit_from_base(r0: np.ndarray, m0: np.ndarray) -> list:
     return out
 
 
-def load_exemplars(exemplar_dir: Path) -> "list[np.ndarray] | None":
-    """Eksemplarze (kolejnosc CLASS_NAMES). Priorytet:
-      1) komplet 8 plikow (mostek_r0..mostek_m270),
-      2) mostek_r0 + mostek_m0 -> generuj 8 przez D4 (rekomendowane, 2 cropy),
-      3) sam mostek_r0 -> m0 = lustro(r0), generuj 8 (1 crop).
-    Brak -> None (tryb auto)."""
+def load_exemplars(exemplar_dir: Path) -> "list | None":
+    """Galeria wzorcow [(obraz, klasa_idx 0..7)]. Obsluguje WIELE grup (styli
+    rysunku), kazda zwijana do tych samych 8 klas orientacji.
+
+    Rozpoznawanie plikow (dowolny prefix P, np. `mostek`, `mostek1`, `mostek2`):
+      - P_r0 (+ opcjonalnie P_m0)  -> 8 wzorcow przez D4 (m0 = lustro(r0) gdy brak),
+      - komplet P_r0..P_m270       -> uzyte wprost.
+    Kilka grup -> wzorce sie sumuja (dopasowanie do najlepszego). Brak -> None."""
     if not exemplar_dir or not Path(exemplar_dir).exists():
         return None
-    full = [_find_exemplar(exemplar_dir, n) for n in CLASS_NAMES]
-    if all(x is not None for x in full):
-        return full
-    r0 = _find_exemplar(exemplar_dir, "mostek_r0")
-    if r0 is None:
-        return None
-    m0 = _find_exemplar(exemplar_dir, "mostek_m0")
-    if m0 is None:
-        m0 = np.fliplr(r0)
-    return _orbit_from_base(r0, m0)
+    ed = Path(exemplar_dir)
+    # prefiksy grup: pliki konczace sie na _r0.<ext>
+    prefixes = []
+    for f in sorted(ed.iterdir()):
+        n = f.name.lower()
+        for ext in (".png", ".jpg", ".jpeg"):
+            if n.endswith("_r0" + ext):
+                prefixes.append(f.name[: -len("_r0" + ext)])
+    gallery: list = []
+    for pref in prefixes:
+        # pelny komplet 8 dla tego prefixu?
+        full = [_find_exemplar(ed, f"{pref}_{suf}") for suf in
+                ("r0", "r90", "r180", "r270", "m0", "m90", "m180", "m270")]
+        if all(x is not None for x in full):
+            gallery += [(full[i], i) for i in range(8)]
+            continue
+        r0 = _find_exemplar(ed, f"{pref}_r0")
+        if r0 is None:
+            continue
+        m0 = _find_exemplar(ed, f"{pref}_m0")
+        if m0 is None:
+            m0 = np.fliplr(r0)
+        orbit = _orbit_from_base(r0, m0)
+        gallery += [(orbit[i], i) for i in range(8)]
+    return gallery or None
 
 
 def crop_bbox(page: np.ndarray, x: float, y: float, w: float, h: float) -> np.ndarray:
@@ -128,8 +145,10 @@ def resolve_orientation(
     """Tryb eksemplarzy: crop -> (nazwa, score, liczba_stubow). ZAWSZE najlepsza
     klasa (argmax NCC) — nie gubimy mostkow. Niska pewnosc / zle stuby raportowane
     w logu, ale przypisanie i tak nastepuje (D4-kafelki dominuja w treningu)."""
+    from train.mostek_orient import _as_gallery
+
     crossings = count_edge_crossings(crop)
-    idx, score = classify_crop(crop, templates)
+    idx, score = classify_gallery(crop, _as_gallery(templates))
     return CLASS_NAMES[idx], score, crossings
 
 

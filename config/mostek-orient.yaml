@@ -25,6 +25,8 @@ classes:
 # Tag generyczny z labelera, ktory podlega ekspansji na orientacje.
 source_tag: mostek
 
+#   0) WIELE stylow rysunku: prefiksy P_r0/P_m0 (np. mostek1_r0, mostek2_r0)
+#      -> wszystkie zwijane do tych samych 8 klas (dopasowanie do najlepszego).
 # ZRODLO ORIENTACJI (priorytet od gory):
 #   1) mostek_r0.png + mostek_m0.png  -> kod generuje 8 orientacji przez D4
 #      (REKOMENDOWANE: 2 czyste, ciasne cropy - baza + jej lustro),

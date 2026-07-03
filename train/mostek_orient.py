@@ -166,6 +166,34 @@ def _ncc(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(av, bv) / (da * db))
 
 
+def _as_gallery(templates: list) -> list:
+    """Znormalizuj do galerii [(obraz, klasa_idx)].
+
+    Akceptuje: list[np.ndarray] dlugosci 8 (idx = klasa) LUB juz [(img, idx)].
+    Dzieki temu dziala jeden zestaw wzorcow i WIELE grup (2 style rysunku ->
+    16 wzorcow, kazdy zmapowany na jedna z 8 klas orientacji).
+    """
+    if templates and isinstance(templates[0], tuple):
+        return templates
+    return [(t, i) for i, t in enumerate(templates)]
+
+
+def classify_gallery(
+    crop: np.ndarray,
+    gallery: list,
+    size: int = 48,
+) -> tuple[int, float]:
+    """Crop -> (klasa_idx, score) przez dopasowanie do najlepszego wzorca w galerii
+    [(img, klasa_idx)]. Wiele wzorcow na klase (rozne style) dozwolone."""
+    cb = _resize_bin(crop, size)
+    best_idx, best_s = 0, -2.0
+    for img, cls in gallery:
+        s = _ncc(cb, _resize_bin(img, size))
+        if s > best_s:
+            best_idx, best_s = int(cls), s
+    return best_idx, float(best_s)
+
+
 def classify_crop(
     crop: np.ndarray,
     templates: list[np.ndarray],
