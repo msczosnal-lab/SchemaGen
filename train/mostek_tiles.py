@@ -1,22 +1,19 @@
 # COWORK_TASK: sync/prompts/012-mostek-orientacja.md
 """Kafelki syntetyczne + ekspansja orientacji mostka (integracja z eksportem).
 
-Strategia (decyzja Filipa 2026-07-02): detektor 8-klasowy zwraca orientacje.
-Pipeline eksportu dziala na CALYCH stronach — augmentacja D4 na cropie wchodzi
-jako dodatkowe MALE obrazy (kafelki), nie przez obrot stron.
+Detektor 8-klasowy zwraca orientacje. Pipeline eksportu dziala na CALYCH stronach
+— augmentacja D4 wchodzi jako male obrazy (kafelki), nie przez obrot stron.
 
-Dwa punkty integracji, oba NIE ruszaja backend/class_map.py:
+Zrodlo orientacji (dwa tryby, auto ma priorytet gdy brak eksemplarzy):
+  A) AUTO z bboxow (domyslny) — orientacje wyprowadzamy z samych oznaczonych
+     cropow mostka (assign_orientations_auto, kanonikalizacja C4 + 2 rodziny
+     chiralnosci). Zero recznych eksemplarzy.
+  B) EKSEMPLARZE — 8 czystych cropow w data/mostek_exemplars/ (opcjonalny
+     override, gdy auto myli warianty rysunku).
 
-1. expand_mostek_orientations — przed budowa class_map przepisuje tag mostka
-   `mostek` -> `mostek_rXX` (klasyfikacja eksemplarzem z pikseli strony). Dalej
-   caly pipeline dziala bez zmian. Niepewne (stuby != 3 albo score < prog) ->
-   tag zostaje `mostek` + wpis w logu.
-
-2. generate_tiles / write_tiles — z realnych cropow generuje 8 orientacji D4 na
-   tle probkowanym ze strony, jako extra obrazy train (balans klas).
-
-Eksemplarze: 8 czystych cropow w data/mostek_exemplars/ (nazwa pliku = nazwa
-klasy). Brak kompletu -> modul no-op (degradacja do pojedynczej klasy `mostek`).
+Oba tryby przepisuja tag `mostek` -> `mostek_rXX` PRZED build_class_map, wiec
+reszta pipeline'u (class_map, yolo_label_lines) dziala bez zmian. Picker labelera
+bez zmian. Niepewne / bbox != 3 stuby -> tag zostaje `mostek` + log.
 """
 
 from __future__ import annotations
@@ -29,12 +26,13 @@ import numpy as np
 from train.mostek_orient import (
     CLASS_NAMES,
     D4,
+    assign_orientations_auto,
     augment_d4,
     classify_crop,
     count_edge_crossings,
 )
 
-MIN_SCORE = 0.55  # prog NCC — ponizej: orientacja niepewna -> generyczny mostek
+MIN_SCORE = 0.55  # prog NCC (tryb eksemplarzy) — ponizej: orientacja niepewna
 MOSTEK_TAG = "mostek"
 
 
@@ -52,14 +50,18 @@ def load_mostek_config() -> dict:
 
 @dataclass
 class MostekLog:
-    resolved: dict[str, int] = field(default_factory=dict)  # klasa -> licznik
+    resolved: dict = field(default_factory=dict)  # klasa -> licznik
     skipped_crossings: int = 0
     skipped_lowscore: int = 0
     no_image: int = 0
     tiles: int = 0
+    mode: str = ""
+    families: int = 0
 
     def as_dict(self) -> dict:
         return {
+            "mode": self.mode,
+            "families": self.families,
             "resolved": self.resolved,
             "skipped_crossings": self.skipped_crossings,
             "skipped_lowscore": self.skipped_lowscore,
@@ -68,13 +70,13 @@ class MostekLog:
         }
 
 
-def load_exemplars(exemplar_dir: Path) -> list[np.ndarray] | None:
-    """8 eksemplarzy (kolejnosc CLASS_NAMES). Brak kompletu -> None (no-op)."""
+def load_exemplars(exemplar_dir: Path) -> "list[np.ndarray] | None":
+    """8 eksemplarzy (kolejnosc CLASS_NAMES). Brak kompletu -> None."""
     if not exemplar_dir or not Path(exemplar_dir).exists():
         return None
     from PIL import Image
 
-    out: list[np.ndarray] = []
+    out: list = []
     for name in CLASS_NAMES:
         hit = None
         for ext in (".png", ".jpg", ".jpeg"):
@@ -83,7 +85,7 @@ def load_exemplars(exemplar_dir: Path) -> list[np.ndarray] | None:
                 hit = p
                 break
         if hit is None:
-            return None  # niepelny komplet -> bezpieczny no-op
+            return None
         out.append(np.asarray(Image.open(hit).convert("L")))
     return out
 
@@ -100,12 +102,9 @@ def crop_bbox(page: np.ndarray, x: float, y: float, w: float, h: float) -> np.nd
 
 def resolve_orientation(
     crop: np.ndarray,
-    templates: list[np.ndarray],
-) -> tuple[str | None, float, int]:
-    """Crop -> (nazwa_klasy | None, score, liczba_stubow).
-
-    None gdy stuby != 3 (bbox zly) albo score < MIN_SCORE (orientacja niepewna).
-    """
+    templates: list,
+) -> tuple:
+    """Tryb eksemplarzy: crop -> (nazwa|None, score, liczba_stubow)."""
     crossings = count_edge_crossings(crop)
     if crossings != 3:
         return None, 0.0, crossings
@@ -115,17 +114,8 @@ def resolve_orientation(
     return CLASS_NAMES[idx], score, crossings
 
 
-def expand_mostek_orientations(
-    records: list,
-    images_by_page: dict,
-    templates: list[np.ndarray],
-    log: "MostekLog | None" = None,
-) -> "MostekLog":
-    """In-place: tag `mostek` -> `mostek_rXX` na podstawie cropa strony.
-
-    Niepewne -> tag zostaje `mostek` (trening generyczny) + log. Zwraca log.
-    """
-    log = log or MostekLog()
+def _iter_mostek_bboxes(records, images_by_page, log):
+    """Wspolne: iteruj (rec, bbox, crop) dla tagow `mostek` z dostepnym obrazem."""
     for rec in records:
         page = images_by_page.get(rec.page_id)
         for b in rec.bboxes:
@@ -134,16 +124,50 @@ def expand_mostek_orientations(
             if page is None:
                 log.no_image += 1
                 continue
-            crop = crop_bbox(page, b.x, b.y, b.width, b.height)
-            name, _score, crossings = resolve_orientation(crop, templates)
-            if name is None:
-                if crossings != 3:
-                    log.skipped_crossings += 1
-                else:
-                    log.skipped_lowscore += 1
-                continue
-            b.tag = name
-            log.resolved[name] = log.resolved.get(name, 0) + 1
+            yield rec, b, crop_bbox(page, b.x, b.y, b.width, b.height)
+
+
+def expand_mostek_orientations(records, images_by_page, templates, log=None):
+    """Tryb EKSEMPLARZE: tag `mostek` -> `mostek_rXX` przez dopasowanie do 8 wzorcow."""
+    log = log or MostekLog()
+    log.mode = "exemplar"
+    for _rec, b, crop in _iter_mostek_bboxes(records, images_by_page, log):
+        name, _score, crossings = resolve_orientation(crop, templates)
+        if name is None:
+            if crossings != 3:
+                log.skipped_crossings += 1
+            else:
+                log.skipped_lowscore += 1
+            continue
+        b.tag = name
+        log.resolved[name] = log.resolved.get(name, 0) + 1
+    return log
+
+
+def expand_mostek_orientations_auto(records, images_by_page, size=48, log=None):
+    """Tryb AUTO: orientacje wyprowadzone z samych bboxow (bez eksemplarzy).
+
+    Do klasteryzacji ida tylko cropy z DOKLADNIE 3 stubami (czyste bboxy);
+    reszta -> tag zostaje `mostek` + log skip.
+    """
+    log = log or MostekLog()
+    log.mode = "auto"
+    good = []  # (bbox, crop)
+    for _rec, b, crop in _iter_mostek_bboxes(records, images_by_page, log):
+        if count_edge_crossings(crop) != 3:
+            log.skipped_crossings += 1
+            continue
+        good.append((b, crop))
+    if not good:
+        return log
+    names, diag = assign_orientations_auto([c for _b, c in good], size=size)
+    log.families = diag.get("families", 0)
+    for (b, _crop), name in zip(good, names):
+        if name is None:
+            log.skipped_lowscore += 1
+            continue
+        b.tag = name
+        log.resolved[name] = log.resolved.get(name, 0) + 1
     return log
 
 
@@ -156,27 +180,34 @@ def _sample_background(page: np.ndarray, size: int) -> np.ndarray:
 def generate_tiles(
     page: np.ndarray,
     mostek_bboxes: list,
-    templates: list[np.ndarray],
+    templates: "list | None" = None,
+    src_classes: "list | None" = None,
     tile_size: int = 96,
     margin: int = 8,
-    log: "MostekLog | None" = None,
+    log=None,
 ) -> list:
     """Dla kazdego realnego mostka -> 8 kafelkow D4.
 
-    Zwraca liste (obraz_kafelka, indeks_klasy, bbox_norm [cx,cy,w,h]).
+    Zrodlo klasy zrodlowej: `src_classes[i]` (indeks 0..7, np. z tagu) albo
+    dopasowanie do `templates`. Zwraca (obraz_kafelka, indeks_klasy, bbox_norm).
     """
     log = log or MostekLog()
     out: list = []
-    for (x, y, w, h) in mostek_bboxes:
+    for i, (x, y, w, h) in enumerate(mostek_bboxes):
         crop = crop_bbox(page, x, y, w, h)
-        name, _s, crossings = resolve_orientation(crop, templates)
-        if name is None:
-            if crossings != 3:
-                log.skipped_crossings += 1
-            else:
-                log.skipped_lowscore += 1
+        if src_classes is not None:
+            src_idx = src_classes[i]
+        elif templates is not None:
+            name, _s, crossings = resolve_orientation(crop, templates)
+            if name is None:
+                if crossings != 3:
+                    log.skipped_crossings += 1
+                else:
+                    log.skipped_lowscore += 1
+                continue
+            src_idx = CLASS_NAMES.index(name)
+        else:
             continue
-        src_idx = CLASS_NAMES.index(name)
         for timg, cls in augment_d4(crop, src_idx):
             tile = _sample_background(page, tile_size)
             th, tw = timg.shape[:2]
@@ -188,9 +219,7 @@ def generate_tiles(
                 scale = max_in / max(th, tw)
                 nh, nw = max(1, int(th * scale)), max(1, int(tw * scale))
                 gray = np.asarray(
-                    Image.fromarray(gray.astype(np.uint8)).resize(
-                        (nw, nh), Image.NEAREST
-                    )
+                    Image.fromarray(gray.astype(np.uint8)).resize((nw, nh), Image.NEAREST)
                 )
                 th, tw = nh, nw
             oy = (tile_size - th) // 2
@@ -203,18 +232,8 @@ def generate_tiles(
     return out
 
 
-def write_tiles(
-    tiles: list,
-    images_dir: Path,
-    labels_dir: Path,
-    prefix: str,
-    class_id_map: "dict[int, int] | None" = None,
-) -> int:
-    """Zapisz kafelki jako obraz+label YOLO (jedna linia). Zwraca liczbe.
-
-    class_id_map mapuje indeks orbity D4 (0..7 wg CLASS_NAMES) na id klasy w
-    datasecie (class_map). Brak -> tozsamosc (test/fixture).
-    """
+def write_tiles(tiles, images_dir: Path, labels_dir: Path, prefix: str, class_id_map=None) -> int:
+    """Zapisz kafelki jako obraz+label YOLO (jedna linia). Zwraca liczbe."""
     from PIL import Image
 
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -231,8 +250,4 @@ def write_tiles(
 
 def build_class_id_map(class_map: dict) -> dict:
     """Orbita D4 (indeks 0..7 wg CLASS_NAMES) -> id klasy w datasecie."""
-    return {
-        i: class_map[name]
-        for i, name in enumerate(CLASS_NAMES)
-        if name in class_map
-    }
+    return {i: class_map[name] for i, name in enumerate(CLASS_NAMES) if name in class_map}

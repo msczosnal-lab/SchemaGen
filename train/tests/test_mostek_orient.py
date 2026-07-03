@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from train.mostek_orient import (
+    assign_orientations_auto,
     CAYLEY,
     CLASS_NAMES,
     D4,
@@ -123,3 +124,41 @@ def test_count_edge_crossings_three_stubs():
 
 def test_count_edge_crossings_zero_on_blank():
     assert count_edge_crossings(np.full((20, 20), 255, dtype=np.uint8)) == 0
+
+
+# --- auto-orientacja z bboxow (bez eksemplarzy) --------------------------
+
+def _chiral_crop(size: int = 28) -> np.ndarray:
+    """Wyrazny chiralny glif (lustro != zaden obrot)."""
+    img = np.full((size, size), 255, dtype=np.uint8)
+    c = size // 2
+    img[c, 2:c] = 0            # trzon w lewo
+    img[2:c, c] = 0            # stub w gore
+    img[c:size - 2, c + 3] = 0  # stub w dol przesuniety -> chiralnosc
+    img[4:8, 4] = 0            # marker w lewym gornym rogu
+    return img
+
+
+def test_assign_auto_two_families_eight_classes():
+    base = _chiral_crop()
+    crops = [D4[g].apply_image(base) for g in range(8)]  # 4 obroty + 4 lustra
+    names, diag = assign_orientations_auto(crops)
+    assert None not in names
+    assert diag["families"] == 2, diag
+    # idx 0..3 = jedna rodzina (obroty), 4..7 = druga (lustra)
+    fam_rot = {n.split("_")[1][0] for n in names[0:4]}
+    fam_mir = {n.split("_")[1][0] for n in names[4:8]}
+    assert len(fam_rot) == 1 and len(fam_mir) == 1
+    assert fam_rot != fam_mir
+    # w kazdej rodzinie 4 rozne obroty; lacznie 8 klas
+    assert len(set(names)) == 8
+
+
+def test_assign_auto_rotation_stays_in_family():
+    base = _chiral_crop()
+    # dwa obroty tego samego glifu -> ta sama rodzina, rozny obrot
+    crops = [base, np.rot90(base, 1), np.rot90(base, 2)]
+    names, diag = assign_orientations_auto(crops)
+    letters = {n.split("_")[1][0] for n in names}
+    assert letters == {"r"}  # najliczniejsza/pierwsza rodzina = 'r'
+    assert len(set(names)) == 3  # trzy rozne obroty

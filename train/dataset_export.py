@@ -42,28 +42,36 @@ def _load_page_images(records: list[LabelRecord], raw_dir: Path) -> dict:
     out: dict = {}
     for rec in records:
         src = find_raw_image(rec, raw_dir)
-        if src is not None:
+        if src is None:
+            continue
+        try:
             out[rec.page_id] = np.asarray(Image.open(src).convert("L"))
+        except Exception:
+            continue  # niecztelny/atrapa pliku -> pomin (mostek dla tej strony no-op)
     return out
 
 
 def maybe_expand_mostek(records: list[LabelRecord], raw_dir: Path) -> dict | None:
-    """Przepisz tagi `mostek` -> orientacja (8 klas), jesli sa eksemplarze.
+    """Przepisz tagi `mostek` -> orientacja (8 klas).
 
-    No-op (None) gdy brak katalogu eksemplarzy — degradacja do 1 klasy `mostek`.
+    Priorytet: eksemplarze (jesli sa) -> dopasowanie do 8 wzorcow; inaczej AUTO
+    z samych bboxow (kanonikalizacja C4 + 2 rodziny chiralnosci). Zwraca log/diag.
     """
     from train.mostek_tiles import (
         expand_mostek_orientations,
+        expand_mostek_orientations_auto,
         load_exemplars,
         load_mostek_config,
     )
 
     cfg = load_mostek_config()
-    templates = load_exemplars(ROOT / cfg.get("exemplar_dir", "data/mostek_exemplars"))
-    if templates is None:
-        return None
     images = _load_page_images(records, raw_dir)
-    return expand_mostek_orientations(records, images, templates).as_dict()
+    if not images:
+        return None
+    templates = load_exemplars(ROOT / cfg.get("exemplar_dir", "data/mostek_exemplars"))
+    if templates is not None:
+        return expand_mostek_orientations(records, images, templates).as_dict()
+    return expand_mostek_orientations_auto(records, images).as_dict()
 
 
 def maybe_write_mostek_tiles(
@@ -72,21 +80,20 @@ def maybe_write_mostek_tiles(
     raw_dir: Path,
     class_map: dict[str, int],
 ) -> int:
-    """Wygeneruj i zapisz syntetyczne kafelki orientacji mostka do splitu train."""
+    """Syntetyczne kafelki orientacji mostka -> split train. Klasa zrodlowa z tagu
+    (`mostek_rXX`), niezaleznie od trybu ekspansji (auto/eksemplarz)."""
+    from train.mostek_orient import CLASS_NAMES
     from train.mostek_tiles import (
         build_class_id_map,
         generate_tiles,
-        load_exemplars,
         load_mostek_config,
         write_tiles,
     )
 
     cfg = load_mostek_config()
-    templates = load_exemplars(ROOT / cfg.get("exemplar_dir", "data/mostek_exemplars"))
-    if templates is None:
-        return 0
     tile_cfg = cfg.get("tile", {}) or {}
     size, margin = int(tile_cfg.get("size", 96)), int(tile_cfg.get("margin", 8))
+    name_to_idx = {n: i for i, n in enumerate(CLASS_NAMES)}
     images = _load_page_images(train_records, raw_dir)
     id_map = build_class_id_map(class_map)
     written = 0
@@ -94,14 +101,14 @@ def maybe_write_mostek_tiles(
         page = images.get(rec.page_id)
         if page is None:
             continue
-        boxes = [
-            (b.x, b.y, b.width, b.height)
-            for b in rec.bboxes
-            if b.tag.startswith("mostek_")
-        ]
+        boxes, srcs = [], []
+        for b in rec.bboxes:
+            if b.tag in name_to_idx:
+                boxes.append((b.x, b.y, b.width, b.height))
+                srcs.append(name_to_idx[b.tag])
         if boxes:
             tiles = generate_tiles(
-                page, boxes, templates, tile_size=size, margin=margin
+                page, boxes, src_classes=srcs, tile_size=size, margin=margin
             )
             written += write_tiles(
                 tiles,

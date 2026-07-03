@@ -222,3 +222,84 @@ def count_edge_crossings(crop: np.ndarray, border: int = 1) -> int:
     rising = int(np.sum((ring == 1) & (shifted == 0)))
     # przypadek: caly pierscien = 1 (brak przejsc, a jest tusz) -> 1 segment
     return rising if rising > 0 else 1
+
+
+# ---------------------------------------------------------------------------
+# Auto-orientacja z bboxow (bez recznych eksemplarzy)
+# ---------------------------------------------------------------------------
+# Pomysl (Filip): reprezentacje bierzemy wprost z oznaczonych cropow mostka.
+# Kanonikalizacja po podgrupie OBROTOW C4 (nie pelne D4) — inaczej lustro
+# scalilby sie z obrotem i chiralnosc znikla. Po C4: obroty tego samego glifu
+# maja wspolny odcisk; glif i jego lustro daja rozne odciski -> 2 rodziny (r/m).
+
+def _c4_canonical(bin_img: np.ndarray) -> tuple[bytes, int]:
+    """Reprezentant orbity C4: (odcisk kanoniczny, indeks obrotu k dajacego min).
+
+    k = ile rot90 CCW sprowadza obraz do postaci kanonicznej (deterministyczny
+    min po bajtach). Ten sam glif w 4 obrotach -> ten sam odcisk.
+    """
+    best_bytes: bytes | None = None
+    best_k = 0
+    for k in range(4):
+        r = np.ascontiguousarray(np.rot90(bin_img, k))
+        b = r.tobytes()
+        if best_bytes is None or b < best_bytes:
+            best_bytes, best_k = b, k
+    return best_bytes, best_k
+
+
+def assign_orientations_auto(
+    crops: list[np.ndarray],
+    size: int = 48,
+    ncc_thr: float = 0.6,
+) -> tuple[list[str | None], dict]:
+    """Przypisz kazdemu cropowi mostka nazwe klasy orientacji BEZ eksemplarzy.
+
+    Zwraca (lista nazw klas | None, diagnostyka). None dla cropa, ktorego nie da
+    sie zbinaryzowac (pusty). Diagnostyka: liczba rodzin (chiralnosci) i ich
+    liczebnosci — dla poprawnego, chiralnego mostka powinny byc 2 rodziny.
+
+    Rodzina 0 (najliczniejsza / pierwsza) -> 'r', rodzina 1 -> 'm'. Etykieta
+    ABSOLUTNA (co jest r0) jest umowna, ale SPOJNA — fizyczny sens (wspolny
+    terminal) pinujemy raz w config/mostek-orient.yaml (common_terminal).
+    """
+    prepped = [_resize_bin(c, size) for c in crops]
+    canon: list[tuple[bytes, int, np.ndarray]] = []
+    for p in prepped:
+        cb, k = _c4_canonical(p)
+        canon.append((cb, k, np.rot90(p, k)))
+
+    # klasteryzacja odciskow kanonicznych po NCC (chiralnosci)
+    centroids: list[np.ndarray] = []
+    fam_of: list[int] = []
+    for _cb, _k, cimg in canon:
+        best_i, best_s = -1, -1.0
+        for i, c in enumerate(centroids):
+            s = _ncc(cimg, c)
+            if s > best_s:
+                best_i, best_s = i, s
+        if best_s >= ncc_thr:
+            fam_of.append(best_i)
+        else:
+            centroids.append(cimg)
+            fam_of.append(len(centroids) - 1)
+
+    sizes = [fam_of.count(i) for i in range(len(centroids))]
+    # ranking rodzin wg liczebnosci -> 0='r', 1='m'
+    order = sorted(range(len(centroids)), key=lambda i: -sizes[i])
+    rank = {fam: pos for pos, fam in enumerate(order)}
+    fam_letter = {0: "r", 1: "m"}
+    rot_name = {0: "r0", 1: "r90", 2: "r180", 3: "r270"}
+
+    names: list[str | None] = []
+    for (_cb, k, _c), fam in zip(canon, fam_of):
+        pos = rank[fam]
+        letter = fam_letter.get(pos)
+        if letter is None:  # >2 rodzin (szum/warianty) -> None
+            names.append(None)
+            continue
+        suffix = rot_name[k][1:]  # '0'/'90'/'180'/'270'
+        names.append(f"mostek_{letter}{suffix}")
+
+    diag = {"families": len(centroids), "family_sizes": sizes}
+    return names, diag
