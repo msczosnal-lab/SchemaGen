@@ -1,1 +1,1 @@
-[Claude] fix import _thumb (uruchamianie python scripts/x.py bez pakietu scripts)
+[Claude] element_review: przywrocony dropdown klasy per crop (retag) + usun; miniatury _thumb; import odporny
