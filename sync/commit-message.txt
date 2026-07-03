@@ -1,1 +1,1 @@
-[Claude] mostek: scripts/mostek_preview_orient - wzrokowa weryfikacja przypisania orientacji
+[Claude] narzedzia QA: element_review (przegladarka wszystkich elementow + zaznaczanie) + apply_delete (usuwanie z bazy, dry-run/apply/backup)
