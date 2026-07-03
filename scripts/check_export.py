@@ -29,10 +29,27 @@ def _match_page(frag: str, all_ids: list[str]) -> str | None:
 
 
 def _label_path(page_id: str):
+    """Zwroc (sciezka_labela, split) dla splitu, w ktorym JEST obraz strony.
+    Dodatkowo raportuje sieroty (label bez pary-obrazu w danym splicie)."""
+    found = {}
     for split in ("train", "val"):
-        p = LABELED / "labels" / split / f"{page_id}.txt"
-        if p.exists():
-            return p, split
+        lab = LABELED / "labels" / split / f"{page_id}.txt"
+        if lab.exists():
+            has_img = any((LABELED / "images" / split / f"{page_id}{e}").exists()
+                          for e in (".png", ".jpg", ".jpeg"))
+            found[split] = (lab, has_img)
+    orphans = [sp for sp, (_l, img) in found.items() if not img]
+    for sp in orphans:
+        print(f"  [RYZYKO] osierocony label bez obrazu w splicie '{sp}' "
+              f"(stary plik; ponow dataset_export by wyczyscic)")
+    # preferuj split z obrazem
+    for sp in ("train", "val"):
+        if sp in found and found[sp][1]:
+            return found[sp][0], sp
+    # inaczej ktorykolwiek istniejacy
+    for sp in ("train", "val"):
+        if sp in found:
+            return found[sp][0], sp
     return None, None
 
 

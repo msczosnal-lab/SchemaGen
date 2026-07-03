@@ -78,3 +78,4 @@
 | 2026-07-03 21:44 | Claude | f8eae437 | [Claude] scripts/check_export - diagnostyka rozjazdu wymiarow PNG vs record (boxy YOLO) |
 | 2026-07-03 21:35 | Claude | efb3f154 | [Claude] scripts/check_export - diagnostyka rozjazdu wymiarow PNG vs record (boxy YOLO) |
 | 2026-07-03 21:48 | Claude | f43dd709 | [Claude] check_export: walidacja pokrycia (box eksportu -> najblizszy GT), koniec falszywych alarmow po indeksie |
+| 2026-07-03 21:50 | Claude | 9f5d57d9 | [Claude] check_export: usun zbedny import load_class_map, tylko wymiary + pokrycie GT |

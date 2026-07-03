@@ -1,1 +1,1 @@
-[Claude] check_export: usun zbedny import load_class_map, tylko wymiary + pokrycie GT
+[Claude] dataset_export czysci stare images/labels (sieroty train<->val); check_export bierze split z obrazem, 8 passed

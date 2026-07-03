@@ -256,6 +256,12 @@ def export_dataset(
     fixed_val = load_val_page_ids()
     train, val = split_train_val(recs, val_ratio)
     out.mkdir(parents=True, exist_ok=True)
+    # Wyczysc stare obrazy/labele (sieroty po przeniesieniu strony train<->val
+    # albo po usunieciu strony) — inaczej dataset zbiera smieci.
+    for _sub in ("images", "labels"):
+        _d = out / _sub
+        if _d.exists():
+            shutil.rmtree(_d, ignore_errors=True)
     n_train = _write_split(train, out, "train", class_map, raw, palette_map)
     n_val = _write_split(val, out, "val", class_map, raw, palette_map)
     # Syntetyczne kafelki orientacji mostka -> tylko split train (balans klas).
