@@ -65,12 +65,13 @@ def test_resolve_orientation_matches_placed_class():
         assert score > 0.9
 
 
-def test_resolve_rejects_wrong_stub_count():
+def test_resolve_always_assigns_and_reports_crossings():
+    # nowa semantyka: zawsze przypisz najlepsza klase; crossings tylko diagnostyka
     tpl = _templates()
     bad = np.full((30, 30), 255, dtype=np.uint8)
-    bad[15, :] = 0  # jeden przelot = 2 stuby (lewo+prawo)
+    bad[15, :] = 0  # 2 stuby (lewo+prawo) -> crossings != 3, ale przypisanie jest
     name, _s, crossings = resolve_orientation(bad, tpl)
-    assert name is None
+    assert name in CLASS_NAMES
     assert crossings != 3
 
 
@@ -85,13 +86,15 @@ def test_expand_rewrites_tag_to_orientation():
     assert log.resolved.get("mostek_r270") == 1
 
 
-def test_expand_keeps_generic_when_uncertain():
+def test_expand_always_assigns_orientation():
+    # nowa semantyka: nawet niepewny crop dostaje orientacje (nie gubimy mostkow)
     tpl = _templates()
     page = np.full((200, 200), 250, dtype=np.uint8)
-    page[100, 20:60] = 0  # 2 stuby, nie mostek
+    page[100, 20:60] = 0
     rec = _Rec("p001", [_Bbox(20, 90, 40, 20, "mostek")])
-    expand_mostek_orientations([rec], {"p001": page}, tpl)
-    assert rec.bboxes[0].tag == "mostek"  # bez zmian
+    log = expand_mostek_orientations([rec], {"p001": page}, tpl)
+    assert rec.bboxes[0].tag in CLASS_NAMES
+    assert sum(log.resolved.values()) == 1
 
 
 def test_expand_ignores_non_mostek_tags():

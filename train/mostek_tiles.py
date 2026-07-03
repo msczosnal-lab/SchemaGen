@@ -70,24 +70,45 @@ class MostekLog:
         }
 
 
-def load_exemplars(exemplar_dir: Path) -> "list[np.ndarray] | None":
-    """8 eksemplarzy (kolejnosc CLASS_NAMES). Brak kompletu -> None."""
-    if not exemplar_dir or not Path(exemplar_dir).exists():
-        return None
+def _find_exemplar(exemplar_dir: Path, name: str):
     from PIL import Image
 
-    out: list = []
-    for name in CLASS_NAMES:
-        hit = None
-        for ext in (".png", ".jpg", ".jpeg"):
-            p = Path(exemplar_dir) / f"{name}{ext}"
-            if p.exists():
-                hit = p
-                break
-        if hit is None:
-            return None
-        out.append(np.asarray(Image.open(hit).convert("L")))
+    for ext in (".png", ".jpg", ".jpeg"):
+        p = Path(exemplar_dir) / f"{name}{ext}"
+        if p.exists():
+            return np.asarray(Image.open(p).convert("L"))
+    return None
+
+
+def _orbit_from_base(r0: np.ndarray, m0: np.ndarray) -> list:
+    """8 eksemplarzy z 2 baz: rot90(r0,k) dla r-family, rot90(m0,k) dla m-family
+    (kolejnosc = CLASS_NAMES, indeks = m*4 + r)."""
+    out = []
+    for m in (0, 1):
+        base = r0 if m == 0 else m0
+        for r in range(4):
+            out.append(np.ascontiguousarray(np.rot90(base, r)))
     return out
+
+
+def load_exemplars(exemplar_dir: Path) -> "list[np.ndarray] | None":
+    """Eksemplarze (kolejnosc CLASS_NAMES). Priorytet:
+      1) komplet 8 plikow (mostek_r0..mostek_m270),
+      2) mostek_r0 + mostek_m0 -> generuj 8 przez D4 (rekomendowane, 2 cropy),
+      3) sam mostek_r0 -> m0 = lustro(r0), generuj 8 (1 crop).
+    Brak -> None (tryb auto)."""
+    if not exemplar_dir or not Path(exemplar_dir).exists():
+        return None
+    full = [_find_exemplar(exemplar_dir, n) for n in CLASS_NAMES]
+    if all(x is not None for x in full):
+        return full
+    r0 = _find_exemplar(exemplar_dir, "mostek_r0")
+    if r0 is None:
+        return None
+    m0 = _find_exemplar(exemplar_dir, "mostek_m0")
+    if m0 is None:
+        m0 = np.fliplr(r0)
+    return _orbit_from_base(r0, m0)
 
 
 def crop_bbox(page: np.ndarray, x: float, y: float, w: float, h: float) -> np.ndarray:
@@ -104,13 +125,11 @@ def resolve_orientation(
     crop: np.ndarray,
     templates: list,
 ) -> tuple:
-    """Tryb eksemplarzy: crop -> (nazwa|None, score, liczba_stubow)."""
+    """Tryb eksemplarzy: crop -> (nazwa, score, liczba_stubow). ZAWSZE najlepsza
+    klasa (argmax NCC) — nie gubimy mostkow. Niska pewnosc / zle stuby raportowane
+    w logu, ale przypisanie i tak nastepuje (D4-kafelki dominuja w treningu)."""
     crossings = count_edge_crossings(crop)
-    if crossings != 3:
-        return None, 0.0, crossings
     idx, score = classify_crop(crop, templates)
-    if score < MIN_SCORE:
-        return None, score, crossings
     return CLASS_NAMES[idx], score, crossings
 
 
@@ -132,13 +151,14 @@ def expand_mostek_orientations(records, images_by_page, templates, log=None):
     log = log or MostekLog()
     log.mode = "exemplar"
     for _rec, b, crop in _iter_mostek_bboxes(records, images_by_page, log):
-        name, _score, crossings = resolve_orientation(crop, templates)
-        if name is None:
-            if crossings != 3:
-                log.skipped_crossings += 1
-            else:
-                log.skipped_lowscore += 1
+        if crop.size == 0:
+            log.no_image += 1
             continue
+        name, score, crossings = resolve_orientation(crop, templates)
+        if crossings != 3:
+            log.skipped_crossings += 1   # tylko diagnostyka (nie odrzuca)
+        if score < MIN_SCORE:
+            log.skipped_lowscore += 1    # niska pewnosc (nadal przypisane)
         b.tag = name
         log.resolved[name] = log.resolved.get(name, 0) + 1
     return log

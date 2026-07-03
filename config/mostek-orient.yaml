@@ -25,10 +25,15 @@ classes:
 # Tag generyczny z labelera, ktory podlega ekspansji na orientacje.
 source_tag: mostek
 
-# Tryb DOMYSLNY: AUTO — orientacje wyprowadzane z samych oznaczonych bboxow
-# (kanonikalizacja C4 + 2 rodziny chiralnosci). Nie trzeba nic wycinac.
-# exemplar_dir to OPCJONALNY override: 8 czystych cropow (nazwa = klasa + .png),
-# uzywany tylko gdy komplet 8 plikow istnieje (gdy auto myli warianty rysunku).
+# ZRODLO ORIENTACJI (priorytet od gory):
+#   1) mostek_r0.png + mostek_m0.png  -> kod generuje 8 orientacji przez D4
+#      (REKOMENDOWANE: 2 czyste, ciasne cropy - baza + jej lustro),
+#   2) sam mostek_r0.png              -> m0 = lustro(r0), tez 8 (1 crop),
+#   3) komplet 8 plikow mostek_r*/m*  -> uzyte wprost,
+#   4) brak plikow                    -> tryb AUTO (klasteryzacja z bboxow;
+#      UWAGA: na realnych, zmiennych cropach bywa zawodny - patrz `families`
+#      w manifescie, powinno byc 2; jak duzo -> uzyj eksemplarzy).
+# Pliki wrzuc do:
 exemplar_dir: data/mostek_exemplars
 
 # Prog NCC dopasowania eksemplarza. Ponizej -> orientacja niepewna, tag zostaje

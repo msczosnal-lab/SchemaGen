@@ -133,10 +133,25 @@ def binarize(img: np.ndarray, thresh: float | None = None) -> np.ndarray:
     return (g < thresh).astype(np.float32)  # ciemny tusz -> 1
 
 
+def _pad_square(b: np.ndarray) -> np.ndarray:
+    """Dopelnij binarny obraz do kwadratu (tlo=0), zachowujac aspect ratio.
+
+    Bez tego resize do kwadratu deformuje obroty rozne dla r0 (poziomy) i r90
+    (pionowy) -> rotacje przestaja pasowac. Pad = warunek poprawnosci D4.
+    """
+    h, w = b.shape[:2]
+    side = max(h, w)
+    out = np.zeros((side, side), dtype=b.dtype)
+    y0 = (side - h) // 2
+    x0 = (side - w) // 2
+    out[y0:y0 + h, x0:x0 + w] = b
+    return out
+
+
 def _resize_bin(img: np.ndarray, size: int) -> np.ndarray:
     from PIL import Image
 
-    b = binarize(img)
+    b = _pad_square(binarize(img))
     im = Image.fromarray((b * 255).astype(np.uint8))
     im = im.resize((size, size), Image.NEAREST)
     return (np.asarray(im, dtype=np.float32) / 255.0 >= 0.5).astype(np.float32)
