@@ -67,3 +67,4 @@
 >>>>>>> Stashed changes
 | 2026-07-03 20:29 | Claude | 4130490e | [Claude] mostek: wiele grup eksemplarzy (mostek1/mostek2 -> 8 klas), galeria dopasowania |
 | 2026-07-03 20:38 | Claude | 80eb2a6d | [Claude] mostek: scripts/mostek_preview_orient - wzrokowa weryfikacja przypisania orientacji |
+| 2026-07-03 20:46 | Claude | 75af1593 | [Claude] narzedzia QA: element_review (przegladarka wszystkich elementow + zaznaczanie) + apply_delete (usuwanie z bazy, dry-run/apply/backup) |

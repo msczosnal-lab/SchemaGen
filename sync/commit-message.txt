@@ -1,1 +1,1 @@
-[Claude] narzedzia QA: element_review (przegladarka wszystkich elementow + zaznaczanie) + apply_delete (usuwanie z bazy, dry-run/apply/backup)
+[Claude] element_review: retag przez dropdown klas + usun (sentinel); apply_reassign obsluguje usuwanie + backup bazy

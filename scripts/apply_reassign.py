@@ -47,11 +47,24 @@ def main() -> int:
         print("Pusta lista zmian.")
         return 1
 
+    DELETE = "__DELETE__"  # sentinel new_tag = usun bbox (z element_review.py)
+
     by_page: dict[str, dict[str, str]] = defaultdict(dict)
     for c in changes:
         by_page[c["page_id"]][c["bbox_id"]] = c["new_tag"]
 
+    # backup bazy przed pierwszym zapisem
+    if args.apply:
+        import shutil
+        from datetime import datetime as _dt
+        db = ROOT / "data" / "schemagen.db"
+        if db.exists():
+            bak = db.with_name(f"schemagen.db.bak-{_dt.now():%Y%m%d_%H%M%S}")
+            shutil.copy2(db, bak)
+            print(f"Backup bazy -> {bak}")
+
     total = 0
+    deleted = 0
     missing = 0
     for page_id, mapping in by_page.items():
         data = load_annotation(page_id)
@@ -59,21 +72,29 @@ def main() -> int:
             print(f"[RYZYKO] brak adnotacji: {page_id}")
             continue
         rec = LabelRecord.model_validate(data)
+        del_ids = {i for i, t in mapping.items() if t == DELETE}
+        # usun zaznaczone do kasacji
+        n_del = sum(1 for b in rec.bboxes if b.id in del_ids)
+        if n_del:
+            rec.bboxes = [b for b in rec.bboxes if b.id not in del_ids]
+        # retag pozostalych
         applied = 0
         for b in rec.bboxes:
-            if b.id in mapping:
+            if b.id in mapping and mapping[b.id] != DELETE:
                 b.tag = mapping[b.id]
                 applied += 1
-        not_found = len(mapping) - applied
+        found = applied + n_del
+        not_found = len(mapping) - found
         missing += not_found
         total += applied
+        deleted += n_del
         flag = f" ({not_found} bbox_id nieznalezionych)" if not_found else ""
-        print(f"{page_id}: {applied} zmian{flag}")
-        if args.apply and applied:
+        print(f"{page_id}: {applied} retag, {n_del} usun{flag}")
+        if args.apply and found:
             save_annotation(page_id, rec.model_dump())
 
-    print(f"\n{'ZAPISANO' if args.apply else 'DRY-RUN'}: {total} zmian, "
-          f"{missing} nieznalezionych bbox_id.")
+    print(f"\n{'ZAPISANO' if args.apply else 'DRY-RUN'}: {total} retag, "
+          f"{deleted} usunietych, {missing} nieznalezionych bbox_id.")
     if not args.apply:
         print("Dodaj --apply aby zapisac. Potem: python -m train.dataset_export --min-count 5")
     else:
