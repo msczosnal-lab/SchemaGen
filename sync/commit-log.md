@@ -57,3 +57,4 @@
 | 2026-07-03 19:43 | Claude | dd3ad933 | [Claude] GitSync: cykl 5s, log tylko przy zdarzeniach, PULL-ONLY bez spamu |
 | 2026-07-03 19:51 | Claude | 6e4fed4d | [Claude] mostek auto: bramka 3-stubow tylko diagnostyczna (nie odrzuca klasteryzacji) |
 | 2026-07-03 20:09 | Claude | c5032157 | [Claude] mostek: eksemplarze z 1-2 cropow (D4) + pad-do-kwadratu + zawsze-przypisz; auto jako fallback |
+| 2026-07-03 20:15 | Cursor | 6fca01a6 | [Cursor] fix: scalenie konfliktu commit-log po rebase GitSync |
