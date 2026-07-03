@@ -60,3 +60,4 @@
 =======
 | 2026-07-03 19:47 | Claude | 6ed731a3 | [Claude] mostek auto: bramka 3-stubow tylko diagnostyczna (nie odrzuca klasteryzacji) |
 >>>>>>> Stashed changes
+| 2026-07-03 20:09 | Claude | c5032157 | [Claude] mostek: eksemplarze z 1-2 cropow (D4) + pad-do-kwadratu + zawsze-przypisz; auto jako fallback |
