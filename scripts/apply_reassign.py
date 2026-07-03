@@ -32,6 +32,8 @@ def main() -> int:
         ROOT / "data" / "output" / "reassignments.json",
         ROOT / "data" / "output" / "relabel" / "reassignments.json",
         ROOT / "Downloads" / "reassignments.json",
+        Path.home() / "Downloads" / "reassignments.json",
+        Path.cwd() / "reassignments.json",
     ]
     path = next((c for c in candidates if c and c.exists()), None)
     if path is None:

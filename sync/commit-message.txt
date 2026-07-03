@@ -1,1 +1,1 @@
-[Claude] element_review: klik=usun (czerwona ramka), zmiana klasy=niebieska, checkbox przejrzana per klasa (localStorage)
+[Claude] apply_reassign: auto-szukanie reassignments.json w ~/Downloads i CWD
