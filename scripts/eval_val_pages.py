@@ -24,7 +24,12 @@ from backend.models.label import LabelRecord
 from backend.paths import CONFIG, RAW
 from backend.recognize.pipeline import recognize_file
 from labeler.export import label_to_schema
-from backend.validate.diff_metrics import diff_components, diff_connections, diff_tags, page_id
+from backend.validate.diff_metrics import (
+    diff_components,
+    diff_connections,
+    diff_tags,
+    page_id as resolve_page_id,
+)
 
 OUT_DIR = ROOT / "data" / "output" / "eval_val_pages"
 
@@ -37,12 +42,12 @@ def _load_val_pages() -> list[str]:
     return list(data.get("val_pages") or [])
 
 
-def eval_page(page_id: str) -> dict | None:
-    img = RAW / f"{page_id}.png"
+def eval_page(pid: str) -> dict | None:
+    img = RAW / f"{pid}.png"
     if not img.exists():
         return None
 
-    gt_data = load_annotation(page_id)
+    gt_data = load_annotation(pid)
     gt_schema = None
     gt_bboxes = 0
     gt_lines = 0
@@ -55,7 +60,7 @@ def eval_page(page_id: str) -> dict | None:
     runtime = recognize_file(str(img))
 
     report: dict = {
-        "page_id": page_id,
+        "page_id": pid,
         "image": str(img),
         "gt": {
             "bboxes": gt_bboxes,
