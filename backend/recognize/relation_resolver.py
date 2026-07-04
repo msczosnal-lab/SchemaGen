@@ -198,18 +198,6 @@ class RelationResolver:
             if conn.potential:
                 continue
             node_refs = {conn.from_ref.split(":")[0], conn.to.split(":")[0]}
-            endpoints: list[tuple[float, float]] = []
-            for ln in wire_lines:
-                p0, p1 = ln.points[0], ln.points[-1]
-                for pt in (p0, p1):
-                    near_node = False
-                    for nid in node_refs:
-                        bb = comp_bbox.get(nid)
-                        if bb and _point_in_bbox(pt, bb, margin=2.0):
-                            near_node = True
-                            break
-                    if near_node:
-                        endpoints.append((float(pt[0]), float(pt[1])))
 
             best_label = ""
             best_dist = radius + 1.0
@@ -220,9 +208,27 @@ class RelationResolver:
                 cy = (t.bbox[1] + t.bbox[3]) / 2
                 if _inside_any_bbox(cx, cy, comp_bbox.values()):
                     continue
-                for ex, ey in endpoints:
-                    d = _dist(cx, cy, ex, ey)
-                    if d <= radius and d < best_dist:
+                for ln in wire_lines:
+                    p0, p1 = ln.points[0], ln.points[-1]
+                    d = _dist_to_segment(
+                        cx, cy, float(p0[0]), float(p0[1]), float(p1[0]), float(p1[1])
+                    )
+                    if d > radius:
+                        continue
+                    touches_node = False
+                    for nid in node_refs:
+                        bb = comp_bbox.get(nid)
+                        if not bb:
+                            continue
+                        for pt in (p0, p1):
+                            if _point_in_bbox(pt, bb, margin=2.0):
+                                touches_node = True
+                                break
+                        if touches_node:
+                            break
+                    if not touches_node:
+                        continue
+                    if d < best_dist:
                         best_dist = d
                         best_label = t.text.strip()
 
