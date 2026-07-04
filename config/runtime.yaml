@@ -3,7 +3,7 @@ yolo_imgsz: 1536
 yolo_batch: 4
 yolo_conf_threshold: 0.25
 # Tiling inferencji (dla modeli trenowanych na oknach; train/tiled_export)
-yolo_tiled: false
+yolo_tiled: true
 yolo_tile_win: 1536
 yolo_tile_overlap: 0.2
 

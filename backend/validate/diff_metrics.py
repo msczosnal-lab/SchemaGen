@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-
-def page_id(raw: str) -> str:
-    if raw.startswith("22_"):
-        return raw
-    return f"22_A_153_PL_Adamed_AGV_SA2_20250706_{raw}"
+from backend.paths import resolve_page_id as page_id
 
 
 def _norm_conn(c) -> tuple[str, str, str]:
