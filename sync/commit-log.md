@@ -124,3 +124,4 @@
 | 2026-07-04 21:02 | Cursor | 87344ee4 | [Cursor] sync: review 019 + prompty 018-lines/018-terminals |
 | 2026-07-04 21:24 | Cursor | 287bb753 | [Cursor] sync: GT p027 strzałki+terminale komplet |
 | 2026-07-04 21:02 | Cursor | 91b89bad | [Cursor] sync: review 019 + prompty 018-lines/018-terminals |
+| 2026-07-04 21:24 | Cursor | cb05d51b | [Cursor] sync: GT p027 strzałki+terminale komplet |
