@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-07-04 [Cursor] — Faza 5 DONE (prompt 015) + kolejka 016
+
+Temat: **RelationResolver wdrożony. Smoke p040 + common_terminal = Filip.**
+
+| Pole | Wartość |
+|------|---------|
+| **pytest** | **213 passed** (+6 relation_resolver, +3 diff_metrics) |
+| **015** | `backend/recognize/relation_resolver.py` — tag proximity, wire labels, scalanie strzałek, context runtime |
+| **016** | prompt + `eval_val_pages.py` + `diff_metrics.py` (szkielet batch eval) |
+| **net-builder** | nietknięty |
+
+### Filip — smoke (TERAZ)
+
+```powershell
+python scripts/preview_schema.py --page p040 --source runtime
+python scripts/diff_gt_runtime.py --page p040
+python scripts/eval_val_pages.py --page p040
+```
+
+Sprawdź: tagi na bboxach, `Connection.potential`, brak conn między strzałkami o tej samej nazwie, `--rebuild-conn` GT ≈ 15.
+
+Uzupełnij `common_terminal:` w `config/mostek-orient.yaml`.
+
+### Claude — następne
+
+Prompt **016** gdy Filip zaakceptuje smoke 015: [`sync/prompts/016-e2e-metrics.md`](prompts/016-e2e-metrics.md)
+
+Commit pending: `[Cursor] recognize: relation resolver (prompt 015) + eval val-pages skeleton`
+
+---
+
 ## 2026-06-28 [Cursor] — Domknięcie sesji ZW: pytest OK (151 passed)
 
 Temat: **Sesja ZW zamknięta. Filar POŁĄCZENIA DONE. Następny kamień = filar SYMBOLE (detekcja listwy).**
