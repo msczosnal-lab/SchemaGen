@@ -106,3 +106,4 @@
 | 2026-07-04 18:12 | Cursor | 829508aa | [Cursor] fix: yolo_tiled true + preview_detection skrot p040 + resolve_page_id w paths |
 | 2026-07-04 18:12 | Cursor | f5b267b6 | [Cursor] fix: yolo_tiled true + preview_detection skrot p040 + resolve_page_id w paths |
 | 2026-07-04 18:26 | Cursor | 05d43b81 | [Cursor] fix: ContextAssignment dataclass -> Pydantic w RelationResolver |
+| 2026-07-04 18:26 | Cursor | 9a3c0f74 | [Cursor] fix: ContextAssignment dataclass -> Pydantic w RelationResolver |
