@@ -11,8 +11,8 @@
 - **Filar Symbole:** DONE runtime (YOLO multi-class, listwa 011, mostek D4 012, tiling 014). GT w budowie (Filip).
 - **Filar Tekst:** DONE — `PaddleOcrEngine` (prompt 002).
 - **Filar Połączenia:** DONE — line tracer, net-builder, terminale, mostki (`--rebuild-conn` p040=15).
-- **Faza 5 Relacje:** WIP — prompt 015 (`RelationResolver`: tekst→symbol, potencjały, context runtime).
-- **Wąskie gardło:** jakość relacji OCR↔symbol na runtime; walidacja e2e per filar (Faza 6).
+- **Faza 5 Relacje:** ✅ DONE kod (prompt 015). Smoke p040 = Filip.
+- **Faza 6 Walidacja e2e:** szkielet (`eval_val_pages.py`, prompt 016 w kolejce).
 
 ---
 
@@ -76,7 +76,7 @@ Status: **opcjonalny**, włączyć gdy ręczny labeling stanie się wąskim gard
 
 ### Faza 5 — Warstwa relacji → SchemaModel
 
-**Status:** ⏳ WIP (prompt 015 — `RelationResolver`).
+**Status:** ✅ DONE (prompt 015, 2026-07-04).
 
 **Cel:** dopięcie tekstu do symboli/połączeń, scalanie strzałek potencjału, `context_assignments` runtime.
 

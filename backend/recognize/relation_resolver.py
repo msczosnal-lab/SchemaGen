@@ -22,7 +22,7 @@ from backend.geometry.row_layout import (
 )
 from backend.models.label import BboxAnnotation
 from backend.models.schema import Component, Connection, GraphicLine
-from backend.paths import CONFIG, TRAIN_CLASSES
+from backend.paths import TRAIN_CLASSES
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.ocr_engine import TextDetection
 from backend.runtime_config import relations_settings
