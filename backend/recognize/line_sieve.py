@@ -28,6 +28,10 @@ EDGE_OVERLAP_MIN = 0.6   # min. pokrycie wspolnego zakresu (linia wzdluz boku bb
 # Obramowka jednego symbolu ma dlugosc ~ szerokosc/wysokosc bbox. Szyna przez rzad
 # zlaczek (p027) biegnie wzdluz wielu bboxow — line_span >> box_span -> wire, nie frame.
 EDGE_FRAME_MAX_SPAN_RATIO = 1.25
+# Krotkie segmenty w bbox OCR; dluzsze to przewody (szyna przez pasek tytulowy itd.).
+TEXT_ARTIFACT_MAX_LEN = 120.0
+# Grafika wewnetrzna symbolu jest krotka; przewod na ~calą szerokosc bboxa to nie tabelka.
+INSIDE_MAX_SPAN_RATIO = 0.85
 
 
 def apply_sieve(
@@ -55,6 +59,8 @@ def apply_sieve(
             out.append(ln.model_copy(update={"role": "frame"}))
             continue
         inside = _containing_component(ln, components, inside_margin)
+        if inside is not None and _spans_most_of_box(ln, inside.bbox):
+            inside = None
         if inside is not None:
             if _bridges_two_terminals(ln, inside, bridge_tol):
                 out.append(ln)  # mostek terminal<->terminal — zostaje kandydatem
@@ -210,6 +216,36 @@ def _line_bbox(points: list[list[float]]) -> list[float]:
     return [min(xs), min(ys), max(xs), max(ys)]
 
 
+def _line_span(line: GraphicLine) -> float:
+    ep = _endpoints(line)
+    if ep is None:
+        return 0.0
+    p, q = ep
+    orient = _orientation(p, q)
+    if orient == "h":
+        return abs(q[0] - p[0])
+    if orient == "v":
+        return abs(q[1] - p[1])
+    return math.hypot(q[0] - p[0], q[1] - p[1])
+
+
+def _spans_most_of_box(line: GraphicLine, bbox: list[float]) -> bool:
+    """True gdy linia osiowa zajmuje wiekszosc bboxa (przewod, nie grafika wewnetrzna)."""
+    if len(bbox) < 4:
+        return False
+    ep = _endpoints(line)
+    if ep is None:
+        return False
+    orient = _orientation(ep[0], ep[1])
+    if orient is None:
+        return False
+    x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]
+    box_span = (x2 - x1) if orient == "h" else (y2 - y1)
+    if box_span <= 0:
+        return False
+    return _line_span(line) > box_span * INSIDE_MAX_SPAN_RATIO
+
+
 def _is_text_artifact(line: GraphicLine, text_bboxes: list[list[float]], margin: float) -> bool:
     """True gdy krotki segment w calosci w bbox tekstu OCR (nie dlugi przewod przy etykiecie)."""
     if not text_bboxes:
@@ -218,6 +254,8 @@ def _is_text_artifact(line: GraphicLine, text_bboxes: list[list[float]], margin:
     if ep is None:
         return False
     seg_len = math.hypot(ep[1][0] - ep[0][0], ep[1][1] - ep[0][1])
+    if seg_len > TEXT_ARTIFACT_MAX_LEN:
+        return False
     lb = _line_bbox(line.points)
     line_w = lb[2] - lb[0]
     line_h = lb[3] - lb[1]
@@ -226,9 +264,6 @@ def _is_text_artifact(line: GraphicLine, text_bboxes: list[list[float]], margin:
             continue
         tw = tb[2] - tb[0]
         th = tb[3] - tb[1]
-        # Dlugi przewod nie jest artefaktem tekstu nawet gdy bbox linii nachodzi na OCR.
-        if seg_len > max(tw, th) * 1.5:
-            continue
         if line_w > tw + margin or line_h > th + margin:
             continue
         if (
