@@ -97,3 +97,4 @@
 | 2026-07-04 16:11 | Claude | 0616dc42 | [Claude] preview_detection: flaga --tiled (inferencja przesuwnym oknem) do podgladu bboxow modelu tiled |
 | 2026-07-04 16:22 | Claude | e74ec2b0 | [Claude] TILING: detekcja mostkow 0->0.92 (okna natywne + detect_tiled + yolo_tiled); preview_detection --tiled; 50 passed |
 | 2026-07-04 16:21 | Claude | 36baa6b0 | [Claude] TILING: detekcja mostkow 0->0.92 (okna natywne + detect_tiled + yolo_tiled); preview_detection --tiled; 50 passed |
+| 2026-07-04 16:28 | Cursor | 8d3f982c | [Cursor] recognize: relation resolver (prompt 015) + eval val-pages skeleton |

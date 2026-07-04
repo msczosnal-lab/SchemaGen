@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-07-04 [Cursor] — Faza 5: RelationResolver (prompt 015)
+
+**Kamień:** warstwa relacji po net-builderze.
+
+| Plik | Rola |
+|------|------|
+| `backend/recognize/relation_resolver.py` | tag→symbol, OCR→potential, scalanie strzałek, context runtime |
+| `config/runtime.yaml` | sekcja `relations:` |
+| `scripts/diff_metrics.py`, `eval_val_pages.py` | szkielet Fazy 6 (prompt 016) |
+
+**pytest:** 213 passed
+
+**Filip — smoke:**
+```powershell
+python scripts/preview_schema.py --page p040 --source runtime
+python scripts/diff_gt_runtime.py --page p040
+```
+
+Uzupełnij `common_terminal:` w `config/mostek-orient.yaml`.
+
+**Następne (Claude):** prompt 016 po akceptacji smoke.
+
+---
+
 ## 2026-07-04 [Claude] — Detekcja mostkow DZIALA (tiling): mAP 0 -> 0.92
 
 **Wynik:** mostek wykrywany na p040 (P=0.88, R=0.75, mAP50=0.922). Global mAP50
