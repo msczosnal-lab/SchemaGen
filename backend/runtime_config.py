@@ -161,6 +161,26 @@ def connection_require_terminal() -> bool:
     return bool(runtime_settings()["connection_require_terminal"])
 
 
+_ARROW_SUPPLEMENT_DEFAULTS = {
+    "enabled": True,
+    "min_score": 0.88,
+    "downscale": 0.5,
+    "scales": [1.0],
+    "max_templates_per_class": 12,
+    "roi_top_frac": 0.93,
+    "nms_iou": 0.4,
+}
+
+
+@lru_cache(maxsize=1)
+def arrow_supplement_settings() -> dict:
+    raw = runtime_settings().get("arrow_supplement") or {}
+    out = dict(_ARROW_SUPPLEMENT_DEFAULTS)
+    if isinstance(raw, dict):
+        out.update(raw)
+    return out
+
+
 def hough_params() -> dict:
     """Progi Hough z configu (frac wzgledem max(W,H) + floory)."""
     s = runtime_settings()

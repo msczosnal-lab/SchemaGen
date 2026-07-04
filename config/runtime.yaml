@@ -44,6 +44,14 @@ hough_gap_floor: 4
 # false -> luzny kontakt konca z bboxem tez tworzy wezel (dotychczasowe zachowanie).
 connection_require_terminal: true
 
+# Uzupelnienie strzalek potencjalu (matchTemplate z labeled_tiled) gdy YOLO ma recall=0.
+arrow_supplement:
+  enabled: true
+  min_score: 0.88
+  downscale: 0.5
+  max_templates_per_class: 12
+  roi_top_frac: 0.93
+
 # Warstwa relacji (prompt 015 — RelationResolver)
 relations:
   tag_proximity_frac: 0.02
