@@ -4,5 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Claude] sync: prompt startowy Cursor — review 019 + zlecenie 018
-

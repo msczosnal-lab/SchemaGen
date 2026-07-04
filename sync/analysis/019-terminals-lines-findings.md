@@ -189,3 +189,28 @@ Filip dostarczył surowy JSON detekcji (preview_detection, conf=0.25, tiled). Wn
 4. Git/pytest na main — bez odpowiedzi wprost; folder sync/analysis dotarł, więc synchronizacja działa. Duplikaty nazw klas GT („terminal PLC"/„terminal_plc") nadal do ujednolicenia przy 018-terminals.
 
 **Konsekwencja dla 018-terminals-strategy:** oczekiwany wynik na listwie p027 = każda złączka: 2 terminale osiowe (szyna) + 0–2 odczepy; każdy odczep → Connection `zlaczka:top/bottom ↔ strzalka:base`; szyna → jeden potential z 58 węzłami. To jest wprost mierzalne kryterium akceptacji.
+
+---
+
+## Poprawka (runda 1) — Cursor review 2026-07-04
+
+**Werdykt:** findings **zaakceptowane**; podział 018-lines → 018-terminals bez zmian.
+
+### Korekty do §5 i hipotez
+
+1. **Kryteria akceptacji 018-lines (§5.1):** po §7b i odpowiedzi Filipa usunięto wymóg „czerwona dostaje grupę" / klasyfikacji zielonego tuszu jako `pe_wire` — na stronach Adamed nie ma czerwonego ani zielonego tuszu. Zastąpione kryteriami: kalibracja niebieskiego, rozdzielenie `enclosure`/`pe_wire`, rozróżnialne kolory overlay (wire vs frame). Zaktualizowano w §5.1 powyżej.
+
+2. **H9 / §7 pkt 2:** 15× `strzalka_potencjalu_wyjsciowa` na p027 to **TP (brak w GT)**, nie FP — zgodnie z ODPOWIEDZIAMI Filipa. Mechanizm `c not in have` w `arrow_supplement` nadal kruchy (p035); fix opcjonalnie w 018-lines.
+
+3. **`_point_at_node` (H2):** **nie zmieniać w pierwszej rundzie 018.** Przy wariancie C (jedna scalona szyna) problem przesuwa się na `_nodes_on_net`. Blokada union-find przy fragmentach jest wtórna, o ile 018-lines dostarczy ciągłą linię. Jeśli po Hough nadal wiele segmentów — osobny temat poza 018-terminals.
+
+4. **Pattern `zlaczka`:** potwierdzone — `left/right 0.5` required, `top/bottom 0.5` optional; odczep ↔ osobna strzałka z terminalem u nasady. Metoda `perimeter` dla stubów osiowych; kandydaci `line-contact` (przejście ścieżki) tylko w `TerminalResolver`, nie w `derive_auto_terminals`.
+
+### Decyzja: `_nodes_on_net` — węzły na ścieżce
+
+**Zgoda Cursor** na rozszerzenie `_nodes_on_net` w `net_builder.py` **wyłącznie w prompcie 018-terminals-strategy** (nie w 018-lines, nie jako 018c).
+
+- Zakres: dla każdego segmentu ścieżki linii i każdego terminala komponentu — jeśli odległość punkt–odcinek ≤ `tol` → węzeł `comp:terminal_id`.
+- **Nie ruszać** `_lines_joined` / `_point_at_node`.
+- Istniejące testy `test_net_builder` (mostek, star, require_terminal) — **bez zmiany asercji**.
+- Dodać nowy test: jedna pozioma linia przez 3 bboxy z terminalami → ≥3 węzły, potential z wieloma symbolami.
