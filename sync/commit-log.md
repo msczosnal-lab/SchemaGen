@@ -91,3 +91,4 @@
 | 2026-07-04 14:25 | Claude | b2febb60 | [Claude] tiling: train/tiled_export (okna) + detect_tiled (przesuwne okno runtime) + flaga yolo_tiled; --cache w train_symbols |
 | 2026-07-04 14:27 | Claude | d5ab4168 | [Claude] tiling: tiled_export + detect_tiled + yolo_tiled + --cache; 50 passed |
 | 2026-07-04 14:25 | Claude | 6ffe4646 | [Claude] tiling: tiled_export + detect_tiled + yolo_tiled + --cache; 50 passed |
+| 2026-07-04 14:59 | Claude | 6a1a4fb4 | [Claude] train_symbols: --cache disk/ram (domyslnie disk); ram OOM-owal przy tilingu (1724 okna x 1536) |
