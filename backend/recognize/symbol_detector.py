@@ -130,8 +130,40 @@ class OnnxSymbolDetector:
         """Zwraca bbox (w pikselach oryginalu) + class_id + confidence dla strony PNG."""
         if conf_threshold is None:
             conf_threshold = yolo_conf_threshold()
-        session = self._ensure_session()
         image = load_bgr(image_path)
+        return dedup_detections_by_row(
+            self._infer_bgr(image, conf_threshold, iou_threshold)
+        )
+
+    def detect_tiled(
+        self,
+        image_path: str,
+        win: int = 1536,
+        overlap: float = 0.2,
+        conf_threshold: float | None = None,
+        iou_threshold: float = 0.45,
+    ) -> list[SymbolDetection]:
+        """Inferencja przesuwnym oknem (dla wielkich stron). Parowane z tiled_export."""
+        from train.tiled_export import nms, windows
+
+        if conf_threshold is None:
+            conf_threshold = yolo_conf_threshold()
+        image = load_bgr(image_path)
+        H, W = image.shape[:2]
+        dets: list[SymbolDetection] = []
+        for (x0, y0, x1, y1) in windows(W, H, win, overlap):
+            crop = image[y0:y1, x0:x1]
+            for d in self._infer_bgr(crop, conf_threshold, iou_threshold):
+                dets.append(d.model_copy(update={"x": d.x + x0, "y": d.y + y0}))
+        if not dets:
+            return []
+        boxes = [(d.x, d.y, d.width, d.height) for d in dets]
+        keep = nms(boxes, [d.confidence for d in dets], iou_threshold)
+        return dedup_detections_by_row([dets[i] for i in keep])
+
+    def _infer_bgr(self, image, conf_threshold: float, iou_threshold: float):
+        """Rdzen inferencji na tablicy BGR -> detekcje w pikselach TEJ tablicy."""
+        session = self._ensure_session()
         h0, w0 = image.shape[:2]
 
         blob, scale, pad_left, pad_top = self._letterbox(image)
@@ -183,4 +215,4 @@ class OnnxSymbolDetector:
                     height=float(hs[i]),
                 )
             )
-        return dedup_detections_by_row(detections)
+        return detections

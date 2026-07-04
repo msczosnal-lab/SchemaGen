@@ -75,6 +75,19 @@ def yolo_conf_threshold() -> float:
     return float(runtime_settings()["yolo_conf_threshold"])
 
 
+def yolo_tiled() -> bool:
+    """Inferencja przesuwnym oknem (modele trenowane na oknach/tiling)."""
+    return bool(runtime_settings().get("yolo_tiled", False))
+
+
+def yolo_tile_win() -> int:
+    return int(runtime_settings().get("yolo_tile_win", 1536))
+
+
+def yolo_tile_overlap() -> float:
+    return float(runtime_settings().get("yolo_tile_overlap", 0.2))
+
+
 def roi_bottom_cut_frac() -> float:
     """Ulamek wysokosci: linie w calosci ponizej sa pomijane. Clamp do (0, 1]."""
     val = float(runtime_settings()["roi_bottom_cut_frac"])

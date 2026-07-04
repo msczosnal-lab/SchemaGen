@@ -28,6 +28,7 @@ def train(
     fliplr: float = 0.0,
     flipud: float = 0.0,
     degrees: float = 0.0,
+    cache: bool = False,
 ) -> dict:
     """Fine-tune YOLOv8n na oznaczonych symbolach.
 
@@ -65,6 +66,7 @@ def train(
         project=str(out_dir),
         name=name,
         patience=patience,
+        cache=cache,       # cache obrazow -> szybsze epoki (mniej I/O)
         cos_lr=True,
         # Augmentacja pod schematy: obrot + lustro WLACZONE — sens symboli jest
         # orientacyjnie niezmienniczy (np. linia strzalki jest wzgledem grotu,
@@ -144,6 +146,7 @@ def _cli() -> None:
     parser.add_argument("--device", default="0", help="0 = GPU, 'cpu' = CPU")
     parser.add_argument("--name", default="symbols_v1")
     parser.add_argument("--patience", type=int, default=30)
+    parser.add_argument("--cache", action="store_true", help="cache obrazow (szybsze epoki)")
     parser.add_argument("--fliplr", type=float, default=0.0)
     parser.add_argument("--flipud", type=float, default=0.0)
     parser.add_argument("--degrees", type=float, default=0.0)
@@ -161,6 +164,7 @@ def _cli() -> None:
         fliplr=args.fliplr,
         flipud=args.flipud,
         degrees=args.degrees,
+        cache=args.cache,
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 

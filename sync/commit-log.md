@@ -87,3 +87,4 @@
 | 2026-07-04 10:22 | Claude | 84e31a3d | [Claude] orient: dopasowanie klasy przez tag_to_class (etykieta palety->klasa) + loader odporny na NUL; 39 passed |
 | 2026-07-04 10:30 | Claude | e740db01 | [Claude] orient-classes.yaml: przywrocone 5 klas (mostek D4 + strzalki/cewka C4 + relay C2) |
 | 2026-07-04 14:19 | Claude | 3e517aec | [Claude] orient: tryb augment (1 klasa + kafelki-augmentacja, domyslny) obok split; mostek wykrywany jako 1 klasa, koniec rozrzedzania |
+| 2026-07-04 14:06 | Claude | 5ec67819 | [Claude] orient: tryb augment (1 klasa + kafelki-augmentacja, domyslny) obok split; mostek wykrywany jako 1 klasa, koniec rozrzedzania |
