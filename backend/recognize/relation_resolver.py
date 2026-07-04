@@ -379,12 +379,30 @@ def _nearest_component_index(
     for i, c in enumerate(components):
         if c.tag:
             continue
-        cx, cy = _bbox_center(c.bbox)
-        d = _dist(tcx, tcy, cx, cy)
+        d = _dist_to_bbox(tcx, tcy, c.bbox)
         if d <= radius and d < best_d:
             best_d = d
             best_i = i
     return best_i
+
+
+def _dist_to_bbox(cx: float, cy: float, bbox: list[float]) -> float:
+    nx = max(bbox[0], min(cx, bbox[2]))
+    ny = max(bbox[1], min(cy, bbox[3]))
+    return _dist(cx, cy, nx, ny)
+
+
+def _dist_to_segment(
+    px: float, py: float, x1: float, y1: float, x2: float, y2: float
+) -> float:
+    dx, dy = x2 - x1, y2 - y1
+    if dx == 0 and dy == 0:
+        return _dist(px, py, x1, y1)
+    t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)
+    t = max(0.0, min(1.0, t))
+    qx = x1 + t * dx
+    qy = y1 + t * dy
+    return _dist(px, py, qx, qy)
 
 
 def _point_in_bbox(
