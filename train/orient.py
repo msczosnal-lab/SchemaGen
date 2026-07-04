@@ -21,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
+from backend.class_map import tag_to_class
 from backend.paths import CONFIG, ROOT
 from train.mostek_orient import D4, classify_gallery, compose, count_edge_crossings
 from train.mostek_tiles import _find_exemplar, _sample_background, crop_bbox
@@ -130,7 +131,7 @@ def expand_orientations(records, images_by_page, config=None, log=None):
     for rec in records:
         page = images_by_page.get(rec.page_id)
         for b in rec.bboxes:
-            base = (b.tag or "").strip().lower()
+            base = tag_to_class(b.tag or "")  # kanoniczna klasa (label -> class)
             if base not in galleries:
                 continue
             if page is None:
