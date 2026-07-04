@@ -14,7 +14,8 @@
 | **011-strip-yolo-classes** | ✅ DONE — zlaczka/mostek/strzalki w YOLO |
 | **012-mostek-orientacja** | ✅ DONE — D4 + eksemplarze |
 | **014-tiling** | ✅ kod DONE — tiled_export + detect_tiled |
-| **015-relations-layer** | ⏳ WIP — RelationResolver (tekst→symbol, potencjaly, context runtime) |
+| **015-relations-layer** | ✅ DONE — RelationResolver |
+| **016-e2e-metrics** | ⏳ KOLEJKA — po smoke Filipa |
 | **Harness walidacji** | ✅ `preview_schema.py`, `diff_gt_runtime.py` |
 | **Config runtime** | ✅ `terminal_tol_*`, `hough_*`, `connection_require_terminal` |
 
