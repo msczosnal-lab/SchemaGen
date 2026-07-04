@@ -95,3 +95,4 @@
 | 2026-07-04 14:51 | Claude | 0a6b81a8 | [Claude] train_symbols: --cache disk/ram (domyslnie disk); ram OOM-owal przy tilingu (1724 okna x 1536) |
 | 2026-07-04 16:21 | Claude | ccfcf5b1 | [Claude] preview_detection: flaga --tiled (inferencja przesuwnym oknem) do podgladu bboxow modelu tiled |
 | 2026-07-04 16:11 | Claude | 0616dc42 | [Claude] preview_detection: flaga --tiled (inferencja przesuwnym oknem) do podgladu bboxow modelu tiled |
+| 2026-07-04 16:22 | Claude | e74ec2b0 | [Claude] TILING: detekcja mostkow 0->0.92 (okna natywne + detect_tiled + yolo_tiled); preview_detection --tiled; 50 passed |
