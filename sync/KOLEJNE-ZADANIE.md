@@ -27,26 +27,27 @@
 
 ---
 
-## Aktywne zadanie — Claude (018-lines-quality)
-
-| Pole | Wartość |
-|------|---------|
-| **Prompt** | [`sync/prompts/018-lines-quality.md`](prompts/018-lines-quality.md) |
-| **Cel** | Naprawa LineTracer (Hough pod kółka węzłów, skalowany merge_collinear), kalibracja niebieskiego w semantic-colors, overlay preview_lines, diag_lines.py |
-| **Kryteria** | Szyna p027 ≥90% rzędu jako wire; p040 bez regresji; pytest ≥213 |
-| **Następne** | [`018-terminals-strategy.md`](prompts/018-terminals-strategy.md) po akceptacji 018-lines |
-
----
-
-## Kolejka — Claude (018-terminals-strategy)
+## Aktywne zadanie — Claude (018-terminals-strategy)
 
 | Pole | Wartość |
 |------|---------|
 | **Prompt** | [`sync/prompts/018-terminals-strategy.md`](prompts/018-terminals-strategy.md) |
 | **Cel** | TerminalResolver + terminal-patterns.yaml + `_nodes_on_net` (węzły na ścieżce) + labeler „zapisz wzorzec klasy" + rozdzielenie terminal_tol |
-| **Zależność** | 018-lines-quality DONE |
+| **Zależność** | 018-lines-quality ✅ |
 
 ---
+
+## ~~Aktywne zadanie — Claude (018-lines-quality)~~ DONE
+
+| Pole | Wartość |
+|------|---------|
+| **Prompt** | [`sync/prompts/018-lines-quality.md`](prompts/018-lines-quality.md) |
+| **pytest** | **226 passed** (213 + 13 nowych) — potwierdzone na PC Filip 2026-07-04 |
+| **Smoke Filip** | p027 `preview_lines` (szyna ≥90% rzędu), p040 `eval_val_pages` (bez regresji) — patrz `zw-to-filip.md` |
+
+---
+
+## ~~Kolejka — Claude (018-terminals-strategy)~~ → aktywne powyżej
 
 ## Aktywne zadanie — Filip
 

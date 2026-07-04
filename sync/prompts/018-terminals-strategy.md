@@ -1,9 +1,8 @@
 # Zadanie 018: Strategia terminali (TerminalResolver + węzły na ścieżce)
 
-**Status:** KOLEJKA — po zakończeniu [`018-lines-quality.md`](018-lines-quality.md)  
+**Status:** AKTYWNE — implementacja (Claude Cowork)  
 **Model:** Opus, effort High  
-**Zależność:** jakość linii z 018-lines (szyna p027 musi być wykryta jako `wire`)  
-**pytest baseline:** 213 passed (+ nowe testy resolvera)
+**Zależność:** 018-lines-quality ✅ (226 pytest)
 
 ## Kontekst
 

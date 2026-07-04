@@ -1,9 +1,7 @@
 # Zadanie 018: Jakość linii (LineTracer + paleta)
 
-**Status:** AKTYWNE — implementacja (Claude Cowork)  
-**Model:** Opus, effort High  
-**Zależność:** review zaakceptowany — [`sync/analysis/019-terminals-lines-findings.md`](../analysis/019-terminals-lines-findings.md) (§5.1, Poprawka runda 1)  
-**pytest baseline:** 213 passed
+**Status:** DONE — wdrożone 2026-07-04 (Claude)  
+**pytest:** 226 passed (PC Filip)
 
 ## Kontekst
 
