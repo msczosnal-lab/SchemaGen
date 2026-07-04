@@ -1,0 +1,80 @@
+{
+  "description": "Minimalny fixture do testow RelationResolver — bez obrazow.",
+  "components": [
+    {
+      "id": "sym_arrow_in",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "bbox": [100, 50, 130, 80],
+      "tag": "24V",
+      "source": "yolo"
+    },
+    {
+      "id": "sym_arrow_out",
+      "type": "strzalka_potencjalu_wyjsciowa",
+      "bbox": [200, 50, 230, 80],
+      "tag": "24V",
+      "source": "yolo"
+    },
+    {
+      "id": "sym_relay",
+      "type": "relay",
+      "bbox": [300, 40, 360, 100],
+      "tag": "",
+      "source": "yolo"
+    },
+    {
+      "id": "sym_z1",
+      "type": "zlaczka",
+      "bbox": [50, 200, 70, 220],
+      "tag": "",
+      "source": "yolo"
+    },
+    {
+      "id": "sym_z2",
+      "type": "zlaczka",
+      "bbox": [90, 202, 110, 222],
+      "tag": "",
+      "source": "yolo"
+    }
+  ],
+  "texts": [
+    {
+      "text": "-K1",
+      "bbox": [365, 45, 395, 60],
+      "confidence": 0.95
+    },
+    {
+      "text": "W1",
+      "bbox": [175, 115, 195, 130],
+      "confidence": 0.9
+    },
+    {
+      "text": "TABELKA",
+      "bbox": [10, 900, 80, 920],
+      "confidence": 0.85
+    }
+  ],
+  "graphic_lines": [
+    {
+      "id": "gl_wire",
+      "points": [[130, 65], [300, 65]],
+      "role": "wire"
+    }
+  ],
+  "connections": [
+    {
+      "from": "sym_arrow_out",
+      "to": "sym_relay",
+      "potential": "",
+      "kind": "power"
+    },
+    {
+      "from": "sym_arrow_in",
+      "to": "sym_arrow_out",
+      "potential": "",
+      "kind": "power"
+    }
+  ],
+  "potentials": [],
+  "image_size": [1000, 1000]
+}
