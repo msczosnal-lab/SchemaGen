@@ -154,7 +154,7 @@ def main() -> int:
                 Component(
                     id=f"sym_{i}",
                     type=d.class_name,
-                    bbox=list(d.bbox),
+                    bbox=[d.x, d.y, d.x + d.width, d.y + d.height],
                     source="yolo",
                 )
                 for i, d in enumerate(dets)
