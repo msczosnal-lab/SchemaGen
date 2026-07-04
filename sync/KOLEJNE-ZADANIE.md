@@ -6,7 +6,7 @@
 
 ---
 
-## Stan (2026-07-04) — review 019 DONE, implementacja 018 WIP
+## Stan (2026-07-04) — 018-lines DONE, 018-terminals następne
 
 | Prompt / kamień | Status |
 |-----------------|--------|
@@ -16,9 +16,9 @@
 | **014-tiling** | ✅ kod DONE — tiled_export + detect_tiled |
 | **015-relations-layer** | ✅ DONE — RelationResolver |
 | **019-fable5-terminals-lines** | ✅ DONE — analiza; findings zaakceptowane |
-| **018-lines-quality** | 🔵 **AKTYWNE** (Claude) — Hough, paleta, diag_lines |
-| **018-terminals-strategy** | ⏳ KOLEJKA — TerminalResolver + węzły-na-ścieżce |
-| **016-e2e-metrics** | ⏳ KOLEJKA — po smoke Filipa (bez zmian) |
+| **018-lines-quality** | ✅ DONE — drugi przebieg Hough, paleta, diag_lines (**226 pytest**) |
+| **018-terminals-strategy** | 🔵 **AKTYWNE** (Claude) — TerminalResolver + węzły-na-ścieżce |
+| **016-e2e-metrics** | ⏳ KOLEJKA — po smoke Filipa |
 | **Harness walidacji** | ✅ `preview_schema.py`, `diff_gt_runtime.py`, `eval_val_pages.py` |
 
 **Findings:** [`sync/analysis/019-terminals-lines-findings.md`](analysis/019-terminals-lines-findings.md) (+ Poprawka runda 1)
