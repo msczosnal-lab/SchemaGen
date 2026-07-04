@@ -109,3 +109,4 @@
 | 2026-07-04 18:26 | Cursor | 9a3c0f74 | [Cursor] fix: ContextAssignment dataclass -> Pydantic w RelationResolver |
 | 2026-07-04 18:31 | Cursor | c2054e9b | [Cursor] runtime: wyklucz klase urzadzenie z detekcji YOLO (yolo_runtime_exclude_classes) |
 | 2026-07-04 18:31 | Cursor | e7d05999 | [Cursor] runtime: wyklucz klase urzadzenie z detekcji YOLO (yolo_runtime_exclude_classes) |
+| 2026-07-04 18:54 | Cursor | 38df312d | [Cursor] mostek: 3 terminale z obwodu cropa; strzalki: supplement matchTemplate gdy YOLO recall=0 |
