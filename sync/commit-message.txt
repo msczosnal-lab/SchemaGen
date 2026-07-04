@@ -1,1 +1,6 @@
-[Claude] orient: tryb augment (1 klasa + kafelki-augmentacja, domyslny) obok split; mostek wykrywany jako 1 klasa, koniec rozrzedzania
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
