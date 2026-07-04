@@ -126,3 +126,19 @@ def test_long_bus_along_row_of_small_boxes_stays_wire() -> None:
     [out] = apply_sieve([bus], boxes, [], edge_tol=6.0)
     assert out.role == "wire"
     assert LineClassifier.is_connection_candidate(out)
+
+
+def test_long_wire_in_wide_ocr_bbox_stays_wire() -> None:
+    # OCR na p027: szeroki plytki pasek tytulowy (~1475x70) nie demotuje szyny ~800px.
+    bus = _wire([[100, 50], [900, 50]])
+    title_bar = [80, 40, 1600, 110]
+    [out] = apply_sieve([bus], [COMP], [title_bar], edge_tol=6.0)
+    assert out.role == "wire"
+
+
+def test_wire_spanning_most_of_large_symbol_stays_wire() -> None:
+    # Przewod wzdłuż terminal_plc (676x474) — nie grafika wewnetrzna tabelki.
+    plc = Component(id="plc", type="terminal_plc", bbox=[100, 100, 776, 574], source="yolo")
+    bus = _wire([[120, 300], [740, 300]])
+    [out] = apply_sieve([bus], [plc], [], edge_tol=6.0)
+    assert out.role == "wire"
