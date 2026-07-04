@@ -6,6 +6,10 @@ yolo_conf_threshold: 0.25
 yolo_tiled: true
 yolo_tile_win: 1536
 yolo_tile_overlap: 0.2
+# Klasy odrzucane po inferencji (nie trafiaja do components[]).
+# urzadzenie = duzy obrys modulu; na razie tylko GT w labelerze, nie runtime.
+yolo_runtime_exclude_classes:
+  - urzadzenie
 
 # ROI: pomijaj linie w calosci ponizej tego ulamka wysokosci strony
 # (tabliczka rysunkowa / tabelki pod schematem).
