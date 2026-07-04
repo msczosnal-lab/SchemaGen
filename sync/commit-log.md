@@ -105,3 +105,4 @@
 | 2026-07-04 18:09 | Cursor | 6764831e | [Cursor] fix: eval_val_pages UnboundLocalError (page_id vs petla) |
 | 2026-07-04 18:12 | Cursor | 829508aa | [Cursor] fix: yolo_tiled true + preview_detection skrot p040 + resolve_page_id w paths |
 | 2026-07-04 18:12 | Cursor | f5b267b6 | [Cursor] fix: yolo_tiled true + preview_detection skrot p040 + resolve_page_id w paths |
+| 2026-07-04 18:26 | Cursor | 05d43b81 | [Cursor] fix: ContextAssignment dataclass -> Pydantic w RelationResolver |
