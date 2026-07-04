@@ -3,7 +3,8 @@
 Smoke test filaru linii po commicie Claude (002/003).
 
 Uzycie:
-    python scripts/preview_lines.py --page data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p035.png
+    python scripts/preview_lines.py --page p027 --with-sieve
+    python scripts/preview_lines.py --page p027 --legacy-hough
     python scripts/preview_lines.py --offset 24 --limit 6
 """
 
@@ -17,7 +18,7 @@ from pathlib import Path
 
 import cv2
 
-from backend.paths import RAW
+from backend.paths import RAW, raw_image_path
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve
 from backend.recognize.line_tracer import LineTracer
@@ -83,7 +84,10 @@ def _draw_lines(img, lines, segments) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--page", type=Path)
+    ap.add_argument(
+        "--page",
+        help="page_id (np. p027) lub sciezka do PNG w data/raw",
+    )
     ap.add_argument("--pages", nargs="*", help="globy PNG")
     ap.add_argument("--limit", type=int, default=6)
     ap.add_argument("--offset", type=int, default=24, help="domyslnie p025+ Adamed")
