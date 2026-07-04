@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-07-04 [Cursor] — 018-lines DONE: pytest 226 passed, smoke p027/p040 = Filip
+
+**Kod Claude zaakceptowany po review** (szczegóły w `zw-to-filip.md`). Na PC Filip: `pytest` → **226 passed**.
+
+**Filip — smoke wizualny (przed 018-terminals):**
+
+```powershell
+python scripts/preview_lines.py --page data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p027.png
+python scripts/diag_lines.py --page p027
+python scripts/eval_val_pages.py --page p040
+python scripts/preview_schema.py --page p027 --source runtime
+```
+
+Kryteria: szyna y≈2945 jako wire ≥90% rzędu; p040 connections bez regresji; niebieski z grupą `blue_wire`.
+
+**Następne dla Claude:** [`018-terminals-strategy.md`](prompts/018-terminals-strategy.md).
+
+---
+
 ## 2026-07-04 [Filip] — GT p027: strzałki + terminale (komplet)
 
 **Status:** wszystkie strzałki (klasy 7/8) i terminale na p027 poprawione w labelerze.
