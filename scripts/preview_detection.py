@@ -8,8 +8,13 @@ from pathlib import Path
 
 import cv2
 
-from backend.paths import MODELS, RAW, REGISTRY_PATH
-from backend.runtime_config import yolo_conf_threshold
+from backend.paths import MODELS, RAW, REGISTRY_PATH, raw_image_path
+from backend.runtime_config import (
+    yolo_conf_threshold,
+    yolo_tile_overlap,
+    yolo_tile_win,
+    yolo_tiled,
+)
 from labeler.export import load_class_map
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
@@ -81,7 +86,9 @@ def render(page: Path, conf: float | None, out_dir: Path, onnx: Path,
         "page": page.name,
         "page_id": page.stem,
         "model": onnx.name,
-        "conf_threshold": conf,
+        "tiled": use_tiled,
+        "tile_win": win,
+        "tile_overlap": overlap,
         "count": len(detections),
         "detections": [
             {
@@ -146,18 +153,41 @@ def render(page: Path, conf: float | None, out_dir: Path, onnx: Path,
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--page", type=Path, default=None, help="PNG w data/raw (domyslnie pierwsza nieoznaczona)")
+    parser.add_argument(
+        "--page",
+        default=None,
+        help="page_id, skrot p040 lub PNG w data/raw (domyslnie pierwsza nieoznaczona)",
+    )
     parser.add_argument("--conf", type=float, default=None)
     parser.add_argument("--version", default=None, help="wersja modelu (domyslnie aktywna z registry)")
     parser.add_argument("--model", type=Path, default=None, help="bezposrednia sciezka do .onnx")
     parser.add_argument("--out", type=Path, default=OUT_DIR)
-    parser.add_argument("--tiled", action="store_true", help="inferencja przesuwnym oknem (model tiled)")
-    parser.add_argument("--win", type=int, default=1536)
-    parser.add_argument("--overlap", type=float, default=0.2)
+    parser.add_argument(
+        "--tiled",
+        action="store_true",
+        help="inferencja przesuwnym oknem (domyslnie: yolo_tiled z runtime.yaml)",
+    )
+    parser.add_argument("--no-tiled", action="store_true", help="wymus detect() bez okien")
+    parser.add_argument("--win", type=int, default=None)
+    parser.add_argument("--overlap", type=float, default=None)
     args = parser.parse_args()
-    page = args.page or find_unlabeled_page()
+
+    if args.page:
+        page = raw_image_path(args.page)
+        if page is None:
+            raise SystemExit(f"[BLAD] Brak obrazu dla: {args.page!r} w {RAW}")
+    else:
+        page = find_unlabeled_page()
+
+    use_tiled = (args.tiled or yolo_tiled()) and not args.no_tiled
+    win = args.win if args.win is not None else yolo_tile_win()
+    overlap = args.overlap if args.overlap is not None else yolo_tile_overlap()
+
     onnx = resolve_model(args.version, args.model)
-    meta = render(page, args.conf, args.out, onnx, tiled=args.tiled, win=args.win, overlap=args.overlap)
+    meta = render(
+        page, args.conf, args.out, onnx,
+        tiled=use_tiled, win=win, overlap=overlap,
+    )
     print(json.dumps(meta, ensure_ascii=False, indent=2))
 
 
