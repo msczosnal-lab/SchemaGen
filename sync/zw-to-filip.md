@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-07-04 [Claude/Fable5] — Analiza 019 DONE: terminale + linie
+
+**Wynik:** [`sync/analysis/019-terminals-lines-findings.md`](analysis/019-terminals-lines-findings.md) + sekcja „Wynik" w prompcie 019. Bez zmian w kodzie produkcyjnym (analiza only).
+
+**Kluczowe (odtworzone empirycznie na kaflach p027):**
+
+| Znalezisko | Dowód |
+|---|---|
+| [BŁĄD] Szyna p027 niewidoczna dla Hougha: segmenty tuszu 67–76 px między kółkami węzłów (przerwy 21–22 px) vs `min_len=132`, `gap=10` | pipeline na kaflu w013: **0 linii, 0 connections** (dokładnie objaw p027) |
+| [BŁĄD] `_nodes_on_net` widzi tylko końce linii — scalona szyna daje 2 węzły na 16 złączek | wariant C findings §1 |
+| [RYZYKO] `terminal_tol=79 px` vs pitch złączek 94 px → 6–10 fałszywych terminali/złączkę | warianty B/D |
+| [BŁĄD] `enclosure`==`pe_wire` stroke `#00AA44`, remis po kolejności dict → `kind=pe` nigdy; zielona ramka dostaje rolę wire | `palette.match_color` + YAML |
+| [BŁĄD] `arrow_supplement`: 1 FP wyłącza uzupełnienie klasy; `roi_top_frac` ucina dolne 7% strony | kod l.85, l.102 |
+| Sito NIE jest blokerem p027 (H3/H6 odrzucone) — szyna idzie przez środki bboxów | 0–6 demotów w pasie |
+
+**Plan:** 018-lines-quality (pierwszy) → 018-terminals-strategy (TerminalResolver + terminal-patterns.yaml + węzły-na-ścieżce). Zakresy plików i kryteria akceptacji w findings §5.
+
+**Filip — 4 pytania** w findings (kolory hex, pattern złączki, glify strzałek, git status na głównym PC) + 3 komendy weryfikacyjne (§6). Sesja biegła na ZW bez `data/raw`/GT DB — H5 (kolory) wymaga Twoich stron.
+
+**pytest:** nie uruchamiany (zero zmian w kodzie).
+
+---
+
 ## 2026-07-04 [Cursor] — Faza 5: RelationResolver (prompt 015)
 
 **Kamień:** warstwa relacji po net-builderze.

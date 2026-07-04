@@ -181,10 +181,21 @@ OCR pozostaje odlozone — nie planuj dla niego promptu w tej rundzie.
 
 ## Pytania do Filipa
 
-*(Fable 5 dopisuje tutaj, jesli cos blokuje analize — nie zgaduj)*
+*(pelna lista + kontekst: sekcja "Pytania do Filipa" w findings)*
+
+1. Hex realnych kolorow przewodow (PE-zielony, fazowy-czerwony) z pipety na p027/p035 — do kalibracji `semantic-colors.yaml`.
+2. Zlaczka p027: czy odczep gora/dol (do glifu strzalki) to terminal zlaczki, czy strzalka to osobny symbol z wlasnym terminalem?
+3. Glify strzalek przy zlaczkach p027 — doznaczyc jako klasa 7/8 przed retrainem, czy czesc symbolu zlaczki?
+4. `git status`/`pytest` na glownym PC po commicie (kopia ZW miala artefakty synchronizacji plikow).
 
 ---
 
 ## Wynik
 
-*(Fable 5 wypelnia po zakonczeniu: link do `sync/analysis/019-terminals-lines-findings.md`, TL;DR 3-5 zdan, status kazdej hipotezy z sekcji 4)*
+**Findings:** [`sync/analysis/019-terminals-lines-findings.md`](../analysis/019-terminals-lines-findings.md) (2026-07-04, Fable 5)
+
+**TL;DR:** Glowna przyczyna p027 odtworzona empirycznie na kaflach `labeled_tiled`: szyna listwy jest przerywana kolkami wezlow co ~94 px (segmenty tuszu 67–76 px, przerwy 21–22 px), a runtime Hough ma `min_len=132 > 76` i `gap=10 < 21` — szyna w 100% niewidoczna, stad zero terminali i zero connections. Sito NIE jest winne (szyna biegnie przez SRODKI bboxow, 40 px od krawedzi). Po naprawie Hougha ujawnia sie druga warstwa: `_point_at_node` blokuje union-find w calym pasie listwy (46 netow vs 5), `_nodes_on_net` widzi tylko KONCE linii (scalona szyna -> 2 wezly na 16 zlaczek), a `terminal_tol=79 px` przy pitchu 94 px daje 6–10 falszywych terminali/zlaczke. Kolory: brak grupy czerwieni + remis `enclosure`/`pe_wire` rozstrzygany kolejnoscia dict (zielen ZAWSZE enclosure, `kind=pe` nigdy). Plan: 018-lines-quality najpierw, potem 018-terminals-strategy (szczegoly + kryteria akceptacji w findings §5).
+
+**Status hipotez:** H1 ✅ (wtorna), H2 ✅, H3 ❌ (dla p027), H4 ✅ (deterministyczne, nie losowe), H5 ⚠️ nierozstrzygnieta (kafle grayscale — potrzebne strony kolorowe u Filipa), H6 ❌ (bloker), H7 ✅ **glowna przyczyna**, H8 ❌ (problem odwrotny: tol kontaktu za duzy, nie dedup), H9 ⚠️ czesciowo (kod+dataset: supplement wylaczany przez 1 FP, `roi_top_frac` ucina dol strony, konflikt etykiet glifow strzalek przy zlaczkach; reszta wymaga danych u Filipa).
+
+**Ograniczenie:** sesja na PC ZW bez `data/raw`/GT DB — kroki sekcji 6 wymagajace pelnych stron/kolorow rozpisane dla Filipa w findings §6.
