@@ -23,6 +23,17 @@
 
 ---
 
+## Aktywne zadanie — Fable 5 (analiza, Faza 4b)
+
+| Pole | Wartość |
+|------|---------|
+| **Prompt** | [`sync/prompts/019-fable5-terminals-lines-analysis.md`](prompts/019-fable5-terminals-lines-analysis.md) |
+| **Cel** | Analiza kodu + plan (NIE implementacja): terminale (definicja Filipa, terminal-to-terminal) + linie (fragmentacja, bus wire p027, kolory losowe). Wynik: `sync/analysis/019-terminals-lines-findings.md` + propozycja podzialu na `018-lines-quality` / `018-terminals-strategy`. |
+| **Priorytet** | 1) linie (bus wire p027), 2) terminale (TerminalResolver + terminal-patterns.yaml), 3) symbole/strzalki retrain. OCR odlozone. |
+| **Kontekst smoke** | `sync/fable5-smoke-context.md` |
+
+---
+
 ## Aktywne zadanie — Filip (smoke 015)
 
 | Pole | Wartość |
