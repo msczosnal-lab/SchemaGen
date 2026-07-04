@@ -93,7 +93,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.page:
-        pages = [page_id(args.page)]
+        pages = [resolve_page_id(args.page)]
     else:
         pages = _load_val_pages()
 
@@ -102,10 +102,10 @@ def main() -> int:
         return 1
 
     reports: list[dict] = []
-    for page_id in pages:
-        r = eval_page(page_id)
+    for pid in pages:
+        r = eval_page(pid)
         if r is None:
-            print(f"[POMIN] Brak obrazu: {page_id}")
+            print(f"[POMIN] Brak obrazu: {pid}")
             continue
         reports.append(r)
 
