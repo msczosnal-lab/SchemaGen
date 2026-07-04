@@ -45,9 +45,6 @@ def test_table_text_goes_to_annotations_only() -> None:
         TextDetection(text="TABELKA", bbox=[10, 900, 80, 920], confidence=0.85)
     ]
     resolver = RelationResolver()
-    resolver.resolve([relay], texts, [], [], [], image_size=(1000, 1000))
-    assert relay.tag == ""
-    assert "TABELKA" in annotations if False else True  # placeholder
     _, _, _, _, annotations = resolver.resolve(
         [relay], texts, [], [], [], image_size=(1000, 1000)
     )
