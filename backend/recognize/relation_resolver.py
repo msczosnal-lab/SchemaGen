@@ -202,7 +202,7 @@ class RelationResolver:
         image_size: tuple[int, int] | None,
     ) -> tuple[list[Connection], set[int]]:
         if not connections or not texts:
-            return connections
+            return connections, set()
 
         radius = _proximity_radius(proximity_frac, image_size)
         wire_lines = [
@@ -210,10 +210,11 @@ class RelationResolver:
             if LineClassifier.is_connection_candidate(ln) and len(ln.points) >= 2
         ]
         if not wire_lines:
-            return connections
+            return connections, set()
 
         comp_bbox = {c.id: c.bbox for c in components}
         out = [c.model_copy(deep=True) for c in connections]
+        used_for_wire: set[int] = set()
 
         for conn in out:
             if conn.potential and conn.potential.startswith("net_"):
@@ -224,9 +225,8 @@ class RelationResolver:
 
             best_label = ""
             best_dist = radius + 1.0
+            best_ti = -1
             for ti, t in enumerate(texts):
-                if ti in assigned:
-                    continue
                 cx = (t.bbox[0] + t.bbox[2]) / 2
                 cy = (t.bbox[1] + t.bbox[3]) / 2
                 if _inside_any_bbox(cx, cy, comp_bbox.values()):
@@ -254,11 +254,14 @@ class RelationResolver:
                     if d < best_dist:
                         best_dist = d
                         best_label = t.text.strip()
+                        best_ti = ti
 
             if best_label:
                 conn.potential = best_label
+                if best_ti >= 0:
+                    used_for_wire.add(best_ti)
 
-        return out
+        return out, used_for_wire
 
     # ---------------------------------------------------- potential arrows
     def _merge_potential_arrows(
