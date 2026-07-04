@@ -146,11 +146,21 @@ def main() -> int:
         lines = classifier.classify(segments, image_size=(w, h))
         roles_pre = Counter(l.role for l in lines)
         if args.with_sieve:
-            from backend.recognize.pipeline import recognize_file
+            from backend.models.schema import Component
+            from backend.recognize.graph_builder import GraphBuilder
 
-            schema = recognize_file(str(page))
+            dets = GraphBuilder()._detect(str(page))
+            components = [
+                Component(
+                    id=f"sym_{i}",
+                    type=d.class_name,
+                    bbox=list(d.bbox),
+                    source="yolo",
+                )
+                for i, d in enumerate(dets)
+            ]
             edge_tol = max(6.0, 0.004 * max(w, h))
-            lines = apply_sieve(lines, schema.components, [], edge_tol=edge_tol)
+            lines = apply_sieve(lines, components, [], edge_tol=edge_tol)
         roles = Counter(l.role for l in lines)
         groups = Counter(l.semantic_group for l in lines if l.semantic_group)
         total_segs += len(segments)
