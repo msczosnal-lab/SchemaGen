@@ -48,6 +48,7 @@ connection_require_terminal: true
 arrow_supplement:
   enabled: true
   min_score: 0.88
+  coarse_min_score: 0.55
   downscale: 0.5
   max_templates_per_class: 12
   roi_top_frac: 0.93

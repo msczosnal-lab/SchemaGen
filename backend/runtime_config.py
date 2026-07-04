@@ -164,6 +164,7 @@ def connection_require_terminal() -> bool:
 _ARROW_SUPPLEMENT_DEFAULTS = {
     "enabled": True,
     "min_score": 0.88,
+    "coarse_min_score": 0.55,
     "downscale": 0.5,
     "scales": [1.0],
     "max_templates_per_class": 12,

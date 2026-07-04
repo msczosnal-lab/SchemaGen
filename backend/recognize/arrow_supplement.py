@@ -88,18 +88,20 @@ def supplement_arrow_detections(
         return yolo_detections
 
     min_score = float(cfg.get("min_score", 0.88))
+    coarse_score = float(cfg.get("coarse_min_score", 0.55))
     downscale = float(cfg.get("downscale", 0.5))
     scales = cfg.get("scales") or [1.0]
     roi_frac = float(cfg.get("roi_top_frac", 0.93))
 
-    gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
+    gray_full = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
+    gray = gray_full
     if downscale != 1.0:
         gray = cv2.resize(
             gray, None, fx=downscale, fy=downscale, interpolation=cv2.INTER_AREA
         )
     cutoff = int(roi_frac * gray.shape[0])
 
-    extra: list[SymbolDetection] = []
+    coarse_hits: list[tuple[str, int, int, int, int, float]] = []
     inv = 1.0 / downscale if downscale else 1.0
 
     for class_name in need:
@@ -110,49 +112,92 @@ def supplement_arrow_detections(
                 if th > gray.shape[0] or tw > gray.shape[1]:
                     continue
                 res = cv2.matchTemplate(gray, t, cv2.TM_CCOEFF_NORMED)
-                ys, xs = np.where(res >= min_score)
+                ys, xs = np.where(res >= coarse_score)
                 for y, x in zip(ys, xs):
                     if y > cutoff:
                         continue
-                    score = float(res[y, x])
-                    extra.append(
-                        SymbolDetection(
-                            class_id=-1,
-                            class_name=class_name,
-                            confidence=score,
-                            x=float(x) * inv,
-                            y=float(y) * inv,
-                            width=float(tw) * inv,
-                            height=float(th) * inv,
-                        )
+                    coarse_hits.append(
+                        (class_name, int(x), int(y), tw, th, float(res[y, x]))
                     )
+
+    if not coarse_hits:
+        return yolo_detections
+
+    extra: list[SymbolDetection] = []
+    seen_boxes: list[tuple[float, float, float, float]] = []
+
+    for class_name, x, y, tw, th, coarse in sorted(
+        coarse_hits, key=lambda h: h[5], reverse=True
+    ):
+        fx = int(x * inv)
+        fy = int(y * inv)
+        fw = max(8, int(tw * inv))
+        fh = max(8, int(th * inv))
+        key = (fx, fy, fw, fh)
+        if any(_iou_boxes(key, b) >= float(cfg.get("nms_iou", 0.4)) for b in seen_boxes):
+            continue
+        score = _refine_match_score(gray_full, gallery[class_name], fx, fy, fw, fh)
+        if score < min_score:
+            continue
+        seen_boxes.append(key)
+        extra.append(
+            SymbolDetection(
+                class_id=-1,
+                class_name=class_name,
+                confidence=score,
+                x=float(fx),
+                y=float(fy),
+                width=float(fw),
+                height=float(fh),
+            )
+        )
 
     if not extra:
         return yolo_detections
 
-    merged = list(yolo_detections) + _nms_arrows(extra, float(cfg.get("nms_iou", 0.4)))
-    return merged
+    return list(yolo_detections) + extra
 
 
-def _nms_arrows(dets: list[SymbolDetection], iou_thr: float) -> list[SymbolDetection]:
-    """NMS tylko na dopelnieniach (unikaj duplikatow tego samego strzalki)."""
-    if not dets:
-        return []
-    dets = sorted(dets, key=lambda d: d.confidence, reverse=True)
-    keep: list[SymbolDetection] = []
-    for d in dets:
-        if all(_iou(d, k) < iou_thr for k in keep):
-            keep.append(d)
-    return keep
+def _refine_match_score(
+    gray: np.ndarray,
+    templates: list[np.ndarray],
+    x: int,
+    y: int,
+    w: int,
+    h: int,
+) -> float:
+    """NCC na pelnej rozdzielczosci — patch vs najlepszy szablon tej klasy."""
+    H, W = gray.shape[:2]
+    x1, y1 = max(0, x), max(0, y)
+    x2, y2 = min(W, x + w), min(H, y + h)
+    patch = gray[y1:y2, x1:x2]
+    if patch.size < 50:
+        return -1.0
+    best = -1.0
+    for tmpl in templates:
+        th, tw = tmpl.shape[:2]
+        if th > patch.shape[0] or tw > patch.shape[1]:
+            t = cv2.resize(
+                tmpl,
+                (patch.shape[1], patch.shape[0]),
+                interpolation=cv2.INTER_LINEAR,
+            )
+        else:
+            t = tmpl
+        res = cv2.matchTemplate(patch, t, cv2.TM_CCOEFF_NORMED)
+        best = max(best, float(res.max()))
+    return best
 
 
-def _iou(a: SymbolDetection, b: SymbolDetection) -> float:
-    ax2, ay2 = a.x + a.width, a.y + a.height
-    bx2, by2 = b.x + b.width, b.y + b.height
-    ix1, iy1 = max(a.x, b.x), max(a.y, b.y)
+def _iou_boxes(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    ax2, ay2 = ax + aw, ay + ah
+    bx2, by2 = bx + bw, by + bh
+    ix1, iy1 = max(ax, bx), max(ay, by)
     ix2, iy2 = min(ax2, bx2), min(ay2, by2)
     if ix2 <= ix1 or iy2 <= iy1:
         return 0.0
     inter = (ix2 - ix1) * (iy2 - iy1)
-    union = a.width * a.height + b.width * b.height - inter
+    union = aw * ah + bw * bh - inter
     return inter / union if union > 0 else 0.0
