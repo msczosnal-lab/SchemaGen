@@ -24,7 +24,7 @@ from backend.models.label import LabelRecord
 from backend.paths import CONFIG, RAW
 from backend.recognize.pipeline import recognize_file
 from labeler.export import label_to_schema
-from scripts.diff_metrics import diff_components, diff_connections, diff_tags, _page_id
+from backend.validate.diff_metrics import diff_components, diff_connections, diff_tags, page_id
 
 OUT_DIR = ROOT / "data" / "output" / "eval_val_pages"
 
@@ -88,7 +88,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.page:
-        pages = [_page_id(args.page)]
+        pages = [page_id(args.page)]
     else:
         pages = _load_val_pages()
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from backend.models.schema import Component, Connection, SchemaModel
-from scripts.diff_metrics import diff_components, diff_connections, diff_tags
+from backend.validate.diff_metrics import diff_components, diff_connections, diff_tags
 
 
 def test_diff_connections_match() -> None:

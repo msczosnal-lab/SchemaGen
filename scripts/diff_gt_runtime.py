@@ -9,21 +9,26 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 from backend.db import load_annotation
 from backend.models.label import LabelRecord
 from backend.paths import RAW
 from backend.recognize.pipeline import recognize_file
-from labeler.export import label_to_schema
-from scripts.diff_metrics import (
-    _page_id,
+from backend.validate.diff_metrics import (
     diff_components,
     diff_connections,
     diff_tags,
+    page_id,
 )
+from labeler.export import label_to_schema
 
-OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "output" / "diff_gt_runtime"
+OUT_DIR = _ROOT / "data" / "output" / "diff_gt_runtime"
 
 
 def main() -> int:
@@ -32,13 +37,13 @@ def main() -> int:
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    page_id = _page_id(args.page)
-    img = RAW / f"{page_id}.png"
+    pid = page_id(args.page)
+    img = RAW / f"{pid}.png"
     if not img.exists():
         print(f"[BLAD] Brak {img}")
         return 1
 
-    gt_data = load_annotation(page_id)
+    gt_data = load_annotation(pid)
     gt_lines = 0
     gt_bboxes = 0
     gt_schema = None
@@ -51,7 +56,7 @@ def main() -> int:
     runtime = recognize_file(str(img))
 
     report = {
-        "page_id": page_id,
+        "page_id": pid,
         "gt": {
             "bboxes": gt_bboxes,
             "lines": gt_lines,
@@ -73,14 +78,14 @@ def main() -> int:
 
     if args.json:
         OUT_DIR.mkdir(parents=True, exist_ok=True)
-        path = OUT_DIR / f"{page_id}.json"
+        path = OUT_DIR / f"{pid}.json"
         path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
         print(path)
     else:
         conn = report.get("connections", {})
         comp = report.get("components", {})
         tags = report.get("tags", {})
-        print(f"=== {page_id} ===")
+        print(f"=== {pid} ===")
         print(f"GT: {gt_bboxes} bbox, {gt_lines} linii, {conn.get('gt_count', 0)} conn")
         print(
             f"Runtime: {len(runtime.components)} sym, "
