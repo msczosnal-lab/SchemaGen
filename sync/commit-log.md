@@ -99,3 +99,4 @@
 | 2026-07-04 16:21 | Claude | 36baa6b0 | [Claude] TILING: detekcja mostkow 0->0.92 (okna natywne + detect_tiled + yolo_tiled); preview_detection --tiled; 50 passed |
 | 2026-07-04 16:28 | Cursor | 8d3f982c | [Cursor] recognize: relation resolver (prompt 015) + eval val-pages skeleton |
 | 2026-07-04 16:28 | Cursor | 6c808268 | [Cursor] recognize: relation resolver (prompt 015) + eval val-pages skeleton |
+| 2026-07-04 17:30 | Cursor | f1712524 | [Cursor] fix: diff_metrics w backend/validate — import scripts przy python scripts/ |
