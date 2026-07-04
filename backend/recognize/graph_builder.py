@@ -34,6 +34,9 @@ from backend.runtime_config import (
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve, recover_terminal_bridges
 from backend.recognize.line_tracer import LineTracer
+from backend.recognize.arrow_supplement import supplement_arrow_detections
+from backend.recognize.mostek_orient_map import is_mostek_class
+from backend.recognize.mostek_terminals import derive_mostek_terminals, load_bgr
 from backend.recognize.net_builder import (
     build_connections as build_net_connections,
     derive_auto_terminals,
@@ -70,8 +73,11 @@ class GraphBuilder:
     def build(self, image_path: str, source: str = "") -> SchemaModel:
         size = _image_size(image_path)
 
-        # 1) Detekcja symboli -> components
+        # 1) Detekcja symboli -> components (+ uzupelnienie strzalek potencjalu)
         detections = self._detect(image_path)
+        image_bgr = load_bgr(image_path)
+        if image_bgr is not None:
+            detections = supplement_arrow_detections(image_bgr, detections)
         components = [
             Component(
                 id=f"sym_{i}",
@@ -104,12 +110,19 @@ class GraphBuilder:
         # 4) Auto-zaciski: terminal = kontakt konca wire z krawedzia bboxa
         #    (komponenty bez recznych terminali GT). Daje adresowanie comp:terminal.
         tol = _terminal_tol(size)
+        merge_tol = _terminal_merge_tol(size)
         candidate_lines = [
             ln for ln in graphic_lines if LineClassifier.is_connection_candidate(ln)
         ]
         for c in components:
+            if c.terminals:
+                continue
+            if is_mostek_class(c.type) and image_bgr is not None:
+                c.terminals = derive_mostek_terminals(c, image_bgr)
             if not c.terminals:
-                c.terminals = derive_auto_terminals(c, candidate_lines, tol)
+                c.terminals = derive_auto_terminals(
+                    c, candidate_lines, tol, merge_tol=merge_tol
+                )
 
         # 4b) Odzysk mostkow w listwie: linie zdemotowane do 'other' przez sito, ktorych
         #     konce trafiaja w 2 terminale tego samego komponentu, wracaja jako wire
@@ -204,6 +217,14 @@ def _terminal_tol(size: tuple[int, int] | None) -> float:
         return tmin
     w, h = size
     return max(tmin, frac * max(w, h))
+
+
+def _terminal_merge_tol(size: tuple[int, int] | None) -> float:
+    """Osobna tolerancja scalania stubow na krawedzi (nie skalowana z rozmiarem strony)."""
+    try:
+        return terminal_tol_min()
+    except Exception:
+        return TERMINAL_TOL_MIN
 
 
 def _edge_tol(size: tuple[int, int] | None) -> float:

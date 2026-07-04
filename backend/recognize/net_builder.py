@@ -192,16 +192,25 @@ def _resolve_node(
 
 
 def derive_auto_terminals(
-    component: Component, lines: list[GraphicLine], tol: float
+    component: Component,
+    lines: list[GraphicLine],
+    tol: float,
+    *,
+    merge_tol: float | None = None,
 ) -> list[Terminal]:
     """Auto-zaciski z punktow, gdzie koniec linii wire dotyka krawedzi bboxa.
 
     Filip: 'terminal jest tam, gdzie linia wychodzi w krawedz bboxa'. Kontakty
     przyciagane do krawedzi (rel 0..1), deduplikowane, numerowane 1,2,3...
+
+    `tol` = jak blisko bbox musi byc koniec linii; `merge_tol` = deduplikacja
+    sasiednich stubow (domyslnie min(tol, 15) — duzy tol strony nie moze scalac
+    kilku terminali listwy/mostka w jeden).
     """
     b = component.bbox
     if len(b) < 4:
         return []
+    dedup = merge_tol if merge_tol is not None else min(tol, 15.0)
     contacts: list[tuple[float, float]] = []  # bezwzgledne punkty kontaktu
     for ln in lines:
         if not LineClassifier.is_connection_candidate(ln) or len(ln.points) < 2:
@@ -209,7 +218,10 @@ def derive_auto_terminals(
         for ep in (ln.points[0], ln.points[-1]):
             if _point_bbox_dist(ep, b) <= tol:
                 snapped = _snap_to_edge_abs(ep, b)
-                if not any(math.hypot(snapped[0] - c[0], snapped[1] - c[1]) <= tol for c in contacts):
+                if not any(
+                    math.hypot(snapped[0] - c[0], snapped[1] - c[1]) <= dedup
+                    for c in contacts
+                ):
                     contacts.append(snapped)
     x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
     w = (x2 - x1) or 1.0
