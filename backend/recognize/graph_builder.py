@@ -232,19 +232,6 @@ def _apply_roi(
     return out
 
 
-def _intersection_area(a: list[float], b: list[float]) -> float:
-    """Pole przeciecia dwoch bboxow [x1,y1,x2,y2]. 0 gdy brak nakladania."""
-    if len(a) < 4 or len(b) < 4:
-        return 0.0
-    ix1 = max(a[0], b[0])
-    iy1 = max(a[1], b[1])
-    ix2 = min(a[2], b[2])
-    iy2 = min(a[3], b[3])
-    if ix2 <= ix1 or iy2 <= iy1:
-        return 0.0
-    return (ix2 - ix1) * (iy2 - iy1)
-
-
 def _model_version() -> str:
     try:
         if REGISTRY_PATH.exists():
