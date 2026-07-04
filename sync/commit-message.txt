@@ -4,5 +4,5 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Claude] analysis: 019 odpowiedzi Filipa — pattern zlaczki, 15 strzalek p027 to TP nie FP
+[Claude] sync: prompt startowy Cursor — review 019 + zlecenie 018
 

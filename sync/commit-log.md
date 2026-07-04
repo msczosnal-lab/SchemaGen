@@ -118,3 +118,4 @@
 | 2026-07-04 20:43 | Claude | f3cdeb0b | [Claude] analysis: findings 019 uzupelnione o detekcje z main (p027/p035) |
 | 2026-07-04 20:40 | Claude | ce9b507c | [Claude] analysis: findings 019 uzupelnione o detekcje z main (p027/p035) |
 | 2026-07-04 20:47 | Claude | 478a9a22 | [Claude] analysis: 019 final — raport diag z main, H7 potwierdzone, reinterpretacja kolorow (overlay) |
+| 2026-07-04 20:51 | Claude | d0891f81 | [Claude] analysis: 019 odpowiedzi Filipa — pattern zlaczki, 15 strzalek p027 to TP nie FP |
