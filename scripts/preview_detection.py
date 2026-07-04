@@ -49,14 +49,18 @@ def find_unlabeled_page() -> Path:
     raise FileNotFoundError("Brak nieoznaczonych stron w data/raw/")
 
 
-def render(page: Path, conf: float | None, out_dir: Path, onnx: Path) -> dict:
+def render(page: Path, conf: float | None, out_dir: Path, onnx: Path,
+           tiled: bool = False, win: int = 1536, overlap: float = 0.2) -> dict:
     conf = conf if conf is not None else yolo_conf_threshold()
     if not onnx.exists():
         raise FileNotFoundError(
             f"Brak modelu ONNX: {onnx}. Najpierw: python -m train.export_onnx --version {onnx.stem}"
         )
     det = OnnxSymbolDetector(str(onnx), load_class_map())
-    detections = det.detect(str(page), conf_threshold=conf)
+    if tiled:
+        detections = det.detect_tiled(str(page), win=win, overlap=overlap, conf_threshold=conf)
+    else:
+        detections = det.detect(str(page), conf_threshold=conf)
     img = cv2.imread(str(page))
     if img is None:
         raise FileNotFoundError(f"Nie mozna wczytac: {page}")
@@ -147,10 +151,13 @@ def main() -> None:
     parser.add_argument("--version", default=None, help="wersja modelu (domyslnie aktywna z registry)")
     parser.add_argument("--model", type=Path, default=None, help="bezposrednia sciezka do .onnx")
     parser.add_argument("--out", type=Path, default=OUT_DIR)
+    parser.add_argument("--tiled", action="store_true", help="inferencja przesuwnym oknem (model tiled)")
+    parser.add_argument("--win", type=int, default=1536)
+    parser.add_argument("--overlap", type=float, default=0.2)
     args = parser.parse_args()
     page = args.page or find_unlabeled_page()
     onnx = resolve_model(args.version, args.model)
-    meta = render(page, args.conf, args.out, onnx)
+    meta = render(page, args.conf, args.out, onnx, tiled=args.tiled, win=args.win, overlap=args.overlap)
     print(json.dumps(meta, ensure_ascii=False, indent=2))
 
 
