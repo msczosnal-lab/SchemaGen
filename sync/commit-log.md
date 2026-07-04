@@ -130,3 +130,4 @@
 | 2026-07-04 21:52 | Cursor | cc831bb7 | [Cursor] fix: preview_lines uzywa progow z runtime + flaga --with-sieve |
 | 2026-07-04 21:56 | Cursor | 8e335b37 | [Cursor] fix: preview_lines --page p027 + resolve_page_id |
 | 2026-07-04 22:09 | Cursor | ac2c92db | [Cursor] fix: sito nie demotuje dlugich przewodow (szyna p027) + preview_lines OCR |
+| 2026-07-04 22:21 | Cursor | 226a5186 | [Cursor] fix: sito zachowuje dlugie przewody (OCR pasek + terminal_plc) — p027 connections |
