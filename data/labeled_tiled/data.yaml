@@ -1,0 +1,29 @@
+names:
+  0: relay
+  1: led
+  2: push_button
+  3: emergency_stop
+  4: terminal_block
+  5: zlaczka
+  6: mostek
+  7: strzalka_potencjalu_wejsciowa
+  8: strzalka_potencjalu_wyjsciowa
+  9: ground
+  10: cewka_zaworow
+  11: ekranowanie_kabla
+  12: gniazdo_rj_45
+  13: polaczenie_przewodow
+  14: przekaznik_polaryzowany
+  15: styk_nc
+  16: styk_stycznika
+  17: styki
+  18: styki_nc
+  19: styki_przekaznika
+  20: terminal_plc
+  21: terminal_przylaczeniowy
+  22: terminal_sterownika_safety
+  23: urzadzenie
+  24: wylacznik_nadpradowy
+path: C:\Users\Filip\Desktop\Cursor\SchemaGen\data\labeled_tiled
+train: images/train
+val: images/val
