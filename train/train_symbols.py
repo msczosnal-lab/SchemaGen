@@ -28,7 +28,7 @@ def train(
     fliplr: float = 0.0,
     flipud: float = 0.0,
     degrees: float = 0.0,
-    cache: bool = False,
+    cache: str | bool = False,
 ) -> dict:
     """Fine-tune YOLOv8n na oznaczonych symbolach.
 
@@ -146,7 +146,9 @@ def _cli() -> None:
     parser.add_argument("--device", default="0", help="0 = GPU, 'cpu' = CPU")
     parser.add_argument("--name", default="symbols_v1")
     parser.add_argument("--patience", type=int, default=30)
-    parser.add_argument("--cache", action="store_true", help="cache obrazow (szybsze epoki)")
+    parser.add_argument("--cache", nargs="?", const="disk", default=False,
+                        help="cache obrazow: disk (domyslne gdy podane bez wartosci) lub ram. "
+                             "UWAGA: ram przy tilingu potrafi zjesc dziesiatki GB -> uzyj disk")
     parser.add_argument("--fliplr", type=float, default=0.0)
     parser.add_argument("--flipud", type=float, default=0.0)
     parser.add_argument("--degrees", type=float, default=0.0)
