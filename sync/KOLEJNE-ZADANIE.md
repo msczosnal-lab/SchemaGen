@@ -52,9 +52,10 @@
 
 | Pole | Wartość |
 |------|---------|
+| **GT p027** | ✅ strzałki 7/8 + terminale — komplet (2026-07-04) |
 | **Smoke 015** | `preview_schema.py`, `diff_gt_runtime.py`, `eval_val_pages.py --page p040` |
-| **Labeler** | Doznaczenie strzałek klas 7/8 na listwach (p027 i podobne) przed retrainem |
 | **Config** | `common_terminal:` w `config/mostek-orient.yaml` |
+| **Opcjonalnie** | `preview_schema.py --page p027 --source gt --rebuild-conn`; po eksporcie — `dataset_export` (retrain strzałek) |
 
 ---
 
