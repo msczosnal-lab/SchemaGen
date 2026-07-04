@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-07-04 [Cursor] — Review 019 DONE + prompty 018-lines / 018-terminals
+
+Temat: **Findings zaakceptowane (Poprawka runda 1). Implementacja: najpierw linie, potem terminale.**
+
+| Pole | Wartość |
+|------|---------|
+| **Findings** | [`sync/analysis/019-terminals-lines-findings.md`](analysis/019-terminals-lines-findings.md) — zaakceptowane + § Poprawka (runda 1) |
+| **018-lines-quality** | [`sync/prompts/018-lines-quality.md`](prompts/018-lines-quality.md) — **AKTYWNE** (Claude) |
+| **018-terminals-strategy** | [`sync/prompts/018-terminals-strategy.md`](prompts/018-terminals-strategy.md) — kolejka po 018-lines |
+| **Decyzja** | `_nodes_on_net` (węzły-na-ścieżce) w 018-terminals; `_point_at_node` nietknięte w rundzie 1 |
+
+Commit pending: `[Cursor] sync: review 019 + prompty 018-lines/018-terminals`
+
+---
+
 ## 2026-07-04 [Cursor] — Prompt 019: analiza terminali + linii dla Fable 5
 
 Temat: **Jakość ~65%. Bloker: terminale + linie (nie symbole). Analiza przed implementacją.**
