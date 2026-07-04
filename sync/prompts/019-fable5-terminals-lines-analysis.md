@@ -1,6 +1,6 @@
 # Zadanie 019: Analiza + plan — terminale i linie (Faza 4b)
 
-**Status:** AKTYWNE — analiza, NIE implementacja (chyba ze stub `NotImplementedError`)
+**Status:** DONE — analiza + review Cursor 2026-07-04
 **Wykonawca:** Claude (Fable 5), na glownym PC z pelnym repo + danymi (`data/raw`, `data/labeled_tiled`, modele w `models/registry.json`)
 **Model docelowy jakosci:** ~65% -> 99.5%. Symbole (YOLO) NIE sa glownym blokerem.
 
