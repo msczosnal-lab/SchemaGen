@@ -1,5 +1,5 @@
 {
-  "active": "symbols_orient_v1",
+  "active": "symbols_tiled_v1-2",
   "versions": {
     "symbols_v1": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v1.onnx",
@@ -35,6 +35,10 @@
     },
     "symbols_orient_v1": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_orient_v1.onnx",
+      "metrics": {}
+    },
+    "symbols_tiled_v1-2": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_tiled_v1-2.onnx",
       "metrics": {}
     }
   }
