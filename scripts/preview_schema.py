@@ -50,7 +50,7 @@ def load_gt_schema(page_id: str):
     return label_to_schema(record)
 
 
-def     rebuild_connections_from_gt(schema, size):
+def rebuild_connections_from_gt(schema, size):
     """Przebuduj connections net-builderem na CZYSTYM GT (symbole+linie+terminale).
 
     Izoluje logike polaczen od bledow YOLO/Hough/derive. Krok identyczny jak w
