@@ -1,9 +1,348 @@
-// COWORK_TASK: sync/prompts/001-labeler-canvas.md
-// Stub — pelny canvas annotator implementuje Claude Cowork.
+// Prompt 010: bbox-first + paleta typów
+// Canvas bbox — rysowanie, zoom, przypisanie typu po bboxie
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const DEFAULT_CLASS = "element";
+const UNASSIGNED_COLOR = "#6c757d";
+const BBOX_STROKE = 3.5;
+const BBOX_STROKE_SELECTED = 4.5;
 
 let currentPageId = null;
-let classes = [];
+let pageIds = [];
+let pagesMeta = [];
 let bboxes = [];
+let selectedIdx = -1;
+let expandedIdx = -1;
+let nextSeq = 1;
+let focusSearchIdx = null;
+
+let scale = 1;
+let originX = 0;
+let originY = 0;
+
+let drawing = false;
+let drawMoved = false;
+let clickSelectCandidate = -1;
+let startX = 0;
+let startY = 0;
+const DRAG_THRESHOLD = 5;
+
+let bgImage = null;
+let paletteCache = [];
+let paletteCacheQuery = null;
+let paletteSearchTimer = null;
+
+// --- Tryb linii (prompt 002) ---
+const MODE_BBOX = "bbox";
+const MODE_LINE = "line";
+let mode = MODE_BBOX;
+let lines = [];                 // {id, points:[[x,y],...], role, style, semantic_group, color_ref}
+let activeLine = null;          // rysowana linia: {points:[...]}
+let lineDeleteArmed = false;    // po „Usuń linię” — klik na linii kasuje
+let selectedLineIdx = -1;
+let cursorImgPt = null;         // podgląd "gumki" do następnego punktu
+let eyedropperArmed = false;
+let lineOrtho = true;           // H/V od poprzedniego punktu (Shift = wolny kat)
+let semanticGroups = [];        // [{name, stroke, fill, style, roles, description}]
+const DEFAULT_LINE_ROLE = "wire";
+const LINE_STROKE = 7;
+const LINE_POINT_R = 6;
+
+// --- Tryb terminali (ADR connection-model, etap 2) ---
+const MODE_TERMINAL = "terminal";
+const MODE_REVIEW_BBOX = "review_bbox";
+const MODE_CONNECTION = "connection";
+const TERMINAL_R = 10;
+let hideLinesReview = false;
+let connections = [];             // ConnectionAnnotation GT / draft
+let draggingTerminal = null;      // { idx, termIdx } podczas przeciagania terminala
+let terminalDragMoved = false;
+
+const LINE_ROLE_LABELS = {
+  wire: "Przewod",
+  bus: "Szyna",
+  device_stroke: "Obrys urz.",
+  frame: "Ramka",
+  dash: "Pomocnicza",
+  crossing: "Skrzyzowanie",
+  leader: "Odnośnik",
+  other: "Inne",
+};
+
+const LINE_ROLE_COLORS = {
+  wire: "#111111",
+  bus: "#c026d3",
+  device_stroke: "#0066CC",
+  frame: "#00AA44",
+  dash: "#888888",
+  crossing: "#d97706",
+  leader: "#6b7280",
+  other: "#6b7280",
+};
+
+function lineStrokeColor(line) {
+  const grp = semanticGroups.find((g) => g.name === line.semantic_group);
+  if (grp && grp.stroke) return grp.stroke;
+  return LINE_ROLE_COLORS[line.role] || "#111111";
+}
+
+const editorHint = document.getElementById("editor-hint");
+const pagePrevBtn = document.getElementById("page-prev");
+const pageNextBtn = document.getElementById("page-next");
+const pagePositionEl = document.getElementById("page-position");
+const saveBtn = document.getElementById("save-btn");
+const saveAllBtn = document.getElementById("save-all-btn");
+const saveStatusEl = document.getElementById("save-status");
+
+const DRAFT_PREFIX = "schemagen:draft:";
+const LAST_TAG_KEY = "schemagen:last-tag";
+const pageCache = new Map();
+const dirtyPages = new Set();
+let lastUsedTag = "";
+
+function draftKey(pageId) {
+  return `${DRAFT_PREFIX}${pageId}`;
+}
+
+function loadLastUsedTag() {
+  try {
+    return (localStorage.getItem(LAST_TAG_KEY) || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function rememberLastTag(tag) {
+  const t = (tag || "").trim();
+  if (!t) return;
+  lastUsedTag = t;
+  try {
+    localStorage.setItem(LAST_TAG_KEY, t);
+  } catch {
+    /* ignore */
+  }
+}
+
+function suggestedTag(b) {
+  return (b.tag || "").trim() || lastUsedTag;
+}
+
+function capturePageState() {
+  return {
+    bboxes: JSON.parse(JSON.stringify(bboxes)),
+    lines: JSON.parse(JSON.stringify(lines)),
+    connections: JSON.parse(JSON.stringify(connections)),
+    nextSeq,
+    image_width: bgImage ? bgImage.naturalWidth : canvas.width,
+    image_height: bgImage ? bgImage.naturalHeight : canvas.height,
+    updatedAt: Date.now(),
+  };
+}
+
+function persistPageDraft(pageId = currentPageId) {
+  if (!pageId) return;
+  const state = pageId === currentPageId ? capturePageState() : pageCache.get(pageId);
+  if (!state) return;
+  pageCache.set(pageId, state);
+  try {
+    localStorage.setItem(draftKey(pageId), JSON.stringify(state));
+  } catch (err) {
+    console.warn("localStorage:", err);
+  }
+}
+
+function loadLocalDraft(pageId) {
+  try {
+    const raw = localStorage.getItem(draftKey(pageId));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function applyPageState(state) {
+  bboxes = state?.bboxes ? JSON.parse(JSON.stringify(state.bboxes)) : [];
+  lines = state?.lines ? JSON.parse(JSON.stringify(state.lines)) : [];
+  connections = state?.connections ? JSON.parse(JSON.stringify(state.connections)) : [];
+  sortBboxesNewestFirst();
+  ensureSeqNumbers();
+  if (state?.nextSeq && state.nextSeq > nextSeq) {
+    nextSeq = state.nextSeq;
+  }
+}
+
+/** Im wyzszy wynik, tym pelniejszy stan strony (bbox + linie GT + terminale). */
+function pageStateScore(state) {
+  if (!state) return -1;
+  const bboxN = state.bboxes?.length || 0;
+  const lineN = state.lines?.length || 0;
+  const connN = state.connections?.length || 0;
+  const termN = (state.bboxes || []).reduce((n, b) => n + (b.terminals?.length || 0), 0);
+  return bboxN * 1_000_000 + lineN * 1_000 + connN * 100 + termN;
+}
+
+function countUnassigned() {
+  return bboxes.filter((b) => !(b.tag || "").trim()).length;
+}
+
+function markPageDirty(pageId = currentPageId) {
+  if (!pageId) return;
+  dirtyPages.add(pageId);
+  if (pageId === currentPageId) persistPageDraft(pageId);
+  updateSaveStatus();
+}
+
+function updateSaveStatus() {
+  if (!saveBtn || !saveStatusEl) return;
+  const n = bboxes.length;
+  const unassigned = countUnassigned();
+  const dirty = currentPageId && dirtyPages.has(currentPageId);
+  saveBtn.textContent = dirty ? `Zapisz strone (${n})*` : `Zapisz strone (${n})`;
+  saveBtn.classList.toggle("dirty", !!dirty);
+  const dirtyCount = dirtyPages.size;
+  let extra = "";
+  if (unassigned > 0) {
+    extra = ` | ${unassigned} nieprzypisanych`;
+  }
+  if (dirtyCount > 0) {
+    saveStatusEl.textContent = `Niezapisane: ${dirtyCount} str.${extra}`;
+  } else if (unassigned > 0) {
+    saveStatusEl.textContent = `${unassigned} bbox bez typu — przypisz po prawej`;
+  } else if (pageCache.size > 0) {
+    saveStatusEl.textContent = "Wszystko zapisane w bazie.";
+  } else {
+    saveStatusEl.textContent = "";
+  }
+}
+
+function buildSavePayload(pageId, state) {
+  return {
+    record: {
+      page_id: pageId,
+      image_path: `${pageId}.png`,
+      image_width: state.image_width || 0,
+      image_height: state.image_height || 0,
+      bboxes: state.bboxes.map((b) => ({
+        id: b.id,
+        class_name: b.class_name || DEFAULT_CLASS,
+        x: b.x,
+        y: b.y,
+        width: b.width,
+        height: b.height,
+        tag: (b.tag || "").trim(),
+        seq: b.seq || 0,
+        semantic_group: b.semantic_group || "",
+        color_ref: b.color_ref || "",
+        parent_id: b.parent_id || "",
+        depth: b.depth || 0,
+        rel_bbox: b.rel_bbox || [],
+        terminals: (b.terminals || []).map((t) => ({
+          id: t.id,
+          x: t.x,
+          y: t.y,
+          name: t.name || "",
+        })),
+      })),
+      lines: (state.lines || []).map((l) => ({
+        id: l.id,
+        points: l.points,
+        role: l.role || DEFAULT_LINE_ROLE,
+        style: l.style || "solid",
+        semantic_group: l.semantic_group || "",
+        color_ref: l.color_ref || "",
+      })),
+      connections: (state.connections || []).map((c) => ({
+        id: c.id,
+        from: c.from || c.from_ref || "",
+        to: c.to || "",
+        kind: c.kind || "power",
+      })),
+      texts: [],
+    },
+  };
+}
+
+async function savePageToServer(pageId, { silent = false } = {}) {
+  if (!pageId) return false;
+  if (pageId === currentPageId) persistPageDraft(pageId);
+  const state = pageCache.get(pageId) || (pageId === currentPageId ? capturePageState() : null);
+  if (!state) return false;
+  try {
+    const res = await fetchJson("/api/annotations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildSavePayload(pageId, state)),
+    });
+    dirtyPages.delete(pageId);
+    updateSaveStatus();
+    if (!silent) {
+      const ua = res.unassigned_count ?? countUnassigned();
+      saveStatusEl.textContent = `Zapisano ${pageId}: ${res.bbox_count ?? state.bboxes.length} bbox` +
+        (ua ? ` (${ua} nieprzypisanych)` : "");
+      document.getElementById("hint").textContent = `Zapisano ✓ ${pageId}`;
+    }
+    return true;
+  } catch (err) {
+    if (!silent) {
+      alert(`Blad zapisu (${pageId}): ${err.message}`);
+      saveStatusEl.textContent = `Blad zapisu ${pageId} — dane sa w localStorage`;
+    }
+    return false;
+  }
+}
+
+async function flushCurrentPage() {
+  if (!currentPageId) return;
+  persistPageDraft(currentPageId);
+  if (dirtyPages.has(currentPageId)) {
+    await savePageToServer(currentPageId, { silent: true });
+  }
+}
+
+async function saveAllPages() {
+  if (currentPageId) persistPageDraft(currentPageId);
+  const ids = new Set([...pageCache.keys(), ...(currentPageId ? [currentPageId] : [])]);
+  let ok = 0;
+  let fail = 0;
+  for (const pageId of ids) {
+    if (await savePageToServer(pageId, { silent: true })) ok += 1;
+    else fail += 1;
+  }
+  await loadElementCatalog();
+  saveStatusEl.textContent = fail
+    ? `Zapisano ${ok} str., bledy: ${fail} (szkice w localStorage)`
+    : `Zapisano wszystkie strony (${ok})`;
+  updateSaveStatus();
+}
+
+function scanLocalDrafts() {
+  const drafts = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(DRAFT_PREFIX)) continue;
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      drafts.push({
+        pageId: key.slice(DRAFT_PREFIX.length),
+        count: data.bboxes?.length || 0,
+        updatedAt: data.updatedAt || 0,
+      });
+    } catch {
+      /* skip */
+    }
+  }
+  return drafts;
+}
+
+function reportRecoveryHints() {
+  const drafts = scanLocalDrafts();
+  const total = drafts.reduce((s, d) => s + d.count, 0);
+  if (total === 0) return;
+  saveStatusEl.textContent =
+    `Lokalne szkice: ${drafts.length} str., ${total} bbox (localStorage). Otworz strone aby wczytac.`;
+}
 
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
@@ -11,86 +350,1903 @@ async function fetchJson(url, options) {
   return res.json();
 }
 
+function canvasToImage(cx, cy) {
+  return { x: (cx - originX) / scale, y: (cy - originY) / scale };
+}
+
+function clientToCanvas(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    cx: (e.clientX - rect.left) * (canvas.width / rect.width),
+    cy: (e.clientY - rect.top) * (canvas.height / rect.height),
+  };
+}
+
+function isAssigned(b) {
+  return !!(b.tag || "").trim();
+}
+
+function colorFromTag(tag) {
+  if (!tag || !tag.trim()) return UNASSIGNED_COLOR;
+  let h = 0;
+  const s = tag.trim().toLocaleLowerCase("pl");
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const hue = (h * 137.508) % 360;
+  return `hsl(${hue.toFixed(1)}, 72%, 46%)`;
+}
+
+function contrastTextForTag(tag) {
+  const color = colorFromTag(tag);
+  const m = color.match(/hsl\([\d.]+,\s*[\d.]+%\s*,\s*([\d.]+)%\)/);
+  if (!m) return "#fff";
+  return parseFloat(m[1]) > 52 ? "#141414" : "#fff";
+}
+
+function applyTagUi(el, tag, { variant = "fill" } = {}) {
+  const t = (tag || "").trim();
+  if (!t) {
+    el.style.removeProperty("background");
+    el.style.removeProperty("color");
+    el.style.removeProperty("border");
+    el.style.removeProperty("--tag-color");
+    return;
+  }
+  const color = colorFromTag(t);
+  el.style.setProperty("--tag-color", color);
+  if (variant === "fill" || variant === "preview") {
+    el.style.background = color;
+    el.style.color = contrastTextForTag(t);
+    el.style.border = variant === "preview" ? "none" : `1px solid ${color}`;
+    if (variant === "preview") {
+      el.style.padding = "6px 8px";
+      el.style.borderRadius = "4px";
+    }
+  } else if (variant === "border") {
+    el.style.background = "";
+    el.style.color = contrastTextForTag(t);
+    el.style.borderColor = color;
+    el.style.borderWidth = "2px";
+    el.style.borderStyle = "solid";
+  }
+}
+
+function bboxIdTime(id) {
+  const m = String(id).match(/(\d{13,})/);
+  return m ? Number(m[1]) : 0;
+}
+
+function sortBboxesNewestFirst() {
+  bboxes.sort((a, b) => bboxIdTime(b.id) - bboxIdTime(a.id));
+}
+
+function ensureSeqNumbers() {
+  const byAge = [...bboxes].sort((a, b) => bboxIdTime(a.id) - bboxIdTime(b.id));
+  byAge.forEach((b, i) => {
+    b.seq = b.seq || i + 1;
+  });
+  const maxSeq = bboxes.reduce((m, b) => Math.max(m, b.seq || 0), 0);
+  nextSeq = maxSeq + 1;
+}
+
+function listLabel(b) {
+  const tag = (b.tag || "").trim();
+  if (tag) return `#${b.seq || "?"} · ${tag}`;
+  return `#${b.seq || "?"} · (?)`;
+}
+
+const HIER_EPS = 1.0;
+
+function bboxArea(b) {
+  return Math.max(b.width, 0) * Math.max(b.height, 0);
+}
+
+function bboxContains(outer, inner) {
+  if (outer.id === inner.id) return false;
+  if (bboxArea(inner) >= bboxArea(outer)) return false;
+  return (
+    inner.x >= outer.x - HIER_EPS &&
+    inner.y >= outer.y - HIER_EPS &&
+    inner.x + inner.width <= outer.x + outer.width + HIER_EPS &&
+    inner.y + inner.height <= outer.y + outer.height + HIER_EPS
+  );
+}
+
+function findParentId(b) {
+  let best = null;
+  for (const o of bboxes) {
+    if (o.id === b.id) continue;
+    if (bboxContains(o, b)) {
+      if (
+        best === null ||
+        bboxArea(o) < bboxArea(best) ||
+        (bboxArea(o) === bboxArea(best) && o.id < best.id)
+      ) {
+        best = o;
+      }
+    }
+  }
+  return best ? best.id : "";
+}
+
+function recomputeHierarchy() {
+  const byId = new Map(bboxes.map((b) => [b.id, b]));
+  const parentMap = new Map();
+  for (const b of bboxes) parentMap.set(b.id, findParentId(b));
+  for (const b of bboxes) {
+    const pid = parentMap.get(b.id) || "";
+    b.parent_id = pid;
+    let depth = 0;
+    const seen = new Set();
+    let cur = parentMap.get(b.id) || "";
+    while (cur) {
+      if (seen.has(cur)) break;
+      seen.add(cur);
+      depth += 1;
+      cur = parentMap.get(cur) || "";
+    }
+    b.depth = depth;
+    const parent = pid ? byId.get(pid) : null;
+    if (parent && parent.width > 0 && parent.height > 0) {
+      b.rel_bbox = [
+        (b.x - parent.x) / parent.width,
+        (b.y - parent.y) / parent.height,
+        b.width / parent.width,
+        b.height / parent.height,
+      ];
+    } else {
+      b.rel_bbox = [];
+    }
+  }
+}
+
+function parentSeqOf(b) {
+  if (!b.parent_id) return null;
+  const p = bboxes.find((x) => x.id === b.parent_id);
+  return p ? p.seq || "?" : null;
+}
+
+function listDisplayIndices() {
+  return bboxes
+    .map((_, i) => i)
+    .sort((a, b) => (bboxes[b].seq || 0) - (bboxes[a].seq || 0));
+}
+
+function drawBboxNumber(b, color) {
+  const num = String(b.seq || "?");
+  const pad = 5 / scale;
+  const maxW = Math.max(b.width - pad * 2, 16 / scale);
+  const maxH = Math.max(b.height - pad * 2, 16 / scale);
+  const minSize = 26 / scale;
+  let fontSize = Math.min(48 / scale, maxH * 0.72, maxW * 0.98);
+  fontSize = Math.max(minSize, fontSize);
+  ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
+  let textW = ctx.measureText(num).width;
+  while (fontSize > minSize && (textW + pad * 2 > maxW || fontSize > maxH * 0.78)) {
+    fontSize *= 0.88;
+    ctx.font = `bold ${fontSize}px Segoe UI, Arial, sans-serif`;
+    textW = ctx.measureText(num).width;
+  }
+  const badgeW = Math.min(textW + pad * 2, b.width);
+  const badgeH = Math.min(fontSize + pad * 1.5, b.height);
+  const tx = b.x + pad;
+  const ty = b.y + fontSize + pad * 0.35;
+  ctx.fillStyle = color;
+  ctx.fillRect(b.x, b.y, badgeW, badgeH);
+  ctx.strokeStyle = "rgba(0,0,0,0.45)";
+  ctx.lineWidth = 1.5 / scale;
+  ctx.strokeRect(b.x, b.y, badgeW, badgeH);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(num, tx, ty);
+}
+
+function drawBboxOnCanvas(b, i) {
+  const assigned = isAssigned(b);
+  const color = colorFromTag(b.tag);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = BBOX_STROKE / scale;
+  if (!assigned) {
+    ctx.setLineDash([8 / scale, 4 / scale]);
+  }
+  ctx.strokeRect(b.x, b.y, b.width, b.height);
+  ctx.setLineDash([]);
+
+  if (i === selectedIdx) {
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = BBOX_STROKE_SELECTED / scale;
+    ctx.setLineDash([6 / scale, 3 / scale]);
+    ctx.strokeRect(b.x, b.y, b.width, b.height);
+    ctx.setLineDash([]);
+    if (b.parent_id) {
+      const parent = bboxes.find((x) => x.id === b.parent_id);
+      if (parent) {
+        ctx.strokeStyle = "#ffd24a";
+        ctx.lineWidth = 2.5 / scale;
+        ctx.setLineDash([10 / scale, 5 / scale]);
+        ctx.strokeRect(parent.x, parent.y, parent.width, parent.height);
+        ctx.setLineDash([]);
+      }
+    }
+  }
+
+  drawBboxNumber(b, color);
+}
+
+function redraw() {
+  if (window.CropReview && CropReview.isCropActive()) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    CropReview.drawCropOverlay();
+    return;
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(originX, originY);
+  ctx.scale(scale, scale);
+  if (bgImage) ctx.drawImage(bgImage, 0, 0);
+  for (let i = bboxes.length - 1; i >= 0; i--) {
+    drawBboxOnCanvas(bboxes[i], i);
+  }
+  if (!hideLinesReview) {
+    for (let i = 0; i < lines.length; i++) {
+      drawLineOnCanvas(lines[i], i);
+    }
+    drawActiveLine();
+  }
+  drawTerminals();
+  ctx.restore();
+}
+
+function drawTerminals() {
+  for (let i = 0; i < bboxes.length; i++) {
+    const b = bboxes[i];
+    const ts = b.terminals || [];
+    if (!ts.length) continue;
+    const sel = i === selectedIdx;
+    const r = TERMINAL_R / scale;
+    for (const t of ts) {
+      const ax = b.x + t.x * b.width;
+      const ay = b.y + t.y * b.height;
+      // biala otoczka (widoczna na czarnych liniach i bialym tle)
+      ctx.beginPath();
+      ctx.arc(ax, ay, r + 2 / scale, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      // wypelnienie + ciemny kontur
+      ctx.beginPath();
+      ctx.arc(ax, ay, r, 0, Math.PI * 2);
+      ctx.fillStyle = sel ? "#fa5252" : "#f76707";
+      ctx.fill();
+      ctx.lineWidth = 2 / scale;
+      ctx.strokeStyle = "#1a1a1a";
+      ctx.stroke();
+      // etykieta zawsze (na bialym tle dla czytelnosci)
+      const label = (t.name || t.id || "").toString();
+      if (label) {
+        ctx.font = `bold ${14 / scale}px sans-serif`;
+        const tx = ax + (r + 4 / scale);
+        const ty = ay - (r + 2 / scale);
+        ctx.lineWidth = 3 / scale;
+        ctx.strokeStyle = "#ffffff";
+        ctx.strokeText(label, tx, ty);
+        ctx.fillStyle = "#1a1a1a";
+        ctx.fillText(label, tx, ty);
+      }
+    }
+  }
+}
+
+function applyLineDash(line) {
+  if (line.style === "dashed" || line.role === "dash") {
+    ctx.setLineDash([10 / scale, 6 / scale]);
+  } else if (line.style === "dotted") {
+    ctx.setLineDash([2 / scale, 4 / scale]);
+  } else {
+    ctx.setLineDash([]);
+  }
+}
+
+function drawLineOnCanvas(line, i) {
+  const pts = line.points || [];
+  if (pts.length < 1) return;
+  const color = lineStrokeColor(line);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = (i === selectedLineIdx ? LINE_STROKE + 3 : LINE_STROKE) / scale;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  applyLineDash(line);
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // wezly
+  for (const p of pts) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], LINE_POINT_R / scale, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (i === selectedLineIdx) {
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 1.5 / scale;
+    for (const p of pts) {
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], (LINE_POINT_R + 1.5) / scale, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+}
+
+function drawActiveLine() {
+  if (!activeLine || !activeLine.points.length) return;
+  const pts = activeLine.points;
+  ctx.strokeStyle = LINE_ROLE_COLORS[currentLineRole()] || "#111";
+  ctx.lineWidth = LINE_STROKE / scale;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+  if (cursorImgPt) ctx.lineTo(cursorImgPt.x, cursorImgPt.y);
+  ctx.stroke();
+  for (const p of pts) {
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1.5 / scale;
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], LINE_POINT_R / scale, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+}
+
 async function loadPages() {
   const pages = await fetchJson("/api/pages");
+  pagesMeta = [...pages].sort((a, b) =>
+    (a.id || "").localeCompare(b.id || "", undefined, { numeric: true })
+  );
+  pageIds = pagesMeta.map((p) => p.id);
+  renderPageList();
+  updatePageNav();
+}
+
+function renderPageList() {
   const list = document.getElementById("page-list");
   list.innerHTML = "";
-  pages.forEach((p) => {
+  pagesMeta.forEach((p) => {
     const li = document.createElement("li");
     li.textContent = p.filename || p.id;
+    if (p.id === currentPageId) li.classList.add("active");
     li.onclick = () => selectPage(p.id);
     list.appendChild(li);
   });
 }
 
-async function loadClasses() {
-  const data = await fetchJson("/api/classes");
-  classes = data.classes || [];
-  const list = document.getElementById("class-list");
-  list.innerHTML = "";
-  classes.forEach((name, idx) => {
-    const li = document.createElement("li");
-    li.textContent = `${idx + 1}. ${name}`;
-    list.appendChild(li);
+function currentPageIndex() {
+  return pageIds.indexOf(currentPageId);
+}
+
+function updatePageNav() {
+  const idx = currentPageIndex();
+  const total = pageIds.length;
+  if (!pagePrevBtn || !pageNextBtn || !pagePositionEl) return;
+  if (total === 0) {
+    pagePositionEl.textContent = "— / —";
+    pagePrevBtn.disabled = true;
+    pageNextBtn.disabled = true;
+    return;
+  }
+  if (idx < 0) {
+    pagePositionEl.textContent = `— / ${total}`;
+    pagePrevBtn.disabled = true;
+    pageNextBtn.disabled = false;
+    return;
+  }
+  pagePositionEl.textContent = `${idx + 1} / ${total}`;
+  pagePrevBtn.disabled = idx <= 0;
+  pageNextBtn.disabled = idx >= total - 1;
+}
+
+// Strzalki/scroll: w trybie review przewijaj kolejke (bbox/conn/terminal), inaczej zmien strone.
+function reviewOrPageStep(dir) {
+  if (mode === MODE_TERMINAL) {
+    iterateBbox(dir);
+    return;
+  }
+  if (mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+    if (window.CropReview) CropReview.reviewStep(dir);
+    return;
+  }
+  navigatePage(dir);
+}
+
+async function navigatePage(delta) {
+  if (!pageIds.length) return;
+  let idx = currentPageIndex();
+  if (idx < 0) idx = delta > 0 ? -1 : 0;
+  idx += delta;
+  if (idx < 0 || idx >= pageIds.length) return;
+  await selectPage(pageIds[idx]);
+}
+
+async function loadElementCatalog() {
+  await fetchJson("/api/element-catalog");
+}
+
+async function recordTagUsage(label) {
+  const tag = (label || "").trim();
+  if (!tag) return;
+  try {
+    await fetchJson("/api/tag-usage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ labels: [tag] }),
+    });
+    paletteCache = [];
+    paletteCacheQuery = null;
+    if (expandedIdx >= 0) renderAnnotationList();
+  } catch (err) {
+    console.warn("tag-usage:", err);
+  }
+}
+
+async function fetchSymbolPalette(q = "") {
+  const data = await fetchJson(`/api/symbol-palette?q=${encodeURIComponent(q)}&limit=60`);
+  return data.symbols || [];
+}
+
+async function ensurePaletteCache(q = "") {
+  if (paletteCache.length && paletteCacheQuery === q) return paletteCache;
+  paletteCache = await fetchSymbolPalette(q);
+  paletteCacheQuery = q;
+  return paletteCache;
+}
+
+function assignTag(idx, tag) {
+  if (idx < 0 || idx >= bboxes.length) return;
+  const trimmed = (tag || "").trim();
+  const prev = (bboxes[idx].tag || "").trim();
+  bboxes[idx].tag = trimmed;
+  markPageDirty();
+  recomputeHierarchy();
+  redraw();
+  renderAnnotationList();
+  updateSaveStatus();
+  if (trimmed) {
+    rememberLastTag(trimmed);
+    if (trimmed !== prev) recordTagUsage(trimmed);
+  }
+}
+
+function renderPaletteButtons(container, symbols, idx, onPick) {
+  container.innerHTML = "";
+  if (!symbols.length) {
+    const empty = document.createElement("span");
+    empty.className = "muted";
+    empty.textContent = "Brak wynikow";
+    container.appendChild(empty);
+    return;
+  }
+  symbols.forEach((sym) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "palette-btn" + (sym.custom ? " custom" : "");
+    const count = sym.usage_count || 0;
+    const label = sym.label_pl || sym.id;
+    btn.textContent = count > 0 ? `${label} (${count})` : label;
+    applyTagUi(btn, label, { variant: "fill" });
+    btn.title = [
+      sym.tag_prefix ? `Prefiks: ${sym.tag_prefix}` : sym.id,
+      sym.custom ? "Wolne haslo / wyjatek" : "",
+      count > 0 ? `Uzyc: ${count}` : "",
+    ].filter(Boolean).join(" · ");
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("click", () => onPick(label));
+    container.appendChild(btn);
   });
 }
 
+function buildTypePicker(body, idx) {
+  body.innerHTML = "";
+  const b = bboxes[idx];
+  const displayTag = suggestedTag(b);
+
+  const preview = document.createElement("div");
+  preview.className = "tag-preview " + (isAssigned(b) ? "assigned" : "unassigned");
+  if (isAssigned(b)) {
+    preview.textContent = `Typ: ${b.tag}`;
+    applyTagUi(preview, b.tag, { variant: "preview" });
+  } else if (lastUsedTag) {
+    preview.textContent = `Ostatni typ: ${lastUsedTag}`;
+    applyTagUi(preview, lastUsedTag, { variant: "preview" });
+  } else {
+    preview.textContent = "Nieprzypisany — wyszukaj lub wpisz haslo ponizej";
+  }
+  body.appendChild(preview);
+
+  const typeInput = document.createElement("input");
+  typeInput.type = "text";
+  typeInput.className = "type-search";
+  typeInput.placeholder = lastUsedTag
+    ? `Ostatni: ${lastUsedTag} — Enter aby przypisac`
+    : "Szukaj typ lub wpisz wyjatek (np. stycznik)…";
+  typeInput.value = displayTag;
+  typeInput.dataset.idx = String(idx);
+  applyTagUi(typeInput, displayTag, { variant: "fill" });
+  body.appendChild(typeInput);
+
+  const resultsSection = document.createElement("div");
+  resultsSection.className = "palette-section";
+  const resultsTitle = document.createElement("h4");
+  resultsTitle.className = "palette-section-title";
+  resultsTitle.textContent = "Typy (najczesciej uzywane na gorze)";
+  resultsSection.appendChild(resultsTitle);
+  const resultsList = document.createElement("div");
+  resultsList.className = "palette-list";
+  resultsSection.appendChild(resultsList);
+  body.appendChild(resultsSection);
+
+  function pickLabel(label) {
+    typeInput.value = label;
+    assignTag(idx, label);
+  }
+
+  function commitInput() {
+    const value = typeInput.value.trim();
+    if (value !== (bboxes[idx].tag || "").trim()) {
+      assignTag(idx, value);
+    }
+  }
+
+  async function refreshResults(q) {
+    const symbols = await ensurePaletteCache(q);
+    resultsTitle.textContent = q.trim()
+      ? "Wyniki wyszukiwania"
+      : "Typy (najczesciej uzywane na gorze)";
+    renderPaletteButtons(resultsList, symbols, idx, pickLabel);
+  }
+
+  typeInput.addEventListener("input", () => {
+    clearTimeout(paletteSearchTimer);
+    const q = typeInput.value.trim();
+    applyTagUi(typeInput, q, { variant: "fill" });
+    paletteSearchTimer = setTimeout(() => refreshResults(q), 200);
+  });
+  typeInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const first = resultsList.querySelector(".palette-btn");
+      if (first) {
+        first.click();
+      } else {
+        commitInput();
+      }
+    }
+  });
+  typeInput.addEventListener("blur", () => {
+    if (typeInput.value.trim() !== (bboxes[idx].tag || "").trim()) {
+      commitInput();
+    }
+  });
+
+  refreshResults(typeInput.value.trim());
+
+  if (focusSearchIdx === idx) {
+    requestAnimationFrame(() => {
+      typeInput.focus();
+      typeInput.select();
+      focusSearchIdx = null;
+    });
+  }
+}
+
 async function selectPage(pageId) {
+  if (!pageId) return;
+  if (currentPageId && currentPageId !== pageId) {
+    persistPageDraft(currentPageId);
+    if (dirtyPages.has(currentPageId)) {
+      const ok = await savePageToServer(currentPageId, { silent: true });
+      if (!ok) {
+        saveStatusEl.textContent =
+          `Auto-zapis ${currentPageId} nieudany — szkic w localStorage, kliknij Zapisz wszystkie`;
+      }
+    }
+  }
+
   currentPageId = pageId;
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.getElementById("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    canvas.getContext("2d").drawImage(img, 0, 0);
-  };
-  img.src = `/api/pages/${pageId}/image?t=${Date.now()}`;
+  scale = 1;
+  originX = 0;
+  originY = 0;
+  selectedIdx = -1;
+  expandedIdx = -1;
+  focusSearchIdx = null;
+  selectedLineIdx = -1;
+  activeLine = null;
+  lineDeleteArmed = false;
+  cursorImgPt = null;
+
+  bgImage = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      resolve(img);
+    };
+    img.onerror = () => reject(new Error(`Nie mozna zaladowac obrazu: ${pageId}`));
+    img.src = `/api/pages/${pageId}/image?t=${Date.now()}`;
+  });
+
+  let serverBboxes = [];
+  let serverLines = [];
+  let serverConnections = [];
   try {
     const ann = await fetchJson(`/api/annotations/${pageId}`);
-    bboxes = ann.bboxes || [];
-    renderAnnotationList();
+    serverBboxes = ann.bboxes || [];
+    serverLines = ann.lines || [];
+    serverConnections = ann.connections || [];
   } catch {
-    bboxes = [];
+    serverBboxes = [];
+    serverLines = [];
+    serverConnections = [];
   }
+
+  if (window.CropReview) CropReview.onPageChange();
+
+  const cached = pageCache.get(pageId) || loadLocalDraft(pageId);
+  const serverState = {
+    bboxes: serverBboxes,
+    lines: serverLines,
+    connections: serverConnections,
+    nextSeq: cached?.nextSeq,
+    image_width: bgImage ? bgImage.naturalWidth : canvas.width,
+    image_height: bgImage ? bgImage.naturalHeight : canvas.height,
+  };
+  const pickCached = pageStateScore(cached) > pageStateScore(serverState);
+  if (pickCached) {
+    applyPageState(cached);
+    if ((cached.bboxes?.length || 0) > serverBboxes.length) {
+      dirtyPages.add(pageId);
+    }
+  } else {
+    applyPageState(serverState);
+    persistPageDraft(pageId);
+  }
+
+  recomputeHierarchy();
+  redraw();
+  renderAnnotationList();
+  renderLineList();
+  renderConnectionList();
+  renderPageList();
+  updatePageNav();
+  updateSaveStatus();
+  const idx = currentPageIndex();
+  const pos = idx >= 0 ? `${idx + 1}/${pageIds.length}` : "?";
+  document.getElementById("hint").textContent =
+    `Strona ${pos}: ${pageId} — narysuj bbox, przypisz typ | Ctrl+S | / = szukaj`;
+}
+
+function toggleAccordion(i) {
+  if (expandedIdx === i) {
+    expandedIdx = -1;
+    focusSearchIdx = null;
+  } else {
+    expandedIdx = i;
+    selectedIdx = i;
+    focusSearchIdx = i;
+  }
+  renderAnnotationList();
+  redraw();
 }
 
 function renderAnnotationList() {
   const list = document.getElementById("annotation-list");
   list.innerHTML = "";
-  bboxes.forEach((b) => {
+  if (!bboxes.length) {
+    const empty = document.createElement("li");
+    empty.className = "muted";
+    empty.textContent = "Brak elementow — narysuj bbox na schemacie.";
+    empty.style.background = "transparent";
+    empty.style.border = "none";
+    empty.style.cursor = "default";
+    list.appendChild(empty);
+    return;
+  }
+  listDisplayIndices().forEach((i) => {
+    const b = bboxes[i];
+    const isExpanded = i === expandedIdx;
+    const row = document.createElement("li");
+    row.className = "annotation-accordion";
+    if (!isAssigned(b)) row.classList.add("unassigned");
+    if (i === selectedIdx) row.classList.add("active");
+    if (isExpanded) row.classList.add("expanded");
+    if (b.depth) row.style.marginLeft = `${b.depth * 16}px`;
+
+    const summary = document.createElement("div");
+    summary.className = "accordion-summary";
+
+    const line = document.createElement("button");
+    line.type = "button";
+    line.className = "summary-line";
+    const pseq = parentSeqOf(b);
+    line.textContent = pseq ? `${listLabel(b)}  ↳ w #${pseq}` : listLabel(b);
+    line.title = isExpanded ? "Zwin" : (isAssigned(b) ? b.tag : "Przypisz typ");
+    if (isAssigned(b)) {
+      applyTagUi(line, b.tag, { variant: "fill" });
+    }
+    line.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleAccordion(i);
+    });
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "×";
+    del.title = "Usun element";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeBboxAt(i);
+    });
+
+    summary.appendChild(line);
+    summary.appendChild(del);
+    row.appendChild(summary);
+
+    if (isExpanded) {
+      const body = document.createElement("div");
+      body.className = "accordion-body";
+      buildTypePicker(body, i);
+      row.appendChild(body);
+    }
+
+    list.appendChild(row);
+  });
+}
+
+function removeBboxAt(idx) {
+  if (idx < 0 || idx >= bboxes.length) return;
+  bboxes.splice(idx, 1);
+  recomputeHierarchy();
+  selectedIdx = -1;
+  expandedIdx = -1;
+  focusSearchIdx = null;
+  markPageDirty();
+  renderAnnotationList();
+  redraw();
+  updateSaveStatus();
+}
+
+function selectBbox(idx) {
+  selectedIdx = idx;
+  renderAnnotationList();
+  renderTerminalList();
+  redraw();
+}
+
+// ===== Terminale (ADR connection-model, etap 2) =====
+
+function nextTerminalId(b) {
+  const used = new Set((b.terminals || []).map((t) => String(t.id)));
+  let n = 1;
+  while (used.has(String(n))) n += 1;
+  return String(n);
+}
+
+function snapTerminalRel(b, imgPt) {
+  // pozycja wzgledna [0,1], przyciagnieta do najblizszej krawedzi bboxa
+  const rx = Math.max(0, Math.min(1, (imgPt.x - b.x) / (b.width || 1)));
+  const ry = Math.max(0, Math.min(1, (imgPt.y - b.y) / (b.height || 1)));
+  const dLeft = rx, dRight = 1 - rx, dTop = ry, dBottom = 1 - ry;
+  const m = Math.min(dLeft, dRight, dTop, dBottom);
+  let x = rx, y = ry;
+  if (m === dLeft) x = 0;
+  else if (m === dRight) x = 1;
+  else if (m === dTop) y = 0;
+  else y = 1;
+  return { x: +x.toFixed(4), y: +y.toFixed(4) };
+}
+
+function addTerminalAt(idx, imgPt) {
+  const b = bboxes[idx];
+  if (!b) return;
+  b.terminals = b.terminals || [];
+  const rel = snapTerminalRel(b, imgPt);
+  b.terminals.push({ id: nextTerminalId(b), x: rel.x, y: rel.y, name: "" });
+  markPageDirty();
+  renderTerminalList();
+  redraw();
+}
+
+function terminalAbsPos(b, t) {
+  return { x: b.x + t.x * b.width, y: b.y + t.y * b.height };
+}
+
+// Czy punkt jest przy bboxie (wewnatrz + pas marginesu) — zeby daleki klik nie dodawal terminala.
+function _nearBbox(b, imgPt) {
+  const m = Math.max(20, 0.4 * Math.min(b.width, b.height));
+  return (
+    imgPt.x >= b.x - m &&
+    imgPt.x <= b.x + b.width + m &&
+    imgPt.y >= b.y - m &&
+    imgPt.y <= b.y + b.height + m
+  );
+}
+
+// Klik (event) -> wsp. obrazu, z uwzglednieniem aktywnego cropu w trybach review.
+function imgPointFromEvent(e) {
+  const { cx, cy } = clientToCanvas(e);
+  if (window.CropReview && CropReview.isCropActive()) {
+    return CropReview.imagePointFromCanvas(cx, cy);
+  }
+  return canvasToImage(cx, cy);
+}
+
+// Indeks terminala zaznaczonego bboxa pod kursorem (lub -1). Prog w px obrazu.
+function terminalHitTest(b, imgPt) {
+  const ts = b.terminals || [];
+  if (!ts.length) return -1;
+  const pxPerImg =
+    window.CropReview && CropReview.isCropActive() ? CropReview.cropPxPerImage() : scale || 1;
+  const tolImg = Math.max(8, (TERMINAL_R + 6) / (pxPerImg || 1));
+  let best = -1;
+  let bestD = tolImg;
+  ts.forEach((t, i) => {
+    const a = terminalAbsPos(b, t);
+    const d = Math.hypot(imgPt.x - a.x, imgPt.y - a.y);
+    if (d <= bestD) {
+      bestD = d;
+      best = i;
+    }
+  });
+  return best;
+}
+
+function removeTerminal(idx, termIdx) {
+  const b = bboxes[idx];
+  if (!b || !b.terminals) return;
+  b.terminals.splice(termIdx, 1);
+  markPageDirty();
+  renderTerminalList();
+  redraw();
+}
+
+function updateTerminalId(idx, termIdx, value) {
+  const b = bboxes[idx];
+  if (!b || !b.terminals || !b.terminals[termIdx]) return;
+  const v = (value || "").trim();
+  if (v) b.terminals[termIdx].id = v;
+  markPageDirty();
+  redraw();
+}
+
+async function deriveTerminalsForSelected() {
+  const b = bboxes[selectedIdx];
+  if (!b) {
+    saveStatusEl.textContent = "Najpierw zaznacz bbox";
+    return;
+  }
+  if (!lines.length) {
+    saveStatusEl.textContent =
+      "Brak linii GT na stronie — najpierw tryb L, narysuj linie i Zapisz (Ctrl+S)";
+    return;
+  }
+  const imgMax = Math.max(bgImage?.naturalWidth || 0, bgImage?.naturalHeight || 0);
+  const tol = Math.max(12, 0.012 * imgMax);
+  try {
+    const res = await fetchJson("/api/derive-terminals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bbox: [b.x, b.y, b.x + b.width, b.y + b.height],
+        lines: lines.map((l) => ({
+          points: l.points,
+          role: l.role === "bus" ? "wire" : (l.role || "wire"),
+        })),
+        tol,
+      }),
+    });
+    b.terminals = (res.terminals || []).map((t) => ({ id: t.id, x: t.x, y: t.y, name: "" }));
+    markPageDirty();
+    renderTerminalList();
+    redraw();
+    saveStatusEl.textContent = `Auto-zaciski: ${b.terminals.length} (sprawdź/popraw, ▶ = następny bbox)`;
+  } catch (err) {
+    saveStatusEl.textContent = "Błąd auto-zacisków: " + err.message;
+  }
+}
+
+function removeLastTerminal() {
+  const b = bboxes[selectedIdx];
+  if (b && (b.terminals || []).length) {
+    b.terminals.pop();
+    markPageDirty();
+    renderTerminalList();
+    redraw();
+  }
+}
+
+function clearTerminals() {
+  const b = bboxes[selectedIdx];
+  if (b) {
+    b.terminals = [];
+    markPageDirty();
+    renderTerminalList();
+    redraw();
+  }
+}
+
+function iterateBbox(dir) {
+  if (window.CropReview && CropReview.isCropActive()) {
+    CropReview.reviewStep(dir);
+    renderConnectionList();
+    return;
+  }
+  if (!bboxes.length) return;
+  let i = selectedIdx;
+  i = i < 0 ? (dir > 0 ? 0 : bboxes.length - 1) : (i + dir + bboxes.length) % bboxes.length;
+  selectBbox(i);
+  const b = bboxes[i];
+  saveStatusEl.textContent = `bbox ${i + 1}/${bboxes.length}: #${b.seq || ""} ${(b.tag || b.class_name || "").trim()}`;
+}
+
+function renderTerminalList() {
+  const panel = document.getElementById("terminal-panel");
+  const list = document.getElementById("terminal-list");
+  const head = document.getElementById("terminal-head");
+  if (!panel || !list) return;
+  list.innerHTML = "";
+  const b = bboxes[selectedIdx];
+  if (head) {
+    head.textContent = b
+      ? `Zaciski — #${b.seq || ""} ${(b.tag || b.class_name || "").trim()}`
+      : "Zaciski — (zaznacz bbox)";
+  }
+  if (!b) return;
+  const ts = b.terminals || [];
+  if (!ts.length) {
     const li = document.createElement("li");
-    li.textContent = `${b.class_name || b.class}: ${b.id}`;
+    li.className = "muted";
+    li.textContent = "Auto-zaciski z linii (wejście w T). Popraw: ✕ ostatni / Wyczyść.";
+    list.appendChild(li);
+    return;
+  }
+  ts.forEach((t, ti) => {
+    const row = document.createElement("li");
+    row.className = "terminal-row";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = t.id;
+    input.title = "Nazwa/adres zacisku (np. 1, L+, I0.0)";
+    input.addEventListener("change", () => updateTerminalId(selectedIdx, ti, input.value));
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "✕";
+    del.title = "Usuń zacisk";
+    del.addEventListener("click", () => removeTerminal(selectedIdx, ti));
+    row.appendChild(input);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function renderConnectionList() {
+  const list = document.getElementById("connection-list");
+  const head = document.getElementById("connection-head");
+  if (!list) return;
+  list.innerHTML = "";
+  if (head) head.textContent = `Połączenia (${connections.length})`;
+  if (!connections.length) {
+    const li = document.createElement("li");
+    li.className = "muted";
+    li.textContent = "Import draft (runtime) lub zapisz po review.";
+    list.appendChild(li);
+    return;
+  }
+  const compIds = bboxes.map((b) => b.id).filter(Boolean);
+  connections.forEach((c, i) => {
+    const li = document.createElement("li");
+    li.className = "connection-row";
+    const fromRef = String(c.from || c.from_ref || "");
+    const toRef = String(c.to || "");
+
+    const fromSel = _connEndpointSelect(compIds, fromRef);
+    fromSel.title = "Zrodlo (from)";
+    fromSel.addEventListener("change", () => updateConnectionField(i, "from", fromSel.value));
+
+    const arrow = document.createElement("span");
+    arrow.textContent = " → ";
+
+    const toSel = _connEndpointSelect(compIds, toRef);
+    toSel.title = "Cel (to)";
+    toSel.addEventListener("change", () => updateConnectionField(i, "to", toSel.value));
+
+    const kindSel = document.createElement("select");
+    kindSel.title = "Rodzaj polaczenia";
+    ["power", "pe", "link"].forEach((k) => {
+      const o = document.createElement("option");
+      o.value = k;
+      o.textContent = k;
+      if ((c.kind || "power") === k) o.selected = true;
+      kindSel.appendChild(o);
+    });
+    kindSel.addEventListener("change", () => updateConnectionField(i, "kind", kindSel.value));
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "✕";
+    del.title = "Usun polaczenie";
+    del.addEventListener("click", () => removeConnection(i));
+
+    li.append(fromSel, arrow, toSel, kindSel, del);
     list.appendChild(li);
   });
 }
 
-document.getElementById("save-btn").onclick = async () => {
-  if (!currentPageId) return alert("Wybierz strone");
-  const canvas = document.getElementById("canvas");
-  const payload = {
-    record: {
-      page_id: currentPageId,
-      image_path: `${currentPageId}.png`,
-      image_width: canvas.width,
-      image_height: canvas.height,
-      bboxes,
-      texts: [],
-      connections: [],
-    },
-  };
-  await fetchJson("/api/annotations", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+// Select endpointu polaczenia: lista id bboxow + zachowanie biezacej wartosci (np. comp:terminal).
+function _connEndpointSelect(compIds, current) {
+  const sel = document.createElement("select");
+  const opts = new Set(compIds);
+  if (current) opts.add(current); // zachowaj adres comp:terminal nawet jak nie ma go na liscie
+  opts.forEach((id) => {
+    const o = document.createElement("option");
+    o.value = id;
+    o.textContent = id;
+    if (id === current) o.selected = true;
+    sel.appendChild(o);
   });
-  alert("Zapisano");
-};
+  return sel;
+}
 
-document.getElementById("export-btn").onclick = async () => {
+function updateConnectionField(i, field, value) {
+  const c = connections[i];
+  if (!c) return;
+  if (field === "from") {
+    c.from = value;
+    c.from_ref = value; // utrzymaj oba klucze spojne (eksport/draw)
+  } else {
+    c[field] = value;
+  }
+  markPageDirty();
+  renderConnectionList();
+  redraw();
+}
+
+function removeConnection(i) {
+  if (i < 0 || i >= connections.length) return;
+  connections.splice(i, 1);
+  markPageDirty();
+  renderConnectionList();
+  redraw();
+}
+
+// Review bbox: picker typu dla aktualnie przegladanego bboxa (zmiana klasy bez wychodzenia z cropu).
+function renderReviewBboxType() {
+  const cont = document.getElementById("review-bbox-type");
+  if (!cont) return;
+  cont.innerHTML = "";
+  if (mode !== MODE_REVIEW_BBOX || selectedIdx < 0 || !bboxes[selectedIdx]) return;
+  buildTypePicker(cont, selectedIdx);
+}
+window.renderReviewBboxType = renderReviewBboxType;
+
+// ===== Linie (prompt 002) =====
+
+const roleSelect = () => document.getElementById("line-role");
+const groupSelect = () => document.getElementById("line-group");
+
+function currentLineRole() {
+  const el = roleSelect();
+  return el ? el.value : DEFAULT_LINE_ROLE;
+}
+
+function currentLineGroup() {
+  const el = groupSelect();
+  return el ? el.value : "";
+}
+
+function roleDefaultStyle(role) {
+  return role === "dash" ? "dashed" : "solid";
+}
+
+/** Orto: ostatni punkt + kursor → tylko poziomo lub pionowo (blizsza os). */
+function applyLineOrtho(anchor, raw, orthoOn) {
+  if (!anchor || !orthoOn) return raw;
+  const dx = Math.abs(raw.x - anchor[0]);
+  const dy = Math.abs(raw.y - anchor[1]);
+  if (dx >= dy) return { x: raw.x, y: anchor[1] };
+  return { x: anchor[0], y: raw.y };
+}
+
+function lineSnapPoint(raw, shiftKey) {
+  const orthoOn = lineOrtho && !shiftKey;
+  const anchor = activeLine?.points?.length ? activeLine.points[activeLine.points.length - 1] : null;
+  return applyLineOrtho(anchor, raw, orthoOn);
+}
+
+async function loadSemanticGroups() {
+  try {
+    const data = await fetchJson("/api/semantic-groups");
+    semanticGroups = data.groups || [];
+  } catch (err) {
+    console.warn("semantic-groups:", err);
+    semanticGroups = [];
+  }
+  const sel = groupSelect();
+  if (sel) {
+    sel.innerHTML = '<option value="">—</option>';
+    semanticGroups.forEach((g) => {
+      const opt = document.createElement("option");
+      opt.value = g.name;
+      opt.textContent = g.description ? `${g.name} — ${g.description}` : g.name;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function updateLineToolbar() {
+  const delBtn = document.getElementById("delete-line-btn");
+  const dropBtn = document.getElementById("eyedropper-btn");
+  if (delBtn) delBtn.classList.toggle("armed", lineDeleteArmed);
+  if (dropBtn) dropBtn.classList.toggle("armed", eyedropperArmed);
+}
+
+function updateLineCursor() {
+  if (mode === MODE_TERMINAL || mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+    canvas.style.cursor = "default";
+    return;
+  }
+  if (mode !== MODE_LINE) {
+    canvas.style.cursor = "default";
+    return;
+  }
+  if (eyedropperArmed) canvas.style.cursor = "cell";
+  else if (lineDeleteArmed) canvas.style.cursor = "pointer";
+  else canvas.style.cursor = "crosshair";
+}
+
+function armLineDelete() {
+  if (activeLine) cancelActiveLine();
+  lineDeleteArmed = true;
+  eyedropperArmed = false;
+  updateLineToolbar();
+  updateLineCursor();
+  saveStatusEl.textContent = "Usuwanie: kliknij linie na schemacie (Esc = anuluj)";
+}
+
+function disarmLineDelete() {
+  lineDeleteArmed = false;
+  updateLineToolbar();
+  updateLineCursor();
+}
+
+function setMode(next) {
+  if (mode !== next && window.CropReview) {
+    if (mode === MODE_TERMINAL || mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+      CropReview.exitCropModes();
+    }
+  }
+  mode = next;
+  drawing = false;
+  drawMoved = false;
+  clickSelectCandidate = -1;
+  if (mode !== MODE_LINE) {
+    activeLine = null;
+    lineDeleteArmed = false;
+    cursorImgPt = null;
+    eyedropperArmed = false;
+  }
+  const bboxBtn = document.getElementById("mode-bbox");
+  const lineBtn = document.getElementById("mode-line");
+  const termBtn = document.getElementById("mode-terminal");
+  const reviewBtn = document.getElementById("mode-review-bbox");
+  const connBtn = document.getElementById("mode-connection");
+  const toolbar = document.getElementById("line-toolbar");
+  const lineHelp = document.getElementById("line-help");
+  if (bboxBtn) bboxBtn.classList.toggle("active", mode === MODE_BBOX);
+  if (lineBtn) lineBtn.classList.toggle("active", mode === MODE_LINE);
+  if (termBtn) termBtn.classList.toggle("active", mode === MODE_TERMINAL);
+  if (reviewBtn) reviewBtn.classList.toggle("active", mode === MODE_REVIEW_BBOX);
+  if (connBtn) connBtn.classList.toggle("active", mode === MODE_CONNECTION);
+  if (toolbar) toolbar.classList.toggle("hidden", mode !== MODE_LINE);
+  if (lineHelp) lineHelp.classList.toggle("hidden", mode !== MODE_LINE);
+  const termPanel = document.getElementById("terminal-panel");
+  const reviewPanel = document.getElementById("review-bbox-panel");
+  const connPanel = document.getElementById("connection-panel");
+  if (termPanel) termPanel.classList.toggle("hidden", mode !== MODE_TERMINAL);
+  if (reviewPanel) reviewPanel.classList.toggle("hidden", mode !== MODE_REVIEW_BBOX);
+  if (connPanel) connPanel.classList.toggle("hidden", mode !== MODE_CONNECTION);
+  updateLineToolbar();
+  updateLineCursor();
+  let hint;
+  if (mode === MODE_LINE) {
+    hint = "Linia: klik = punkt (orto), Enter = koniec | Usun linie = klik kasuje | Backspace = cofnij punkt";
+  } else if (mode === MODE_TERMINAL) {
+    hint = "Terminale: klik = dodaj, przeciągnij = popraw, ✕ = usuń | strzałki ←/→ lub scroll = następny bbox | Zapisz";
+  } else if (mode === MODE_REVIEW_BBOX) {
+    hint = "Review bbox: zmień typ poniżej | ✓ akceptuj | ✕ usuń | strzałki ←/→ lub scroll = przewijaj | R = tryb";
+  } else if (mode === MODE_CONNECTION) {
+    hint = "Review połączeń: edytuj from/to/kind w liście | ✕ usuń | strzałki ←/→ lub scroll = przewijaj | C = tryb";
+  } else {
+    hint = "Bbox → typ → Zapisz | Ctrl+S | Import draft | B/L/T/R/C = tryby";
+  }
+  document.getElementById("hint").textContent = hint;
+  if (mode === MODE_TERMINAL && window.CropReview) {
+    CropReview.enterTerminalMode();
+  } else if (mode === MODE_REVIEW_BBOX && window.CropReview) {
+    CropReview.startReviewQueue("bbox");
+  } else if (mode === MODE_CONNECTION && window.CropReview) {
+    if (!connections.length) {
+      saveStatusEl.textContent = "Brak connections — Import draft lub GraphBuilder";
+    } else {
+      CropReview.startReviewQueue("connection");
+    }
+  }
+  renderTerminalList();
+  renderConnectionList();
+  redraw();
+}
+
+function finishActiveLine() {
+  if (!activeLine || activeLine.points.length < 2) {
+    activeLine = null;
+    cursorImgPt = null;
+    redraw();
+    return;
+  }
+  const role = currentLineRole();
+  const group = currentLineGroup();
+  const grp = semanticGroups.find((g) => g.name === group);
+  const line = {
+    id: `line_${Date.now()}`,
+    points: activeLine.points.map((p) => [Math.round(p[0]), Math.round(p[1])]),
+    role,
+    style: roleDefaultStyle(role),
+    semantic_group: group,
+    color_ref: grp && grp.stroke ? grp.stroke : "",
+  };
+  lines.push(line);
+  activeLine = null;
+  cursorImgPt = null;
+  selectedLineIdx = lines.length - 1;
+  updateLineCursor();
+  markPageDirty();
+  redraw();
+  renderLineList();
+  updateSaveStatus();
+}
+
+function cancelActiveLine() {
+  activeLine = null;
+  cursorImgPt = null;
+  updateLineCursor();
+  redraw();
+}
+
+function undoActiveLinePoint() {
+  if (!activeLine?.points?.length) {
+    cancelActiveLine();
+    return;
+  }
+  activeLine.points.pop();
+  if (!activeLine.points.length) {
+    cursorImgPt = null;
+  }
+  redraw();
+}
+
+function removeLineAt(idx) {
+  if (idx < 0 || idx >= lines.length) return;
+  lines.splice(idx, 1);
+  selectedLineIdx = -1;
+  markPageDirty();
+  redraw();
+  renderLineList();
+  updateSaveStatus();
+}
+
+function clearAllLines() {
+  if (!lines.length) {
+    saveStatusEl.textContent = "Brak linii do usuniecia";
+    return;
+  }
+  if (!confirm(`Usunac wszystkie linie (${lines.length})? Tej operacji nie cofniesz.`)) return;
+  const n = lines.length;
+  lines = [];
+  selectedLineIdx = -1;
+  markPageDirty();
+  redraw();
+  renderLineList();
+  updateSaveStatus();
+  saveStatusEl.textContent = `Usunieto ${n} linii — Ctrl+S = zapis`;
+}
+
+function selectLine(idx) {
+  selectedLineIdx = idx;
+  renderLineList();
+  redraw();
+}
+
+function updateLineField(idx, field, value) {
+  if (idx < 0 || idx >= lines.length) return;
+  lines[idx][field] = value;
+  if (field === "role") lines[idx].style = roleDefaultStyle(value);
+  if (field === "semantic_group") {
+    const grp = semanticGroups.find((g) => g.name === value);
+    lines[idx].color_ref = grp && grp.stroke ? grp.stroke : "";
+  }
+  markPageDirty();
+  redraw();
+  renderLineList();
+}
+
+function pointSegDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  let t = len2 ? ((px - ax) * dx + (py - ay) * dy) / len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx = ax + t * dx;
+  const cy = ay + t * dy;
+  return Math.hypot(px - cx, py - cy);
+}
+
+function hitTestLine(pt) {
+  const tol = Math.max(LINE_STROKE * 1.5, 14 / scale);
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const pts = lines[i].points || [];
+    for (const p of pts) {
+      if (Math.hypot(pt.x - p[0], pt.y - p[1]) <= tol) return i;
+    }
+    for (let k = 0; k + 1 < pts.length; k++) {
+      if (pointSegDist(pt.x, pt.y, pts[k][0], pts[k][1], pts[k + 1][0], pts[k + 1][1]) <= tol) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+function canvasPixelHex(imgX, imgY) {
+  if (!bgImage) return null;
+  const x = Math.round(imgX);
+  const y = Math.round(imgY);
+  if (x < 0 || y < 0 || x >= bgImage.naturalWidth || y >= bgImage.naturalHeight) return null;
+  const off = document.createElement("canvas");
+  off.width = 1;
+  off.height = 1;
+  const octx = off.getContext("2d", { willReadFrequently: true });
+  octx.drawImage(bgImage, x, y, 1, 1, 0, 0, 1, 1);
+  const d = octx.getImageData(0, 0, 1, 1).data;
+  const hex = "#" + [d[0], d[1], d[2]].map((v) => v.toString(16).padStart(2, "0")).join("");
+  return hex;
+}
+
+async function applyEyedropper(imgX, imgY) {
+  const hex = canvasPixelHex(imgX, imgY);
+  eyedropperArmed = false;
+  canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
+  if (!hex) return;
+  try {
+    const res = await fetchJson(`/api/match-color?hex=${encodeURIComponent(hex)}`);
+    const sel = groupSelect();
+    if (res.semantic_group && sel) {
+      sel.value = res.semantic_group;
+      saveStatusEl.textContent = `Pipeta ${hex} → grupa: ${res.semantic_group}`;
+    } else {
+      saveStatusEl.textContent = `Pipeta ${hex} → brak dopasowania grupy`;
+    }
+  } catch (err) {
+    saveStatusEl.textContent = `Pipeta: blad match-color (${err.message})`;
+  }
+}
+
+function renderLineList() {
+  const list = document.getElementById("line-list");
+  if (!list) return;
+  list.innerHTML = "";
+  if (!lines.length) {
+    const empty = document.createElement("li");
+    empty.className = "muted";
+    empty.textContent = "Brak linii — przełącz na tryb Linia (L).";
+    empty.style.background = "transparent";
+    empty.style.border = "none";
+    list.appendChild(empty);
+    return;
+  }
+  lines.forEach((line, i) => {
+    const row = document.createElement("li");
+    row.className = "line-row";
+    if (i === selectedLineIdx) row.classList.add("active");
+
+    const swatch = document.createElement("span");
+    swatch.className = "line-swatch";
+    swatch.style.background = lineStrokeColor(line);
+    row.appendChild(swatch);
+
+    const label = document.createElement("button");
+    label.type = "button";
+    label.className = "line-label";
+    const grpTxt = line.semantic_group ? ` · ${line.semantic_group}` : "";
+    label.textContent = `${i + 1}. ${LINE_ROLE_LABELS[line.role] || line.role}${grpTxt} (${line.points.length} pkt)`;
+    label.addEventListener("click", () => selectLine(i));
+    row.appendChild(label);
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "delete-btn";
+    del.textContent = "Usuń";
+    del.title = "Usun te linie";
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeLineAt(i);
+    });
+    row.appendChild(del);
+
+    if (i === selectedLineIdx) {
+      const editor = document.createElement("div");
+      editor.className = "line-editor";
+
+      const roleSel = document.createElement("select");
+      ["wire", "bus", "device_stroke", "frame", "dash", "crossing", "leader", "other"].forEach((r) => {
+        const o = document.createElement("option");
+        o.value = r;
+        o.textContent = LINE_ROLE_LABELS[r] || r;
+        if (r === line.role) o.selected = true;
+        roleSel.appendChild(o);
+      });
+      roleSel.addEventListener("change", () => updateLineField(i, "role", roleSel.value));
+      editor.appendChild(roleSel);
+
+      const grpSel = document.createElement("select");
+      const none = document.createElement("option");
+      none.value = "";
+      none.textContent = "— grupa —";
+      grpSel.appendChild(none);
+      semanticGroups.forEach((g) => {
+        const o = document.createElement("option");
+        o.value = g.name;
+        o.textContent = g.name;
+        if (g.name === line.semantic_group) o.selected = true;
+        grpSel.appendChild(o);
+      });
+      grpSel.addEventListener("change", () => updateLineField(i, "semantic_group", grpSel.value));
+      editor.appendChild(grpSel);
+
+      row.appendChild(editor);
+    }
+
+    list.appendChild(row);
+  });
+}
+
+function isTypingField(el) {
+  if (!el) return false;
+  return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
+}
+
+canvas.addEventListener("mousedown", (e) => {
+  if (e.button !== 0) return;
+  if (mode === MODE_LINE) {
+    const { cx, cy } = clientToCanvas(e);
+    const raw = canvasToImage(cx, cy);
+    if (eyedropperArmed) {
+      applyEyedropper(raw.x, raw.y);
+      return;
+    }
+    if (lineDeleteArmed) {
+      const hit = hitTestLine(raw);
+      if (hit >= 0) {
+        removeLineAt(hit);
+        // narzedzie zostaje aktywne — mozesz kasowac kolejne linie (Esc = wyjdz)
+        saveStatusEl.textContent = "Linia usunieta — kliknij kolejna do usuniecia (Esc = koniec)";
+      } else {
+        saveStatusEl.textContent = "Nie trafiono — kliknij istniejaca linie (Esc = koniec usuwania)";
+      }
+      return;
+    }
+    const pt = lineSnapPoint(raw, e.shiftKey);
+    if (!activeLine) activeLine = { points: [] };
+    const last = activeLine.points[activeLine.points.length - 1];
+    if (!last || Math.hypot(pt.x - last[0], pt.y - last[1]) > 2 / scale) {
+      activeLine.points.push([pt.x, pt.y]);
+    }
+    cursorImgPt = { x: pt.x, y: pt.y };
+    redraw();
+    return;
+  }
+  if (mode === MODE_TERMINAL) {
+    if (selectedIdx < 0) return;
+    const b = bboxes[selectedIdx];
+    if (!b) return;
+    const imgPt = imgPointFromEvent(e);
+    const hit = terminalHitTest(b, imgPt);
+    if (hit >= 0) {
+      // chwyt istniejacego terminala -> przeciaganie (poprawa pozycji)
+      draggingTerminal = { idx: selectedIdx, termIdx: hit };
+      terminalDragMoved = false;
+      canvas.style.cursor = "grabbing";
+    } else if (_nearBbox(b, imgPt)) {
+      // klik przy bboxie -> nowy terminal (snap do krawedzi); daleki klik ignorowany
+      addTerminalAt(selectedIdx, imgPt);
+    }
+    return;
+  }
+  if (mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION) {
+    return;
+  }
+  const { cx, cy } = clientToCanvas(e);
+  const pt = canvasToImage(cx, cy);
+  clickSelectCandidate = bboxes.findIndex(
+    (b) => pt.x >= b.x && pt.x <= b.x + b.width && pt.y >= b.y && pt.y <= b.y + b.height
+  );
+  drawing = true;
+  drawMoved = false;
+  startX = pt.x;
+  startY = pt.y;
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (mode === MODE_TERMINAL) {
+    if (!draggingTerminal) return;
+    const b = bboxes[draggingTerminal.idx];
+    const t = b && b.terminals && b.terminals[draggingTerminal.termIdx];
+    if (!t) return;
+    const rel = snapTerminalRel(b, imgPointFromEvent(e));
+    t.x = rel.x;
+    t.y = rel.y;
+    terminalDragMoved = true;
+    redraw();
+    return;
+  }
+  if (mode === MODE_LINE) {
+    if (!activeLine) return;
+    const { cx, cy } = clientToCanvas(e);
+    const raw = canvasToImage(cx, cy);
+    cursorImgPt = lineSnapPoint(raw, e.shiftKey);
+    redraw();
+    return;
+  }
+  if (!drawing) return;
+  const { cx, cy } = clientToCanvas(e);
+  const pt = canvasToImage(cx, cy);
+  const w = Math.abs(pt.x - startX);
+  const h = Math.abs(pt.y - startY);
+  if (w >= DRAG_THRESHOLD || h >= DRAG_THRESHOLD) drawMoved = true;
+  redraw();
+  ctx.save();
+  ctx.translate(originX, originY);
+  ctx.scale(scale, scale);
+  ctx.strokeStyle = UNASSIGNED_COLOR;
+  ctx.lineWidth = 2 / scale;
+  ctx.setLineDash([6 / scale, 3 / scale]);
+  ctx.strokeRect(startX, startY, pt.x - startX, pt.y - startY);
+  ctx.setLineDash([]);
+  ctx.restore();
+});
+
+canvas.addEventListener("dblclick", (e) => {
+  if (mode !== MODE_LINE) return;
+  e.preventDefault();
+  finishActiveLine();
+});
+
+canvas.addEventListener("mouseup", (e) => {
+  if (mode === MODE_TERMINAL) {
+    if (draggingTerminal) {
+      if (terminalDragMoved) {
+        markPageDirty();
+        renderTerminalList();
+      }
+      draggingTerminal = null;
+      terminalDragMoved = false;
+      canvas.style.cursor = "default";
+    }
+    return;
+  }
+  if (mode === MODE_LINE) return;
+  if (!drawing) return;
+  drawing = false;
+  const { cx, cy } = clientToCanvas(e);
+  const pt = canvasToImage(cx, cy);
+  const x = Math.min(startX, pt.x);
+  const y = Math.min(startY, pt.y);
+  const w = Math.abs(pt.x - startX);
+  const h = Math.abs(pt.y - startY);
+
+  if (!drawMoved) {
+    if (clickSelectCandidate >= 0) {
+      toggleAccordion(clickSelectCandidate);
+    } else {
+      selectedIdx = -1;
+      expandedIdx = -1;
+      renderAnnotationList();
+      redraw();
+    }
+    return;
+  }
+
+  if (w < DRAG_THRESHOLD || h < DRAG_THRESHOLD) {
+    redraw();
+    return;
+  }
+
+  const id = `${DEFAULT_CLASS}_${Date.now()}`;
+  bboxes.unshift({
+    id,
+    class_name: DEFAULT_CLASS,
+    x,
+    y,
+    width: w,
+    height: h,
+    tag: "",
+    seq: nextSeq++,
+    parent_id: "",
+    depth: 0,
+    rel_bbox: [],
+  });
+  recomputeHierarchy();
+  selectedIdx = 0;
+  expandedIdx = 0;
+  focusSearchIdx = 0;
+  if (lastUsedTag) {
+    assignTag(0, lastUsedTag);
+  } else {
+    markPageDirty();
+    redraw();
+    renderAnnotationList();
+    updateSaveStatus();
+  }
+});
+
+let lastReviewWheel = 0;
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const inReview =
+    mode === MODE_TERMINAL || mode === MODE_REVIEW_BBOX || mode === MODE_CONNECTION;
+  // W trybie review scroll przewija kolejke (Ctrl = zoom). 1 ruch = 1 krok (debounce).
+  if (inReview && !e.ctrlKey && !e.metaKey) {
+    const now = Date.now();
+    if (now - lastReviewWheel < 120) return;
+    lastReviewWheel = now;
+    reviewOrPageStep(e.deltaY > 0 ? 1 : -1);
+    return;
+  }
+  const { cx, cy } = clientToCanvas(e);
+  const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  originX = cx - factor * (cx - originX);
+  originY = cy - factor * (cy - originY);
+  scale *= factor;
+  redraw();
+}, { passive: false });
+
+document.addEventListener("keydown", (e) => {
+  if (isTypingField(e.target)) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      savePageToServer(currentPageId);
+    }
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+    e.preventDefault();
+    savePageToServer(currentPageId);
+    return;
+  }
+  if (e.key === "b" || e.key === "B") {
+    e.preventDefault();
+    setMode(MODE_BBOX);
+    return;
+  }
+  if (e.key === "l" || e.key === "L") {
+    e.preventDefault();
+    setMode(MODE_LINE);
+    return;
+  }
+  if (e.key === "t" || e.key === "T") {
+    e.preventDefault();
+    setMode(MODE_TERMINAL);
+    return;
+  }
+  if (e.key === "r" || e.key === "R") {
+    e.preventDefault();
+    setMode(MODE_REVIEW_BBOX);
+    return;
+  }
+  if (e.key === "c" || e.key === "C") {
+    if (mode === MODE_LINE) return;
+    e.preventDefault();
+    setMode(MODE_CONNECTION);
+    return;
+  }
+  if (mode === MODE_LINE && (e.key === "o" || e.key === "O")) {
+    e.preventDefault();
+    lineOrtho = !lineOrtho;
+    saveStatusEl.textContent = lineOrtho ? "Orto H/V: wlaczone" : "Orto H/V: wylaczone";
+    redraw();
+    return;
+  }
+  if (mode === MODE_LINE && e.key === "Enter") {
+    e.preventDefault();
+    finishActiveLine();
+    return;
+  }
+  if (e.key === "Escape") {
+    if (lineDeleteArmed) {
+      e.preventDefault();
+      disarmLineDelete();
+      saveStatusEl.textContent = "Usuwanie anulowane";
+      return;
+    }
+    if (activeLine) {
+      e.preventDefault();
+      cancelActiveLine();
+      return;
+    }
+    if (selectedLineIdx >= 0) {
+      e.preventDefault();
+      selectedLineIdx = -1;
+      renderLineList();
+      redraw();
+      return;
+    }
+  }
+  if (e.key === "Delete" || e.key === "Backspace") {
+    if (mode === MODE_TERMINAL) {
+      // w trybie terminali Backspace/Del cofa OSTATNI zacisk, NIGDY nie kasuje bboxa
+      e.preventDefault();
+      const b = bboxes[selectedIdx];
+      if (b && (b.terminals || []).length) {
+        b.terminals.pop();
+        markPageDirty();
+        renderTerminalList();
+        redraw();
+      }
+      return;
+    }
+    if (mode === MODE_LINE && activeLine?.points?.length) {
+      e.preventDefault();
+      undoActiveLinePoint();
+      return;
+    }
+    if (selectedLineIdx >= 0) {
+      e.preventDefault();
+      removeLineAt(selectedLineIdx);
+      return;
+    }
+  }
+  if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    reviewOrPageStep(-1);
+    return;
+  }
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    reviewOrPageStep(1);
+    return;
+  }
+  if (e.key === "/" && expandedIdx >= 0) {
+    e.preventDefault();
+    focusSearchIdx = expandedIdx;
+    renderAnnotationList();
+    return;
+  }
+  if ((e.key === "Delete" || e.key === "Backspace") && selectedIdx >= 0) {
+    removeBboxAt(selectedIdx);
+  }
+});
+
+pagePrevBtn?.addEventListener("click", () => navigatePage(-1));
+pageNextBtn?.addEventListener("click", () => navigatePage(1));
+
+document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
+document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
+document.getElementById("mode-terminal")?.addEventListener("click", () => setMode(MODE_TERMINAL));
+document.getElementById("mode-review-bbox")?.addEventListener("click", () => setMode(MODE_REVIEW_BBOX));
+document.getElementById("mode-connection")?.addEventListener("click", () => setMode(MODE_CONNECTION));
+document.getElementById("term-auto")?.addEventListener("click", () => {
+  if (window.CropReview) CropReview.deriveTerminalsForPage().then(() => redraw());
+  else deriveTerminalsForSelected();
+});
+document.getElementById("term-undo")?.addEventListener("click", removeLastTerminal);
+document.getElementById("term-clear")?.addEventListener("click", clearTerminals);
+document.getElementById("term-prev")?.addEventListener("click", () => iterateBbox(-1));
+document.getElementById("term-next")?.addEventListener("click", () => iterateBbox(1));
+document.getElementById("review-prev")?.addEventListener("click", () => CropReview?.reviewStep(-1));
+document.getElementById("review-next")?.addEventListener("click", () => CropReview?.reviewStep(1));
+document.getElementById("review-accept")?.addEventListener("click", () => CropReview?.acceptReviewItem());
+document.getElementById("review-reject")?.addEventListener("click", () => CropReview?.rejectReviewItem());
+document.getElementById("conn-prev")?.addEventListener("click", () => CropReview?.reviewStep(-1));
+document.getElementById("conn-next")?.addEventListener("click", () => CropReview?.reviewStep(1));
+document.getElementById("conn-accept")?.addEventListener("click", () => CropReview?.acceptReviewItem());
+document.getElementById("conn-reject")?.addEventListener("click", () => CropReview?.rejectReviewItem());
+document.getElementById("import-draft-btn")?.addEventListener("click", () => CropReview?.importRuntimeDraft());
+document.getElementById("delete-line-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  if (lineDeleteArmed) {
+    disarmLineDelete();
+    saveStatusEl.textContent = "Usuwanie wylaczone";
+    return;
+  }
+  armLineDelete();
+});
+document.getElementById("clear-lines-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  clearAllLines();
+});
+document.getElementById("eyedropper-btn")?.addEventListener("click", () => {
+  if (mode !== MODE_LINE) setMode(MODE_LINE);
+  eyedropperArmed = !eyedropperArmed;
+  if (eyedropperArmed) {
+    lineDeleteArmed = false;
+    if (activeLine) cancelActiveLine();
+  }
+  updateLineToolbar();
+  updateLineCursor();
+  saveStatusEl.textContent = eyedropperArmed
+    ? "Pipeta uzbrojona — kliknij piksel obrazu"
+    : "Pipeta wyłączona";
+});
+
+window._cropRedraw = redraw;
+
+async function init() {
+  lastUsedTag = loadLastUsedTag();
+  await loadSemanticGroups();
+  setMode(MODE_BBOX);
+  await loadPages();
+  reportRecoveryHints();
+  if (pageIds.length && currentPageId == null) {
+    await selectPage(pageIds[0]);
+  } else {
+    updatePageNav();
+  }
+  await ensurePaletteCache("");
+  renderLineList();
+  updateSaveStatus();
+}
+
+window.addEventListener("beforeunload", (e) => {
+  if (currentPageId) persistPageDraft(currentPageId);
+  if (dirtyPages.size > 0) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
+saveBtn?.addEventListener("click", async () => {
+  if (!currentPageId) {
+    alert("Wybierz strone z listy.");
+    return;
+  }
+  saveBtn.disabled = true;
+  persistPageDraft(currentPageId);
+  try {
+    const ok = await savePageToServer(currentPageId);
+    if (ok) await loadElementCatalog();
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
+
+saveAllBtn?.addEventListener("click", async () => {
+  saveAllBtn.disabled = true;
+  try {
+    await saveAllPages();
+  } finally {
+    saveAllBtn.disabled = false;
+  }
+});
+
+document.getElementById("export-btn").addEventListener("click", async () => {
   if (!currentPageId) return alert("Wybierz strone");
-  const paths = await fetchJson(`/api/export/${currentPageId}`, { method: "POST" });
-  alert("Eksport:\n" + JSON.stringify(paths, null, 2));
-};
+  try {
+    const paths = await fetchJson(`/api/export/${currentPageId}`, { method: "POST" });
+    alert("Eksport:\n" + JSON.stringify(paths, null, 2));
+  } catch (err) {
+    alert(`Blad eksportu: ${err.message}`);
+  }
+});
 
-loadPages();
-loadClasses();
+init();

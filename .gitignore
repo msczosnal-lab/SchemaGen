@@ -5,6 +5,7 @@
 
 # Python
 .venv/
+.venv*/
 __pycache__/
 *.py[cod]
 .mypy_cache/
@@ -23,10 +24,18 @@ Desktop.ini
 *.user
 *.suo
 
+# Cowork / lokalny agent
+.claude/
+
 # Build (legacy)
 bin/
 obj/
 *.dll
+
+# Atlas symboli (surowe biblioteki — poza gitem)
+data/atlas/qet/
+# crop-y opcjonalnie lokalnie; domyślnie commitujemy wybrane PNG z symbol-reference.yaml
+# data/atlas/crops/
 
 # Dane lokalne (obrazy, modele, SQLite)
 data/raw/*
@@ -34,7 +43,16 @@ data/raw/*
 data/labeled/*
 !data/labeled/.gitkeep
 data/schemagen.db
+data/.annotation_dpi
+data/archive/
 data/output/
+data/runs/
+data/models/*.pt
+
+# YOLO / ultralytics (pobierane lokalnie)
+yolov8n.pt
+yolo26n.pt
+yolo*.pt
 
 # EPLAN legacy output
 eplan_output/

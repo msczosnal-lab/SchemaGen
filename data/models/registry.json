@@ -1,4 +1,37 @@
 {
-  "active": null,
-  "versions": {}
+  "active": "symbols_strip_v1",
+  "versions": {
+    "symbols_v1": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v1.onnx",
+      "metrics": {}
+    },
+    "symbols_v2": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v2.onnx",
+      "metrics": {}
+    },
+    "symbols_mc_v1": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_mc_v1.onnx",
+      "metrics": {}
+    },
+    "symbols_mc_v2": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_mc_v2.onnx",
+      "metrics": {}
+    },
+    "symbols_mc_v5": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_mc_v5.onnx",
+      "metrics": {}
+    },
+    "symbols_atomic_v1": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_atomic_v1.onnx",
+      "metrics": {}
+    },
+    "symbols_atomic_v2": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_atomic_v2.onnx",
+      "metrics": {}
+    },
+    "symbols_strip_v1": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_strip_v1.onnx",
+      "metrics": {}
+    }
+  }
 }

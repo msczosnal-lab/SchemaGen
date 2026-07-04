@@ -8,26 +8,100 @@
 <body>
   <header>
     <h1>SchemaGen Labeler</h1>
-    <p>Oznaczanie symboli — MVP (canvas: COWORK prompt 001)</p>
+    <p>Crop-review GT — runtime draft → akceptacja</p>
   </header>
   <main class="layout">
     <aside id="pages-panel">
+      <div id="bbox-editor">
+        <h2>Workflow</h2>
+        <p id="editor-hint">1. Import draft (runtime) lub bbox ręcznie<br>2. Review crop (T/R/C)<br>3. Zapisz stronę</p>
+        <p id="class-hint" class="muted">YOLO: klasa <code>element</code> — hasło tylko w JSON.</p>
+        <button id="import-draft-btn" type="button" class="secondary-btn">⤓ Import draft (runtime)</button>
+      </div>
       <h2>Strony</h2>
       <ul id="page-list"></ul>
-      <h2>Klasy</h2>
-      <ul id="class-list"></ul>
     </aside>
     <section id="canvas-panel">
+      <div id="page-nav">
+        <button id="page-prev" type="button" title="Poprzednia strona (←)">←</button>
+        <span id="page-position">— / —</span>
+        <button id="page-next" type="button" title="Następna strona (→)">→</button>
+      </div>
+      <div id="mode-bar">
+        <button id="mode-bbox" type="button" class="mode-btn active" title="Tryb bbox (B)">⬚ Bbox</button>
+        <button id="mode-line" type="button" class="mode-btn" title="Tryb linia (L)">╱ Linia</button>
+        <button id="mode-terminal" type="button" class="mode-btn" title="Terminale crop (T)">⊙ Terminale</button>
+        <button id="mode-review-bbox" type="button" class="mode-btn" title="Review bbox crop (R)">◈ Review</button>
+        <button id="mode-connection" type="button" class="mode-btn" title="Review połączeń (C)">⇄ Conn</button>
+        <span id="line-toolbar" class="hidden">
+          <label>Rola (co to jest):
+            <select id="line-role" title="Rola decyduje czy linia tworzy polaczenie elektryczne">
+              <option value="wire">Przewod (wire) — kabel, laczy urzadzenia</option>
+              <option value="bus">Szyna (bus) — dluga pozioma/pionowa szyna zasilania</option>
+              <option value="device_stroke">Obrys urzadzenia — fiolet/niebieski, NIE kabel</option>
+              <option value="frame">Ramka obudowy — zielony obrys bloku</option>
+              <option value="dash">Linia pomocnicza — szara przerywana</option>
+              <option value="crossing">Skrzyzowanie — linie sie przecinaja, brak polaczenia</option>
+              <option value="leader">Odnośnik do tekstu</option>
+              <option value="other">Inne</option>
+            </select>
+          </label>
+          <label>Kolor (grupa):
+            <select id="line-group" title="Kolor z palety — pipeta ustawi automatycznie"><option value="">— auto / pipeta</option></select>
+          </label>
+          <button id="eyedropper-btn" type="button" title="Pipeta: kliknij kolor linii na schemacie">⊙ Pipeta</button>
+          <button id="delete-line-btn" type="button" class="delete-btn" title="Kliknij, potem kasuj kolejne linie (Esc = koniec)">Usuń linię</button>
+          <button id="clear-lines-btn" type="button" class="delete-btn" title="Usuń WSZYSTKIE linie ze strony">🗑 Wyczyść wszystkie linie</button>
+        </span>
+        <p id="line-help" class="muted hidden">GT: <strong>Przewod</strong> i <strong>Szyna</strong>. Klik = rysuj (orto <strong>O</strong>, <strong>Shift</strong> = wolny kat). <strong>Usuń linię</strong> → klik na linii kasuje. <strong>Backspace</strong> = cofnij punkt.</p>
+      </div>
       <canvas id="canvas" width="800" height="600"></canvas>
-      <p id="hint">Laduj strone z listy. Rysowanie bbox — implementacja w app.js (Cowork).</p>
+      <p id="hint">Bbox → typ → Zapisz | Ctrl+S | Import draft | B/L/T/R/C = tryby</p>
     </section>
     <aside id="annotations-panel">
-      <h2>Adnotacje</h2>
+      <h2>Elementy na stronie</h2>
       <ul id="annotation-list"></ul>
-      <button id="save-btn" type="button">Zapisz</button>
+      <h2 id="lines-heading">Linie na stronie</h2>
+      <ul id="line-list"></ul>
+      <div id="terminal-panel" class="hidden">
+        <h2 id="terminal-head">Zaciski — crop review</h2>
+        <div id="terminal-controls">
+          <button id="term-prev" type="button" title="Poprzedni bbox">◀</button>
+          <button id="term-next" type="button" title="Następny bbox">▶</button>
+          <button id="term-auto" type="button" title="Przelicz auto-zaciski całej strony">⤓ Auto strona</button>
+          <button id="term-undo" type="button" title="Cofnij ostatni zacisk">✕ ostatni</button>
+          <button id="term-clear" type="button" title="Usuń wszystkie zaciski bboxa">Wyczyść</button>
+        </div>
+        <ul id="terminal-list"></ul>
+      </div>
+      <div id="review-bbox-panel" class="hidden">
+        <h2>Review bbox (crop)</h2>
+        <div id="review-controls" class="review-controls">
+          <button id="review-prev" type="button">◀</button>
+          <button id="review-next" type="button">▶</button>
+          <button id="review-accept" type="button" class="ok-btn">✓ OK</button>
+          <button id="review-reject" type="button" class="delete-btn">✕ Usuń</button>
+        </div>
+        <p class="muted">Propozycje autolabel / sym_* — akceptuj, usuń lub zmień typ poniżej.</p>
+        <div id="review-bbox-type"></div>
+      </div>
+      <div id="connection-panel" class="hidden">
+        <h2 id="connection-head">Połączenia — crop review</h2>
+        <div id="conn-controls" class="review-controls">
+          <button id="conn-prev" type="button">◀</button>
+          <button id="conn-next" type="button">▶</button>
+          <button id="conn-accept" type="button" class="ok-btn">✓ OK</button>
+          <button id="conn-reject" type="button" class="delete-btn">✕ Usuń</button>
+        </div>
+        <ul id="connection-list"></ul>
+      </div>
+      <button id="save-btn" type="button">Zapisz strone</button>
+      <button id="save-all-btn" type="button">Zapisz wszystkie</button>
       <button id="export-btn" type="button">Eksport YOLO + JSON</button>
+      <p id="save-status" class="muted"></p>
     </aside>
   </main>
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=34"></script>
+  <script src="/static/crop_review.js?v=34"></script>
 </body>
 </html>

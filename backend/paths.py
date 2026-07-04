@@ -14,8 +14,15 @@ CONFIG = ROOT / "config"
 BLOCKS = ROOT / "blocks"
 SCHEMA = ROOT / "schema"
 SYMBOL_CLASSES = CONFIG / "symbol-classes.yaml"
+TRAIN_CLASSES = CONFIG / "train-classes.yaml"
+VAL_PAGES = CONFIG / "val-pages.yaml"
+SYMBOL_PALETTE = CONFIG / "symbol-palette.yaml"
+SYMBOL_REFERENCE = CONFIG / "symbol-reference.yaml"
 VALIDATION_RULES = CONFIG / "validation-rules.json"
 DRIVE_CONFIG = CONFIG / "901_Drive_Design.xml"
+ATLAS = DATA / "atlas"
+ATLAS_QET = ATLAS / "qet"
+ATLAS_CROPS = ATLAS / "crops"
 
 
 def ensure_data_dirs() -> None:

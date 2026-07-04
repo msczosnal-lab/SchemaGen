@@ -4,11 +4,18 @@
 
   Cykl co -IntervalSec:
     1. fetch origin
-    2. jesli jestesmy behind -> rebase na origin/<branch>
+    2. jesli jestesmy behind -> rebase --autostash na origin/<branch>
     3. jesli sa niezacommitowane zmiany -> add + commit (sync/commit-message.txt lub auto[<TAG>])
     4. push (jesli ahead)
-    5. heartbeat w konsoli + wykrycie commitu drugiego komputera
-    6. zapis statusu do sync/.status-<TAG>.json
+    5. log TYLKO przy zdarzeniach (NOWE/PULL/COMMIT/PUSH/KONFLIKT/BLAD)
+    6. zapis statusu do sync/.status-<TAG>.json (cicho)
+
+  Tryb -PushOnNamedOnly (dla PC ZW / Claude):
+    Cyklicznie tylko POBIERA (fetch + rebase --autostash) i trzyma repo w zgodzie
+    z origin, ale NIE commituje ani nie pushuje automatycznych zmian WIP.
+    Commit + push nastepuje WYLACZNIE gdy w sync/commit-message.txt jest nazwany
+    commit ([Claude] ... / [Cursor] ...). Bez tego praca lokalna zostaje w drzewie
+    roboczej (dirty) az do finalnego ustawienia nazwy commita.
 
   Tagi maszyn: Cursor (PC Filip), Claude (PC ZW)
 
@@ -20,10 +27,11 @@
 param(
     [string]$RepoPath   = "C:\Users\ZW\Desktop\prywatne\automatyzacja\KodKlon\SchemaGen",
     [string]$Branch     = "main",
-    [int]   $IntervalSec = 10,
+    [int]   $IntervalSec = 5,
     [Parameter(Mandatory=$true)][string]$MachineTag,
     [switch]$Toast,
-    [switch]$Once
+    [switch]$Once,
+    [switch]$PushOnNamedOnly
 )
 
 $ErrorActionPreference = "Continue"
@@ -73,6 +81,7 @@ Log "Start daemona [$MachineTag], branch=$Branch, interval=${IntervalSec}s"
 Log "Repo: $RepoPath"
 
 $lastRemote = ""
+$pullOnlyNoted = $false
 
 do {
     try {
@@ -98,7 +107,7 @@ do {
         $behind = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
 
         if ($behind -gt 0) {
-            & git -C $RepoPath rebase "origin/$Branch" 2>&1 | Out-Null
+            & git -C $RepoPath rebase --autostash "origin/$Branch" 2>&1 | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 & git -C $RepoPath rebase --abort 2>&1 | Out-Null
                 Log "[KONFLIKT] rebase przerwany - wymagane reczne scalenie. Push wstrzymany, praca lokalna zachowana."
@@ -110,19 +119,44 @@ do {
 
         $dirty = (& git -C $RepoPath status --porcelain 2>$null)
         if ($dirty) {
-            $result = Invoke-GitSyncCommit -RepoPath $RepoPath -MachineTag $MachineTag
-            if ($result.Ok) {
-                Log "[COMMIT] $($result.Message)"
+            $pending = Get-PendingCommitMessage -RepoPath $RepoPath
+            if ($PushOnNamedOnly -and -not $pending) {
+                if (-not $pullOnlyNoted) {
+                    Log "[PULL-ONLY] zmiany lokalne - czekam na nazwany commit (sync/commit-message.txt: [Claude] opis)."
+                    $pullOnlyNoted = $true
+                }
+            } else {
+                $result = Invoke-GitSyncCommit -RepoPath $RepoPath -MachineTag $MachineTag
+                if ($result.Ok) {
+                    Log "[COMMIT] $($result.Message)"
+                    $pullOnlyNoted = $false
+                }
             }
+        } else {
+            $pullOnlyNoted = $false
         }
 
         $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
         if ($ahead -gt 0) {
-            & git -C $RepoPath push origin $Branch 2>&1 | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                Log "[PUSH] wyslano $ahead commit(ow) do origin."
-            } else {
-                Log "[INFO] push odrzucony (wyscig) - nastepny cykl scali."
+            & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
+            $behindNow = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
+            if ($behindNow -gt 0) {
+                & git -C $RepoPath rebase --autostash "origin/$Branch" 2>&1 | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    & git -C $RepoPath rebase --abort 2>&1 | Out-Null
+                    Log "[KONFLIKT] rebase przed push przerwany - scal recznie."
+                    if ($Once) { break } else { Start-Sleep -Seconds $IntervalSec; continue }
+                }
+                Log "[PULL] zintegrowano $behindNow commit(ow) przed push."
+            }
+            $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
+            if ($ahead -gt 0) {
+                & git -C $RepoPath push origin $Branch 2>&1 | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Log "[PUSH] wyslano $ahead commit(ow) do origin."
+                } else {
+                    Log "[INFO] push odrzucony (wyscig) - nastepny cykl scali."
+                }
             }
         }
 
@@ -132,13 +166,6 @@ do {
         if ($rh) { $rh = $rh.Trim() }
         $ahead  = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
         $behind = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
-        $hb = "{0}  czuwam [{1}]  local={2} remote={3} ahead={4} behind={5}" -f (Get-Date -Format "HH:mm:ss"), $MachineTag, $lh, $rh, $ahead, $behind
-        if ($lh -eq $rh) {
-            Write-Host $hb -ForegroundColor DarkGray
-        } else {
-            Write-Host $hb -ForegroundColor Yellow
-        }
-
         $status = [ordered]@{
             machine    = $MachineTag
             time       = (Get-Date -Format "o")

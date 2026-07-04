@@ -1,1 +1,1 @@
-﻿[Cursor] model: graphic lines + semantic colors palette
+[Claude] ogolny silnik orientacji: config/orient-classes.yaml (klasa->C2/C4/D4) + train/orient.py; dataset_export uzywa go dla wszystkich klas (mostek=wpis D4), 39 passed

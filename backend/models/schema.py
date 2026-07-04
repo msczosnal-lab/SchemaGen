@@ -8,16 +8,18 @@ from pydantic import BaseModel, Field
 
 LineRole = Literal[
     "wire",
-    "bus",
+    "bus",  # DEPRECATED (ADR connection-model): klasyfikator nie nadaje; szyna = wire + potential
     "device_stroke",
     "frame",
     "dash",
     "crossing",
     "leader",
+    "cable_marker",  # przerywana przecinajaca kable + etykieta (nazwa/typ/srednica) — adnotacja, nie Connection
     "other",
 ]
 LineStyle = Literal["solid", "dashed", "dotted"]
-ConnectionKind = Literal["power", "signal", "pe", "control", "other"]
+# "link" = mostek/zworka zlaczka<->zlaczka w listwie (terminal-link); rozne od kabla device<->device
+ConnectionKind = Literal["power", "signal", "pe", "control", "link", "other"]
 ComponentSource = Literal["yolo", "ocr", "manual", "block"]
 
 
@@ -34,6 +36,18 @@ class UserIntent(BaseModel):
     control: str = ""
 
 
+class Terminal(BaseModel):
+    """Punkt podlaczenia (zacisk) na obrysie komponentu (ADR connection-model, etap 2).
+
+    Pozycja wzgledna w bboxie: x, y w [0, 1]. Adres polaczenia = f"{component_id}:{id}".
+    """
+
+    id: str
+    x: float
+    y: float
+    name: str = ""
+
+
 class Component(BaseModel):
     id: str
     type: str
@@ -44,6 +58,26 @@ class Component(BaseModel):
     page: int = 0
     semantic_group: str = ""
     color_ref: str = ""
+    parent_id: str = ""
+    depth: int = 0
+    rel_bbox: list[float] = Field(default_factory=list)
+    terminals: list[Terminal] = Field(default_factory=list)
+
+
+class SpatialRelation(BaseModel):
+    from_id: str
+    to_id: str
+    relation: Literal["contains", "left_of", "right_of", "above", "below"]
+
+
+class ContextAssignment(BaseModel):
+    """Przypisanie kontekstowe bboxa w wierszu (GT / resolver)."""
+
+    bbox_id: str
+    role: str
+    row_index: int
+    anchor_id: str | None = None
+    strip_kind: str | None = None
 
 
 class GraphicLine(BaseModel):
@@ -75,6 +109,8 @@ class SchemaModel(BaseModel):
     components: list[Component] = Field(default_factory=list)
     graphic_lines: list[GraphicLine] = Field(default_factory=list)
     connections: list[Connection] = Field(default_factory=list)
+    spatial_relations: list[SpatialRelation] = Field(default_factory=list)
+    context_assignments: list[ContextAssignment] = Field(default_factory=list)
     potentials: list[str] = Field(default_factory=list)
     blocks: list[str] = Field(default_factory=list)
     annotations: list[str] = Field(default_factory=list)

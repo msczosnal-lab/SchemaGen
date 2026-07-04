@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition width="60" height="90" hotspot_x="30" hotspot_y="45" version="0.90">
+  <names>
+    <name lang="en">Contactor</name>
+    <name lang="pl">Stycznik</name>
+    <name lang="fr">Contacteur</name>
+    <name lang="de">Schütz</name>
+  </names>
+  <informations/>
+  <description>
+    <line x1="-20" y1="-45" x2="-20" y2="-20" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="-20" y1="-15" x2="-20" y2="0" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="-20" y1="-20" x2="-10" y2="-15" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="0" y1="-45" x2="0" y2="-20" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="0" y1="-15" x2="0" y2="0" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="0" y1="-20" x2="10" y2="-15" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="20" y1="-45" x2="20" y2="-20" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="20" y1="-15" x2="20" y2="0" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="20" y1="-20" x2="30" y2="-15" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <rect x="-28" y="0" width="56" height="18" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="-20" y1="18" x2="-20" y2="45" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="0" y1="18" x2="0" y2="45" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="20" y1="18" x2="20" y2="45" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <terminal x="-20" y="-45" orientation="n" name="1" number="1"/>
+    <terminal x="0" y="-45" orientation="n" name="3" number="3"/>
+    <terminal x="20" y="-45" orientation="n" name="5" number="5"/>
+    <terminal x="-20" y="45" orientation="s" name="2" number="2"/>
+    <terminal x="0" y="45" orientation="s" name="4" number="4"/>
+    <terminal x="20" y="45" orientation="s" name="6" number="6"/>
+  </description>
+</definition>

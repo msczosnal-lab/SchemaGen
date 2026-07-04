@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definition width="20" height="40" hotspot_x="10" hotspot_y="20" version="0.90">
+  <names>
+    <name lang="en">Terminal block</name>
+    <name lang="pl">Listwa zaciskowa</name>
+    <name lang="fr">Bornier</name>
+    <name lang="de">Klemme</name>
+  </names>
+  <informations/>
+  <description>
+    <line x1="0" y1="-20" x2="0" y2="-6" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <rect x="-8" y="-6" width="16" height="12" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <line x1="0" y1="6" x2="0" y2="20" style="line-style:normal;line-weight:normal;filling:none;color:black"/>
+    <terminal x="0" y="-20" orientation="n" name="1" number="1"/>
+    <terminal x="0" y="20" orientation="s" name="2" number="2"/>
+  </description>
+</definition>

@@ -1,0 +1,146 @@
+# Plan pracy SchemaGen — całościowy
+
+**Data:** 2026-06-20
+**Podstawa:** [`schematic-interpretation.md`](schematic-interpretation.md) — trzy filary + relacje.
+**Cel końcowy:** skan schematu → `SchemaModel JSON` (komponenty + tekst + połączenia + relacje), offline.
+
+---
+
+## Gdzie jesteśmy
+
+- **Filar Symbole:** GT w budowie (Filip labeluje Adamed AGV SA2). Detekcja multi-class: trening `symbols_mc_v5` (imgsz=1280, yolov8n). 29 klas po `min-count=5`, 2352 instancje.
+- **Filar Tekst:** OCR wstrzymany (`002-ocr-engine` OPEN).
+- **Filar Połączenia:** nie rozpoczęty (`002-labeler-lines`, `003-line-tracer`, `004-graph-builder` OPEN).
+- **Wąskie gardło:** recall na gęstych rzędach złączek (14/16) + skrajny imbalance klas.
+
+---
+
+## Fazy
+
+### Faza 0 — GT symboli (TERAZ, Filip) — w toku
+
+**Cel:** baza bboxów ze skanów, wystarczająca do stabilnej detekcji multi-class.
+
+Kroki:
+1. Labeluj dalej Adamed AGV SA2, potem INTEROL SA1, Norblin Cars.
+2. **Priorytet na klasy rzadkie** (<20 instancji): `styki_nc`(5), `ekranowanie_kabla`(5), `polaczenie_przewodow`(6), `emergency_stop`(6), `push_button`(7) — te zaniżają mAP i wypadają z treningu przy `min-count=5`.
+3. Cel ilościowy: **min. 20–30 instancji/klasa** zanim klasa wejdzie sensownie do treningu.
+4. Świadomie odpuść klasy, których nie ma w korpusie (`motor`, `enkoder` itp.) — nie trać czasu.
+
+Exit: każda klasa docelowa ≥20 instancji, ≥3 projekty w GT (różnorodność rysownika/biura).
+
+---
+
+### Faza 1 — Domknięcie detekcji symboli
+
+**Cel:** stabilny recall na gęstych rzędach + rozsądne AP na klasach rzadkich.
+
+Kroki:
+1. **Baseline v5** — eksport ONNX (imgsz=1280!) + `preview_batch` na rzędzie 16 złączek. Zapisz recall jako punkt odniesienia.
+2. **A/B v6 z flipem** — `--fliplr 0.5 --flipud 0.5` (bezpieczne: klasy rozróżnia relacja linia↔grot, nie kierunek). Porównaj confusion matrix.
+3. **Jeśli gęste rzędy nadal gubią:** podnieś imgsz inferencji (1536) lub przejdź na **yolov8s**.
+4. **Jeśli mylą się strzałki wej/wyj:** rozważ crop-classifier 2. stopnia (YOLO lokalizuje „strzałka", binarny model rozsądza wej/wyj).
+5. **NMS:** per-klasa + `iou≈0.55` w `symbol_detector.py` (teraz class-agnostic → ryzyko tłumienia sąsiadów).
+
+Exit: recall `zlaczka` na gęstym rzędzie ≥95%; AP klas rzadkich > 0.
+
+Pliki: `train/train_symbols.py`, `train/export_onnx.py`, `backend/recognize/symbol_detector.py`, `scripts/preview_batch.py`.
+
+---
+
+### Faza 2 — Akcelerator GT: crop-review (active learning)
+
+**Cel:** szybciej budować GT rzadkich klas, mniejszym nakładem niż pełny labeling.
+
+Założenia (z ustaleń): **tylko wycinek symbolu**, accept / reject / zmień-klasę, lokalnie.
+
+Kroki:
+1. Tryb review w istniejącym `labeler/` — predykcje jako wstępne bboxy.
+2. Queue: **pasmo niepewności 0.15–0.5** (nie dno `p<0.1`) + priorytet rzadkich klas.
+3. **Dedup + cap per klasa** (np. `zlaczka` max 300, rzadkie: wszystko) — przy dużym korpusie redundancja, nie brak danych, jest wąskim gardłem.
+4. Margines cropa +30%/+15 px (żeby ocenić relację linia↔grot).
+5. Round-trip: accept → YOLO txt → `dataset_export` → re-train.
+
+Status: **opcjonalny**, włączyć gdy ręczny labeling stanie się wąskim gardłem. Hosting zewnętrzny/płatni recenzenci — dopiero po anonimizacji i kontroli jakości (gold questions). **[RYZYKO]** poufność schematów klientów.
+
+---
+
+### Faza 3 — Filar Tekst (OCR)
+
+**Cel:** tagi instancji (`-K1`, `-F3`), opisy, adresy krosowe.
+
+Kroki:
+1. Odmrozić `002-ocr-engine` — `PaddleOcrEngine` offline.
+2. GT tekstu: bboxy w labelerze (`TextAnnotation`) lub korekta OCR.
+3. Walidacja na 1–2 stronach: precision/recall tagów.
+
+Exit: poprawny odczyt tagów instancji na stronie testowej.
+
+Pliki: `backend/recognize/` (OCR), `backend/models/label.py`.
+
+---
+
+### Faza 4 — Filar Połączenia
+
+**Cel:** topologia elektryczna — `GraphicLine` (co widać) → `Connection` (graf logiczny).
+
+Kroki:
+1. `002-labeler-lines-colors` — GT linii + kolory semantyczne (`config/semantic-colors.yaml`).
+2. `003-line-tracer-classifier` — runtime: LineTracer + LineClassifier → `graphic_lines[]`.
+3. Tylko role `wire`/`bus` → kandydaci na `Connection`.
+
+Exit: poprawne `graphic_lines[]` na stronie testowej; klasyfikacja roli linii.
+
+---
+
+### Faza 5 — Warstwa relacji → SchemaModel
+
+**Cel:** złożenie filarów w graf logiczny.
+
+Kroki:
+1. `004-graph-builder` — relacje:
+   - tekst → symbol (bliskość geometryczna, IEC 81346-1),
+   - symbol → symbol (linia wire/bus łączy brzeg/terminal A z B),
+   - tekst → połączenie (potencjał, etykieta przewodu).
+2. Eksport `SchemaModel JSON` (kontrakt — **bez zmian sygnatury bez zgody**).
+3. `backend.cli validate` na fixture.
+
+Exit: `validate schema/fixtures/page1_expected.json` przechodzi.
+
+---
+
+### Faza 6 — Walidacja end-to-end
+
+**Cel:** pierwszy pełny schemat skan → SchemaModel, z metryką.
+
+Kroki:
+1. Pełny pipeline na 1 kompletnym projekcie (np. WRT01 / Stanley — DONE w GT).
+2. Metryki per filar + manualny przegląd wyniku.
+3. Decyzja: które filary wymagają dodatkowych danych.
+
+---
+
+## Tory równoległe
+
+| Tor | Kto | Zakres |
+|-----|-----|--------|
+| GT (labeling, priorytet rzadkie klasy) | Filip | Faza 0 — ciągły |
+| Trening + detekcja + eval | Filip + Cowork | Faza 1 |
+| Ingest / cropy / infra | Cursor | `011-ingest-batch`, `011-bbox-crops` |
+| OCR / linie / graf (stuby → implementacja) | Cowork | Fazy 3–5 |
+
+---
+
+## Zasady przekrojowe
+
+1. **Trening tylko ze skanów Filipa** — żadnych bibliotek CAD (QET, IEC PDF) jako obrazów treningowych.
+2. **Eval per-klasa, nie ogólny mAP** — mAP zdominuje `zlaczka` (998 vs ~5–20 na klasach rzadkich).
+3. **Wersjonowanie modeli** — czyste nazwy biegów (`_v5`, `_v6_flip`), pilnuj auto-sufiksów ultralytics (`-2`) przy eksporcie.
+4. **Eksport ONNX = imgsz treningu** — niezgodność (640 vs 1280) kasuje zysk z wysokiej rozdzielczości.
+5. **Nie zmieniać bez zgody:** sygnatury `backend/protocols/`, kontrakt `SchemaModel JSON`, modele Pydantic.
+
+---
+
+## Kolejność (skrót)
+
+GT symboli (rzadkie klasy) → domknięcie detekcji (v5/v6, NMS, ew. yolov8s) → [opc. crop-review] → OCR → linie/tracer → graph builder → walidacja pełnego schematu.

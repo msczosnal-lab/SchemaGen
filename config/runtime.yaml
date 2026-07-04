@@ -1,0 +1,37 @@
+# YOLO / ONNX — RTX 2080 8 GB
+yolo_imgsz: 1536
+yolo_batch: 4
+yolo_conf_threshold: 0.25
+
+# ROI: pomijaj linie w calosci ponizej tego ulamka wysokosci strony
+# (tabliczka rysunkowa / tabelki pod schematem).
+#   1.0  = bez ciecia
+#   0.93 = pomin dolne 7%  (pomiar Filip: tabliczka ~80px / 1150)
+#   0.85 = pomin dolne 15% (za duzo — zzeralo schemat)
+# Stala wartosc na razie; per-arkusz/format dostroimy pozniej.
+roi_bottom_cut_frac: 0.93
+
+# Tolerancja terminala: maks. odleglosc konca linii od bbox symbolu (px), przy
+# ktorej linia "wchodzi" w symbol. Sluzy tez jako join_tol net-buildera i bridge_tol sita.
+# Efektywna = max(terminal_tol_min, terminal_tol_frac * max(W,H)). KALIBRACJA p040/p027:
+#   za malo conn / konce wire nie trafiaja w bbox -> podnies frac (np. 0.016).
+#   za duzo falszywych conn / lacza sie sasiednie symbole -> obniz frac (np. 0.009).
+terminal_tol_frac: 0.012
+terminal_tol_min: 12.0
+
+# Progi Hough (LineTracer) wzgledne do rozdzielczosci strony. KALIBRACJA szumu:
+#   p040 ~6617px -> min_len ~132px. Za duzo segmentow (szum tekstu/tla) -> podnies
+#   hough_min_len_frac (np. 0.025-0.03). Gubi cienkie/przerywane wire -> obniz (0.015).
+# Efektywne: min_line_length = max(min_len_floor, min_len_frac*max), hough_threshold =
+# max(hough_floor, min_line_length), max_line_gap = max(gap_floor, gap_frac*max).
+hough_min_len_frac: 0.02
+hough_gap_frac: 0.0015
+hough_min_len_floor: 20
+hough_threshold_floor: 50
+hough_gap_floor: 4
+
+# Strict: Connection powstaje TYLKO gdy oba konce trafiaja w terminal (adres comp:terminal).
+# true  -> znikaja falszywe polaczenia 'od srodka symbolu' i bledne terminale; ryzyko: symbol
+#          bez wykrytego terminala nie polaczy sie wcale.
+# false -> luzny kontakt konca z bboxem tez tworzy wezel (dotychczasowe zachowanie).
+connection_require_terminal: true

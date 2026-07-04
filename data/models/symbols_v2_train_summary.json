@@ -1,0 +1,11 @@
+{
+  "best_weights": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_v2\\weights\\best.pt",
+  "save_dir": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_v2",
+  "epochs": 30,
+  "batch": 8,
+  "imgsz": 640,
+  "model": "yolov8n.pt",
+  "metrics": {
+    "map50": 0.10615601989152429
+  }
+}

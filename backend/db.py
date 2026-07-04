@@ -39,6 +39,12 @@ def init_db() -> None:
                 metrics_json TEXT,
                 trained_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS tag_usage (
+                label_key TEXT PRIMARY KEY,
+                label TEXT NOT NULL,
+                usage_count INTEGER NOT NULL DEFAULT 0,
+                last_used_at TEXT NOT NULL
+            );
             """
         )
         conn.commit()
@@ -100,6 +106,42 @@ def list_pages() -> list[dict[str, str]]:
     init_db()
     with db_session() as conn:
         rows = conn.execute(
-            "SELECT id, filename, status FROM pages ORDER BY created_at"
+            "SELECT id, filename, status FROM pages ORDER BY id"
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def bump_tag_usage(labels: list[str]) -> int:
+    """Zwieksza licznik uzycia hasel (case-insensitive klucz). Zwraca ile zaktualizowano."""
+    init_db()
+    now = datetime.now(timezone.utc).isoformat()
+    updated = 0
+    with db_session() as conn:
+        for raw in labels:
+            label = raw.strip()
+            if not label:
+                continue
+            key = label.casefold()
+            conn.execute(
+                """
+                INSERT INTO tag_usage (label_key, label, usage_count, last_used_at)
+                VALUES (?, ?, 1, ?)
+                ON CONFLICT(label_key) DO UPDATE SET
+                    usage_count = usage_count + 1,
+                    last_used_at = excluded.last_used_at,
+                    label = excluded.label
+                """,
+                (key, label, now),
+            )
+            updated += 1
+    return updated
+
+
+def get_tag_usage_map() -> dict[str, tuple[str, int]]:
+    """Mapa casefold(label) -> (kanoniczne_haslo, usage_count)."""
+    init_db()
+    with db_session() as conn:
+        rows = conn.execute(
+            "SELECT label_key, label, usage_count FROM tag_usage ORDER BY usage_count DESC"
+        ).fetchall()
+    return {row["label_key"]: (row["label"], row["usage_count"]) for row in rows}

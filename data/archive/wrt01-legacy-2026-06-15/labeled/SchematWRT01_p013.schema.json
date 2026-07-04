@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "source": "SchematWRT01_p013",
+    "page": 0,
+    "model_version": "",
+    "pages": 1
+  },
+  "components": [
+    {
+      "id": "element_1781429678242",
+      "type": "element",
+      "tag": "Blok zasilania, opisuje obiekt w roździelnicy RUPS1 ze schematu 11ELERY007",
+      "bbox": [
+        265.3346240440843,
+        1824.8219187317707,
+        833.7237524417026,
+        2172.6000936837445
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430129458",
+      "type": "element",
+      "tag": "Rozłącznik bezpiecznikowy jednobiegunowy z wkładką bezpiecznika topikowego. Rozłącznik to urządzenie do rozłączania prądów roboczych w granicach znamionowej wytrzymałości. Nie nadaje się do rozłączania prądów zwarciowych! Oznaczenie tag \"-11\".",
+      "bbox": [
+        457.6577823834383,
+        1923.5654858122132,
+        549.4933674858589,
+        2051.84897939771
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430164732",
+      "type": "element",
+      "tag": "Symbol rozłącznika bezpiecznikowego",
+      "bbox": [
+        500.87739668208155,
+        1947.224859249437,
+        539.8872027432868,
+        2029.228864642698
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430176244",
+      "type": "element",
+      "tag": "Cyfra \"1\" oznaczająca numer fizycznego przyłącza przewod do rozłącznika bezpiecznikowego",
+      "bbox": [
+        531.760159813869,
+        1930.9864423398806,
+        543.9507242079956,
+        1954.5321468587374
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430244038",
+      "type": "element",
+      "tag": "Cyfra \"2\" oznaczająca numer fizycznego przyłącza przewod do rozłącznika bezpiecznikowego",
+      "bbox": [
+        528.0101162854329,
+        2024.0458401288827,
+        543.8856321505615,
+        2042.9560927282912
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430283824",
+      "type": "element",
+      "tag": "Opis charakterystyki rozłącznika, tutaj 16A.",
+      "bbox": [
+        465.11864958896206,
+        2025.2658564256187,
+        499.3120683753928,
+        2046.6161416184991
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430339075",
+      "type": "element",
+      "tag": "Symbole złączek w szafie RUPS1 - tutaj bez opisu",
+      "bbox": [
+        513.9450992032724,
+        1854.0588283760508,
+        676.4859577916272,
+        1884.9118205042084
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430372258",
+      "type": "element",
+      "tag": "Oznacznik charakterystyki przewodów",
+      "bbox": [
+        376.1887007277851,
+        1659.192247565165,
+        695.3376765660199,
+        1756.5415569379568
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430402845",
+      "type": "element",
+      "tag": "Nazwa kabla",
+      "bbox": [
+        399.43204350591986,
+        1660.0853604951906,
+        505.81503545199814,
+        1693.1305389061383
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    },
+    {
+      "id": "element_1781430413181",
+      "type": "element",
+      "tag": "Informacje o żyłach kabla - 3 żyły 6 mm",
+      "bbox": [
+        460.22232461796455,
+        1690.4512001160615,
+        504.92106072976213,
+        1720.8170397369322
+      ],
+      "confidence": null,
+      "source": "manual",
+      "page": 0,
+      "semantic_group": "",
+      "color_ref": ""
+    }
+  ],
+  "graphic_lines": [],
+  "connections": [],
+  "potentials": [],
+  "blocks": [],
+  "annotations": [],
+  "user_intent": null
+}

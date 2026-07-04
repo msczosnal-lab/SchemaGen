@@ -1,6 +1,6 @@
 # Zadanie 004: GraphBuilder.build
 
-**Status:** BLOCKED — po promptach 001-symbol-detector, 002-ocr, 003-line-tracer  
+**Status:** AKTYWNE — filary 001/002/003 smoke OK (2026-06-25)  
 **Model:** Opus, effort High  
 **Plik:** `backend/recognize/graph_builder.py`
 

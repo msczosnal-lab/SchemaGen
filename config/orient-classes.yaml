@@ -1,0 +1,34 @@
+# Klasy uczone w wielu ORIENTACJACH + grupa obrotow. Silnik: train/orient.py.
+#
+# Dla kazdej wpisanej klasy `X` tag `X` jest przy eksporcie rozbijany na podklasy
+# orientacji `X_r0/_r90/...` (i `_m*` dla D4), a do treningu dokladane sa kafelki
+# D4/C4/C2 (balans). Klasy NIE wpisane tu ucza sie jako jedna orientacja.
+#
+# group:
+#   D4  -> 8 orientacji: r0/r90/r180/r270 + lustra m0/m90/m180/m270 (symbol chiralny)
+#   C4  -> 4 obroty:      r0/r90/r180/r270 (bez lustra)
+#   C2  -> 2:             r0/r180 (poziom/pion)
+#
+# exemplar_dir: katalog z cropami wzorcowymi. Wymagany `<X>_r0.png`
+#   (+ `<X>_m0.png` dla D4; bez niego m0 = lustro(r0)). Obroty generuje kod.
+#   Mozna tez podac komplet plikow per orientacja. Wiele stylow: prefiksy
+#   `<X>1_r0`, `<X>2_r0`, ... (zwijane do tych samych podklas).
+
+classes:
+  mostek:
+    group: D4
+    exemplar_dir: data/mostek_exemplars
+
+  # PRZYKLAD (odkomentuj i dostosuj):
+  # wylacznik_nadpradowy:
+  #   group: C4
+  #   exemplar_dir: data/wylacznik_nadpradowy_exemplars
+
+# Prog NCC dopasowania wzorca (wspolny). Ponizej -> orientacja niepewna, ale i tak
+# przypisana do najlepszej (nie gubimy obiektow); liczone w logu jako low-score.
+min_score: 0.55
+
+# Parametry kafelka syntetycznego.
+tile:
+  size: 96
+  margin: 8

@@ -1,0 +1,353 @@
+elements:
+- id: test_opis
+  label: Test opis
+  yolo_class: element
+  created_at: '2026-06-14T09:37:42.195184+00:00'
+- id: rozłącznik
+  label: rozłącznik
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: rozłącznik_bezpiecznikowy
+  label: Rozłącznik bezpiecznikowy
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: oznaczenie_kabla
+  label: Oznaczenie kabla
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: oznaczenie_przewodu
+  label: Oznaczenie przewodu
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: znak_uziemienia
+  label: Znak uziemienia
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: zwarta_listwa_złączek
+  label: Zwarta listwa złączek
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: złączka
+  label: złączka
+  yolo_class: zlaczka
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: listwa_złączek
+  label: Listwa złączek
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: symbol_napięcia
+  label: Symbol napięcia
+  yolo_class: element
+  created_at: '2026-06-15T17:35:05.185713+00:00'
+- id: czujnik_fotoelektryczny
+  label: czujnik fotoelektryczny
+  yolo_class: element
+  created_at: '2026-06-15T17:39:16.284959+00:00'
+- id: strzałka_potencjału
+  label: Strzałka potencjału
+  yolo_class: element
+  created_at: '2026-06-15T17:39:25.108694+00:00'
+- id: mostek
+  label: mostek
+  yolo_class: mostek
+  created_at: '2026-06-15T17:42:37.079535+00:00'
+- id: strzałka_potencjału_wejściowa
+  label: Strzałka potencjału (wejściowa)
+  yolo_class: strzalka_potencjalu_wejsciowa
+  created_at: '2026-06-15T17:43:16.443500+00:00'
+- id: strzałka_potencjału_wyjściowa
+  label: Strzałka potencjału (wyjściowa)
+  yolo_class: strzalka_potencjalu_wyjsciowa
+  created_at: '2026-06-15T17:43:24.385142+00:00'
+- id: styki_przekaźnika
+  label: styki przekaźnika
+  yolo_class: element
+  created_at: '2026-06-15T17:44:05.985206+00:00'
+- id: ogranicznik_przepięć
+  label: ogranicznik przepięć
+  yolo_class: element
+  created_at: '2026-06-15T17:44:20.471836+00:00'
+- id: terminal_plc
+  label: terminal PLC
+  yolo_class: element
+  created_at: '2026-06-15T17:46:58.678009+00:00'
+- id: terminal_przyłączeniowy
+  label: terminal przyłączeniowy
+  yolo_class: element
+  created_at: '2026-06-15T17:52:41.567939+00:00'
+- id: terminale_urządzenia
+  label: terminale urządzenia
+  yolo_class: element
+  created_at: '2026-06-15T17:52:55.398294+00:00'
+- id: wyłącznik_kombinowany
+  label: Wyłącznik kombinowany
+  yolo_class: element
+  created_at: '2026-06-15T17:54:35.476366+00:00'
+- id: gniazdo
+  label: gniazdo
+  yolo_class: element
+  created_at: '2026-06-15T17:54:52.406665+00:00'
+- id: lampka
+  label: lampka
+  yolo_class: element
+  created_at: '2026-06-15T17:55:31.550126+00:00'
+- id: styki
+  label: styki
+  yolo_class: element
+  created_at: '2026-06-15T17:56:18.105095+00:00'
+- id: ter
+  label: ter
+  yolo_class: element
+  created_at: '2026-06-15T17:56:26.653080+00:00'
+- id: styk_krańcówki
+  label: styk krańcówki
+  yolo_class: element
+  created_at: '2026-06-15T17:57:06.758270+00:00'
+- id: wyłącznik_nadprądowy
+  label: wyłącznik nadprądowy
+  yolo_class: element
+  created_at: '2026-06-15T17:58:15.142957+00:00'
+- id: przetwornik_prąd_przemiennystały
+  label: przetwornik - prąd przemienny/stały
+  yolo_class: element
+  created_at: '2026-06-15T17:58:50.455920+00:00'
+- id: połączenie_przewodów
+  label: połączenie przewodów
+  yolo_class: element
+  created_at: '2026-06-15T17:59:32.360530+00:00'
+- id: zasilacz
+  label: zasilacz
+  yolo_class: element
+  created_at: '2026-06-15T18:00:11.976038+00:00'
+- id: dioda
+  label: dioda
+  yolo_class: element
+  created_at: '2026-06-15T18:02:42.182724+00:00'
+- id: mos
+  label: mos
+  yolo_class: element
+  created_at: '2026-06-15T18:02:58.496497+00:00'
+- id: gniazdo_rj_45
+  label: gniazdo RJ-45
+  yolo_class: element
+  created_at: '2026-06-15T18:13:41.065530+00:00'
+- id: gniazdo_światłowodu
+  label: gniazdo światłowodu
+  yolo_class: element
+  created_at: '2026-06-15T18:14:36.651276+00:00'
+- id: krańcówka
+  label: krańcówka
+  yolo_class: element
+  created_at: '2026-06-15T18:15:05.217254+00:00'
+- id: moduł_redundantny
+  label: moduł redundantny
+  yolo_class: element
+  created_at: '2026-06-15T18:15:19.075443+00:00'
+- id: switch
+  label: switch
+  yolo_class: element
+  created_at: '2026-06-15T18:17:20.152048+00:00'
+- id: przetwornik_temperaturaprąd
+  label: przetwornik - temperatura/prąd
+  yolo_class: element
+  created_at: '2026-06-15T18:22:40.703815+00:00'
+- id: ekranowanie_przewodu
+  label: ekranowanie przewodu
+  yolo_class: element
+  created_at: '2026-06-15T18:23:29.194879+00:00'
+- id: ekranowanie_kabla
+  label: ekranowanie kabla
+  yolo_class: element
+  created_at: '2026-06-15T18:23:37.188088+00:00'
+- id: listwa_zaciskowa
+  label: listwa zaciskowa
+  yolo_class: element
+  created_at: '2026-06-15T18:24:22.359195+00:00'
+- id: przekaźnik_polaryzowany
+  label: przekaźnik polaryzowany
+  yolo_class: element
+  created_at: '2026-06-15T18:27:35.181772+00:00'
+- id: przycisk
+  label: przycisk
+  yolo_class: element
+  created_at: '2026-06-15T18:30:58.779007+00:00'
+- id: lampka_wewnętrzna
+  label: lampka wewnętrzna
+  yolo_class: element
+  created_at: '2026-06-15T18:36:58.270361+00:00'
+- id: czujnik_optyczny
+  label: czujnik optyczny
+  yolo_class: element
+  created_at: '2026-06-15T18:37:30.316810+00:00'
+- id: symbol_ex
+  label: symbol EX
+  yolo_class: element
+  created_at: '2026-06-15T18:41:11.249224+00:00'
+- id: symbol_brak_ex
+  label: symbol brak EX
+  yolo_class: element
+  created_at: '2026-06-15T18:41:19.482314+00:00'
+- id: separator_dwukanałowy
+  label: separator dwukanałowy
+  yolo_class: element
+  created_at: '2026-06-15T18:42:10.764927+00:00'
+- id: separator
+  label: separator
+  yolo_class: element
+  created_at: '2026-06-15T18:42:25.706317+00:00'
+- id: urządzenie
+  label: urządzenie
+  yolo_class: element
+  created_at: '2026-06-15T18:46:25.946168+00:00'
+- id: terminal_sterownika_safety
+  label: terminal sterownika safety
+  yolo_class: element
+  created_at: '2026-06-15T18:55:11.284818+00:00'
+- id: przycisk_awaryjny
+  label: przycisk awaryjny
+  yolo_class: element
+  created_at: '2026-06-15T20:03:40.350916+00:00'
+- id: styk_nc
+  label: styk NC
+  yolo_class: element
+  created_at: '2026-06-15T20:03:57.117155+00:00'
+- id: styki_nc
+  label: styki NC
+  yolo_class: element
+  created_at: '2026-06-15T20:04:09.486372+00:00'
+- id: styk
+  label: styk
+  yolo_class: element
+  created_at: '2026-06-15T20:04:57.129065+00:00'
+- id: cewka_zaworów
+  label: cewka zaworów
+  yolo_class: element
+  created_at: '2026-06-15T20:08:29.940798+00:00'
+- id: trójfazowy_wyłącznik_nadprądowy
+  label: trójfazowy wyłącznik nadprądowy
+  yolo_class: element
+  created_at: '2026-06-15T20:12:27.640302+00:00'
+- id: silnik
+  label: silnik
+  yolo_class: element
+  created_at: '2026-06-15T20:12:46.796425+00:00'
+- id: wyłącznik_silnikowy
+  label: wyłącznik silnikowy
+  yolo_class: element
+  created_at: '2026-06-15T20:13:09.827164+00:00'
+- id: złącze
+  label: złącze
+  yolo_class: element
+  created_at: '2026-06-15T20:13:55.512707+00:00'
+- id: enkoder
+  label: enkoder
+  yolo_class: element
+  created_at: '2026-06-15T20:14:14.683346+00:00'
+- id: blok_rozdzielczy
+  label: blok rozdzielczy
+  yolo_class: element
+  created_at: '2026-06-15T20:24:04.657121+00:00'
+- id: uziemienie
+  label: uziemienie
+  yolo_class: element
+  created_at: '2026-06-15T20:25:00.606159+00:00'
+- id: wyłącznik_różnicowo_prądowy
+  label: wyłącznik różnicowo-prądowy
+  yolo_class: element
+  created_at: '2026-06-15T20:28:20.776402+00:00'
+- id: fotodioda
+  label: fotodioda
+  yolo_class: element
+  created_at: '2026-06-15T20:29:48.772712+00:00'
+- id: styk_pomocniczy
+  label: styk pomocniczy
+  yolo_class: element
+  created_at: '2026-06-15T20:56:41.163170+00:00'
+- id: symbol_regulacji_napięcia
+  label: symbol regulacji napięcia
+  yolo_class: element
+  created_at: '2026-06-15T21:03:22.921480+00:00'
+- id: stycznik
+  label: stycznik
+  yolo_class: element
+  created_at: '2026-06-15T21:06:46.166677+00:00'
+- id: styk_wyłącznika
+  label: styk wyłącznika
+  yolo_class: element
+  created_at: '2026-06-18T17:52:13.136610+00:00'
+- id: styk_stycznika
+  label: styk stycznika
+  yolo_class: element
+  created_at: '2026-06-18T17:52:24.735283+00:00'
+- id: przekaźnik
+  label: przekaźnik
+  yolo_class: element
+  created_at: '2026-06-18T17:55:31.065429+00:00'
+- id: bezpiecznik
+  label: bezpiecznik
+  yolo_class: element
+  created_at: '2026-06-18T18:17:42.769034+00:00'
+- id: krańcówka_nc
+  label: krańcówka NC
+  yolo_class: element
+  created_at: '2026-06-18T18:43:16.826366+00:00'
+- id: oznaczenie_p
+  label: Oznaczenie p
+  yolo_class: element
+  created_at: '2026-06-20T05:51:28.555484+00:00'
+- id: buzzer
+  label: buzzer
+  yolo_class: element
+  created_at: '2026-06-20T19:04:01.987310+00:00'
+- id: terminal_block
+  label: terminal_block
+  yolo_class: element
+  created_at: '2026-06-27T08:49:07.468891+00:00'
+- id: strzalka_potencjalu_wejsciowa
+  label: strzalka_potencjalu_wejsciowa
+  yolo_class: element
+  created_at: '2026-06-27T08:49:07.468891+00:00'
+- id: urzadzenie
+  label: urzadzenie
+  yolo_class: element
+  created_at: '2026-06-27T09:20:14.160943+00:00'
+- id: terminal_przylaczeniowy
+  label: terminal_przylaczeniowy
+  yolo_class: element
+  created_at: '2026-06-27T09:20:14.160943+00:00'
+- id: iq3
+  label: IQ3
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: 1q4
+  label: 1Q4
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: stycznik_odcinajacy_sekcje_12
+  label: Stycznik odcinajacy sekcje 12
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_10
+  label: -KS2_10
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: a1
+  label: A1
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_12
+  label: -KS2_12
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_16
+  label: -KS2_16
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_17
+  label: KS2_17
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'
+- id: ks2_18
+  label: -KS2_18
+  yolo_class: element
+  created_at: '2026-06-28T18:11:34.424877+00:00'

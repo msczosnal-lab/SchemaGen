@@ -8,15 +8,25 @@ from pydantic import BaseModel, Field
 
 LineRole = Literal[
     "wire",
-    "bus",
+    "bus",  # DEPRECATED (ADR connection-model): szyna = wire + potential
     "device_stroke",
     "frame",
     "dash",
     "crossing",
     "leader",
+    "cable_marker",  # przerywana opisujaca kabel (nazwa/typ/srednica) — adnotacja
     "other",
 ]
 LineStyle = Literal["solid", "dashed", "dotted"]
+
+
+class Terminal(BaseModel):
+    """Zacisk na obrysie komponentu (ADR connection-model, etap 2). x,y wzgledne [0,1]."""
+
+    id: str
+    x: float
+    y: float
+    name: str = ""
 
 
 class BboxAnnotation(BaseModel):
@@ -27,8 +37,19 @@ class BboxAnnotation(BaseModel):
     width: float
     height: float
     tag: str = ""
+    seq: int = 0
     semantic_group: str = ""
     color_ref: str = ""
+    parent_id: str = ""
+    depth: int = 0
+    rel_bbox: list[float] = Field(default_factory=list)  # [rx, ry, rw, rh] wzgledem rodzica
+    terminals: list[Terminal] = Field(default_factory=list)
+
+
+class SpatialRelation(BaseModel):
+    from_id: str
+    to_id: str
+    relation: Literal["contains", "left_of", "right_of", "above", "below"]
 
 
 class TextAnnotation(BaseModel):
@@ -68,3 +89,4 @@ class LabelRecord(BaseModel):
     lines: list[LineAnnotation] = Field(default_factory=list)
     texts: list[TextAnnotation] = Field(default_factory=list)
     connections: list[ConnectionAnnotation] = Field(default_factory=list)
+    spatial_relations: list[SpatialRelation] = Field(default_factory=list)

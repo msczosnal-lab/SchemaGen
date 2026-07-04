@@ -2,7 +2,9 @@
 
 ## Start sesji
 
-Filip pisze **„kolejne zadanie”** → wczytaj w tej kolejności:
+**Nowa sesja:** [claude.ai/code](https://claude.ai/code) → New session → prompt z `sync/START-CLAUDE-SESJA.md`.
+
+Filip pisze **„kolejne zadanie”** (lub wkleja prompt startowy) → wczytaj w tej kolejności:
 
 1. **`sync/KOLEJNE-ZADANIE.md`** — aktywny prompt i kroki
 2. **`sync/filip-to-zw.md`** — najnowszy wpis od Cursor
@@ -33,14 +35,16 @@ Implementujesz funkcje oznaczone `NotImplementedError` i `COWORK_TASK` w plikach
 ## Mapa repo
 
 ```
-backend/          — CLI, API, validate (dziala), recognize (stub)
+backend/          — CLI, API, validate, recognize (detektor ONNX)
 backend/colors/   — palette.py (gotowe — uzywaj w classify/render)
-config/           — semantic-colors.yaml, symbol-classes.yaml
-labeler/          — FastAPI :8765, export YOLO (dziala), canvas (TODO)
-train/            — YOLO + ONNX (stub)
+backend/symbol_palette.py — loader config/symbol-palette.yaml (010, bez atlasu QET)
+config/           — semantic-colors.yaml, symbol-classes.yaml, symbol-palette.yaml
+labeler/          — FastAPI :8765, bbox + hierarchia; 010: bbox-first + paleta
+backend/atlas/    — kod 008a — NIE UZYWAC w runtime (rezygnacja Filipa)
+train/            — YOLO + ONNX export (BUILD M0)
 blocks/           — biblioteka blokow JSON
-schema/fixtures/  — ground truth (page1_expected.json ma graphic_lines)
-sync/prompts/     — twoje zadania
+schema/fixtures/  — ground truth
+sync/prompts/     — zadania (aktywny: 010-labeler-bbox-first-palette.md)
 sync/KOLEJNE-ZADANIE.md — co robic teraz
 ```
 
@@ -51,6 +55,12 @@ sync/KOLEJNE-ZADANIE.md — co robic teraz
    - `Connection` — graf elektryczny; tylko z linii `wire` / `bus` + topologia
 2. **Kolory semantyczne** — `config/semantic-colors.yaml`; rozpoznawanie i walidacja po kolorze grupy obiektu
 3. Linie `device_stroke`, `crossing`, `frame` **nigdy** nie stają się Connection
+
+## Trening YOLO (BUILD M0+)
+
+- **Implementacja kodu:** Claude (PC ZW) — `train/dataset_export.py`, `train/train_symbols.py`
+- **Uruchomienie treningu GPU:** **tylko Filip (RTX 2080)** — `data/schemagen.db` i PNG nie są w gicie
+- Claude **nie** odpala pełnego `train_symbols` z epokami na ZW
 
 ## Zasady kodu
 

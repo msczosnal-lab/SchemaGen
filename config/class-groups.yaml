@@ -1,0 +1,10 @@
+# Scalanie wizualnie nierozroznialnych klas YOLO.
+# member (kanoniczna nazwa klasy z `class_report.py`) -> grupa.
+#
+# 2026-06-20 (Filip): scalenia WYLACZONE. Kazda klasa osobno:
+#   zlaczka, terminal_przylaczeniowy, listwa_zlaczek, terminale_urzadzenia
+#   traktowane jako odrebne klasy.
+#
+# Aby przywrocic scalanie - dodaj wpisy pod `groups:`.
+
+groups: {}

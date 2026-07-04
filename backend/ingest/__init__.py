@@ -5,13 +5,19 @@ from __future__ import annotations
 from pathlib import Path
 
 from backend.paths import RAW, ensure_data_dirs
+from backend.runtime_config import pdf_dpi
 
 
-def pdf_to_png(pdf_path: str | Path, output_dir: str | Path | None = None, dpi: int = 200) -> list[Path]:
+def pdf_to_png(
+    pdf_path: str | Path,
+    output_dir: str | Path | None = None,
+    dpi: int | None = None,
+) -> list[Path]:
     """Konwertuje PDF na PNG (jedna strona = jeden plik)."""
     import fitz  # PyMuPDF
 
     pdf_path = Path(pdf_path)
+    dpi = pdf_dpi() if dpi is None else dpi
     out = Path(output_dir) if output_dir else RAW
     ensure_data_dirs()
     out.mkdir(parents=True, exist_ok=True)

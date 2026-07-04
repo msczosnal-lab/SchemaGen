@@ -3,13 +3,26 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import yaml
 
+from backend.geometry.bbox_layout import enrich_label_record
+from backend.geometry.row_layout import ContextResolver
 from backend.models.label import LabelRecord
-from backend.models.schema import Component, Connection, GraphicLine, SchemaMeta, SchemaModel
-from backend.paths import CONFIG, LABELED
+from backend.models.schema import (
+    Component,
+    Connection,
+    ContextAssignment,
+    GraphicLine,
+    SchemaMeta,
+    SchemaModel,
+    SpatialRelation,
+    Terminal,
+)
+from backend.paths import CONFIG, LABELED, RAW
+from backend.class_map import build_class_map, load_palette_map, resolve_class_id
 
 
 def load_class_map() -> dict[str, int]:
@@ -22,6 +35,9 @@ def load_class_map() -> dict[str, int]:
 
 
 def label_to_schema(record: LabelRecord) -> SchemaModel:
+    # Hierarchia/relacje moga byc puste w starych rekordach — przelicz w locie.
+    if not record.spatial_relations:
+        record = enrich_label_record(record)
     components = [
         Component(
             id=b.id,
@@ -31,8 +47,29 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
             source="manual",
             semantic_group=b.semantic_group,
             color_ref=b.color_ref,
+            parent_id=b.parent_id,
+            depth=b.depth,
+            rel_bbox=b.rel_bbox,
+            terminals=[
+                Terminal(id=t.id, x=t.x, y=t.y, name=t.name) for t in b.terminals
+            ],
         )
         for b in record.bboxes
+    ]
+    spatial_relations = [
+        SpatialRelation(from_id=r.from_id, to_id=r.to_id, relation=r.relation)
+        for r in record.spatial_relations
+    ]
+    ctx = ContextResolver().resolve(record.bboxes)
+    context_assignments = [
+        ContextAssignment(
+            bbox_id=a.bbox_id,
+            role=a.role,
+            row_index=a.row_index,
+            anchor_id=a.anchor_id,
+            strip_kind=a.strip_kind,
+        )
+        for a in ctx
     ]
     graphic_lines = [
         GraphicLine(
@@ -55,8 +92,51 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
         components=components,
         graphic_lines=graphic_lines,
         connections=connections,
+        spatial_relations=spatial_relations,
+        context_assignments=context_assignments,
         annotations=annotations,
     )
+
+
+def yolo_label_lines(
+    record: LabelRecord,
+    class_map: dict[str, int] | None = None,
+    palette_map: dict[str, str] | None = None,
+) -> list[str]:
+    """Linie YOLO (`cls cx cy w h`, znormalizowane) dla bboxow rekordu.
+
+    Klasa wyprowadzana z pola `tag` (multi-class). Bboxy bez tagu lub o klasie
+    spoza `class_map` sa POMIJANE (nie ucz na nieprzypisanych).
+    """
+    cmap = class_map if class_map is not None else load_class_map()
+    pmap = palette_map if palette_map is not None else load_palette_map()
+    w = record.image_width or 1
+    h = record.image_height or 1
+    lines: list[str] = []
+    for b in record.bboxes:
+        cls_id = resolve_class_id(b.tag, cmap, pmap)
+        if cls_id is None:
+            continue
+        cx = (b.x + b.width / 2) / w
+        cy = (b.y + b.height / 2) / h
+        bw = b.width / w
+        bh = b.height / h
+        lines.append(f"{cls_id} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}")
+    return lines
+
+
+def find_raw_image(record: LabelRecord, raw_dir: Path | None = None) -> Path | None:
+    """Znajdz zrodlowy PNG/JPG dla rekordu w data/raw (po image_path lub page_id)."""
+    base = raw_dir or RAW
+    candidates: list[Path] = []
+    if record.image_path:
+        candidates.append(base / Path(record.image_path).name)
+    for ext in (".png", ".jpg", ".jpeg"):
+        candidates.append(base / f"{record.page_id}{ext}")
+    for path in candidates:
+        if path.exists():
+            return path
+    return None
 
 
 def export_yolo(record: LabelRecord, output_dir: Path | None = None) -> Path:
@@ -66,20 +146,15 @@ def export_yolo(record: LabelRecord, output_dir: Path | None = None) -> Path:
     labels_dir.mkdir(parents=True, exist_ok=True)
     images_dir.mkdir(parents=True, exist_ok=True)
 
-    class_map = load_class_map()
-    w = record.image_width or 1
-    h = record.image_height or 1
-    lines: list[str] = []
-    for b in record.bboxes:
-        cls_id = class_map.get(b.class_name, 0)
-        cx = (b.x + b.width / 2) / w
-        cy = (b.y + b.height / 2) / h
-        bw = b.width / w
-        bh = b.height / h
-        lines.append(f"{cls_id} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}")
-
+    class_map, _ = build_class_map([record])
+    lines = yolo_label_lines(record, class_map)
     label_file = labels_dir / f"{record.page_id}.txt"
     label_file.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+
+    # Kopiuj zrodlowy obraz, by labels mialy parę image/label (wymog YOLO).
+    src = find_raw_image(record)
+    if src is not None:
+        shutil.copy2(src, images_dir / f"{record.page_id}{src.suffix}")
     return label_file
 
 

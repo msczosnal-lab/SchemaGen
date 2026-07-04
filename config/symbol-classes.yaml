@@ -1,10 +1,4 @@
+# AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).
+# Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.
 classes:
-  - motor
-  - contactor
-  - inverter
-  - fuse
-  - relay
-  - terminal
-  - text_label
-  - pe
-  - disconnect
+- motor
