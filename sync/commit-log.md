@@ -94,3 +94,4 @@
 | 2026-07-04 14:59 | Claude | 6a1a4fb4 | [Claude] train_symbols: --cache disk/ram (domyslnie disk); ram OOM-owal przy tilingu (1724 okna x 1536) |
 | 2026-07-04 14:51 | Claude | 0a6b81a8 | [Claude] train_symbols: --cache disk/ram (domyslnie disk); ram OOM-owal przy tilingu (1724 okna x 1536) |
 | 2026-07-04 16:21 | Claude | ccfcf5b1 | [Claude] preview_detection: flaga --tiled (inferencja przesuwnym oknem) do podgladu bboxow modelu tiled |
+| 2026-07-04 16:11 | Claude | 0616dc42 | [Claude] preview_detection: flaga --tiled (inferencja przesuwnym oknem) do podgladu bboxow modelu tiled |

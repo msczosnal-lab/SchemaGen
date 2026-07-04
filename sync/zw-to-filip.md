@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-07-04 [Claude] — Detekcja mostkow DZIALA (tiling): mAP 0 -> 0.92
+
+**Wynik:** mostek wykrywany na p040 (P=0.88, R=0.75, mAP50=0.922). Global mAP50
+0.177 -> 0.53. Przyczyna zer byla SKALA (strona 6600px -> 1536 = symbol ~9px),
+nie siec. Fix = tiling (okna natywnej rozdzielczosci).
+
+### Kluczowe zmiany
+- **Tiling**: `train/tiled_export.py` (dataset w oknach 1536, windows/clip/nms) +
+  `symbol_detector.detect_tiled` (inferencja przesuwnym oknem, translacja+NMS) +
+  flaga `yolo_tiled`/`yolo_tile_win`/`yolo_tile_overlap` w runtime.yaml, wpieta w
+  graph_builder. `preview_detection.py --tiled` do podgladu bboxow. Doc: prompts/014.
+- **Silnik orientacji ogolny**: `config/orient-classes.yaml` (klasa -> C2/C4/D4,
+  mode augment|split). DOMYSLNY `augment` = 1 klasa detekcji + obrocone kafelki
+  (augmentacja, bez orientacji, bez rozrzedzania). `split` = podklasy orientacji
+  (wymaga eksemplarzy). `train/orient.py`, wpiete w dataset_export.
+- **Jakosc danych**: binarize Otsu (lapie szare linie), pad-do-kwadratu (aspect),
+  dataset_export czysci osierocone pliki (train<->val).
+- **Narzedzia QA**: `element_review.py` (dropdown klasy + klik=usun + checkbox
+  przejrzana/localStorage), `apply_reassign.py` (retag + __DELETE__ + backup bazy),
+  `check_export.py` (wymiary + pokrycie GT), `mostek_preview_orient.py`, `_thumb.py`
+  (kontrast+pogrubienie miniatur). `scripts/mostek_diag.py`.
+- **train_symbols**: `--cache disk|ram` (ram OOM-owal przy 1724 oknach — Windows
+  spawn-workery pickluja cache).
+- **GitSync**: PC ZW pull-only (commit/push tylko przy nazwanym commicie),
+  cykl 5s, log tylko przy zdarzeniach, `.gitattributes merge=union` dla logow.
+
+### Testy
+`train/tests` + `symbol_detector` -> 50 passed. Geometria tilingu, orient (augment/
+split C2/C4/D4), detektor po refaktorze (`_infer_bgr`).
+
+### Backlog (nastepne etapy)
+- **Fejki do odsiania** — false-positive na p040+ (filtr po conf/klasach/kontekscie).
+- Slabe klasy: `terminal_block`, `styki_przekaznika` (=0, malo danych),
+  `terminal_przylaczeniowy` 0.195, `urzadzenie` 0.295 -> wiecej/czystszych etykiet.
+- `strzalka` wej/wyj: mozliwa kolizja (wej = wyj obrocona 180) -> sprawdzic, ew. scalic.
+- `--patience 50` da modelowi wiecej epok (stop byl na 11+30).
+- Runtime: mapowanie podklas split -> baza (jesli kiedys wroci orientacja z sieci).
+
+---
 ## 2026-07-02 [Claude] — SYMBOLE: orientacja mostka (8 klas D4, prompt 012)
 
 **Problem:** mostek (3 terminale) — jedyny element niewykrywany. Przyczyna: globalna
