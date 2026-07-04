@@ -1,0 +1,95 @@
+"""Testy derive_mostek_terminals i arrow_supplement."""
+
+from __future__ import annotations
+
+import numpy as np
+
+from backend.models.detection import SymbolDetection
+from backend.models.schema import Component
+from backend.recognize.mostek_terminals import (
+    _ring_index_to_uv,
+    _stub_rel_positions,
+    derive_mostek_terminals,
+)
+from backend.recognize.net_builder import derive_auto_terminals
+
+
+def _wire(points: list[list[float]]):
+    from backend.models.schema import GraphicLine
+
+    return GraphicLine(points=points, role="wire", semantic_group="cable")
+
+
+def test_ring_index_to_uv_corners() -> None:
+    assert _ring_index_to_uv(0, 10, 20) == (0.0, 0.0)
+    assert _ring_index_to_uv(19, 10, 20) == (1.0, 0.0)
+    assert _ring_index_to_uv(20, 10, 20) == (1.0, 1 / 9)
+    assert _ring_index_to_uv(20 + 8, 10, 20) == (1.0, 1.0)
+
+
+def test_stub_rel_positions_three_sides() -> None:
+    """Sztuczny crop: 3 segmenty tuszu na lewo/prawo/dol -> 3 stub rel."""
+    h, w = 20, 30
+    b = np.zeros((h, w), dtype=np.float32)
+    b[0, 5:8] = 1.0  # top — ignorowany w tym tescie jesli tylko 3 inne
+    b[:, -1] = 0.0
+    b[5:8, 0] = 1.0  # left
+    b[5:8, -1] = 1.0  # right
+    b[-1, 10:13] = 1.0  # bottom
+    rel = _stub_rel_positions(b)
+    assert len(rel) == 3
+    sides = {round(u, 1) for u, v in rel} | {round(v, 1) for u, v in rel}
+    assert 0.0 in sides and 1.0 in sides
+
+
+def test_derive_auto_terminals_merge_tol_not_page_tol() -> None:
+    """Duzy tol strony nie scala dwoch stubow ~30px od siebie przy merge_tol=12."""
+    comp = Component(id="X", type="terminal_block", bbox=[0, 0, 100, 20], source="yolo")
+    l1 = _wire([[20, 0], [20, -40]])
+    l2 = _wire([[55, 0], [55, -40]])
+    terms = derive_auto_terminals(comp, [l1, l2], tol=80.0, merge_tol=12.0)
+    assert len(terms) == 2
+
+
+def test_derive_mostek_terminals_from_synthetic_crop() -> None:
+    """3 stuby na obwodzie syntetycznego mostka."""
+    h, w = 40, 60
+    crop = np.full((h, w, 3), 255, dtype=np.uint8)
+    # tusz = ciemny
+    crop[0, 20:24] = 0
+    crop[10:14, -1] = 0
+    crop[-1, 25:29] = 0
+    crop[12:16, 0] = 0
+    # tylko 3 segmenty: left, right, bottom
+    crop[0, :] = 255
+    crop[12:16, 0] = 0
+    crop[10:14, -1] = 0
+    crop[-1, 25:29] = 0
+
+    comp = Component(
+        id="M1",
+        type="mostek",
+        bbox=[0, 0, float(w), float(h)],
+        source="yolo",
+    )
+    terms = derive_mostek_terminals(comp, crop)
+    assert len(terms) == 3
+
+
+def test_arrow_supplement_skips_when_yolo_found() -> None:
+    from backend.recognize.arrow_supplement import supplement_arrow_detections
+
+    img = np.zeros((200, 200, 3), dtype=np.uint8)
+    yolo = [
+        SymbolDetection(
+            class_id=7,
+            class_name="strzalka_potencjalu_wejsciowa",
+            confidence=0.9,
+            x=10,
+            y=10,
+            width=20,
+            height=10,
+        )
+    ]
+    out = supplement_arrow_detections(img, yolo)
+    assert len(out) == 1

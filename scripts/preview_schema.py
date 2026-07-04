@@ -50,13 +50,17 @@ def load_gt_schema(page_id: str):
     return label_to_schema(record)
 
 
-def rebuild_connections_from_gt(schema, size):
+def     rebuild_connections_from_gt(schema, size):
     """Przebuduj connections net-builderem na CZYSTYM GT (symbole+linie+terminale).
 
     Izoluje logike polaczen od bledow YOLO/Hough/derive. Krok identyczny jak w
     GraphBuilder: auto-zaciski gdy brak GT terminali -> odzysk mostkow -> net-builder.
     """
+    from backend.recognize.mostek_orient_map import is_mostek_class
+    from backend.recognize.mostek_terminals import derive_mostek_terminals, load_bgr
+
     tol = _terminal_tol(size)
+    merge_tol = min(_terminal_tol(size), 12.0)
     cands = [
         ln for ln in schema.graphic_lines
         if LineClassifier.is_connection_candidate(ln) and len(ln.points) >= 2
