@@ -4,5 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Claude] analysis: findings 019 uzupelnione o detekcje z main (p027/p035)
-
