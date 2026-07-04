@@ -25,6 +25,9 @@ from backend.recognize.line_classifier import LineClassifier
 
 AXIS_TOL_DEG = 8.0
 EDGE_OVERLAP_MIN = 0.6   # min. pokrycie wspolnego zakresu (linia wzdluz boku bbox)
+# Obramowka jednego symbolu ma dlugosc ~ szerokosc/wysokosc bbox. Szyna przez rzad
+# zlaczek (p027) biegnie wzdluz wielu bboxow — line_span >> box_span -> wire, nie frame.
+EDGE_FRAME_MAX_SPAN_RATIO = 1.25
 
 
 def apply_sieve(
