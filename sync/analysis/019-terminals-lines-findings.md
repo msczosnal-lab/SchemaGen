@@ -126,7 +126,8 @@ Kryteria akceptacji:
 - p027: pozioma szyna y≈2905 wykryta jako `wire` ciągły ≥ 90% szerokości rzędu (preview_lines);
 - p040: `eval_val_pages.py --page p040` bez regresji connections vs stan sprzed zmiany;
 - liczba segmentów na p035 nie rośnie > 2× (kontrola szumu po obniżeniu progów);
-- zielona linia klasyfikowana `pe_wire` (po rozdzieleniu kolorów), czerwona dostaje grupę.
+- niebieski tusz `#134088`/`#105090` mapuje się do grupy semantycznej (kalibracja `motor_device` lub dedykowana grupa wire);
+- rozdzielenie stroke `enclosure` vs `pe_wire`; overlay `preview_lines` — wire vs frame wizualnie odróżnialne.
 
 ### 018-terminals-strategy (DRUGI — zależy od jakości linii)
 
@@ -141,7 +142,7 @@ Kryteria akceptacji (z §1 promptu 019):
 - mostki p040: wynik `derive_mostek_terminals` bajt-w-bajt bez zmian (delegacja);
 - pytest: dotychczasowe 213 + nowe testy resolvera zielone.
 
-Zależność jawna: pkt „węzły-na-ścieżce" w net_builderze to jedyna zmiana wspólnej funkcji — jeśli Cursor woli, można ją wydzielić do osobnego mini-promptu 018c po review.
+Zależność jawna: pkt „węzły-na-ścieżce" w net_builderze to jedyna zmiana wspólnej funkcji — **Cursor (review 2026-07-04): wchodzi w 018-terminals-strategy** (nie osobny 018c), po TerminalResolver.
 
 ### Odłożone (nie w tej rundzie)
 OCR (decyzja Filipa), retrain strzałek — najpierw doznaczenie glifów strzałek przy złączkach w GT (inaczej retrain utrwali konflikt etykiet), fix `need`/`roi_top_frac` w arrow_supplement można wcisnąć do 018-lines jako 3-linijkowy patch, jeśli Filip potwierdzi objaw na p035.
