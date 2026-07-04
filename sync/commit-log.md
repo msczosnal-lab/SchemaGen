@@ -102,3 +102,4 @@
 | 2026-07-04 17:30 | Cursor | f1712524 | [Cursor] fix: diff_metrics w backend/validate — import scripts przy python scripts/ |
 | 2026-07-04 17:30 | Cursor | 21d35dc0 | [Cursor] fix: diff_metrics w backend/validate — import scripts przy python scripts/ |
 | 2026-07-04 18:09 | Cursor | 7648df85 | [Cursor] fix: eval_val_pages UnboundLocalError (page_id vs petla) |
+| 2026-07-04 18:09 | Cursor | 6764831e | [Cursor] fix: eval_val_pages UnboundLocalError (page_id vs petla) |
