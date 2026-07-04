@@ -1,1 +1,6 @@
-﻿[Cursor] fix: yolo_tiled true + preview_detection skrot p040 + resolve_page_id w paths
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
