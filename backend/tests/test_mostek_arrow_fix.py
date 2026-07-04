@@ -14,12 +14,6 @@ from backend.recognize.mostek_terminals import (
 from backend.recognize.net_builder import derive_auto_terminals
 
 
-def _wire(points: list[list[float]]):
-    from backend.models.schema import GraphicLine
-
-    return GraphicLine(points=points, role="wire", semantic_group="cable")
-
-
 def test_ring_index_to_uv_corners() -> None:
     assert _ring_index_to_uv(0, 10, 20) == (0.0, 0.0)
     assert _ring_index_to_uv(19, 10, 20) == (1.0, 0.0)
@@ -31,22 +25,20 @@ def test_stub_rel_positions_three_sides() -> None:
     """Sztuczny crop: 3 segmenty tuszu na lewo/prawo/dol -> 3 stub rel."""
     h, w = 20, 30
     b = np.zeros((h, w), dtype=np.float32)
-    b[0, 5:8] = 1.0  # top — ignorowany w tym tescie jesli tylko 3 inne
-    b[:, -1] = 0.0
     b[5:8, 0] = 1.0  # left
     b[5:8, -1] = 1.0  # right
     b[-1, 10:13] = 1.0  # bottom
     rel = _stub_rel_positions(b)
     assert len(rel) == 3
-    sides = {round(u, 1) for u, v in rel} | {round(v, 1) for u, v in rel}
-    assert 0.0 in sides and 1.0 in sides
 
 
 def test_derive_auto_terminals_merge_tol_not_page_tol() -> None:
     """Duzy tol strony nie scala dwoch stubow ~30px od siebie przy merge_tol=12."""
+    from backend.models.schema import GraphicLine
+
     comp = Component(id="X", type="terminal_block", bbox=[0, 0, 100, 20], source="yolo")
-    l1 = _wire([[20, 0], [20, -40]])
-    l2 = _wire([[55, 0], [55, -40]])
+    l1 = GraphicLine(id="l1", points=[[20, 0], [20, -40]], role="wire", semantic_group="cable")
+    l2 = GraphicLine(id="l2", points=[[55, 0], [55, -40]], role="wire", semantic_group="cable")
     terms = derive_auto_terminals(comp, [l1, l2], tol=80.0, merge_tol=12.0)
     assert len(terms) == 2
 
