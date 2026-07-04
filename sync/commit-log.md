@@ -100,3 +100,4 @@
 | 2026-07-04 16:28 | Cursor | 8d3f982c | [Cursor] recognize: relation resolver (prompt 015) + eval val-pages skeleton |
 | 2026-07-04 16:28 | Cursor | 6c808268 | [Cursor] recognize: relation resolver (prompt 015) + eval val-pages skeleton |
 | 2026-07-04 17:30 | Cursor | f1712524 | [Cursor] fix: diff_metrics w backend/validate — import scripts przy python scripts/ |
+| 2026-07-04 17:30 | Cursor | 21d35dc0 | [Cursor] fix: diff_metrics w backend/validate — import scripts przy python scripts/ |
