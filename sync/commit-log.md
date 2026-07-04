@@ -110,3 +110,4 @@
 | 2026-07-04 18:31 | Cursor | c2054e9b | [Cursor] runtime: wyklucz klase urzadzenie z detekcji YOLO (yolo_runtime_exclude_classes) |
 | 2026-07-04 18:31 | Cursor | e7d05999 | [Cursor] runtime: wyklucz klase urzadzenie z detekcji YOLO (yolo_runtime_exclude_classes) |
 | 2026-07-04 18:54 | Cursor | 38df312d | [Cursor] mostek: 3 terminale z obwodu cropa; strzalki: supplement matchTemplate gdy YOLO recall=0 |
+| 2026-07-04 18:54 | Cursor | 79948e0c | [Cursor] mostek: 3 terminale z obwodu cropa; strzalki: supplement matchTemplate gdy YOLO recall=0 |
