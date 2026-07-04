@@ -1,4 +1,43 @@
 # AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).
 # Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.
 classes:
-- motor
+- led
+- push_button
+- emergency_stop
+- terminal_block
+- zlaczka
+- ground
+- cewka_zaworow_r0
+- cewka_zaworow_r180
+- ekranowanie_kabla
+- gniazdo_rj_45
+- mostek_m0
+- mostek_m180
+- mostek_m270
+- mostek_m90
+- mostek_r0
+- mostek_r180
+- mostek_r270
+- mostek_r90
+- polaczenie_przewodow
+- przekaznik_polaryzowany
+- relay_r0
+- relay_r180
+- strzalka_potencjalu_wejsciowa_r0
+- strzalka_potencjalu_wejsciowa_r180
+- strzalka_potencjalu_wejsciowa_r270
+- strzalka_potencjalu_wejsciowa_r90
+- strzalka_potencjalu_wyjsciowa_r0
+- strzalka_potencjalu_wyjsciowa_r180
+- strzalka_potencjalu_wyjsciowa_r270
+- strzalka_potencjalu_wyjsciowa_r90
+- styk_nc
+- styk_stycznika
+- styki
+- styki_nc
+- styki_przekaznika
+- terminal_plc
+- terminal_przylaczeniowy
+- terminal_sterownika_safety
+- urzadzenie
+- wylacznik_nadpradowy
