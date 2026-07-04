@@ -38,6 +38,18 @@ hough_min_len_floor: 20
 hough_threshold_floor: 50
 hough_gap_floor: 4
 
+# Drugi przebieg Hough pod kolka wezlow (szyna listwy p027 = segmenty tuszu 67-76px
+# z przerwami 21-22px na kolka; runtime min_len=132>76, gap=10<21 -> szyna niewidoczna).
+# Wariant C findings 019: min_len~0.01*max, gap~0.004*max -> szyna 1535px, 171 segs
+# (bez eksplozji szumu vs 336 przy min_len=40). Przebieg 2 tylko dla linii OSIOWYCH
+# (|kat| < bus_axis_tol_deg od poziomu/pionu) -> nie mnozy szumu skosow.
+#   za malo szyny / dziury -> obniz bus_min_len_frac (0.008) lub podnies bus_gap_frac.
+#   za duzo szumu poziomego/pionowego -> podnies bus_min_len_frac lub zwez bus_axis_tol_deg.
+hough_second_pass: true
+hough_bus_min_len_frac: 0.01
+hough_bus_gap_frac: 0.004
+hough_bus_axis_tol_deg: 6.0
+
 # Strict: Connection powstaje TYLKO gdy oba konce trafiaja w terminal (adres comp:terminal).
 # true  -> znikaja falszywe polaczenia 'od srodka symbolu' i bledne terminale; ryzyko: symbol
 #          bez wykrytego terminala nie polaczy sie wcale.
@@ -52,6 +64,8 @@ arrow_supplement:
   downscale: 0.5
   max_templates_per_class: 12
   roi_top_frac: 0.93
+  # Detekcja YOLO ponizej tego conf nie blokuje supplementu klasy (findings 019 H9b).
+  min_yolo_conf_gate: 0.5
 
 # Warstwa relacji (prompt 015 — RelationResolver)
 relations:

@@ -64,8 +64,13 @@ class ColorPalette:
         hue_deg = float(self.tolerance.get("hue_deg", 12))
         sat_min = float(self.tolerance.get("sat_min", 0.15))
         val_delta = float(self.tolerance.get("value_delta", 0.12))
-        best: tuple[float, str] | None = None
+        # Tie-break deterministyczny: (dystans, specyficznosc, nazwa) — nie kolejnosc dict.
+        # specyficznosc = liczba rol (mniej = bardziej specyficzna); przy remisie odcienia
+        # grupa 1-rolowa (np. pe_wire) wygrywa z wielorolowa (enclosure). Findings 019 H4.
+        best: tuple[float, int, str] | None = None
         for name, group in self.groups.items():
+            roles = group.get("roles") or []
+            rank = len(roles) if roles else 1
             for key in ("stroke", "fill"):
                 ref = group.get(key)
                 if not ref:
@@ -74,12 +79,13 @@ class ColorPalette:
                 if parsed is None:
                     continue
                 dist = _color_distance(target, parsed, hue_deg, sat_min, val_delta)
-                if best is None or dist < best[0]:
-                    best = (dist, name)
+                cand = (dist, rank, name)
+                if best is None or cand < best:
+                    best = cand
         if best is None:
             return None
         threshold = hue_deg / 180.0 + val_delta + 0.05
-        return best[1] if best[0] <= threshold else None
+        return best[2] if best[0] <= threshold else None
 
 
 def load_palette(path: Path | None = None) -> ColorPalette:

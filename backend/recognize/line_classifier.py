@@ -87,6 +87,10 @@ class LineClassifier:
         if not group:
             return None
         grp = self._palette.groups.get(group, {})
+        # Jawny hint dla grup wieloroli (np. enclosure -> frame, nie domyslne wire).
+        hint = grp.get("hint_role")
+        if hint:
+            return str(hint)
         roles = grp.get("roles", [])
         if len(roles) == 1:
             return str(roles[0])

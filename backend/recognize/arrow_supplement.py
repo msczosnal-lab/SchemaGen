@@ -81,7 +81,11 @@ def supplement_arrow_detections(
         return yolo_detections
 
     gallery = _template_gallery()
-    have = {d.class_name for d in yolo_detections}
+    # Uzupelniaj klase, gdy YOLO nie ma dla niej detekcji z conf >= progu (nie samo
+    # "c not in have"): jedna slaba/FP detekcja nie powinna wylaczac supplementu calej
+    # klasy na stronie (findings 019 H9b — 15 slabych FP na p027 wylaczalo wyjsciowa).
+    conf_gate = float(cfg.get("min_yolo_conf_gate", 0.5))
+    have = {d.class_name for d in yolo_detections if d.confidence >= conf_gate}
     want = missing_classes or frozenset(_ARROW_CLASSES)
     need = [c for c in want if c not in have and gallery.get(c)]
     if not need:
@@ -91,6 +95,8 @@ def supplement_arrow_detections(
     coarse_score = float(cfg.get("coarse_min_score", 0.55))
     downscale = float(cfg.get("downscale", 0.5))
     scales = cfg.get("scales") or [1.0]
+    # roi_top_frac: cutoff = frac*H, odrzucamy trafienia y > cutoff -> ROI = GORNE 93%
+    # strony, ucinane dolne 7% (tabliczka rysunkowa). Nazwa myli: to ciecie DOLU.
     roi_frac = float(cfg.get("roi_top_frac", 0.93))
 
     gray_full = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)

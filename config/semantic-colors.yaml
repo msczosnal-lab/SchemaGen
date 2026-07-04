@@ -17,6 +17,16 @@ groups:
     stroke: "#0066CC"
     style: solid
 
+  blue_wire:
+    description: "Przewod niebieski (tusz Adamed ~#134088/#105090)"
+    # Realny tusz niebieski nie lapal sie do motor_device (#0066CC): ten sam odcien,
+    # ale ~2x nizsza jasnosc (V 0.53 vs 0.80) -> dystans > prog. Dwa hexy w stroke+fill
+    # pokrywaja oba zmierzone odcienie (findings 019 §7b).
+    roles: [wire]
+    stroke: "#134088"
+    fill: "#105090"
+    style: solid
+
   inverter:
     description: "Falownik / przetwornica"
     applies_to_types: [inverter]
@@ -27,6 +37,7 @@ groups:
   enclosure:
     description: "Obudowa / ramka obiektowa"
     roles: [frame, device_stroke]
+    hint_role: frame          # grupa wieloroli -> ramka (nie domyslne wire w klasyfikatorze)
     fill: "#00AA44"
     stroke: "#00AA44"
     style: solid
@@ -38,9 +49,11 @@ groups:
     style: dashed
 
   pe_wire:
-    description: "Przewod ochronny PE"
+    description: "Przewod ochronny PE (zolto-zielony)"
+    # Rozdzielony od enclosure (#00AA44): wczesniej identyczny stroke -> remis w
+    # match_color rozstrzygany kolejnoscia dict, pe_wire nigdy nie wygrywal (findings H4).
     roles: [wire]
-    stroke: "#00AA44"
+    stroke: "#66BB00"
     style: solid
 
 text:

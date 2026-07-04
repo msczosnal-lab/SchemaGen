@@ -23,13 +23,15 @@ from backend.recognize.line_tracer import LineTracer
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "output" / "preview_lines"
 
+# Kolory rol w overlayu (BGR). wire vs frame musza byc wyraznie rozne — wczesniej
+# dwie prawie identyczne zielenie ukrywaly demot ramki. frame -> pomarancz.
+# Martwy klucz "bus" usuniety (rola wycofana w ADR connection-model).
 ROLE_COLORS_BGR = {
-    "wire": (46, 204, 113),
-    "bus": (0, 165, 255),
-    "device_stroke": (255, 51, 153),
-    "dash": (128, 128, 128),
-    "frame": (0, 170, 68),
-    "crossing": (241, 196, 15),
+    "wire": (60, 220, 60),        # jaskrawa zielen
+    "device_stroke": (255, 51, 153),  # rozowy
+    "dash": (160, 160, 160),      # szary
+    "frame": (0, 140, 255),       # pomarancz
+    "crossing": (241, 196, 15),   # turkus
 }
 
 

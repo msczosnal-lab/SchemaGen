@@ -5,7 +5,9 @@ import numpy as np
 from backend.recognize.line_tracer import (
     LineSegment,
     LineTracer,
+    auto_bus_line_params,
     auto_line_params,
+    _is_axial,
     _merge_collinear,
 )
 
@@ -74,3 +76,45 @@ def test_explicit_params_override_auto() -> None:
     # jawny min_line_length nie jest nadpisywany przez auto-skalowanie
     tracer = LineTracer(min_line_length=20)
     assert tracer._params(6617, 4678)[0] == 20
+
+
+def test_merge_collinear_bridges_node_gap() -> None:
+    # Przerwa kolka wezla ~21px: stala gap_tol=12 NIE sklei, skalowany gap_tol=25 sklei.
+    a = LineSegment(0, 10, 73, 10, "#000000")
+    b = LineSegment(94, 10, 167, 10, "#000000")  # przerwa 21px (94-73)
+    assert len(_merge_collinear([a, b], gap_tol=12)) == 2
+    merged = _merge_collinear([a, b], gap_tol=25)
+    assert len(merged) == 1
+    assert merged[0].length >= 160
+
+
+def test_bus_params_looser_than_primary() -> None:
+    # Drugi przebieg (szyna): krotsza min dlugosc i wiekszy gap niz przebieg glowny.
+    p_len, _p_h, p_gap = auto_line_params(6617, 4678)
+    b_len, _b_h, b_gap = auto_bus_line_params(6617, 4678)
+    assert b_len < p_len          # 66 < 132 -> lapie segmenty tuszu 67-76px
+    assert b_gap > p_gap          # 26 > 10  -> mostkuje przerwy kolek 21-22px
+
+
+def test_is_axial() -> None:
+    assert _is_axial(0, 0, 100, 0, 6.0)      # poziom
+    assert _is_axial(0, 0, 0, 100, 6.0)      # pion
+    assert not _is_axial(0, 0, 100, 100, 6.0)  # 45 stopni
+
+
+def test_second_pass_recovers_bus_rail() -> None:
+    # Szyna listwy w pelnej skali: segmenty tuszu 73px z przerwami 21px (kolka wezlow).
+    # Przebieg glowny (min_line_length=120 > 73) jej NIE widzi; drugi przebieg + merge
+    # odtwarzaja ciagla linie pozioma na ~calej szerokosci (odtworzenie objawu p027).
+    w, h = 6000, 60
+    img = np.full((h, w, 3), 255, dtype=np.uint8)
+    y = 30
+    seg, gap = 73, 21
+    x = 0
+    while x < w:
+        img[y - 1 : y + 2, x : min(x + seg, w)] = (0, 0, 0)
+        x += seg + gap
+    segments = LineTracer().trace(img)
+    horiz = [s for s in segments if s.angle_deg <= 6 or s.angle_deg >= 174]
+    assert horiz, "brak segmentow poziomych — drugi przebieg nie zadzialal"
+    assert max(s.length for s in horiz) >= 0.7 * w

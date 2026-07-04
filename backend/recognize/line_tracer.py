@@ -165,6 +165,10 @@ GAP_FRAC = 0.0015        # max_line_gap   = frac * max(W, H)
 MIN_LEN_FLOOR = 20
 HOUGH_FLOOR = 50
 GAP_FLOOR = 4
+# Drugi przebieg (szyna listwy pod kolkami wezlow) — findings 019 wariant C.
+BUS_MIN_LEN_FRAC = 0.01
+BUS_GAP_FRAC = 0.004
+BUS_AXIS_TOL_DEG = 6.0
 
 
 def _hough_cfg() -> dict:
@@ -180,6 +184,10 @@ def _hough_cfg() -> dict:
             "min_len_floor": MIN_LEN_FLOOR,
             "threshold_floor": HOUGH_FLOOR,
             "gap_floor": GAP_FLOOR,
+            "second_pass": True,
+            "bus_min_len_frac": BUS_MIN_LEN_FRAC,
+            "bus_gap_frac": BUS_GAP_FRAC,
+            "bus_axis_tol_deg": BUS_AXIS_TOL_DEG,
         }
 
 
@@ -191,6 +199,26 @@ def auto_line_params(w: int, h: int) -> tuple[int, int, int]:
     hough = max(int(cfg["threshold_floor"]), min_len)
     gap = max(int(cfg["gap_floor"]), round(cfg["gap_frac"] * big))
     return int(min_len), int(hough), int(gap)
+
+
+def auto_bus_line_params(w: int, h: int) -> tuple[int, int, int]:
+    """Progi drugiego przebiegu (szyna) -> (min_line_length, hough_threshold, max_line_gap).
+
+    Nizsze niz auto_line_params: min_len ~0.01*max, gap ~0.004*max (findings 019 wariant C).
+    Gap > przerwy kolek wezlow (21-22px na skali strony) -> Hough sam mostkuje szyne.
+    """
+    cfg = _hough_cfg()
+    big = max(w, h)
+    min_len = max(int(cfg["min_len_floor"]), round(float(cfg.get("bus_min_len_frac", BUS_MIN_LEN_FRAC)) * big))
+    hough = max(int(cfg["threshold_floor"]), min_len)
+    gap = max(int(cfg["gap_floor"]), round(float(cfg.get("bus_gap_frac", BUS_GAP_FRAC)) * big))
+    return int(min_len), int(hough), int(gap)
+
+
+def _is_axial(x1: float, y1: float, x2: float, y2: float, tol_deg: float) -> bool:
+    """Linia pozioma lub pionowa w granicach tol_deg."""
+    ang = math.degrees(math.atan2(y2 - y1, x2 - x1)) % 180.0
+    return ang <= tol_deg or ang >= (180.0 - tol_deg) or abs(ang - 90.0) <= tol_deg
 
 
 class LineTracer:
@@ -226,6 +254,30 @@ class LineTracer:
         gap = self.max_line_gap if self.max_line_gap is not None else auto_gap
         return int(min_len), int(hough), int(gap)
 
+    @staticmethod
+    def _hough_segments(
+        edges: np.ndarray,
+        bgr: np.ndarray,
+        min_line_length: int,
+        hough_threshold: int,
+        max_line_gap: int,
+    ) -> list[LineSegment]:
+        raw = cv2.HoughLinesP(
+            edges,
+            rho=1,
+            theta=np.pi / 180,
+            threshold=hough_threshold,
+            minLineLength=min_line_length,
+            maxLineGap=max_line_gap,
+        )
+        out: list[LineSegment] = []
+        if raw is not None:
+            for line in raw:
+                x1, y1, x2, y2 = (int(v) for v in line[0])
+                color = _sample_color(bgr, (x1, y1, x2, y2))
+                out.append(LineSegment(x1, y1, x2, y2, detected_color=color))
+        return out
+
     def trace(self, image: "str | np.ndarray") -> list[LineSegment]:
         bgr = _to_bgr(image)
         h, w = bgr.shape[:2]
@@ -236,22 +288,31 @@ class LineTracer:
         kernel = np.ones((3, 3), np.uint8)
         edges = cv2.dilate(edges, kernel, iterations=1)
 
-        raw = cv2.HoughLinesP(
-            edges,
-            rho=1,
-            theta=np.pi / 180,
-            threshold=hough_threshold,
-            minLineLength=min_line_length,
-            maxLineGap=max_line_gap,
+        # Przebieg 1: progi kalibrowane (nie ucina stycznikow/cienkich wire).
+        segments = self._hough_segments(
+            edges, bgr, min_line_length, hough_threshold, max_line_gap
         )
-        segments: list[LineSegment] = []
-        if raw is not None:
-            for line in raw:
-                x1, y1, x2, y2 = (int(v) for v in line[0])
-                color = _sample_color(bgr, (x1, y1, x2, y2))
-                segments.append(LineSegment(x1, y1, x2, y2, detected_color=color))
 
-        merged = _merge_collinear(segments)
+        # Przebieg 2 (opcjonalny): nizsze progi TYLKO dla linii osiowych — szyna listwy
+        # pod kolkami wezlow. Gap drugiego przebiegu mostkuje przerwy 21-22px, ktore
+        # przebieg 1 (gap runtime ~10px) pomija. Filtr osiowy tlumi eksplozje szumu skosow.
+        cfg = _hough_cfg()
+        merge_gap = max_line_gap
+        if bool(cfg.get("second_pass", False)):
+            bus_len, bus_hough, bus_gap = auto_bus_line_params(w, h)
+            axis_tol = float(cfg.get("bus_axis_tol_deg", BUS_AXIS_TOL_DEG))
+            bus_segments = [
+                s
+                for s in self._hough_segments(edges, bgr, bus_len, bus_hough, bus_gap)
+                if _is_axial(s.x1, s.y1, s.x2, s.y2, axis_tol)
+            ]
+            segments = segments + bus_segments
+            merge_gap = max(merge_gap, bus_gap)
+
+        # gap_tol scalania skalowany z efektywnym max_line_gap (nie stala 12px) — inaczej
+        # przerwy 21-22px szyny nie sklejaja fragmentow (findings 019 H1).
+        gap_tol = max(12.0, float(merge_gap) * 2.5)
+        merged = _merge_collinear(segments, gap_tol=gap_tol)
         # Po scaleniu probkuj kolor ponownie wzdluz finalnej geometrii — odporne
         # na to, ze czesc surowych segmentow Hougha lezy na krawedzi (tlo).
         for seg in merged:

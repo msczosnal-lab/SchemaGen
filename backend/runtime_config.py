@@ -49,6 +49,11 @@ def runtime_settings() -> dict:
             "hough_min_len_floor": 20,
             "hough_threshold_floor": 50,
             "hough_gap_floor": 4,
+            # Drugi przebieg Hough pod kolka wezlow (szyna listwy) — linie osiowe.
+            "hough_second_pass": True,
+            "hough_bus_min_len_frac": 0.01,
+            "hough_bus_gap_frac": 0.004,
+            "hough_bus_axis_tol_deg": 6.0,
             # Strict: Connection tylko gdy oba konce trafiaja w terminal.
             "connection_require_terminal": False,
             # Warstwa relacji (RelationResolver)
@@ -170,6 +175,8 @@ _ARROW_SUPPLEMENT_DEFAULTS = {
     "max_templates_per_class": 12,
     "roi_top_frac": 0.93,
     "nms_iou": 0.4,
+    # Prog conf YOLO, ponizej ktorego detekcja klasy NIE blokuje supplementu.
+    "min_yolo_conf_gate": 0.5,
 }
 
 
@@ -191,4 +198,8 @@ def hough_params() -> dict:
         "min_len_floor": int(s["hough_min_len_floor"]),
         "threshold_floor": int(s["hough_threshold_floor"]),
         "gap_floor": int(s["hough_gap_floor"]),
+        "second_pass": bool(s.get("hough_second_pass", False)),
+        "bus_min_len_frac": float(s.get("hough_bus_min_len_frac", 0.01)),
+        "bus_gap_frac": float(s.get("hough_bus_gap_frac", 0.004)),
+        "bus_axis_tol_deg": float(s.get("hough_bus_axis_tol_deg", 6.0)),
     }
