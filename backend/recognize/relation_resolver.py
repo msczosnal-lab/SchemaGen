@@ -346,14 +346,14 @@ class RelationResolver:
         classes = [_effective_class(c) for c in components]
         id_to_class = {c.id: cls for c, cls in zip(components, classes)}
 
-        assignments: list[ContextAssignment] = []
+        row_assignments: list[RowContextAssignment] = []
         for row in group_into_rows(bboxes):
             row_classes = [id_to_class.get(b.id) for b in row.bboxes]
             for sub_bboxes, sub_classes in _split_row_by_strip_anchors_runtime(
                 row.bboxes, row_classes
             ):
                 sub_row = Row(index=row.index, bboxes=sub_bboxes, classes=sub_classes)
-                assignments.extend(
+                row_assignments.extend(
                     assign_contextual(
                         sub_row,
                         sub_classes,
@@ -365,7 +365,16 @@ class RelationResolver:
                         inline_no_parent=rules.get("inline_no_parent", frozenset()),
                     )
                 )
-        return assignments
+        return [
+            ContextAssignment(
+                bbox_id=a.bbox_id,
+                role=a.role,
+                row_index=a.row_index,
+                anchor_id=a.anchor_id,
+                strip_kind=a.strip_kind,
+            )
+            for a in row_assignments
+        ]
 
 
 # ----------------------------------------------------------------- helpers
