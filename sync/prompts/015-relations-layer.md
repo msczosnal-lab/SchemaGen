@@ -1,6 +1,6 @@
 # Zadanie 015: Warstwa relacji (RelationResolver)
 
-**Status:** AKTYWNE — trzy filary READ DONE (2026-07-04)  
+**Status:** DONE — wdrożone 2026-07-04  
 **Model:** Opus, effort High  
 **Plik:** `backend/recognize/relation_resolver.py`
 

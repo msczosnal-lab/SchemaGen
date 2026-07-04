@@ -23,32 +23,34 @@
 
 ---
 
-## Aktywne zadanie — Claude (Faza 5: relacje)
+## Aktywne zadanie — Filip (smoke 015)
+
+| Pole | Wartość |
+|------|---------|
+| **Smoke** | `preview_schema.py`, `diff_gt_runtime.py`, `eval_val_pages.py --page p040` |
+| **Config** | `common_terminal:` w `config/mostek-orient.yaml` |
+
+---
+
+## Aktywne zadanie — Claude (po akceptacji smoke)
+
+| Pole | Wartość |
+|------|---------|
+| **Prompt** | [`sync/prompts/016-e2e-metrics.md`](prompts/016-e2e-metrics.md) |
+| **Cel** | rozbudowa `eval_val_pages.py`, testy batch |
+
+---
+
+## ~~Aktywne zadanie — Claude (Faza 5)~~ DONE
 
 | Pole | Wartość |
 |------|---------|
 | **Prompt** | [`sync/prompts/015-relations-layer.md`](prompts/015-relations-layer.md) |
-| **Plik** | `backend/recognize/relation_resolver.py` |
-| **Testy** | `backend/tests/test_relation_resolver.py` |
-| **Regula** | net-builder nietkniety; `--rebuild-conn` p040 ≈ **15** conn |
+| **Status** | ✅ RelationResolver + 213 pytest |
 
 ---
 
-## Aktywne zadanie — Filip (po 015)
-
-| Pole | Wartość |
-|------|---------|
-| **Smoke** | `preview_schema.py --page p040 --source runtime` + `diff_gt_runtime.py` |
-| **Config** | `common_terminal:` w `config/mostek-orient.yaml` |
-| **Opcjonalnie** | trening `symbols_tiled_v1` + `yolo_tiled: true` (prompt 014) |
-
----
-
-## Kolejka — po akceptacji 015
-
-| Prompt | Cel |
-|--------|-----|
-| **016-e2e-metrics** | diff per filar + batch eval na `config/val-pages.yaml` |
+## ~~Aktywne zadanie — Filip (po 015)~~ → smoke powyżej
 
 ---
 
