@@ -1,1 +1,1 @@
-[Claude] orient: dopasowanie klasy przez tag_to_class (etykieta palety->klasa) + loader odporny na NUL; 39 passed
+[Claude] orient-classes.yaml: przywrocone 5 klas (mostek D4 + strzalki/cewka C4 + relay C2)

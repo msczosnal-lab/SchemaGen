@@ -1,10 +1,22 @@
 # Klasy uczone w wielu orientacjach + grupa obrotow. Silnik: train/orient.py.
 # group: D4 (8: obroty+lustra) | C4 (4 obroty) | C2 (0/180).
-# exemplar_dir: katalog z <klasa>_r0.png (+ _m0 dla D4). OSOBNY folder per klasa.
+# exemplar_dir: OSOBNY folder per klasa z <klasa>_r0.png (+ _m0 dla D4).
 classes:
   mostek:
     group: D4
     exemplar_dir: data/mostek_exemplars
+  strzalka_potencjalu_wejsciowa:
+    group: C4
+    exemplar_dir: data/strzalka_potencjalu_wejsciowa_exemplars
+  strzalka_potencjalu_wyjsciowa:
+    group: C4
+    exemplar_dir: data/strzalka_potencjalu_wyjsciowa_exemplars
+  cewka_zaworow:
+    group: C4
+    exemplar_dir: data/cewka_zaworow_exemplars
+  relay:
+    group: C2
+    exemplar_dir: data/relay_exemplars
 
 min_score: 0.55
 tile:

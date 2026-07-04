@@ -84,3 +84,4 @@
 | 2026-07-04 09:36 | Claude | 5dbe9172 | [Claude] ogolny silnik orientacji: config/orient-classes.yaml (klasa->C2/C4/D4) + train/orient.py; dataset_export uzywa go dla wszystkich klas (mostek=wpis D4), 39 passed |
 | 2026-07-03 22:25 | Claude | ef810e79 | [Claude] ogolny silnik orientacji: config/orient-classes.yaml (klasa->C2/C4/D4) + train/orient.py; dataset_export uzywa go dla wszystkich klas (mostek=wpis D4), 39 passed |
 | 2026-07-04 10:21 | Claude | 5d1bb380 | [Claude] orient: dopasowanie klasy przez tag_to_class (etykieta palety -> klasa) — strzalki/cewki/relay teraz sie rozbijaja |
+| 2026-07-04 10:22 | Claude | 84e31a3d | [Claude] orient: dopasowanie klasy przez tag_to_class (etykieta palety->klasa) + loader odporny na NUL; 39 passed |
