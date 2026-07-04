@@ -180,9 +180,11 @@ Filip dostarczył surowy JSON detekcji (preview_detection, conf=0.25, tiled). Wn
 
 ---
 
-## Pytania do Filipa
+## Pytania do Filipa — ODPOWIEDZI (2026-07-04)
 
-1. ~~Kolory hex z pipety~~ **ROZWIĄZANE danymi (§7b C):** brak czerwonego/zielonego tuszu, objaw = kolory overlayu. Pozostaje tylko: czy na INNYCH stronach projektu występują kolorowe przewody (PE itp.), czy cały projekt jest czarno-niebieski? Determinuje, czy grupy kolorowe w `semantic-colors.yaml` w ogóle rozwijać.
-2. **Złączka — pattern terminali (decyzja; GT puste: 6/533 z terminalami):** z tuszu wynika 2 na osi szyny (L/P) + odczepy góra/dół do glifów strzałek. Czy odczep góra/dół to osobny terminal złączki, czy strzałka jest osobnym symbolem z własnym terminalem? Determinuje `terminal-patterns.yaml`.
-3. **Glify strzałek przy złączkach p027:** doznaczyć jako klasa 7/8 w GT (przed retrainem), czy traktować jako część symbolu złączki? Obecny stan psuje i recall, i FP — a 15 FP wyłącza supplement (§7b F).
-4. Czy `git status`/`pytest` na głównym PC czyste (artefakty synchronizacji na ZW; plus duplikaty nazw klas GT „terminal PLC"/„terminal_plc" do ujednolicenia, §7b E)?
+1. **Kolory — ZAMKNIĘTE:** Filip potwierdza, że „czerwony/zielony" dotyczyło wyłącznie linii generowanych w preview (zielona = wykryty wire, czerwona = Connection) — „i to tam mają powstawać terminale". Żadnych kolorowych przewodów w tuszu; grupy kolorowe w `semantic-colors.yaml` bez rozwijania (zostaje tylko kalibracja niebieskiego + porządki z §5.3).
+2. **Złączka — ZAMKNIĘTE:** odczepy góra/dół to **strzałki potencjałów wyjściowych** (osobne symbole) — z listwy złączek wychodzą potencjały. Pattern `zlaczka` w terminal-patterns.yaml: `left 0.5` + `right 0.5` (szyna, required) oraz `top 0.5` / `bottom 0.5` (optional — tam, gdzie pionowy odczep przecina bbox w drodze do strzałki). Strzałka ma własny terminal (u nasady odczepu).
+3. **Glify strzałek p027 — ZAMKNIĘTE, korekta H9:** skoro to realne strzałki potencjałów wyjściowych, **15 detekcji `wyjsciowa` na p027 (conf 0,25–0,73) to TP, nie FP** — brakuje ich w GT (stąd „konflikt etykiet" i niski conf). Akcja przed retrainem: doznaczyć klasę 7/8 na listwach (p027 i podobne strony). To też oznacza, że wyłączenie supplementu przez te detekcje nie jest tu szkodliwe — ale sam mechanizm `c not in have` pozostaje kruchy (p035).
+4. Git/pytest na main — bez odpowiedzi wprost; folder sync/analysis dotarł, więc synchronizacja działa. Duplikaty nazw klas GT („terminal PLC"/„terminal_plc") nadal do ujednolicenia przy 018-terminals.
+
+**Konsekwencja dla 018-terminals-strategy:** oczekiwany wynik na listwie p027 = każda złączka: 2 terminale osiowe (szyna) + 0–2 odczepy; każdy odczep → Connection `zlaczka:top/bottom ↔ strzalka:base`; szyna → jeden potential z 58 węzłami. To jest wprost mierzalne kryterium akceptacji.
