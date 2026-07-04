@@ -5,6 +5,43 @@
 
 ---
 
+## 2026-07-04 [Claude] — 018-lines-quality DONE (implementacja)
+
+**Zakres:** jakość linii (Hough pod kółka węzłów, skalowany merge, kalibracja palety, overlay, diag). Kontrakty nietknięte (`SchemaModel`, sygnatury protokołów, `net_builder`, sito, `derive_mostek_terminals`).
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `backend/recognize/line_tracer.py` | **Drugi przebieg Hough** dla linii osiowych (`auto_bus_line_params`, filtr `_is_axial`) — szyna listwy p027 (segmenty 67–76px, przerwy 21–22px) niewidoczna dla progu runtime (min_len 132>76, gap 10<21). Bus: min_len≈0.01·max, gap≈0.004·max (wariant C findings). **`gap_tol` merge skalowany** `max(12, eff_gap·2.5)` zamiast stałej 12px |
+| `config/runtime.yaml` + `backend/runtime_config.py` | Klucze `hough_second_pass`, `hough_bus_min_len_frac` (0.01), `hough_bus_gap_frac` (0.004), `hough_bus_axis_tol_deg` (6.0); `arrow_supplement.min_yolo_conf_gate` (0.5) |
+| `config/semantic-colors.yaml` + `backend/colors/palette.py` | Nowa grupa `blue_wire` (#134088/#105090 — tusz Adamed nie łapał `motor_device` przez różnicę jasności); `pe_wire` rozdzielony od `enclosure` (stroke #66BB00 vs #00AA44); **tie-break `match_color`** deterministyczny `(dist, rank_ról, nazwa)` zamiast kolejności dict; `enclosure.hint_role: frame` |
+| `backend/recognize/line_classifier.py` | `_color_role_hint` czyta `hint_role` (grupa wieloroli → jawna rola, nie domyślne wire) |
+| `scripts/preview_lines.py` | Usunięty martwy klucz `bus`; wire (jaskrawa zieleń) vs frame (pomarańcz) wizualnie rozróżnialne |
+| `scripts/diag_lines.py` | **NOWY** read-only: histogram `detected_color` / rola / `semantic_group` per strona, `--page`; wyróżnia kolory bez grupy (kandydaci do palety) |
+| `backend/recognize/arrow_supplement.py` | `need` liczony wg progu conf (`min_yolo_conf_gate`), nie `c not in have` — jedna słaba/FP detekcja nie wyłącza supplementu klasy (findings H9b); komentarz `roi_top_frac` (ucina DÓŁ) |
+
+### Testy (dodane)
+
+`test_line_tracer`: `bridges_node_gap`, `bus_params_looser`, `is_axial`, `second_pass_recovers_bus_rail` (szyna 6000px odtworzona). `test_palette`: `blue_ink`, `enclosure_pe_wire_distinct`, tie-break.
+
+### [RYZYKO] Weryfikacja pytest — do uruchomienia u Ciebie
+
+Sandbox ZW **obcina duże pliki przy odczycie** (ten sam artefakt sync co findings §3.6) — nie dało się tu uruchomić pytest. Kod zweryfikowany review + logicznie. **Proszę o smoke na głównym PC:**
+
+```powershell
+python -m pytest backend/tests labeler/tests train/tests -q      # oczekiwane >=213 + nowe
+python scripts/preview_lines.py --page data/raw/22_A_153_PL_Adamed_AGV_SA2_20250706_p027.png
+python scripts/diag_lines.py --page p027
+python scripts/eval_val_pages.py --page p040                       # bez regresji connections
+```
+
+Kryteria: szyna p027 (y≈2945) jako `wire` ciągły ≥90% rzędu; p040 bez regresji; p035 segmenty ≤2×; niebieski #134088/#105090 z niepustą grupą.
+
+Commit: `[Claude] recognize: line tracer quality + palette (prompt 018-lines)`
+
+---
+
 ## 2026-07-04 [Claude/Fable5] — Analiza 019 DONE: terminale + linie
 
 **Wynik:** [`sync/analysis/019-terminals-lines-findings.md`](analysis/019-terminals-lines-findings.md) + sekcja „Wynik" w prompcie 019. Bez zmian w kodzie produkcyjnym (analiza only).
