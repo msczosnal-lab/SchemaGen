@@ -83,9 +83,8 @@ class GraphBuilder:
             for i, d in enumerate(detections)
         ]
 
-        # 2) OCR -> dopasuj tagi do bbox; reszta tekstu -> annotations[]
+        # 2) OCR — tekst surowy; tagi i annotations dopina RelationResolver (krok 6)
         texts = self._ocr_engine().extract_text(image_path)
-        annotations = self._assign_tags(texts, components)
 
         # 3) Trace + classify -> graphic_lines
         segments = self._trace(image_path)
@@ -128,8 +127,17 @@ class GraphBuilder:
             require_terminal=_require_terminal(),
         )
 
-        # 6) Kontekst (best-effort na bboxach detekcji + tagach OCR)
-        context_assignments = self._resolve_context_safe(detections, components)
+        # 6) Relacje: tagi, potencjaly, context runtime (prompt 015)
+        components, connections, potentials, context_assignments, annotations = (
+            RelationResolver().resolve(
+                components,
+                texts,
+                connections,
+                graphic_lines,
+                potentials,
+                image_size=size,
+            )
+        )
 
         return SchemaModel(
             meta=SchemaMeta(
@@ -163,50 +171,6 @@ class GraphBuilder:
 
     def _ocr_engine(self) -> PaddleOcrEngine:
         return self._ocr or PaddleOcrEngine()
-
-    # -------------------------------------------------------------------- OCR
-    def _assign_tags(self, texts, components: list[Component]) -> list[str]:
-        """Dopasuj tekst do symbolu (bbox OCR ∩ bbox symbolu). Reszta -> annotations."""
-        annotations: list[str] = []
-        # najlepsze dopasowanie tekst->symbol po polu przeciecia
-        for t in texts:
-            best_i = -1
-            best_overlap = 0.0
-            for i, c in enumerate(components):
-                ov = _intersection_area(t.bbox, c.bbox)
-                if ov > best_overlap:
-                    best_overlap = ov
-                    best_i = i
-            if best_i >= 0 and best_overlap > 0.0:
-                c = components[best_i]
-                # nie nadpisuj — pierwszy (najwiekszy overlap przetwarzany sekwencyjnie):
-                # zostaw dotychczasowy tag jesli juz ustawiony, dopisz resztę do annotations
-                if not c.tag:
-                    c.tag = t.text
-                else:
-                    annotations.append(t.text)
-            else:
-                annotations.append(t.text)
-        return annotations
-
-    # ----------------------------------------------------------------- context
-    def _resolve_context_safe(self, detections, components) -> list[ContextAssignment]:
-        try:
-            bboxes = [
-                BboxAnnotation(
-                    id=c.id,
-                    class_name=d.class_name,
-                    x=d.x,
-                    y=d.y,
-                    width=d.width,
-                    height=d.height,
-                    tag=c.tag,
-                )
-                for c, d in zip(components, detections)
-            ]
-            return self.resolve_context(bboxes)
-        except Exception:
-            return []
 
 
 # ---------------------------------------------------------------- helpers (czyste)
