@@ -51,8 +51,41 @@ def runtime_settings() -> dict:
             "hough_gap_floor": 4,
             # Strict: Connection tylko gdy oba konce trafiaja w terminal.
             "connection_require_terminal": False,
+            # Warstwa relacji (RelationResolver)
+            "relations": {
+                "tag_proximity_frac": 0.015,
+                "wire_label_proximity_frac": 0.012,
+                "potential_arrow_classes": [
+                    "strzalka_potencjalu_wejsciowa",
+                    "strzalka_potencjalu_wyjsciowa",
+                ],
+                "merge_potential_arrows_by_tag": True,
+            },
         },
     )
+
+
+_RELATIONS_DEFAULTS = {
+    "tag_proximity_frac": 0.015,
+    "wire_label_proximity_frac": 0.012,
+    "potential_arrow_classes": [
+        "strzalka_potencjalu_wejsciowa",
+        "strzalka_potencjalu_wyjsciowa",
+    ],
+    "merge_potential_arrows_by_tag": True,
+}
+
+
+@lru_cache(maxsize=1)
+def relations_settings() -> dict:
+    raw = runtime_settings().get("relations") or {}
+    out = dict(_RELATIONS_DEFAULTS)
+    if isinstance(raw, dict):
+        out.update(raw)
+    classes = out.get("potential_arrow_classes")
+    if isinstance(classes, list):
+        out["potential_arrow_classes"] = classes
+    return out
 
 
 def pdf_dpi() -> int:

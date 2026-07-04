@@ -16,6 +16,7 @@ import yaml
 from backend.class_map import tag_to_class
 from backend.geometry.row_layout import (
     ContextAssignment,
+    Row,
     assign_contextual,
     group_into_rows,
 )
@@ -316,8 +317,7 @@ class RelationResolver:
             for sub_bboxes, sub_classes in _split_row_by_strip_anchors_runtime(
                 row.bboxes, row_classes
             ):
-                sub_row = type(row)(index=row.index, bboxes=sub_bboxes)
-                sub_row.classes = sub_classes
+                sub_row = Row(index=row.index, bboxes=sub_bboxes, classes=sub_classes)
                 assignments.extend(
                     assign_contextual(
                         sub_row,

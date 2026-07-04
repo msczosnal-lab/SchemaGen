@@ -39,6 +39,7 @@ from backend.recognize.net_builder import (
     derive_auto_terminals,
 )
 from backend.recognize.ocr_engine import PaddleOcrEngine
+from backend.recognize.relation_resolver import RelationResolver
 from backend.recognize.symbol_detector import OnnxSymbolDetector
 
 # Tolerancja terminala: maks. odleglosc konca linii od bbox symbolu (px), przy

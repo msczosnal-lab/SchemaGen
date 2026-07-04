@@ -39,3 +39,12 @@ hough_gap_floor: 4
 #          bez wykrytego terminala nie polaczy sie wcale.
 # false -> luzny kontakt konca z bboxem tez tworzy wezel (dotychczasowe zachowanie).
 connection_require_terminal: true
+
+# Warstwa relacji (prompt 015 — RelationResolver)
+relations:
+  tag_proximity_frac: 0.015
+  wire_label_proximity_frac: 0.012
+  potential_arrow_classes:
+    - strzalka_potencjalu_wejsciowa
+    - strzalka_potencjalu_wyjsciowa
+  merge_potential_arrows_by_tag: true
