@@ -68,33 +68,28 @@ Status: **opcjonalny**, włączyć gdy ręczny labeling stanie się wąskim gard
 
 ### Faza 3 — Filar Tekst (OCR)
 
-**Cel:** tagi instancji (`-K1`, `-F3`), opisy, adresy krosowe.
-
-Kroki:
-1. Odmrozić `002-ocr-engine` — `PaddleOcrEngine` offline.
-2. GT tekstu: bboxy w labelerze (`TextAnnotation`) lub korekta OCR.
-3. Walidacja na 1–2 stronach: precision/recall tagów.
-
-Exit: poprawny odczyt tagów instancji na stronie testowej.
-
-Pliki: `backend/recognize/` (OCR), `backend/models/label.py`.
-
----
+**Status:** ✅ DONE (prompt 002).
 
 ### Faza 4 — Filar Połączenia
 
-**Cel:** topologia elektryczna — `GraphicLine` (co widać) → `Connection` (graf logiczny).
+**Status:** ✅ DONE (prompty 002/003/004, net-builder, terminale, mostki).
+
+### Faza 5 — Warstwa relacji → SchemaModel
+
+**Status:** ⏳ WIP (prompt 015 — `RelationResolver`).
+
+**Cel:** dopięcie tekstu do symboli/połączeń, scalanie strzałek potencjału, `context_assignments` runtime.
 
 Kroki:
-1. `002-labeler-lines-colors` — GT linii + kolory semantyczne (`config/semantic-colors.yaml`).
-2. `003-line-tracer-classifier` — runtime: LineTracer + LineClassifier → `graphic_lines[]`.
-3. Tylko role `wire`/`bus` → kandydaci na `Connection`.
+1. `015-relations-layer` — `RelationResolver` w `backend/recognize/`.
+2. Eksport `SchemaModel JSON` z wypełnionymi relacjami (kontrakt bez zmian).
+3. `backend.cli validate` na fixture.
 
-Exit: poprawne `graphic_lines[]` na stronie testowej; klasyfikacja roli linii.
+Exit: tagi instancji na runtime p040; strzałki potencjału scalone; `Connection.potential` z OCR.
 
 ---
 
-### Faza 5 — Warstwa relacji → SchemaModel
+### Faza 5 (archiwum planu) — Warstwa relacji (oryginalna spec)
 
 **Cel:** złożenie filarów w graf logiczny.
 
