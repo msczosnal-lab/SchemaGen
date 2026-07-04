@@ -157,7 +157,7 @@ class GraphBuilder:
     def _detect(self, image_path: str):
         det = self._detector or OnnxSymbolDetector(_active_model_path())
         from backend.runtime_config import yolo_tile_overlap, yolo_tile_win, yolo_tiled
-        if yolo_tiled():
+        if yolo_tiled() and hasattr(det, "detect_tiled"):
             return det.detect_tiled(image_path, win=yolo_tile_win(), overlap=yolo_tile_overlap())
         return det.detect(image_path)
 
