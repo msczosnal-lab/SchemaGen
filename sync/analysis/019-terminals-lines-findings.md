@@ -159,6 +159,19 @@ plus histogram `detected_color` dla wire bez grupy (H5) — mogę dostarczyć sk
 
 ---
 
+## 7. Uzupełnienie po danych z main (2026-07-04, preview_detection p027/p035)
+
+Filip dostarczył surowy JSON detekcji (preview_detection, conf=0.25, tiled). Wnioski:
+
+1. **Pitch złączek p027 potwierdzony w pełnej skali:** 58 szt., x-lewy 541,9→6004,0; kolejne odstępy ~89–98 px (med. ~94), szerokość bboxa 44–68 px (med. ~52), wysokość 76–94 px. Zgodne 1:1 z pomiarami z kafli (§1) — geometria eksperymentu wiarygodna. Uwaga: przerwa w rzędzie x 3185→3548 (~363 px, segment listwy bez złączek).
+2. **H9b potwierdzone na p027:** raw YOLO daje **15× FP `strzalka_potencjalu_wyjsciowa`** (conf 0,25–0,73) w pasach y≈2770 i y≈3015 — dokładnie glify strzałek nad/pod złączkami listwy. Skoro klasa ma detekcje raw, `arrow_supplement` jest **wyłączony** dla `wyjsciowa` na tej stronie (warunek `c not in have`). Zero `wejsciowa` na p027.
+3. **p035 rozstrzygnięte (pytanie z §4.5 promptu):** `strzalka_wejsciowa` ×3 (x≈320, conf 0,39–0,45) to **czysty YOLO**, nie supplement. `wyjsciowa` ×1 conf 0,92 przy x=5980, y=381 — górna krawędź, więc `roi_top_frac` (ucina DÓŁ) jej nie zagraża. Obie klasy obecne raw → supplement na p035 również martwy.
+4. Wniosek do 018/retrain: FP na p027 i niski conf na p035 to jeden problem — konflikt etykiet glifów strzałek przy złączkach (findings H9e). Doznaczenie GT przed retrainem pozostaje warunkiem.
+
+**Nadal brakuje z main:** sekcje B (run-length szyny pełna skala), C (kolory/H5/Q1), E (GT terminale/Q2) — wymaga uruchomienia `python sync/analysis/019_diag_main.py`.
+
+---
+
 ## Pytania do Filipa
 
 1. **Kolory realne na skanach:** jaki dokładnie kolor ma przewód „zielony" (PE?) i „czerwony" na p027/p035 — hex z pipety (2–3 próbki)? Bez tego kalibracja `semantic-colors.yaml` będzie zgadywana. Przykład poprawnej odpowiedzi: `PE: #00a844, fazowy: #e53935`.
