@@ -1,1 +1,1 @@
-[Claude] orient-classes.yaml: przywrocone 5 klas (mostek D4 + strzalki/cewka C4 + relay C2)
+[Claude] orient: tryb augment (1 klasa + kafelki-augmentacja, domyslny) obok split; mostek wykrywany jako 1 klasa, koniec rozrzedzania

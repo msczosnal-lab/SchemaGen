@@ -1,18 +1,16 @@
 # COWORK_TASK: sync/prompts/013-orient-classes.md
-"""Ogolny silnik orientacji klas (uogolnienie mostka na dowolna klase).
+"""Silnik orientacji/augmentacji klas (konfig: config/orient-classes.yaml).
 
-Konfiguracja: config/orient-classes.yaml — klasa -> grupa obrotow (C2/C4/D4) +
-katalog eksemplarzy. Dla wpisanej klasy `X`:
-  - tag `X` jest rozbijany na podklasy orientacji (`X_r0`, `X_r90`, ...),
-  - do treningu dokladane sa kafelki (orbita grupy) dla balansu.
+Per klasa `mode`:
+  augment (DOMYSLNY) — klasa uczona jako JEDNA (detekcja), a do treningu dokladane
+    sa OBROCONE kopie (kafelki) etykietowane ta sama klasa bazowa -> odpornosc na
+    obrot, bez rozrzedzania danych. NIE wymaga eksemplarzy.
+  split — klasa rozbijana na podklasy orientacji `X_r0/_r90/...` (detektor zwraca
+    orientacje). Wymaga eksemplarzy (dopasowanie wzorcem). Uzyj tylko gdy naprawde
+    potrzebujesz orientacji z sieci.
 
-Grupy jako PODGRUPY D4 (indeksy elementow D4, i = m*4 + r):
-  D4 -> (0..7)  : 4 obroty + 4 lustra (symbol chiralny),
-  C4 -> (0,1,2,3): 4 obroty (bez lustra),
-  C2 -> (0,2)    : 0 / 180 (poziom/pion).
-Podgrupy sa zamkniete na skladanie -> augmentacja i etykiety spojne.
-
-Rdzen D4/dopasowanie: train/mostek_orient.py.
+group (zakres obrotow / lustra): D4 (8), C4 (4 obroty), C2 (0/180).
+Rdzen D4: train/mostek_orient.py.
 """
 from __future__ import annotations
 
@@ -32,10 +30,10 @@ GROUP_ELEMS = {
     "C4": (0, 1, 2, 3),
     "C2": (0, 2),
 }
+DEFAULT_MODE = "augment"
 
 
 def subclass_names(base: str, group: str) -> list[str]:
-    """Nazwy podklas orientacji dla klasy bazowej i grupy (kolejnosc = orbita)."""
     return [f"{base}_{_SUF[i]}" for i in GROUP_ELEMS[group]]
 
 
@@ -58,13 +56,25 @@ def load_orient_config() -> dict:
     return data
 
 
+def _entry(cfg: dict, base: str) -> dict | None:
+    return (cfg.get("classes") or {}).get(base)
+
+
+def _mode(entry: dict) -> str:
+    return (entry or {}).get("mode", DEFAULT_MODE)
+
+
+def _group(entry: dict) -> str:
+    return (entry or {}).get("group", "C4")
+
+
 @dataclass
 class OrientLog:
     resolved: dict = field(default_factory=dict)
     low_score: int = 0
     no_image: int = 0
     tiles: int = 0
-    classes: dict = field(default_factory=dict)  # base -> {group, n_exemplars}
+    classes: dict = field(default_factory=dict)
 
     def as_dict(self) -> dict:
         return {
@@ -76,25 +86,17 @@ class OrientLog:
         }
 
 
-def _orbit_from_exemplars(r0: np.ndarray, m0: np.ndarray, group: str):
-    """(obraz, indeks_globalny_D4) dla elementow grupy — z baz r0/m0."""
-    for i in GROUP_ELEMS[group]:
-        base = r0 if i // 4 == 0 else m0
-        yield np.ascontiguousarray(np.rot90(base, i % 4)), i
-
+# --- galerie wzorcow (tylko tryb split) -----------------------------------
 
 def load_class_gallery(base: str, entry: dict):
-    """Galeria [(obraz, local_idx)] dla klasy: wykrywa prefiksy `<base>*_r0`
-    (wiele stylow), buduje orbite grupy. Brak wzorcow -> None."""
-    group = entry.get("group", "C4")
+    group = _group(entry)
     if group not in GROUP_ELEMS:
         return None
     ed = ROOT / entry.get("exemplar_dir", f"data/{base}_exemplars")
     if not ed.exists():
         return None
     idxs = GROUP_ELEMS[group]
-    local_of = {gidx: k for k, gidx in enumerate(idxs)}
-    # prefiksy grup stylow: pliki konczace sie na _r0.<ext>
+    local_of = {g: k for k, g in enumerate(idxs)}
     prefixes = []
     for f in sorted(ed.iterdir()):
         n = f.name.lower()
@@ -109,35 +111,38 @@ def load_class_gallery(base: str, entry: dict):
         m0 = _find_exemplar(ed, f"{pref}_m0")
         if m0 is None:
             m0 = np.fliplr(r0)
-        for img, gidx in _orbit_from_exemplars(r0, m0, group):
-            gallery.append((img, local_of[gidx]))
+        for i in idxs:
+            src = r0 if i // 4 == 0 else m0
+            gallery.append((np.ascontiguousarray(np.rot90(src, i % 4)), local_of[i]))
     return gallery or None
 
 
 def build_galleries(config: dict | None = None) -> dict:
-    """base -> (group, gallery) dla klas z eksemplarzami."""
+    """base -> (group, gallery) TYLKO dla klas split z eksemplarzami."""
     cfg = config or load_orient_config()
     out = {}
     for base, entry in (cfg.get("classes") or {}).items():
+        if _mode(entry) != "split":
+            continue
         g = load_class_gallery(base, entry)
         if g:
-            out[base] = (entry.get("group", "C4"), g)
+            out[base] = (_group(entry), g)
     return out
 
 
 def expand_orientations(records, images_by_page, config=None, log=None):
-    """Przepisz tagi klas z configu na podklasy orientacji (dopasowanie wzorcem).
-    ZAWSZE przypisuje najlepsza (nie gubi obiektow); niska pewnosc w logu."""
+    """Tryb SPLIT: przepisz tag klasy na podklase orientacji. Tryb augment: nie
+    rusza tagow (klasa zostaje bazowa)."""
     cfg = config or load_orient_config()
     min_score = float(cfg.get("min_score", 0.55))
     galleries = build_galleries(cfg)
     log = log or OrientLog()
-    for base, (group, gal) in galleries.items():
-        log.classes[base] = {"group": group, "n_exemplars": len(gal)}
+    for base, entry in (cfg.get("classes") or {}).items():
+        log.classes[base] = {"group": _group(entry), "mode": _mode(entry)}
     for rec in records:
         page = images_by_page.get(rec.page_id)
         for b in rec.bboxes:
-            base = tag_to_class(b.tag or "")  # kanoniczna klasa (label -> class)
+            base = tag_to_class(b.tag or "")
             if base not in galleries:
                 continue
             if page is None:
@@ -158,13 +163,14 @@ def expand_orientations(records, images_by_page, config=None, log=None):
 
 
 def parse_orient_tag(tag: str, config=None):
-    """`X_r90` -> (base, group, local_idx) jesli X jest klasa orientowana; inaczej None."""
+    """`X_r90` -> (base, group, local_idx) dla klasy split; inaczej None."""
     cfg = config or load_orient_config()
     for base, entry in (cfg.get("classes") or {}).items():
-        group = entry.get("group", "C4")
-        names = subclass_names(base, group)
+        if _mode(entry) != "split":
+            continue
+        names = subclass_names(base, _group(entry))
         if tag in names:
-            return base, group, names.index(tag)
+            return base, _group(entry), names.index(tag)
     return None
 
 
@@ -186,29 +192,48 @@ def _paste(page, crop, tile_size, margin):
     return tile, (cx, cy, tw / tile_size, th / tile_size)
 
 
+def is_orient_box(tag: str, config=None) -> bool:
+    """Czy bbox nalezy do klasy orientowanej/augmentowanej (do zbierania kafelkow)."""
+    cfg = config or load_orient_config()
+    if parse_orient_tag(tag, cfg):
+        return True
+    return _entry(cfg, tag_to_class(tag or "")) is not None
+
+
 def generate_orient_tiles(page, boxes, config=None, log=None):
-    """boxes: [(x,y,w,h,tag)] gdzie tag = podklasa orientacji.
-    Zwraca [(tile, class_name, bbox_norm)] — orbita grupy dla kazdego boxa."""
+    """boxes: [(x,y,w,h,tag)]. Zwraca [(tile, class_name, bbox_norm)].
+      augment -> obroty cropa etykietowane KLASA BAZOWA,
+      split   -> orbita z etykietami podklas."""
     cfg = config or load_orient_config()
     tile_cfg = cfg.get("tile", {}) or {}
     size, margin = int(tile_cfg.get("size", 96)), int(tile_cfg.get("margin", 8))
     log = log or OrientLog()
     out = []
     for (x, y, w, h, tag) in boxes:
-        parsed = parse_orient_tag(tag, cfg)
-        if parsed is None:
-            continue
-        base, group, src_local = parsed
-        gsrc = GROUP_ELEMS[group][src_local]
+        parsed = parse_orient_tag(tag, cfg)  # tag = podklasa (split, po ekspansji)
+        if parsed is not None:
+            base, group, src_local = parsed
+            mode = "split"
+        else:
+            base = tag_to_class(tag or "")
+            entry = _entry(cfg, base)
+            if entry is None or _mode(entry) != "augment":
+                continue
+            group, mode = _group(entry), "augment"
         crop = crop_bbox(page, x, y, w, h)
         if crop.size == 0:
             continue
-        names = subclass_names(base, group)
-        for i in GROUP_ELEMS[group]:
-            timg = D4[i].apply_image(crop)
-            new_global = compose(i, gsrc)
-            new_local = GROUP_ELEMS[group].index(new_global)
-            tile, bbox = _paste(page, timg, size, margin)
-            out.append((tile, names[new_local], bbox))
-            log.tiles += 1
+        if mode == "augment":
+            for i in GROUP_ELEMS[group]:
+                tile, bbox = _paste(page, D4[i].apply_image(crop), size, margin)
+                out.append((tile, base, bbox))
+                log.tiles += 1
+        else:
+            gsrc = GROUP_ELEMS[group][src_local]
+            names = subclass_names(base, group)
+            for i in GROUP_ELEMS[group]:
+                nl = GROUP_ELEMS[group].index(compose(i, gsrc))
+                tile, bbox = _paste(page, D4[i].apply_image(crop), size, margin)
+                out.append((tile, names[nl], bbox))
+                log.tiles += 1
     return out

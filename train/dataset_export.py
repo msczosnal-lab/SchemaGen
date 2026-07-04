@@ -123,10 +123,10 @@ def maybe_write_mostek_tiles(
 def maybe_expand_orientations(records: list[LabelRecord], raw_dir: Path) -> dict | None:
     """Ogolna ekspansja orientacji dla klas z config/orient-classes.yaml
     (mostek + inne). Brak eksemplarzy/obrazow -> None."""
-    from train.orient import build_galleries, expand_orientations, load_orient_config
+    from train.orient import expand_orientations, load_orient_config
 
     cfg = load_orient_config()
-    if not build_galleries(cfg):
+    if not (cfg.get("classes") or {}):
         return None
     images = _load_page_images(records, raw_dir)
     if not images:
@@ -141,7 +141,7 @@ def maybe_write_orient_tiles(
     class_map: dict[str, int],
 ) -> int:
     """Kafelki orbity dla wszystkich klas orientowanych (tag = podklasa)."""
-    from train.orient import generate_orient_tiles, load_orient_config, parse_orient_tag
+    from train.orient import generate_orient_tiles, is_orient_box, load_orient_config
     from train.mostek_tiles import write_tiles
 
     cfg = load_orient_config()
@@ -154,7 +154,7 @@ def maybe_write_orient_tiles(
         boxes = [
             (b.x, b.y, b.width, b.height, b.tag)
             for b in rec.bboxes
-            if parse_orient_tag(b.tag, cfg)
+            if is_orient_box(b.tag, cfg)
         ]
         if not boxes:
             continue
