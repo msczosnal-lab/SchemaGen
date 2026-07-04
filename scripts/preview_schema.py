@@ -56,18 +56,15 @@ def rebuild_connections_from_gt(schema, size):
     Izoluje logike polaczen od bledow YOLO/Hough/derive. Krok identyczny jak w
     GraphBuilder: auto-zaciski gdy brak GT terminali -> odzysk mostkow -> net-builder.
     """
-    from backend.recognize.mostek_orient_map import is_mostek_class
-    from backend.recognize.mostek_terminals import derive_mostek_terminals, load_bgr
-
     tol = _terminal_tol(size)
-    merge_tol = min(_terminal_tol(size), 12.0)
+    merge_tol = min(tol, 12.0)
     cands = [
         ln for ln in schema.graphic_lines
         if LineClassifier.is_connection_candidate(ln) and len(ln.points) >= 2
     ]
     for c in schema.components:
         if not c.terminals:
-            c.terminals = derive_auto_terminals(c, cands, tol)
+            c.terminals = derive_auto_terminals(c, cands, tol, merge_tol=merge_tol)
     schema.graphic_lines = recover_terminal_bridges(
         schema.graphic_lines, schema.components, bridge_tol=tol
     )
