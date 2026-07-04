@@ -120,7 +120,11 @@ def _overlap_frac(a0: float, a1: float, b0: float, b1: float) -> float:
 
 
 def _is_box_edge(line: GraphicLine, components: list[Component], tol: float) -> bool:
-    """True gdy linia biegnie wzdluz boku ktoregos bbox (obramowka, nie przewod)."""
+    """True gdy linia biegnie wzdluz boku ktoregos bbox (obramowka, nie przewod).
+
+    Przewod przez rzad symboli (szyna listwy) moze byc rownolegly do krawedzi wielu
+    bboxow, ale jest znacznie dluzszy niz pojedynczy symbol — nie demotujemy.
+    """
     ep = _endpoints(line)
     if ep is None:
         return False
@@ -128,10 +132,16 @@ def _is_box_edge(line: GraphicLine, components: list[Component], tol: float) -> 
     orient = _orientation(p, q)
     if orient is None:
         return False
+    line_span = abs(q[0] - p[0]) if orient == "h" else abs(q[1] - p[1])
     for c in components:
         if len(c.bbox) < 4:
             continue
         x1, y1, x2, y2 = c.bbox[0], c.bbox[1], c.bbox[2], c.bbox[3]
+        box_span = (x2 - x1) if orient == "h" else (y2 - y1)
+        if box_span <= 0:
+            continue
+        if line_span > box_span * EDGE_FRAME_MAX_SPAN_RATIO:
+            continue
         if orient == "h":
             yline = (p[1] + q[1]) / 2
             for yside in (y1, y2):  # gora / dol
@@ -201,12 +211,25 @@ def _line_bbox(points: list[list[float]]) -> list[float]:
 
 
 def _is_text_artifact(line: GraphicLine, text_bboxes: list[list[float]], margin: float) -> bool:
-    """True gdy bbox linii miesci sie (z marginesem) w ktoryms bbox tekstu OCR."""
+    """True gdy krotki segment w calosci w bbox tekstu OCR (nie dlugi przewod przy etykiecie)."""
     if not text_bboxes:
         return False
+    ep = _endpoints(line)
+    if ep is None:
+        return False
+    seg_len = math.hypot(ep[1][0] - ep[0][0], ep[1][1] - ep[0][1])
     lb = _line_bbox(line.points)
+    line_w = lb[2] - lb[0]
+    line_h = lb[3] - lb[1]
     for tb in text_bboxes:
         if len(tb) < 4:
+            continue
+        tw = tb[2] - tb[0]
+        th = tb[3] - tb[1]
+        # Dlugi przewod nie jest artefaktem tekstu nawet gdy bbox linii nachodzi na OCR.
+        if seg_len > max(tw, th) * 1.5:
+            continue
+        if line_w > tw + margin or line_h > th + margin:
             continue
         if (
             lb[0] >= tb[0] - margin

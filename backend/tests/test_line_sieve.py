@@ -114,3 +114,15 @@ def test_recover_leaves_genuine_other_untouched() -> None:
     demoted = GraphicLine(id="gl", points=[[150, 130], [180, 130]], role="other")
     [out] = recover_terminal_bridges([demoted], [_strip()], bridge_tol=8.0)
     assert out.role == "other"
+
+
+def test_long_bus_along_row_of_small_boxes_stays_wire() -> None:
+    # Szyna listwy p027: pozioma linia przez wiele waskich zlaczek (nie obramowka jednego).
+    boxes = [
+        Component(id=f"z{i}", type="zlaczka", bbox=[100 + i * 94, 100, 150 + i * 94, 180], source="yolo")
+        for i in range(8)
+    ]
+    bus = _wire([[80, 140], [900, 140]])
+    [out] = apply_sieve([bus], boxes, [], edge_tol=6.0)
+    assert out.role == "wire"
+    assert LineClassifier.is_connection_candidate(out)

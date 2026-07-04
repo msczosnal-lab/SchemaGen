@@ -107,7 +107,7 @@ def main() -> int:
     ap.add_argument(
         "--with-sieve",
         action="store_true",
-        help="Po klasyfikacji: sito jak w GraphBuilder (wymaga detekcji YOLO)",
+        help="Po klasyfikacji: sito jak GraphBuilder (YOLO + OCR tekst -> other)",
     )
     ap.add_argument("--out", type=Path, default=OUT_DIR)
     args = ap.parse_args()
