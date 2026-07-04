@@ -113,7 +113,15 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.page:
-        pages = [args.page]
+        p = Path(args.page)
+        if p.is_file():
+            pages = [p]
+        else:
+            img = raw_image_path(args.page)
+            if img is None:
+                print(f"[BLAD] Brak obrazu dla '{args.page}' w {RAW}")
+                return 1
+            pages = [img]
     elif args.pages:
         pages = sorted({Path(p) for pat in args.pages for p in glob.glob(pat)})
         if args.limit:
