@@ -45,7 +45,13 @@ def load_orient_config() -> dict:
     path = CONFIG / "orient-classes.yaml"
     if not path.exists():
         return {"classes": {}, "min_score": 0.55, "tile": {"size": 96, "margin": 8}}
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    try:
+        text = path.read_text(encoding="utf-8").replace("\x00", "")  # mount-safe
+        data = yaml.safe_load(text) or {}
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
     data.setdefault("classes", {})
     data.setdefault("min_score", 0.55)
     data.setdefault("tile", {"size": 96, "margin": 8})
