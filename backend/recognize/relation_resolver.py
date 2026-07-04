@@ -397,10 +397,6 @@ def _dist(x1: float, y1: float, x2: float, y2: float) -> float:
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
 
-def _bbox_center(bbox: list[float]) -> tuple[float, float]:
-    return ((bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2)
-
-
 def _nearest_component_index(
     t: TextDetection, components: list[Component], radius: float
 ) -> int:
