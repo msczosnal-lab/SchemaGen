@@ -161,7 +161,8 @@ def main() -> int:
             from backend.models.schema import Component
             from backend.recognize.graph_builder import GraphBuilder
 
-            dets = GraphBuilder()._detect(str(page))
+            gb = GraphBuilder()
+            dets = gb._detect(str(page))
             components = [
                 Component(
                     id=f"sym_{i}",
@@ -171,8 +172,15 @@ def main() -> int:
                 )
                 for i, d in enumerate(dets)
             ]
+            try:
+                texts = gb._ocr_engine().extract_text(str(page))
+                text_bboxes = [t.bbox for t in texts]
+            except Exception:
+                text_bboxes = []
             edge_tol = max(6.0, 0.004 * max(w, h))
-            lines = apply_sieve(lines, components, [], edge_tol=edge_tol)
+            lines = apply_sieve(
+                lines, components, text_bboxes, edge_tol=edge_tol
+            )
         roles = Counter(l.role for l in lines)
         groups = Counter(l.semantic_group for l in lines if l.semantic_group)
         total_segs += len(segments)
