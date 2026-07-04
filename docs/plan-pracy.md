@@ -8,10 +8,11 @@
 
 ## Gdzie jesteśmy
 
-- **Filar Symbole:** GT w budowie (Filip labeluje Adamed AGV SA2). Detekcja multi-class: trening `symbols_mc_v5` (imgsz=1280, yolov8n). 29 klas po `min-count=5`, 2352 instancje.
-- **Filar Tekst:** OCR wstrzymany (`002-ocr-engine` OPEN).
-- **Filar Połączenia:** nie rozpoczęty (`002-labeler-lines`, `003-line-tracer`, `004-graph-builder` OPEN).
-- **Wąskie gardło:** recall na gęstych rzędach złączek (14/16) + skrajny imbalance klas.
+- **Filar Symbole:** DONE runtime (YOLO multi-class, listwa 011, mostek D4 012, tiling 014). GT w budowie (Filip).
+- **Filar Tekst:** DONE — `PaddleOcrEngine` (prompt 002).
+- **Filar Połączenia:** DONE — line tracer, net-builder, terminale, mostki (`--rebuild-conn` p040=15).
+- **Faza 5 Relacje:** WIP — prompt 015 (`RelationResolver`: tekst→symbol, potencjały, context runtime).
+- **Wąskie gardło:** jakość relacji OCR↔symbol na runtime; walidacja e2e per filar (Faza 6).
 
 ---
 
