@@ -42,7 +42,7 @@ connection_require_terminal: true
 
 # Warstwa relacji (prompt 015 — RelationResolver)
 relations:
-  tag_proximity_frac: 0.015
+  tag_proximity_frac: 0.02
   wire_label_proximity_frac: 0.012
   potential_arrow_classes:
     - strzalka_potencjalu_wejsciowa

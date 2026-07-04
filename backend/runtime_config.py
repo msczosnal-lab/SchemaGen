@@ -53,7 +53,7 @@ def runtime_settings() -> dict:
             "connection_require_terminal": False,
             # Warstwa relacji (RelationResolver)
             "relations": {
-                "tag_proximity_frac": 0.015,
+                "tag_proximity_frac": 0.02,
                 "wire_label_proximity_frac": 0.012,
                 "potential_arrow_classes": [
                     "strzalka_potencjalu_wejsciowa",
@@ -66,7 +66,7 @@ def runtime_settings() -> dict:
 
 
 _RELATIONS_DEFAULTS = {
-    "tag_proximity_frac": 0.015,
+    "tag_proximity_frac": 0.02,
     "wire_label_proximity_frac": 0.012,
     "potential_arrow_classes": [
         "strzalka_potencjalu_wejsciowa",
