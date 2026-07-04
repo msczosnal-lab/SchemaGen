@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-07-04 [Filip] — GT p027: strzałki + terminale (komplet)
+
+**Status:** wszystkie strzałki (klasy 7/8) i terminale na p027 poprawione w labelerze.
+
+| Co | Uwagi |
+|----|--------|
+| Strzałki listwy | Doznaczone przy złączkach (wcześniej TP bez GT — findings H9) |
+| Terminale złączek | Skorygowane na całej stronie |
+| Następny krok danych | `dataset_export` po zapisie; opcjonalnie `preview_schema.py --page p027 --source gt --rebuild-conn` jako referencja topologii |
+
+**Bloker runtime p027** nadal = jakość linii (018-lines) + TerminalResolver (018-terminals), nie GT.
+
+---
+
 ## 2026-07-04 [Cursor] — Review 019 DONE + prompty 018-lines / 018-terminals
 
 Temat: **Findings zaakceptowane (Poprawka runda 1). Implementacja: najpierw linie, potem terminale.**
