@@ -82,8 +82,9 @@ class RelationResolver:
     ]:
         cfg = relations_settings()
         assigned_text_idxs: set[int] = set()
+        wire_label_idxs: set[int] = set()
 
-        annotations = self._assign_tags(
+        annotations = self._assign_tags_overlap_and_instance(
             components,
             texts,
             assigned_text_idxs,
@@ -91,7 +92,7 @@ class RelationResolver:
             image_size=image_size,
         )
 
-        connections = self._apply_wire_labels(
+        connections, wire_label_idxs = self._apply_wire_labels(
             connections,
             texts,
             graphic_lines,
@@ -99,6 +100,17 @@ class RelationResolver:
             assigned_text_idxs,
             proximity_frac=float(cfg["wire_label_proximity_frac"]),
             image_size=image_size,
+        )
+        assigned_text_idxs |= wire_label_idxs
+
+        annotations.extend(
+            self._assign_tags_proximity_and_collect_annotations(
+                components,
+                texts,
+                assigned_text_idxs,
+                proximity_frac=float(cfg["tag_proximity_frac"]),
+                image_size=image_size,
+            )
         )
 
         connections, potentials = self._merge_potential_arrows(
