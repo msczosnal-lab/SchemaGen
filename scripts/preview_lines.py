@@ -19,6 +19,7 @@ import cv2
 
 from backend.paths import RAW
 from backend.recognize.line_classifier import LineClassifier
+from backend.recognize.line_sieve import apply_sieve
 from backend.recognize.line_tracer import LineTracer
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "data" / "output" / "preview_lines"
@@ -86,9 +87,24 @@ def main() -> int:
     ap.add_argument("--pages", nargs="*", help="globy PNG")
     ap.add_argument("--limit", type=int, default=6)
     ap.add_argument("--offset", type=int, default=24, help="domyslnie p025+ Adamed")
-    ap.add_argument("--min-line-length", type=int, default=30)
-    ap.add_argument("--max-line-gap", type=int, default=8)
-    ap.add_argument("--hough-threshold", type=int, default=50)
+    ap.add_argument(
+        "--min-line-length",
+        type=int,
+        default=None,
+        help="Jawny prog Hough (px); domyslnie None = auto z config/runtime.yaml",
+    )
+    ap.add_argument("--max-line-gap", type=int, default=None)
+    ap.add_argument("--hough-threshold", type=int, default=None)
+    ap.add_argument(
+        "--legacy-hough",
+        action="store_true",
+        help="Stare progi 30/8/50 (tylko kalibracja historyczna — na 6600px daje ~800+ seg)",
+    )
+    ap.add_argument(
+        "--with-sieve",
+        action="store_true",
+        help="Po klasyfikacji: sito jak w GraphBuilder (wymaga detekcji YOLO)",
+    )
     ap.add_argument("--out", type=Path, default=OUT_DIR)
     args = ap.parse_args()
 
