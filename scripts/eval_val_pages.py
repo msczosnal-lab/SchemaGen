@@ -24,13 +24,7 @@ from backend.models.label import LabelRecord
 from backend.paths import CONFIG, RAW
 from backend.recognize.pipeline import recognize_file
 from labeler.export import label_to_schema
-from scripts.diff_gt_runtime import (
-    _norm_conn,
-    _page_id,
-    diff_components,
-    diff_connections,
-    diff_tags,
-)
+from scripts.diff_metrics import diff_components, diff_connections, diff_tags, _page_id
 
 OUT_DIR = ROOT / "data" / "output" / "eval_val_pages"
 
