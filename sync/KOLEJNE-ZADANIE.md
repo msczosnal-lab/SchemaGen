@@ -6,47 +6,48 @@
 
 ---
 
-## Stan (2026-06-28) — etap POŁĄCZENIA DONE
+## Stan (2026-07-04) — etap READ DONE, Faza 5 WIP
 
 | Prompt / kamień | Status |
 |-----------------|--------|
-| **004-graph-builder / net-builder** | ✅ DONE — terminal=granica scalania, `--rebuild-conn` p040=**15** conn |
-| **Labeler edycja GT (T/R/C v34)** | ✅ DONE (ZW) — drag terminali, re-klasyfikacja R, conn C, linie L |
-| **crop-review + import draft** | ✅ DONE (Cursor) |
-| **010-labeler-bbox-first-palette** | ✅ DONE |
-| **011-strip-yolo-classes** | ✅ kod DONE — zlaczka/mostek atomic; czeka re-train Filipa |
-| **Harness walidacji** | ✅ `preview_schema.py --rebuild-conn` + `[GT-conn]` (read-only) |
-| **Config runtime** | ✅ `terminal_tol_*`, `hough_*`, `connection_require_terminal: true` |
+| **001–004** symbole + OCR + linie + graph-builder | ✅ DONE |
+| **011-strip-yolo-classes** | ✅ DONE — zlaczka/mostek/strzalki w YOLO |
+| **012-mostek-orientacja** | ✅ DONE — D4 + eksemplarze |
+| **014-tiling** | ✅ kod DONE — tiled_export + detect_tiled |
+| **015-relations-layer** | ⏳ WIP — RelationResolver (tekst→symbol, potencjaly, context runtime) |
+| **Harness walidacji** | ✅ `preview_schema.py`, `diff_gt_runtime.py` |
+| **Config runtime** | ✅ `terminal_tol_*`, `hough_*`, `connection_require_terminal` |
 
 **Strona referencyjna:** `22_A_153_PL_Adamed_AGV_SA2_20250706_p040`
 
-**Cursor review (domknięcie):** pytest **151 passed**; `--rebuild-conn` p040=15; GT conn wyczyszczone (`clear_gt_connections.py`).
-
 ---
 
-## Aktywne zadanie — Filip (filar SYMBOLE: re-train)
+## Aktywne zadanie — Claude (Faza 5: relacje)
 
 | Pole | Wartość |
 |------|---------|
-| **Kod** | ✅ prompt 011 — eksport zlaczka/mostek/strzałki w YOLO |
-| **Czeka** | **re-train GPU** → `symbols_strip_v1` + ONNX + registry |
-| **Walidacja** | runtime p040 ≈ **19/19 bbox**, brak gwiazdy |
-
-```powershell
-python -m train.dataset_export --min-count 5
-python -m train.train_symbols --name symbols_strip_v1 --batch 4
-python -m train.export_onnx --version symbols_strip_v1
-python scripts/preview_schema.py --page p040 --source runtime
-```
+| **Prompt** | [`sync/prompts/015-relations-layer.md`](prompts/015-relations-layer.md) |
+| **Plik** | `backend/recognize/relation_resolver.py` |
+| **Testy** | `backend/tests/test_relation_resolver.py` |
+| **Regula** | net-builder nietkniety; `--rebuild-conn` p040 ≈ **15** conn |
 
 ---
 
-## Aktywne zadanie — Claude (backlog)
+## Aktywne zadanie — Filip (po 015)
 
 | Pole | Wartość |
 |------|---------|
-| **DONE** | prompt 011 — klasy listwy w YOLO, testy 164 passed |
-| **Backlog** | scalanie strzałek potencjału; derive_auto_terminals poza p040 |
+| **Smoke** | `preview_schema.py --page p040 --source runtime` + `diff_gt_runtime.py` |
+| **Config** | `common_terminal:` w `config/mostek-orient.yaml` |
+| **Opcjonalnie** | trening `symbols_tiled_v1` + `yolo_tiled: true` (prompt 014) |
+
+---
+
+## Kolejka — po akceptacji 015
+
+| Prompt | Cel |
+|--------|-----|
+| **016-e2e-metrics** | diff per filar + batch eval na `config/val-pages.yaml` |
 
 ---
 
