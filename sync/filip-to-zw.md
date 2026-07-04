@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-07-04 [Cursor] — Prompt 019: analiza terminali + linii dla Fable 5
+
+Temat: **Jakość ~65%. Bloker: terminale + linie (nie symbole). Analiza przed implementacją.**
+
+| Pole | Wartość |
+|------|---------|
+| **Prompt** | [`sync/prompts/019-fable5-terminals-lines-analysis.md`](prompts/019-fable5-terminals-lines-analysis.md) |
+| **Wykonawca** | Claude (Fable 5), główny PC z pełnym repo |
+| **Zakres** | Analiza kodu (`net_builder`, `line_tracer`, `line_classifier`, `line_sieve`, `mostek_terminals`, `graph_builder`) + hipotezy (fragmentacja linii, kolizja kolorów enclosure/pe_wire, brak grupy czerwonej, sito demotujące bus wire p027) + plan `TerminalResolver` |
+| **Kontekst smoke** | `sync/fable5-smoke-context.md` (p027/p035/p040, preview_detection conf=0.25) |
+| **Wynik** | `sync/analysis/019-terminals-lines-findings.md` + propozycja podziału na `018-lines-quality`/`018-terminals-strategy` |
+
+Commit pending: `[Cursor] sync: prompt 019 Fable5 analiza terminali i linii`
+
+---
+
 ## 2026-07-04 [Cursor] — Faza 5 DONE (prompt 015) + kolejka 016
 
 Temat: **RelationResolver wdrożony. Smoke p040 + common_terminal = Filip.**
