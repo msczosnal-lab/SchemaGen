@@ -129,3 +129,4 @@
 | 2026-07-04 21:32 | Claude | 7f2c7bea | [Claude] recognize: line tracer quality + palette (prompt 018-lines) |
 | 2026-07-04 21:52 | Cursor | cc831bb7 | [Cursor] fix: preview_lines uzywa progow z runtime + flaga --with-sieve |
 | 2026-07-04 21:56 | Cursor | 8e335b37 | [Cursor] fix: preview_lines --page p027 + resolve_page_id |
+| 2026-07-04 22:09 | Cursor | ac2c92db | [Cursor] fix: sito nie demotuje dlugich przewodow (szyna p027) + preview_lines OCR |
