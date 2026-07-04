@@ -70,6 +70,9 @@ def test_detect_filters_runtime_excluded_classes(tmp_path: Path, monkeypatch) ->
         lambda: frozenset({"urzadzenie"}),
     )
     assert det.detect(_write_image(tmp_path)) == []
+
+
+def test_detect_unknown_class_falls_back_to_id(tmp_path: Path) -> None:
     # 2 klasy w wyjsciu, brak mapy nazw -> class_name = str(id)
     det = OnnxSymbolDetector(model_path="fake.onnx", imgsz=640)  # pusty class_map
     output = np.array([[[320.0], [160.0], [100.0], [80.0], [0.1], [0.8]]], dtype=np.float32)
