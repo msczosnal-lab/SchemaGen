@@ -122,3 +122,4 @@
 | 2026-07-04 21:00 | Claude | 7b6f6e4a | [Claude] sync: prompt startowy Cursor — review 019 + zlecenie 018 |
 | 2026-07-04 20:54 | Claude | bb43bcfa | [Claude] sync: prompt startowy Cursor — review 019 + zlecenie 018 |
 | 2026-07-04 21:02 | Cursor | 87344ee4 | [Cursor] sync: review 019 + prompty 018-lines/018-terminals |
+| 2026-07-04 21:24 | Cursor | 287bb753 | [Cursor] sync: GT p027 strzałki+terminale komplet |
