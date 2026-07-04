@@ -1,0 +1,16 @@
+{
+  "best_weights": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_tiled_v1-2\\weights\\best.pt",
+  "save_dir": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\runs\\symbols_tiled_v1-2",
+  "epochs": 150,
+  "batch": 4,
+  "imgsz": 1536,
+  "model": "yolov8n.pt",
+  "augment": {
+    "fliplr": 0.0,
+    "flipud": 0.0,
+    "degrees": 0.0
+  },
+  "metrics": {
+    "map50": 0.52993367386896
+  }
+}
