@@ -120,10 +120,14 @@ def main() -> int:
         print("[BLAD] Brak stron.")
         return 1
 
+    min_len = 30 if args.legacy_hough else args.min_line_length
+    max_gap = 8 if args.legacy_hough else args.max_line_gap
+    hough_thr = 50 if args.legacy_hough else args.hough_threshold
+
     tracer = LineTracer(
-        min_line_length=args.min_line_length,
-        max_line_gap=args.max_line_gap,
-        hough_threshold=args.hough_threshold,
+        min_line_length=min_len,
+        max_line_gap=max_gap,
+        hough_threshold=hough_thr,
     )
     classifier = LineClassifier()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -140,6 +144,13 @@ def main() -> int:
         h, w = img.shape[:2]
         segments = tracer.trace(str(page))
         lines = classifier.classify(segments, image_size=(w, h))
+        roles_pre = Counter(l.role for l in lines)
+        if args.with_sieve:
+            from backend.recognize.pipeline import recognize_file
+
+            schema = recognize_file(str(page))
+            edge_tol = max(6.0, 0.004 * max(w, h))
+            lines = apply_sieve(lines, schema.components, [], edge_tol=edge_tol)
         roles = Counter(l.role for l in lines)
         groups = Counter(l.semantic_group for l in lines if l.semantic_group)
         total_segs += len(segments)
@@ -156,12 +167,14 @@ def main() -> int:
             "segments": len(segments),
             "lines": len(lines),
             "roles": dict(roles),
+            "roles_pre_sieve": dict(roles_pre) if args.with_sieve else None,
             "groups": dict(groups),
             "longest": max((s.length for s in segments), default=0),
         })
+        extra = f" pre_sieve={dict(roles_pre)}" if args.with_sieve else ""
         print(
             f"{page.stem}: seg={len(segments)} lines={len(lines)} "
-            f"roles={dict(roles)}"
+            f"roles={dict(roles)}{extra}"
         )
 
     legend = " ".join(
@@ -201,9 +214,11 @@ small,.muted{{color:#aaa}}
         "role_totals": dict(role_totals),
         "per_page": per_page,
         "params": {
-            "min_line_length": args.min_line_length,
-            "max_line_gap": args.max_line_gap,
-            "hough_threshold": args.hough_threshold,
+            "min_line_length": min_len,
+            "max_line_gap": max_gap,
+            "hough_threshold": hough_thr,
+            "legacy_hough": args.legacy_hough,
+            "with_sieve": args.with_sieve,
         },
     }
     (args.out / "index.html").write_text(html, encoding="utf-8")
