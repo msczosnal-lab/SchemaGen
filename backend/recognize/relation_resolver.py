@@ -15,13 +15,18 @@ import yaml
 
 from backend.class_map import tag_to_class
 from backend.geometry.row_layout import (
-    ContextAssignment,
+    ContextAssignment as RowContextAssignment,
     Row,
     assign_contextual,
     group_into_rows,
 )
 from backend.models.label import BboxAnnotation
-from backend.models.schema import Component, Connection, GraphicLine
+from backend.models.schema import (
+    Component,
+    Connection,
+    ContextAssignment,
+    GraphicLine,
+)
 from backend.paths import TRAIN_CLASSES
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.ocr_engine import TextDetection
@@ -123,8 +128,6 @@ class RelationResolver:
 
         context_assignments = self._runtime_context(components)
         return components, connections, potentials, context_assignments, annotations
-
-    # ------------------------------------------------------------------ tags
     def _assign_tags_overlap_and_instance(
         self,
         components: list[Component],
