@@ -118,7 +118,7 @@ Pliki: `backend/recognize/line_tracer.py`, `line_sieve.py` (drobiazg), `config/r
 
 1. **Hough dwuprzebiegowy albo domknięcie morfologiczne pod kółka węzłów:** przerwy 21–22 px to systematyczna cecha notacji (kółko węzła), nie szum. Opcje do decyzji w prompcie: (a) drugi przebieg Hough z `min_len≈0.008*max(W,H)` i `gap≈0.004*max(W,H)` tylko dla linii osiowych + scalanie; (b) `cv2.morphologyEx(CLOSE)` kernelem 1×25/25×1 przed Houghem na masce osiowej. Wariant C eksperymentu (min_len 66/gap 25) dał szynę 1535 px bez eksplozji szumu (171 segs vs 336 przy min_len 40) — dobry punkt startowy kalibracji.
 2. **`_merge_collinear`: `gap_tol` skalowany** z rozmiarem strony (`max(12, hough_gap*2.5)`), nie stała 12.
-3. **semantic-colors.yaml:** dodać `phase_wire` (czerwony, roles [wire]); rozdzielić stroke `enclosure` vs `pe_wire` (Filip potwierdza realne kolory z wydruku); [BŁĄD] rozważyć w `match_color` tie-break po roli/stylu zamiast kolejności dict + hint dla grup wielorolowych (enclosure→frame, nie wire).
+3. **semantic-colors.yaml** (zrewidowane po §7b): kalibracja niebieskiego — realny tusz ~#134088/#105090 vs `motor_device` #0066CC (dziś pusta grupa); rozdzielić stroke `enclosure` vs `pe_wire` (latent bug, nie objaw); tie-break w `match_color` po roli/stylu zamiast kolejności dict; hint dla grup wielorolowych (enclosure→frame, nie wire). Czerwieni NIE dodawać — brak takiego tuszu na stronach. Overlay: rozjaśnić kolory `preview_lines` (wire i frame to dziś dwie zielenie) — objaw „losowy czerwony/zielony" to flapping wire↔Connection w overlayu, znika po naprawie terminali/linii.
 4. Sprzątanie: martwy `"bus"` w preview_lines; `diag_lines.py` (read-only histogram kolor/rola/grupa).
 5. **NIE ruszać:** `EDGE_OVERLAP_MIN`, union-find, sito (poza pkt 4 nic w line_sieve).
 
@@ -168,13 +168,21 @@ Filip dostarczył surowy JSON detekcji (preview_detection, conf=0.25, tiled). Wn
 3. **p035 rozstrzygnięte (pytanie z §4.5 promptu):** `strzalka_wejsciowa` ×3 (x≈320, conf 0,39–0,45) to **czysty YOLO**, nie supplement. `wyjsciowa` ×1 conf 0,92 przy x=5980, y=381 — górna krawędź, więc `roi_top_frac` (ucina DÓŁ) jej nie zagraża. Obie klasy obecne raw → supplement na p035 również martwy.
 4. Wniosek do 018/retrain: FP na p027 i niski conf na p035 to jeden problem — konflikt etykiet glifów strzałek przy złączkach (findings H9e). Doznaczenie GT przed retrainem pozostaje warunkiem.
 
-**Nadal brakuje z main:** sekcje B (run-length szyny pełna skala), C (kolory/H5/Q1), E (GT terminale/Q2) — wymaga uruchomienia `python sync/analysis/019_diag_main.py`.
+### 7b. Pełny raport `019_diag_main.py` z main (2026-07-04) — wnioski końcowe
+
+**A/B — geometria potwierdzona w pełnej skali (H7 zamknięte):** strony 6617×4678; szyna p027 na y=2945: 61 segmentów tuszu (med. **73 px**, max 74), 55 przerw po **21–22 px** (kółka). Progi runtime: min_len=132 > 74, gap=10 < 21. **D:** pełnostronicowy trace daje **0 linii** w pasie listwy — szyna w 100% niewidoczna. Liczby z kafli potwierdzone co do piksela.
+
+**C — REINTERPRETACJA objawu „kolory czerwony/zielony losowe":** strony NIE zawierają czerwonego ani zielonego tuszu. Top kolory nasycone to wyłącznie niebieskie (#105090 ~65k px, #103050, #134088) + czerń + szarości. Zielony/czerwony, które widzi Filip, to **kolory overlayu**: `preview_schema.py:81-85` — zielony `_C_WIRE` = wykryta linia, czerwony `_C_CONN` = logiczne Connection; w `preview_lines.py` wire=(46,204,113) i frame=(0,170,68) to DWIE prawie identyczne zielenie [RYZYKO: demot sita niewidoczny na oku]. „Losowość" = flapping klasyfikacji roli/Connection między uruchomieniami/stronami (pochodna niestabilnych terminali i sita), NIE próbkowania koloru. **H5 ostatecznie odrzucona** (2 przebiegi identyczne, 0 różnic). **H4 zdegradowana**: kolizja `enclosure`/`pe_wire` i brak czerwieni to realne błędy kodu, ale NIE przyczyna zgłaszanego objawu — na tych stronach nie ma takiego tuszu. Nowy realny błąd palety: **niebieski tuszu ~#134088/#105090 nie łapie się do `motor_device` (#0066CC)** → linie niebieskie mają pustą grupę (4–6 szt./stronę, patrz „wire BEZ semantic_group"). Do 018-lines: kalibracja niebieskiego zamiast dodawania czerwieni; rozjaśnienie kolorów overlay (wire vs frame).
+
+**E — Q2 pozostaje decyzją, nie datą:** GT terminale prawie nieoznaczone: `złączka` 6/533 bboxów z terminalami (rozkład {1:3, 2:1, 3:2}), `mostek` {3:3} (potwierdza 3 stuby). Galeria wzorców klas musi powstać w workflow labelera (auto-derive → korekta → zapis wzorca) — nie da się jej dziś wyekstrahować z GT. Dodatkowo [RYZYKO]: duplikaty nazw klas w GT („terminal PLC" vs „terminal_plc", polskie etykiety „Strzałka potencjału (wejściowa)" vs klasy YOLO) — ujednolicić przed eksportem wzorców.
+
+**F — H9 zamknięte:** p040: supplement działa (0→2 wej, conf 0.99–1.00). p027: 15 FP `wyjsciowa` **wyłącza** supplement tej klasy; p035: obie klasy mają raw detekcje → supplement martwy na całej stronie. Fix `need` per-strona → per-region/próg conf, do wciśnięcia w 018-lines (3 linie) lub osobny mini-patch.
 
 ---
 
 ## Pytania do Filipa
 
-1. **Kolory realne na skanach:** jaki dokładnie kolor ma przewód „zielony" (PE?) i „czerwony" na p027/p035 — hex z pipety (2–3 próbki)? Bez tego kalibracja `semantic-colors.yaml` będzie zgadywana. Przykład poprawnej odpowiedzi: `PE: #00a844, fazowy: #e53935`.
-2. **Złączka p027 — ile terminali w GT?** Z tuszu wynika: 2 na osi szyny (L/P) + odczepy góra/dół do glifów strzałek. Czy odczep góra/dół to osobny terminal złączki, czy strzałka jest osobnym symbolem z własnym terminalem? Determinuje pattern `zlaczka` w terminal-patterns.yaml.
-3. **Glify strzałek przy złączkach p027:** doznaczyć jako klasa 7/8 w GT (przed ewentualnym retrainem), czy traktować jako część symbolu złączki? Obecny stan (nieoznaczone) psuje i recall, i FP.
-4. Czy `git status`/`pytest` na głównym PC czyste po tym commicie (patrz znalezisko 3.6 o artefaktach synchronizacji kopii ZW)?
+1. ~~Kolory hex z pipety~~ **ROZWIĄZANE danymi (§7b C):** brak czerwonego/zielonego tuszu, objaw = kolory overlayu. Pozostaje tylko: czy na INNYCH stronach projektu występują kolorowe przewody (PE itp.), czy cały projekt jest czarno-niebieski? Determinuje, czy grupy kolorowe w `semantic-colors.yaml` w ogóle rozwijać.
+2. **Złączka — pattern terminali (decyzja; GT puste: 6/533 z terminalami):** z tuszu wynika 2 na osi szyny (L/P) + odczepy góra/dół do glifów strzałek. Czy odczep góra/dół to osobny terminal złączki, czy strzałka jest osobnym symbolem z własnym terminalem? Determinuje `terminal-patterns.yaml`.
+3. **Glify strzałek przy złączkach p027:** doznaczyć jako klasa 7/8 w GT (przed retrainem), czy traktować jako część symbolu złączki? Obecny stan psuje i recall, i FP — a 15 FP wyłącza supplement (§7b F).
+4. Czy `git status`/`pytest` na głównym PC czyste (artefakty synchronizacji na ZW; plus duplikaty nazw klas GT „terminal PLC"/„terminal_plc" do ujednolicenia, §7b E)?

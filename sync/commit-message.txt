@@ -4,3 +4,5 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Claude] analysis: 019 final — raport diag z main, H7 potwierdzone, reinterpretacja kolorow (overlay)
+
