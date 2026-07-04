@@ -88,3 +88,4 @@
 | 2026-07-04 10:30 | Claude | e740db01 | [Claude] orient-classes.yaml: przywrocone 5 klas (mostek D4 + strzalki/cewka C4 + relay C2) |
 | 2026-07-04 14:19 | Claude | 3e517aec | [Claude] orient: tryb augment (1 klasa + kafelki-augmentacja, domyslny) obok split; mostek wykrywany jako 1 klasa, koniec rozrzedzania |
 | 2026-07-04 14:06 | Claude | 5ec67819 | [Claude] orient: tryb augment (1 klasa + kafelki-augmentacja, domyslny) obok split; mostek wykrywany jako 1 klasa, koniec rozrzedzania |
+| 2026-07-04 14:25 | Claude | b2febb60 | [Claude] tiling: train/tiled_export (okna) + detect_tiled (przesuwne okno runtime) + flaga yolo_tiled; --cache w train_symbols |

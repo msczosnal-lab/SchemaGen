@@ -1,1 +1,1 @@
-[Claude] tiling: train/tiled_export (okna) + detect_tiled (przesuwne okno runtime) + flaga yolo_tiled; --cache w train_symbols
+[Claude] tiling: tiled_export + detect_tiled + yolo_tiled + --cache; 50 passed
