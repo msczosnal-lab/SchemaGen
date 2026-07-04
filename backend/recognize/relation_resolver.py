@@ -125,7 +125,7 @@ class RelationResolver:
         return components, connections, potentials, context_assignments, annotations
 
     # ------------------------------------------------------------------ tags
-    def _assign_tags(
+    def _assign_tags_overlap_and_instance(
         self,
         components: list[Component],
         texts: list[TextDetection],
@@ -137,7 +137,6 @@ class RelationResolver:
         annotations: list[str] = []
         radius = _proximity_radius(proximity_frac, image_size)
 
-        # Pass 1: overlap
         for ti, t in enumerate(texts):
             best_i = -1
             best_overlap = 0.0
@@ -154,7 +153,6 @@ class RelationResolver:
                     annotations.append(t.text)
                 assigned.add(ti)
 
-        # Pass 2: proximity — instance tags first
         for ti, t in enumerate(texts):
             if ti in assigned:
                 continue
@@ -165,7 +163,20 @@ class RelationResolver:
                 components[best_i].tag = t.text.strip()
                 assigned.add(ti)
 
-        # Pass 3: proximity — any remaining text
+        return annotations
+
+    def _assign_tags_proximity_and_collect_annotations(
+        self,
+        components: list[Component],
+        texts: list[TextDetection],
+        assigned: set[int],
+        *,
+        proximity_frac: float,
+        image_size: tuple[int, int] | None,
+    ) -> list[str]:
+        annotations: list[str] = []
+        radius = _proximity_radius(proximity_frac, image_size)
+
         for ti, t in enumerate(texts):
             if ti in assigned:
                 continue
@@ -189,7 +200,7 @@ class RelationResolver:
         *,
         proximity_frac: float,
         image_size: tuple[int, int] | None,
-    ) -> list[Connection]:
+    ) -> tuple[list[Connection], set[int]]:
         if not connections or not texts:
             return connections
 
