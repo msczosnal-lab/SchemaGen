@@ -61,8 +61,18 @@ def runtime_settings() -> dict:
                 ],
                 "merge_potential_arrows_by_tag": True,
             },
+            "yolo_runtime_exclude_classes": [],
         },
     )
+
+
+@lru_cache(maxsize=1)
+def yolo_runtime_exclude_classes() -> frozenset[str]:
+    """Klasy odrzucane po inferencji YOLO (nie trafiaja do SchemaModel.components)."""
+    raw = runtime_settings().get("yolo_runtime_exclude_classes") or []
+    if isinstance(raw, list):
+        return frozenset(str(c) for c in raw if c)
+    return frozenset()
 
 
 _RELATIONS_DEFAULTS = {

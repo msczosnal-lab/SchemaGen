@@ -61,7 +61,15 @@ def test_detect_filters_low_confidence(tmp_path: Path) -> None:
     assert det.detect(_write_image(tmp_path), conf_threshold=0.25) == []
 
 
-def test_detect_unknown_class_falls_back_to_id(tmp_path: Path) -> None:
+def test_detect_filters_runtime_excluded_classes(tmp_path: Path, monkeypatch) -> None:
+    output = np.array([[[320.0], [160.0], [100.0], [80.0], [0.9]]], dtype=np.float32)
+    det = _detector_with_output(output)
+    det._id_to_name = {0: "urzadzenie"}
+    monkeypatch.setattr(
+        "backend.recognize.symbol_detector.yolo_runtime_exclude_classes",
+        lambda: frozenset({"urzadzenie"}),
+    )
+    assert det.detect(_write_image(tmp_path)) == []
     # 2 klasy w wyjsciu, brak mapy nazw -> class_name = str(id)
     det = OnnxSymbolDetector(model_path="fake.onnx", imgsz=640)  # pusty class_map
     output = np.array([[[320.0], [160.0], [100.0], [80.0], [0.1], [0.8]]], dtype=np.float32)

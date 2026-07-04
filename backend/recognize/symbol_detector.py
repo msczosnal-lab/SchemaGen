@@ -10,7 +10,7 @@ import numpy as np
 from backend.geometry.row_layout import dedup_detections_by_row
 from backend.ingest.image_utils import load_bgr
 from backend.models.detection import SymbolDetection
-from backend.runtime_config import yolo_conf_threshold, yolo_imgsz
+from backend.runtime_config import yolo_conf_threshold, yolo_imgsz, yolo_runtime_exclude_classes
 PROVIDERS = ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
 
@@ -131,8 +131,10 @@ class OnnxSymbolDetector:
         if conf_threshold is None:
             conf_threshold = yolo_conf_threshold()
         image = load_bgr(image_path)
-        return dedup_detections_by_row(
-            self._infer_bgr(image, conf_threshold, iou_threshold)
+        return self._filter_excluded(
+            dedup_detections_by_row(
+                self._infer_bgr(image, conf_threshold, iou_threshold)
+            )
         )
 
     def detect_tiled(
@@ -159,7 +161,15 @@ class OnnxSymbolDetector:
             return []
         boxes = [(d.x, d.y, d.width, d.height) for d in dets]
         keep = nms(boxes, [d.confidence for d in dets], iou_threshold)
-        return dedup_detections_by_row([dets[i] for i in keep])
+        return self._filter_excluded(
+            dedup_detections_by_row([dets[i] for i in keep])
+        )
+
+    def _filter_excluded(self, detections: list[SymbolDetection]) -> list[SymbolDetection]:
+        excluded = yolo_runtime_exclude_classes()
+        if not excluded:
+            return detections
+        return [d for d in detections if d.class_name not in excluded]
 
     def _infer_bgr(self, image, conf_threshold: float, iou_threshold: float):
         """Rdzen inferencji na tablicy BGR -> detekcje w pikselach TEJ tablicy."""
