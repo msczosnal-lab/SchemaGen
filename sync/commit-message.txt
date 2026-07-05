@@ -1,1 +1,6 @@
-﻿[Cursor] GT type z tagu w label_to_schema — diff components zgodny z YOLO
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+

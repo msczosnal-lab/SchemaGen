@@ -134,3 +134,4 @@
 | 2026-07-05 10:19 | Cursor | f01e204d | [Cursor] sync: sesja 2026-07-05 — sito p027, Start-Labeler, GT wejsciowe, plan loop jutro |
 | 2026-07-05 12:59 | Claude | 8aaa811e | [Claude] 020: diff score 0-100 + diff_lines + per-class + model_gaps + historia delta |
 | 2026-07-05 13:02 | Cursor | f5a2d46e | [Cursor] 020: diff score verified — baseline p027 16.56, p040 33.39 |
+| 2026-07-05 13:15 | Cursor | 24c2f85a | [Cursor] GT type z tagu w label_to_schema — diff components zgodny z YOLO |
