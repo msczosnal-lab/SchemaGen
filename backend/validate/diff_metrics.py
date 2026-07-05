@@ -30,6 +30,133 @@ def _norm_conn(c) -> tuple[str, str, str]:
     return (str(c.from_ref), str(c.to), str(getattr(c, "kind", "power")))
 
 
+def _parse_ref(ref: str) -> tuple[str, str | None]:
+    if ":" in ref:
+        sym, tid = ref.split(":", 1)
+        return sym, tid
+    return ref, None
+
+
+def _terminal_abs_xy(comp, term) -> tuple[float, float]:
+    if len(comp.bbox) < 4:
+        return (0.0, 0.0)
+    x1, y1, x2, y2 = comp.bbox[:4]
+    return (x1 + term.x * (x2 - x1), y1 + term.y * (y2 - y1))
+
+
+def _infer_page_size(gt_schema, runtime) -> tuple[int, int]:
+    max_x = max_y = 0.0
+    for c in list(gt_schema.components) + list(runtime.components):
+        if len(c.bbox) >= 4:
+            max_x = max(max_x, float(c.bbox[2]))
+            max_y = max(max_y, float(c.bbox[3]))
+    return (max(1, int(max_x)), max(1, int(max_y)))
+
+
+def _terminal_match_tol(size: tuple[int, int]) -> float:
+    """Tolerancja dopasowania terminali GT↔runtime (pattern_tol z runtime.yaml)."""
+    try:
+        from backend.runtime_config import (
+            terminal_tol_pattern_frac,
+            terminal_tol_pattern_min,
+        )
+
+        frac = terminal_tol_pattern_frac()
+        tmin = terminal_tol_pattern_min()
+    except Exception:
+        frac, tmin = 0.008, 8.0
+    w, h = size
+    return max(tmin, frac * max(w, h))
+
+
+def pair_components(
+    gt_schema,
+    runtime,
+    iou_threshold: float = 0.5,
+) -> dict:
+    """Parowanie komponentow GT↔runtime po IoU bbox (greedy malejaco, 1:1)."""
+    gt_boxes = [(c.id, c.bbox, c.type) for c in gt_schema.components]
+    rt_boxes = [(c.id, c.bbox, c.type) for c in runtime.components]
+
+    candidates: list[tuple[float, str, str]] = []
+    for gt_id, gt_bb, gt_type in gt_boxes:
+        for rt_id, rt_bb, rt_type in rt_boxes:
+            if gt_type and rt_type and gt_type != rt_type:
+                continue
+            iou = _bbox_iou(gt_bb, rt_bb)
+            if iou >= iou_threshold:
+                candidates.append((iou, gt_id, rt_id))
+
+    candidates.sort(key=lambda x: -x[0])
+    matched_gt: set[str] = set()
+    matched_rt: set[str] = set()
+    rt_to_gt: dict[str, str] = {}
+    pairs: list[dict] = []
+
+    for iou, gt_id, rt_id in candidates:
+        if gt_id in matched_gt or rt_id in matched_rt:
+            continue
+        matched_gt.add(gt_id)
+        matched_rt.add(rt_id)
+        rt_to_gt[rt_id] = gt_id
+        pairs.append({"gt": gt_id, "runtime": rt_id, "iou": round(iou, 3)})
+
+    return {
+        "rt_to_gt": rt_to_gt,
+        "gt_to_rt": {gt: rt for rt, gt in rt_to_gt.items()},
+        "pairs": pairs,
+        "matched_gt": matched_gt,
+        "matched_rt": matched_rt,
+        "only_gt": [g[0] for g in gt_boxes if g[0] not in matched_gt],
+        "only_runtime": [r[0] for r in rt_boxes if r[0] not in matched_rt],
+    }
+
+
+def _build_terminal_remap(gt_comp, rt_comp, tol: float) -> dict[str, str]:
+    """Mapuje id terminala runtime -> id terminala GT po pozycji absolutnej."""
+    candidates: list[tuple[float, str, str]] = []
+    for rt_t in rt_comp.terminals:
+        rt_xy = _terminal_abs_xy(rt_comp, rt_t)
+        for gt_t in gt_comp.terminals:
+            gt_xy = _terminal_abs_xy(gt_comp, gt_t)
+            dist = math.hypot(rt_xy[0] - gt_xy[0], rt_xy[1] - gt_xy[1])
+            if dist <= tol:
+                candidates.append((dist, rt_t.id, gt_t.id))
+
+    candidates.sort(key=lambda x: x[0])
+    used_gt: set[str] = set()
+    used_rt: set[str] = set()
+    remap: dict[str, str] = {}
+    for _dist, rt_id, gt_id in candidates:
+        if rt_id in used_rt or gt_id in used_gt:
+            continue
+        used_rt.add(rt_id)
+        used_gt.add(gt_id)
+        remap[rt_id] = gt_id
+    return remap
+
+
+def _remap_conn_ref(
+    ref: str,
+    rt_to_gt: dict[str, str],
+    terminal_remaps: dict[str, dict[str, str]],
+    gt_by_id: dict,
+) -> str | None:
+    sym_id, term_id = _parse_ref(ref)
+    if sym_id not in rt_to_gt:
+        return None
+    gt_sym = rt_to_gt[sym_id]
+    if term_id is None:
+        return gt_sym
+    tmap = terminal_remaps.get(sym_id, {})
+    if term_id in tmap:
+        return f"{gt_sym}:{tmap[term_id]}"
+    gt_comp = gt_by_id.get(gt_sym)
+    if gt_comp and any(t.id == term_id for t in gt_comp.terminals):
+        return f"{gt_sym}:{term_id}"
+    return None
+
+
 def _bbox_iou(a: list[float], b: list[float]) -> float:
     if len(a) < 4 or len(b) < 4:
         return 0.0
@@ -50,18 +177,50 @@ def _norm_tag(tag: str) -> str:
     return (tag or "").strip().upper().replace(" ", "")
 
 
-def diff_connections(gt_schema, runtime) -> dict:
+def diff_connections(
+    gt_schema,
+    runtime,
+    iou_threshold: float = 0.5,
+    terminal_tol: float | None = None,
+) -> dict:
+    """Porownanie connections po remapie id symboli (IoU) i terminali (pozycja)."""
+    pairing = pair_components(gt_schema, runtime, iou_threshold=iou_threshold)
+    rt_to_gt = pairing["rt_to_gt"]
+    gt_by_id = {c.id: c for c in gt_schema.components}
+    rt_by_id = {c.id: c for c in runtime.components}
+
+    if terminal_tol is None:
+        terminal_tol = _terminal_match_tol(_infer_page_size(gt_schema, runtime))
+
+    terminal_remaps: dict[str, dict[str, str]] = {}
+    for rt_id, gt_id in rt_to_gt.items():
+        terminal_remaps[rt_id] = _build_terminal_remap(
+            gt_by_id[gt_id], rt_by_id[rt_id], terminal_tol
+        )
+
     gt_conns = {_norm_conn(c) for c in gt_schema.connections}
-    rt_conns = {_norm_conn(c) for c in runtime.connections}
-    both = gt_conns & rt_conns
+    rt_remapped: set[tuple[str, str, str]] = set()
+    rt_unmapped: set[tuple[str, str, str]] = set()
+    for c in runtime.connections:
+        raw = _norm_conn(c)
+        from_gt = _remap_conn_ref(
+            raw[0], rt_to_gt, terminal_remaps, gt_by_id
+        )
+        to_gt = _remap_conn_ref(raw[1], rt_to_gt, terminal_remaps, gt_by_id)
+        if from_gt is None or to_gt is None:
+            rt_unmapped.append(raw) if False else rt_unmapped.add(raw)
+        else:
+            rt_remapped.add((from_gt, to_gt, raw[2]))
+
+    both = gt_conns & rt_remapped
     out = {
         "gt_count": len(gt_conns),
-        "runtime_count": len(rt_conns),
+        "runtime_count": len(runtime.connections),
         "match": len(both),
-        "only_gt": sorted(gt_conns - rt_conns),
-        "only_runtime": sorted(rt_conns - gt_conns),
+        "only_gt": sorted(gt_conns - rt_remapped),
+        "only_runtime": sorted(rt_unmapped | (rt_remapped - gt_conns)),
     }
-    out.update(_prf(len(both), len(gt_conns), len(rt_conns)))
+    out.update(_prf(len(both), len(gt_conns), len(runtime.connections)))
     return out
 
 
