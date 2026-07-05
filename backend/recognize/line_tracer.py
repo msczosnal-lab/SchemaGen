@@ -89,7 +89,73 @@ def _sample_color(bgr: np.ndarray, seg: tuple[int, int, int, int], samples: int 
     )
 
 
-def _merge_collinear(
+def _interval_gap(a: tuple[float, float], b: tuple[float, float]) -> float:
+    """Odleglosc miedzy przedzialami 1D (0 gdy nachodza)."""
+    return max(0.0, max(a[0], b[0]) - min(a[1], b[1]))
+
+
+def _merge_horizontal_rails(
+    segments: list[LineSegment],
+    *,
+    y_tol: float,
+    gap_tol: float,
+    axis_tol_deg: float = 6.0,
+) -> list[LineSegment]:
+    """Scala poziome fragmenty szyny przy roznej y (Hough pod kolkami wezlow).
+
+    Collinear merge laczy tylko konce blisko siebie; tu laczymy rownolegle odcinki
+    na tej samej wysokosci (+-y_tol) z przerwa <= gap_tol w osi x.
+    """
+    rest: list[LineSegment] = []
+    horiz: list[LineSegment] = []
+    for seg in segments:
+        if _is_axial(seg.x1, seg.y1, seg.x2, seg.y2, axis_tol_deg) and abs(seg.y1 - seg.y2) <= y_tol:
+            horiz.append(seg)
+        else:
+            rest.append(seg)
+    if not horiz:
+        return segments
+
+    def mean_y(s: LineSegment) -> float:
+        return (s.y1 + s.y2) / 2.0
+
+    def x_span(s: LineSegment) -> tuple[float, float]:
+        return (min(s.x1, s.x2), max(s.x1, s.x2))
+
+    horiz.sort(key=lambda s: (mean_y(s), x_span(s)[0]))
+    merged_h: list[LineSegment] = []
+    cur = horiz[0]
+    cur_span = x_span(cur)
+    cur_y = mean_y(cur)
+    colors = [cur.detected_color] if cur.detected_color else []
+
+    for seg in horiz[1:]:
+        span = x_span(seg)
+        my = mean_y(seg)
+        if abs(my - cur_y) <= y_tol and _interval_gap(cur_span, span) <= gap_tol:
+            cur_span = (min(cur_span[0], span[0]), max(cur_span[1], span[1]))
+            cur_y = (cur_y + my) / 2.0
+            if seg.detected_color:
+                colors.append(seg.detected_color)
+            continue
+        merged_h.append(
+            LineSegment(
+                cur_span[0], cur_y, cur_span[1], cur_y, detected_color=_dominant_color(colors)
+            )
+        )
+        cur = seg
+        cur_span = span
+        cur_y = my
+        colors = [seg.detected_color] if seg.detected_color else []
+
+    merged_h.append(
+        LineSegment(
+            cur_span[0], cur_y, cur_span[1], cur_y, detected_color=_dominant_color(colors)
+        )
+    )
+    return rest + merged_h
+
+
     segments: list[LineSegment],
     angle_tol_deg: float = 6.0,
     gap_tol: float = 12.0,
@@ -313,6 +379,13 @@ class LineTracer:
         # przerwy 21-22px szyny nie sklejaja fragmentow (findings 019 H1).
         gap_tol = max(12.0, float(merge_gap) * 2.5)
         merged = _merge_collinear(segments, gap_tol=gap_tol)
+        rail_y = float(cfg.get("rail_merge_y_tol", 8.0))
+        rail_gap_frac = float(cfg.get("rail_merge_gap_frac", 0.012))
+        rail_gap = max(24.0, rail_gap_frac * max(w, h))
+        axis_tol = float(cfg.get("bus_axis_tol_deg", BUS_AXIS_TOL_DEG))
+        merged = _merge_horizontal_rails(
+            merged, y_tol=rail_y, gap_tol=rail_gap, axis_tol_deg=axis_tol
+        )
         # Po scaleniu probkuj kolor ponownie wzdluz finalnej geometrii — odporne
         # na to, ze czesc surowych segmentow Hougha lezy na krawedzi (tlo).
         for seg in merged:
