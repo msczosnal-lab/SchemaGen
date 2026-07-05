@@ -141,3 +141,4 @@
 | 2026-07-05 13:57 | Cursor | f9cc1a6d | [Cursor] sync: GT linie p027 relabeled — baseline score 48.42 |
 | 2026-07-05 13:57 | Cursor | e4cda384 | [Cursor] sync: GT linie p027 relabeled — baseline score 48.42 |
 | 2026-07-05 14:03 | Cursor | 086ddcf3 | [Cursor] loop 021 it2: yolo conf 0.20 — p027 49.44, p040 45.30 |
+| 2026-07-05 14:03 | Cursor | 37b1cfa2 | [Cursor] loop 021 it2: yolo conf 0.20 — p027 49.44, p040 45.30 |
