@@ -151,6 +151,7 @@ def component_type_from_bbox(class_name: str, tag: str) -> str:
     return tag_to_class(tag) or class_name or "element"
 
 
+def tag_to_class(
     tag: str,
     palette_map: dict[str, str] | None = None,
     group_map: dict[str, str] | None = None,
