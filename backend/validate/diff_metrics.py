@@ -200,7 +200,7 @@ def diff_connections(
 
     gt_conns = {_norm_conn(c) for c in gt_schema.connections}
     rt_remapped: set[tuple[str, str, str]] = set()
-    rt_unmapped: set[tuple[str, str, str]] = set()
+    rt_only: set[tuple[str, str, str]] = set()
     for c in runtime.connections:
         raw = _norm_conn(c)
         from_gt = _remap_conn_ref(
@@ -208,9 +208,12 @@ def diff_connections(
         )
         to_gt = _remap_conn_ref(raw[1], rt_to_gt, terminal_remaps, gt_by_id)
         if from_gt is None or to_gt is None:
-            rt_unmapped.append(raw) if False else rt_unmapped.add(raw)
-        else:
-            rt_remapped.add((from_gt, to_gt, raw[2]))
+            rt_only.add(raw)
+            continue
+        remapped = (from_gt, to_gt, raw[2])
+        rt_remapped.add(remapped)
+        if remapped not in gt_conns:
+            rt_only.add(remapped)
 
     both = gt_conns & rt_remapped
     out = {
@@ -218,7 +221,7 @@ def diff_connections(
         "runtime_count": len(runtime.connections),
         "match": len(both),
         "only_gt": sorted(gt_conns - rt_remapped),
-        "only_runtime": sorted(rt_unmapped | (rt_remapped - gt_conns)),
+        "only_runtime": sorted(rt_only),
     }
     out.update(_prf(len(both), len(gt_conns), len(runtime.connections)))
     return out
