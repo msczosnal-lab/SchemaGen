@@ -32,7 +32,7 @@ terminal_tol_min: 12.0
 #   hough_min_len_frac (np. 0.025-0.03). Gubi cienkie/przerywane wire -> obniz (0.015).
 # Efektywne: min_line_length = max(min_len_floor, min_len_frac*max), hough_threshold =
 # max(hough_floor, min_line_length), max_line_gap = max(gap_floor, gap_frac*max).
-hough_min_len_frac: 0.021
+hough_min_len_frac: 0.02
 hough_gap_frac: 0.0015
 hough_min_len_floor: 20
 hough_threshold_floor: 50
