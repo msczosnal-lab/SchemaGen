@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] diff: remap ID symboli/terminali w diff_connections (022 krok 0)
