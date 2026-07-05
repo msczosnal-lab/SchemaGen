@@ -9,7 +9,6 @@ from backend.recognize.line_tracer import (
     auto_line_params,
     _is_axial,
     _merge_collinear,
-    _merge_horizontal_rails,
 )
 
 
@@ -101,15 +100,6 @@ def test_is_axial() -> None:
     assert _is_axial(0, 0, 100, 0, 6.0)      # poziom
     assert _is_axial(0, 0, 0, 100, 6.0)      # pion
     assert not _is_axial(0, 0, 100, 100, 6.0)  # 45 stopni
-
-
-def test_merge_horizontal_rails_stitches_y_offset_gaps() -> None:
-    # Dwa poziome odcinki tej samej szyny: rozna y (kolka wezlow), przerwa w x.
-    a = LineSegment(100, 2950, 400, 2954)
-    b = LineSegment(430, 2956, 800, 2958)
-    merged = _merge_horizontal_rails([a, b], y_tol=8, gap_tol=50)
-    assert len(merged) == 1
-    assert merged[0].length >= 690
 
 
 def test_second_pass_recovers_bus_rail() -> None:

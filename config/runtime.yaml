@@ -49,9 +49,6 @@ hough_second_pass: true
 hough_bus_min_len_frac: 0.01
 hough_bus_gap_frac: 0.004
 hough_bus_axis_tol_deg: 6.0
-# Scalanie poziomych szyn: fragmenty przy roznej y (Hough pod kolkami) -> jedna szyna.
-hough_rail_merge_y_tol: 8
-hough_rail_merge_gap_frac: 0.012
 
 # Strict: Connection powstaje TYLKO gdy oba konce trafiaja w terminal (adres comp:terminal).
 # true  -> znikaja falszywe polaczenia 'od srodka symbolu' i bledne terminale; ryzyko: symbol
