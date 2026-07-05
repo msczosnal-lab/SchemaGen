@@ -1,0 +1,24 @@
+# Wzorce terminali per klasa symbolu (prompt 018-terminals).
+# Pozycja = edge + frac wzgledem bbox (0..1). required=true -> zawsze tworzony.
+version: 1
+classes:
+  zlaczka:
+    method: line-contact
+    expected:
+      - {edge: left, frac: 0.5, required: true}
+      - {edge: right, frac: 0.5, required: true}
+      - {edge: top, frac: 0.5, required: false}
+      - {edge: bottom, frac: 0.5, required: false}
+    frac_tol: 0.15
+  mostek:
+    method: delegate
+  strzalka_potencjalu_wejsciowa:
+    method: line-contact
+    expected:
+      - {edge: bottom, frac: 0.5, required: true}
+    frac_tol: 0.2
+  strzalka_potencjalu_wyjsciowa:
+    method: line-contact
+    expected:
+      - {edge: bottom, frac: 0.5, required: true}
+    frac_tol: 0.2
