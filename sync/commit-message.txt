@@ -1,1 +1,6 @@
-﻿[Cursor] loop 021 it2: yolo conf 0.20 — p027 49.44, p040 45.30
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
