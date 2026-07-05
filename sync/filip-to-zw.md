@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-07-05 [Filip] — GT p027: strzałki wejściowe doznaczone
+
+**Status:** w labelerze oznaczone **strzałki potencjału wejściowe** (wcześniej brak w GT — runtime 0× `wejsciowa` na p027).
+
+| Co | DB `p027` (po zapisie) |
+|----|------------------------|
+| `Strzałka potencjału (wejściowa)` | **4** |
+| `Strzałka potencjału (wyjściowa)` | 80 |
+| `złączka` | 56 |
+| `mostek` | 9 |
+
+**Następny krok danych:** eksport w labelerze → `dataset_export` → retrain YOLO (klasa 7 była rzadka w `labeled_tiled`). Po nowym ONNX: `preview_schema.py --page p027 --source both` / `diff_gt_runtime.py`.
+
+**Runtime:** recall `wejsciowa` nadal wymaga nowego modelu; `arrow_supplement` nie pomoże, jeśli raw YOLO da choć jedną detekcję wyjściową na stronie (H9b).
+
+**Jutro:** loop w Cursorze (`/loop 20m` lub dynamiczny na commit-log) — `diff_gt_runtime` + `preview_schema --source runtime` na p027; regresja p040. GT = wzorzec, poprawiamy runtime.
+
+---
+
 ## 2026-07-04 [Cursor] — 018-lines DONE: pytest 226 passed, smoke p027/p040 = Filip
 
 **Kod Claude zaakceptowany po review** (szczegóły w `zw-to-filip.md`). Na PC Filip: `pytest` → **226 passed**.
