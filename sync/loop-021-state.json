@@ -1,9 +1,13 @@
 {
   "started": "2026-07-05T13:45:00",
-  "score_start_p027": 48.42,
-  "score_current_p027": 48.42,
-  "iteration": 0,
-  "accepted_changes": [],
-  "plateau_streak": 0,
-  "note": "GT lines relabeled p027 (2026-07-05): 96 wire, 0 bus; was 93 lines / 2 bus"
+  "score_start_p027": 48.50,
+  "score_current_p027": 49.44,
+  "iteration": 2,
+  "accepted_changes": [
+    "it2: yolo_conf_threshold 0.25->0.20 (config/runtime.yaml) | 48.45->49.44 | bbox 82->86/155"
+  ],
+  "reverted": [
+    "it1: _merge_horizontal_rails (line_tracer) | 48.45->48.42 | COFNIETE per loop (delta score <=0 vs 48.50; lines R +15pp ale SCORE -0.08)"
+  ],
+  "plateau_streak": 0
 }
