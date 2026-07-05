@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-07-05 [Cursor] — fix: typ GT z `tag` (diff components zgodny z YOLO)
+
+**Problem:** `label_to_schema` używał `class_name` (= `element` dla wszystkich bboxów labelera). Runtime YOLO ma kanoniczne id (`zlaczka`, `mostek`…). Diff wymaga zgodności typu → **0/154** mimo IoU≥0.5 u 82 bboxów.
+
+**Fix:** `component_type_from_bbox()` (`class_map.py`) — gdy `class_name==element`, typ z `tag_to_class(tag)`. Podpięte w `label_to_schema`.
+
+| Strona | SCORE (po fix) | bbox match |
+|--------|----------------|------------|
+| **p027** | **48.50** | **82/154** |
+| p040 | do ponownego smoke | — |
+
+`[MODEL]` gaps p027: `strzalka_potencjalu_wejsciowa` (4 GT, 0 RT), `zwarta_listwa_zlaczek` (2 GT, contextual).
+
+pytest: **193 passed** (+2 nowe).
+
+Commit pending: `[Cursor] GT type z tagu w label_to_schema — diff components zgodny z YOLO`
+
+---
+
 ## 2026-07-05 [Cursor] — 020-diff-score DONE: weryfikacja + score bazowy
 
 **Status:** commit `45f8cf7b` **[Claude] 020: diff score 0-100…** — **zaakceptowany** po review i smoke na PC Filip (`.venv311`).
