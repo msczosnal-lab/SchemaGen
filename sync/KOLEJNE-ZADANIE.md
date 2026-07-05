@@ -6,7 +6,7 @@
 
 ---
 
-## Stan (2026-07-04) — 018-lines DONE, 018-terminals następne
+## Stan (2026-07-05) — zmiana kierunku: GT = graf jawny (labeler v2)
 
 | Prompt / kamień | Status |
 |-----------------|--------|
@@ -17,8 +17,10 @@
 | **015-relations-layer** | ✅ DONE — RelationResolver |
 | **019-fable5-terminals-lines** | ✅ DONE — analiza; findings zaakceptowane |
 | **018-lines-quality** | ✅ DONE — drugi przebieg Hough, paleta, diag_lines (**226 pytest**) |
-| **018-terminals-strategy** | 🔵 **AKTYWNE** (Claude) — TerminalResolver + węzły-na-ścieżce |
-| **016-e2e-metrics** | ⏳ KOLEJKA — po smoke Filipa |
+| **018-terminals-strategy** | ⏸ WSTRZYMANE — reguły terminali (wzorce klas) wchłania 022/023 |
+| **022-labeler-graph-v2** | 🔵 **AKTYWNE** (Claude) — GT jako graf OD-DO + remap ID w diff |
+| **023-runtime-graph-alignment** | ⏳ KOLEJKA — GraphBuilder emituje ten sam graf |
+| **016-e2e-metrics** | ⏳ KOLEJKA |
 | **Harness walidacji** | ✅ `preview_schema.py`, `diff_gt_runtime.py`, `eval_val_pages.py` |
 
 **Findings:** [`sync/analysis/019-terminals-lines-findings.md`](analysis/019-terminals-lines-findings.md) (+ Poprawka runda 1)
@@ -27,13 +29,20 @@
 
 ---
 
-## Aktywne zadanie — Claude (018-terminals-strategy)
+## Aktywne zadanie — Claude (022-labeler-graph-v2)
 
 | Pole | Wartość |
 |------|---------|
-| **Prompt** | [`sync/prompts/018-terminals-strategy.md`](prompts/018-terminals-strategy.md) |
-| **Cel** | TerminalResolver + terminal-patterns.yaml + `_nodes_on_net` (węzły na ścieżce) + labeler „zapisz wzorzec klasy" + rozdzielenie terminal_tol |
-| **Zależność** | 018-lines-quality ✅ |
+| **Prompt** | [`sync/prompts/022-labeler-graph-v2.md`](prompts/022-labeler-graph-v2.md) |
+| **Cel** | Krok 0: remap ID w diff_metrics; SchematicGraph (bbox + terminale na obrysie + linie OD-DO); kompilacja → SchemaModel; labeler 2 tryby + prefill; migrator v1 |
+| **Decyzja domenowa** | Bez junction — złączka do 4 terminali (left/right zwarte `link`, top/bottom odczepy); linia zawsze terminal→terminal |
+| **Zależność** | 018-lines-quality ✅; wzorce terminali z 018-terminals (koncepcja) |
+
+---
+
+## ~~Aktywne zadanie — Claude (018-terminals-strategy)~~ WSTRZYMANE 2026-07-05
+
+Decyzja Filipa: przebudowa GT na graf jawny (022) przed dalszymi heurystykami runtime. TerminalResolver/węzły-na-ścieżce wchodzą do 023-runtime-graph-alignment.
 
 ---
 
