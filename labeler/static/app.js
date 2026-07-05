@@ -2151,6 +2151,9 @@ document.getElementById("term-auto")?.addEventListener("click", () => {
 });
 document.getElementById("term-undo")?.addEventListener("click", removeLastTerminal);
 document.getElementById("term-clear")?.addEventListener("click", clearTerminals);
+document.getElementById("term-save-pattern")?.addEventListener("click", () => {
+  CropReview?.saveTerminalPattern();
+});
 document.getElementById("term-prev")?.addEventListener("click", () => iterateBbox(-1));
 document.getElementById("term-next")?.addEventListener("click", () => iterateBbox(1));
 document.getElementById("review-prev")?.addEventListener("click", () => CropReview?.reviewStep(-1));

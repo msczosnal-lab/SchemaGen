@@ -12,6 +12,31 @@
   let reviewQueue = [];
   let reviewKind = null; // 'terminal' | 'bbox' | 'connection'
   let pageTerminalsDerived = false;
+  let terminalCfg = null;
+
+  async function loadTerminalCfg() {
+    if (terminalCfg) return terminalCfg;
+    try {
+      terminalCfg = await fetchJson("/api/terminal-config");
+    } catch {
+      terminalCfg = { contact_tol_frac: 0.012, contact_tol_min: 12, merge_tol_cap: 15 };
+    }
+    return terminalCfg;
+  }
+
+  function terminalTol() {
+    const { w, h } = imgSize();
+    const big = Math.max(w, h);
+    if (terminalCfg) {
+      return Math.max(terminalCfg.contact_tol_min, terminalCfg.contact_tol_frac * big);
+    }
+    return Math.max(12, 0.012 * big);
+  }
+
+  function mergeTol(contactTol) {
+    const cap = terminalCfg?.merge_tol_cap ?? 15;
+    return Math.min(contactTol, cap);
+  }
 
   function imgSize() {
     return {
@@ -93,17 +118,13 @@
     return idx >= 0 ? { b: bboxes[idx], idx } : null;
   }
 
-  function terminalTol() {
-    const { w, h } = imgSize();
-    return Math.max(12, 0.012 * Math.max(w, h));
-  }
-
   async function deriveTerminalsForPage() {
     if (!lines.length) {
       saveStatusEl.textContent =
         "Brak linii — zaimportuj draft (Import draft) lub narysuj linie (L) i Zapisz";
       return false;
     }
+    await loadTerminalCfg();
     const tol = terminalTol();
     try {
       const res = await fetchJson("/api/derive-terminals-page", {
@@ -119,6 +140,7 @@
             role: l.role === "bus" ? "wire" : l.role || "wire",
           })),
           tol,
+          merge_tol: mergeTol(tol),
         }),
       });
       const results = res.results || {};
@@ -305,8 +327,35 @@
 
   async function enterTerminalMode() {
     hideLinesReview = true;
+    await loadTerminalCfg();
     if (!pageTerminalsDerived) await deriveTerminalsForPage();
     startReviewQueue("terminal");
+  }
+
+  async function saveTerminalPattern() {
+    const b = bboxes[selectedIdx];
+    if (!b || !currentPageId) {
+      saveStatusEl.textContent = "Wybierz bbox i stronę (tryb terminale)";
+      return;
+    }
+    if (!(b.terminals || []).length) {
+      saveStatusEl.textContent = "Bbox bez terminali — popraw GT przed zapisem wzorca";
+      return;
+    }
+    try {
+      const res = await fetchJson("/api/save-terminal-pattern", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          page_id: currentPageId,
+          bbox_id: b.id,
+        }),
+      });
+      saveStatusEl.textContent =
+        `Wzorzec ${res.class_name}: ${res.sample_count} bbox → ${(res.pattern?.expected || []).length} slotów`;
+    } catch (err) {
+      saveStatusEl.textContent = "Zapis wzorca: " + err.message;
+    }
   }
 
   function exitCropModes() {
@@ -387,6 +436,8 @@
     enterTerminalMode,
     exitCropModes,
     deriveTerminalsForPage,
+    saveTerminalPattern,
+    loadTerminalCfg,
     startReviewQueue,
     reviewStep,
     acceptReviewItem,
@@ -394,6 +445,7 @@
     importRuntimeDraft,
     onPageChange() {
       pageTerminalsDerived = false;
+      terminalCfg = null;
       exitCropModes();
     },
   };

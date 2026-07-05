@@ -80,6 +80,9 @@ def rebuild_connections_from_gt(schema, size):
 # Kolory BGR
 _C_WIRE = (40, 200, 40)      # zielony — wykryty przewod
 _C_BUS = (220, 120, 0)       # niebieski — szyna (deprecated, gdyby byl)
+_C_OTHER = (160, 160, 160)   # szary — odrzucony artefakt
+_C_FRAME = (200, 100, 200)   # fiolet — obramowka bbox
+_C_DASH = (180, 180, 60)     # oliwkowy — linia przerywana
 _C_BBOX = (0, 150, 255)      # pomaranczowy — bbox symbolu
 _C_TERM = (0, 215, 255)      # zolty — terminal
 _C_CONN = (40, 40, 230)      # czerwony — logiczne polaczenie (Connection)
@@ -148,14 +151,22 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
     white = np.full_like(img, 255)
     out = cv2.addWeighted(img, 0.30, white, 0.70, 0)
 
-    # 1) Wszystkie wykryte przewody (kandydaci) — zielony/niebieski wg roli
+    # 1) Linie graficzne wg roli — wire/bus + odrzucone artefakty
+    _ROLE_COLORS = {
+        "wire": _C_WIRE,
+        "bus": _C_BUS,
+        "other": _C_OTHER,
+        "frame": _C_FRAME,
+        "dash": _C_DASH,
+    }
     for ln in schema.graphic_lines:
-        if ln.role not in ("wire", "bus"):
+        color = _ROLE_COLORS.get(ln.role)
+        if color is None:
             continue
         pts = np.array(ln.points, dtype=np.int32)
         if len(pts) >= 2:
-            color = _C_BUS if ln.role == "bus" else _C_WIRE
-            cv2.polylines(out, [pts], False, color, 2, cv2.LINE_AA)
+            thick = 2 if ln.role in ("wire", "bus") else 1
+            cv2.polylines(out, [pts], False, color, thick, cv2.LINE_AA)
 
     # 2) TRASOWANIE: przewody netu, ktory dal Connection -> czerwony PO realnej sciezce
     nets = _connected_nets(schema, size)
@@ -188,13 +199,18 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
             cv2.putText(out, str(t.id), (ax + 8, ay - 6),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
 
-    # 4) Naglowek + legenda + licznik
-    n_cand = sum(1 for l in schema.graphic_lines if l.role in ("wire", "bus"))
+    # 4) Naglowek + legenda + liczniki
+    n_wire = sum(1 for l in schema.graphic_lines if l.role == "wire")
+    n_bus = sum(1 for l in schema.graphic_lines if l.role == "bus")
+    n_other = sum(1 for l in schema.graphic_lines if l.role == "other")
+    n_frame = sum(1 for l in schema.graphic_lines if l.role == "frame")
+    n_dash = sum(1 for l in schema.graphic_lines if l.role == "dash")
     cv2.putText(out, title, (10, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (200, 0, 0), 2)
     legend = [
-        (f"connections: {len(schema.connections)} (czerwony = trasa netu)", _C_CONN),
-        (f"wire/bus linie: {n_cand}", _C_WIRE),
-        (f"symbole: {len(schema.components)}", _C_BBOX),
+        (f"components: {len(schema.components)}", _C_BBOX),
+        (f"wire: {n_wire} | bus: {n_bus}", _C_WIRE),
+        (f"other: {n_other} | frame: {n_frame} | dash: {n_dash}", _C_OTHER),
+        (f"connections: {len(schema.connections)} | potentials: {len(schema.potentials)}", _C_CONN),
         ("terminale (zolte z id)", _C_TERM),
     ]
     for i, (txt, col) in enumerate(legend):
@@ -277,7 +293,12 @@ def main() -> int:
                 {
                     "components": len(schema.components),
                     "graphic_lines": len(schema.graphic_lines),
+                    "wire": sum(1 for l in schema.graphic_lines if l.role == "wire"),
+                    "other": sum(1 for l in schema.graphic_lines if l.role == "other"),
+                    "frame": sum(1 for l in schema.graphic_lines if l.role == "frame"),
+                    "dash": sum(1 for l in schema.graphic_lines if l.role == "dash"),
                     "connections": len(schema.connections),
+                    "potentials": len(schema.potentials),
                 },
                 indent=2,
             ),

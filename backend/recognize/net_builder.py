@@ -20,6 +20,18 @@ from backend.recognize.line_classifier import LineClassifier
 
 # semantic_group -> ConnectionKind (PE wykrywany po nazwie grupy)
 _PE_GROUPS = frozenset({"pe", "pe_wire", "ground", "earth"})
+_JOIN_ANGLE_TOL_DEG = 8.0
+
+
+def _hough_wire_cfg() -> dict:
+    try:
+        from backend.runtime_config import hough_params
+        return hough_params()
+    except Exception:
+        return {
+            "wire_join_orthogonal_only": True,
+            "wire_join_angle_tol_deg": _JOIN_ANGLE_TOL_DEG,
+        }
 
 
 def build_connections(
@@ -105,19 +117,70 @@ def _lines_joined(
     components: list[Component] | None = None,
     node_tol: float = 0.0,
 ) -> bool:
-    """True gdy KONIEC jednej linii lezy na sciezce drugiej (zalamanie/odczep w wolnej przestrzeni).
+    """True gdy KONIEC jednej linii lezy na sciezce drugiej (zalamanie 90 / odczep T).
 
     NIE scalamy, gdy styk wypada na wezle (terminal/komponent) — terminal to granica, na
     ktorej przewody sie KONCZA, a nie przechodza. Dwa przewody na tej samej zlaczce = dwa
     polaczenia do niej, nie jeden net (regula 'jedna linia != dwa polaczenia').
+
+    Schemat elektryczny: zlaczenia tylko pod katem prostym (h+v) lub kolinearne (przedluzenie).
     """
+    cfg = _hough_wire_cfg()
+    ortho_only = bool(cfg.get("wire_join_orthogonal_only", True))
+    angle_tol = float(cfg.get("wire_join_angle_tol_deg", _JOIN_ANGLE_TOL_DEG))
     for ep in (a.points[0], a.points[-1]):
         if _endpoint_touches(ep, b, tol) and not _point_at_node(ep, components, node_tol):
-            return True
+            if not ortho_only or _orthogonal_join_at(a, b, ep, tol, angle_tol):
+                return True
     for ep in (b.points[0], b.points[-1]):
         if _endpoint_touches(ep, a, tol) and not _point_at_node(ep, components, node_tol):
-            return True
+            if not ortho_only or _orthogonal_join_at(a, b, ep, tol, angle_tol):
+                return True
     return False
+
+
+def _segment_orientation(
+    line: GraphicLine, *, axis_tol: float = 1.0
+) -> str | None:
+    """'h' / 'v' / None — segment osiowy (poziom/pion)."""
+    if len(line.points) < 2:
+        return None
+    p, q = line.points[0], line.points[-1]
+    dx, dy = abs(q[0] - p[0]), abs(q[1] - p[1])
+    if dy <= axis_tol and dx > axis_tol:
+        return "h"
+    if dx <= axis_tol and dy > axis_tol:
+        return "v"
+    return None
+
+
+def _orthogonal_join_at(
+    a: GraphicLine,
+    b: GraphicLine,
+    junction: list[float],
+    join_tol: float,
+    angle_tol_deg: float,
+) -> bool:
+    """True gdy zlaczenie w `junction` jest osiowe: h+v (90°) lub kolinearne (przedluzenie)."""
+    oa = _segment_orientation(a, axis_tol=join_tol * 0.1)
+    ob = _segment_orientation(b, axis_tol=join_tol * 0.1)
+    if oa is None or ob is None:
+        return False
+    if oa != ob:
+        return True  # poziom + pion = kat prosty
+    return _collinear_same_axis(a, b, oa, join_tol)
+
+
+def _collinear_same_axis(
+    a: GraphicLine, b: GraphicLine, axis: str, tol: float
+) -> bool:
+    """Dwie rownolegle osiowe linie na tej samej osi (przedluzenie / T na szynie)."""
+    pts = a.points + b.points
+    if axis == "h":
+        ys = [p[1] for p in pts]
+        return max(ys) - min(ys) <= tol
+    xs = [p[0] for p in pts]
+    return max(xs) - min(xs) <= tol
 
 
 def _point_at_node(
@@ -165,7 +228,32 @@ def _nodes_on_net(
             if res is not None:
                 node_id, comp_id = res
                 nodes[node_id] = comp_id
+        # Terminale lezace NA sciezce linii (szyna przez rzad zlaczek), nie tylko na koncach
+        for c in components:
+            if not c.terminals or len(c.bbox) < 4:
+                continue
+            x1, y1, x2, y2 = c.bbox[0], c.bbox[1], c.bbox[2], c.bbox[3]
+            w = (x2 - x1) or 1.0
+            h = (y2 - y1) or 1.0
+            for t in c.terminals:
+                ax = x1 + t.x * w
+                ay = y1 + t.y * h
+                pt = [ax, ay]
+                if _point_on_line_path(pt, line, tol):
+                    node_id = f"{c.id}:{t.id}"
+                    nodes[node_id] = c.id
     return nodes
+
+
+def _point_on_line_path(point: list[float], line: GraphicLine, tol: float) -> bool:
+    """True gdy punkt lezy na dowolnym odcinku polilinii (w granicach tol)."""
+    pts = line.points
+    if len(pts) < 2:
+        return False
+    for i in range(len(pts) - 1):
+        if _pt_seg_dist(point, pts[i], pts[i + 1]) <= tol:
+            return True
+    return False
 
 
 def _resolve_node(
@@ -198,39 +286,16 @@ def derive_auto_terminals(
     *,
     merge_tol: float | None = None,
 ) -> list[Terminal]:
-    """Auto-zaciski z punktow, gdzie koniec linii wire dotyka krawedzi bboxa.
+    """Terminale TYLKO na przecieciu wire z krawedzia bbox (nie nominalnie na bbox)."""
+    from backend.recognize.terminal_geometry import (
+        contacts_to_terminals,
+        line_bbox_edge_contacts,
+    )
 
-    Filip: 'terminal jest tam, gdzie linia wychodzi w krawedz bboxa'. Kontakty
-    przyciagane do krawedzi (rel 0..1), deduplikowane, numerowane 1,2,3...
-
-    `tol` = jak blisko bbox musi byc koniec linii; `merge_tol` = deduplikacja
-    sasiednich stubow (domyslnie min(tol, 15) — duzy tol strony nie moze scalac
-    kilku terminali listwy/mostka w jeden).
-    """
-    b = component.bbox
-    if len(b) < 4:
-        return []
-    dedup = merge_tol if merge_tol is not None else min(tol, 15.0)
-    contacts: list[tuple[float, float]] = []  # bezwzgledne punkty kontaktu
-    for ln in lines:
-        if not LineClassifier.is_connection_candidate(ln) or len(ln.points) < 2:
-            continue
-        for ep in (ln.points[0], ln.points[-1]):
-            if _point_bbox_dist(ep, b) <= tol:
-                snapped = _snap_to_edge_abs(ep, b)
-                if not any(
-                    math.hypot(snapped[0] - c[0], snapped[1] - c[1]) <= dedup
-                    for c in contacts
-                ):
-                    contacts.append(snapped)
-    x1, y1, x2, y2 = b[0], b[1], b[2], b[3]
-    w = (x2 - x1) or 1.0
-    h = (y2 - y1) or 1.0
-    contacts.sort(key=lambda p: (round(p[1], 1), round(p[0], 1)))
-    out: list[Terminal] = []
-    for i, (ax, ay) in enumerate(contacts):
-        out.append(Terminal(id=str(i + 1), x=round((ax - x1) / w, 4), y=round((ay - y1) / h, 4)))
-    return out
+    contacts = line_bbox_edge_contacts(
+        component, lines, tol, merge_tol=merge_tol
+    )
+    return contacts_to_terminals(component, contacts)
 
 
 def _snap_to_edge_abs(point: list[float], b: list[float]) -> tuple[float, float]:

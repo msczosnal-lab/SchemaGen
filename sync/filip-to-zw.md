@@ -4,6 +4,54 @@
 
 ---
 
+## 2026-07-05 [Cursor] — terminale: geometria + labeler wzorzec klasy
+
+**Reguły terminali (Filip):**
+1. Runtime: tylko przecięcie wire ∩ krawędź bbox (`terminal_geometry.py`)
+2. GT: tusz na obwodzie cropa (jak mostek) — nauka wzorca per klasa
+3. Wire ortho + terminal-gate (wcześniej)
+
+**Labeler (krok 4 prompt 018):**
+- `GET /api/terminal-config` — progi z `runtime.yaml` (bez driftu JS)
+- `POST /api/save-terminal-pattern` — uśrednia GT terminali strony → `terminal-patterns.yaml`
+- Przycisk **💾 Wzorzec klasy** w trybie terminale
+- `derive-terminals` + `merge_tol`
+
+**pytest:** 210 passed
+
+Commit pending: `[Cursor] labeler: save-terminal-pattern + terminal-config API`
+
+---
+
+## 2026-07-05 [Cursor] — plan SchemaGen Dalej (Priorytet 1–4) DONE
+
+**TerminalResolver + terminal-gate + nodes-on-path + preview debug**
+
+| Test | Wynik |
+|------|-------|
+| pytest | **179 passed** |
+| p027 SCORE | **49.93** (bez regresji vs loop 021) |
+| p040 score | **45.30** (bbox 17/19, bez regresji) |
+
+**p027 runtime (po terminal-gate):** wire **86**, other **111**, frame 3, dash 8 | connections **552** (szyna + węzły na ścieżce — GT conn=0, metryka conn nadal 0/0).
+
+**Zmiany kodu:**
+- `backend/recognize/terminal_resolver.py` + `config/terminal-patterns.yaml` (zlaczka, mostek delegate, strzałki)
+- `apply_terminal_gate()` w `line_sieve.py` — wire tylko przy kontakcie z terminalem
+- `_nodes_on_net()` — terminale na polilinii (szyna przez rząd złączek)
+- `runtime_config`: `terminal_tol_contact/join/pattern_*`
+- `preview_schema.py`: kolory other/frame/dash + liczniki
+
+**Retrain YOLO (następny krok, nie kod):**
+- Klasy `[MODEL] gap`: `strzalka_potencjalu_wejsciowa`, `zwarta_listwa_zlaczek`
+- Eksport datasetu po aktualnym GT p027 (155 bbox, 96 wire)
+- Sprawdzić rozkład: strzałki wej/wyj, zlaczka, mostek
+- Nowy ONNX → porównać p027/p040 bbox + gaps; nie obniżać `yolo_conf` poniżej 0.18
+
+Commit pending: `[Cursor] terminal-gate + TerminalResolver + nodes-on-path + preview debug`
+
+---
+
 ## 2026-07-05 [Cursor] — loop 021 w toku (Fable review)
 
 **Baseline:** p027 SCORE **48.45** (GT po relabelu linii: 155 bbox, 96 wire). p040 **45.30** (bbox 17/19).

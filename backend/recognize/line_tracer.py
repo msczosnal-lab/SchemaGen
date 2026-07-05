@@ -313,6 +313,12 @@ class LineTracer:
         # przerwy 21-22px szyny nie sklejaja fragmentow (findings 019 H1).
         gap_tol = max(12.0, float(merge_gap) * 2.5)
         merged = _merge_collinear(segments, gap_tol=gap_tol)
+        axis_tol = float(cfg.get("wire_axis_tol_deg", cfg.get("bus_axis_tol_deg", BUS_AXIS_TOL_DEG)))
+        if bool(cfg.get("wire_axis_only", True)):
+            merged = [
+                s for s in merged
+                if _is_axial(s.x1, s.y1, s.x2, s.y2, axis_tol)
+            ]
         # Po scaleniu probkuj kolor ponownie wzdluz finalnej geometrii — odporne
         # na to, ze czesc surowych segmentow Hougha lezy na krawedzi (tlo).
         for seg in merged:

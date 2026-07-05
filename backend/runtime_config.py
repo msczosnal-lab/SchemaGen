@@ -12,6 +12,7 @@ from backend.paths import CONFIG
 INGEST_CFG = CONFIG / "ingest.yaml"
 RUNTIME_CFG = CONFIG / "runtime.yaml"
 EVAL_CFG = CONFIG / "eval-weights.yaml"
+TERMINAL_PATTERNS_CFG = CONFIG / "terminal-patterns.yaml"
 
 
 def _load_yaml(path: Path, defaults: dict) -> dict:
@@ -69,6 +70,12 @@ def runtime_settings() -> dict:
             # Tolerancja terminala (px) — skalowana z rozdzielczoscia strony.
             "terminal_tol_frac": 0.012,
             "terminal_tol_min": 12.0,
+            "terminal_tol_contact_frac": 0.012,
+            "terminal_tol_contact_min": 12.0,
+            "terminal_tol_join_frac": 0.012,
+            "terminal_tol_join_min": 12.0,
+            "terminal_tol_pattern_frac": 0.008,
+            "terminal_tol_pattern_min": 8.0,
             # Progi Hough (LineTracer) — frac wzgledem max(W,H) + floory.
             "hough_min_len_frac": 0.02,
             "hough_gap_frac": 0.0015,
@@ -80,6 +87,10 @@ def runtime_settings() -> dict:
             "hough_bus_min_len_frac": 0.01,
             "hough_bus_gap_frac": 0.004,
             "hough_bus_axis_tol_deg": 6.0,
+            "wire_axis_only": True,
+            "wire_axis_tol_deg": 6.0,
+            "wire_join_orthogonal_only": True,
+            "wire_join_angle_tol_deg": 8.0,
             # Strict: Connection tylko gdy oba konce trafiaja w terminal.
             "connection_require_terminal": False,
             # Warstwa relacji (RelationResolver)
@@ -180,11 +191,52 @@ def roi_bottom_cut_frac() -> float:
 
 
 def terminal_tol_frac() -> float:
-    return float(runtime_settings()["terminal_tol_frac"])
+    return float(runtime_settings().get("terminal_tol_contact_frac", runtime_settings()["terminal_tol_frac"]))
 
 
 def terminal_tol_min() -> float:
-    return float(runtime_settings()["terminal_tol_min"])
+    return float(runtime_settings().get("terminal_tol_contact_min", runtime_settings()["terminal_tol_min"]))
+
+
+def terminal_tol_contact_frac() -> float:
+    s = runtime_settings()
+    return float(s.get("terminal_tol_contact_frac", s.get("terminal_tol_frac", 0.012)))
+
+
+def terminal_tol_contact_min() -> float:
+    s = runtime_settings()
+    return float(s.get("terminal_tol_contact_min", s.get("terminal_tol_min", 12.0)))
+
+
+def terminal_tol_join_frac() -> float:
+    s = runtime_settings()
+    return float(s.get("terminal_tol_join_frac", s.get("terminal_tol_frac", 0.012)))
+
+
+def terminal_tol_join_min() -> float:
+    s = runtime_settings()
+    return float(s.get("terminal_tol_join_min", s.get("terminal_tol_min", 12.0)))
+
+
+def terminal_tol_pattern_frac() -> float:
+    s = runtime_settings()
+    return float(s.get("terminal_tol_pattern_frac", 0.008))
+
+
+def terminal_tol_pattern_min() -> float:
+    s = runtime_settings()
+    return float(s.get("terminal_tol_pattern_min", 8.0))
+
+
+@lru_cache(maxsize=1)
+def terminal_patterns() -> dict[str, dict]:
+    """Wzorce terminali per klasa z config/terminal-patterns.yaml."""
+    defaults: dict = {"version": 1, "classes": {}}
+    data = _load_yaml(TERMINAL_PATTERNS_CFG, defaults)
+    classes = data.get("classes") or {}
+    if isinstance(classes, dict):
+        return {str(k): dict(v) for k, v in classes.items() if isinstance(v, dict)}
+    return {}
 
 
 def connection_require_terminal() -> bool:
@@ -228,4 +280,8 @@ def hough_params() -> dict:
         "bus_min_len_frac": float(s.get("hough_bus_min_len_frac", 0.01)),
             "bus_gap_frac": float(s.get("hough_bus_gap_frac", 0.004)),
             "bus_axis_tol_deg": float(s.get("hough_bus_axis_tol_deg", 6.0)),
+            "wire_axis_only": bool(s.get("wire_axis_only", True)),
+            "wire_axis_tol_deg": float(s.get("wire_axis_tol_deg", s.get("hough_bus_axis_tol_deg", 6.0))),
+            "wire_join_orthogonal_only": bool(s.get("wire_join_orthogonal_only", True)),
+            "wire_join_angle_tol_deg": float(s.get("wire_join_angle_tol_deg", 8.0)),
         }

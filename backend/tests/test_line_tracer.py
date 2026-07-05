@@ -102,6 +102,13 @@ def test_is_axial() -> None:
     assert not _is_axial(0, 0, 100, 100, 6.0)  # 45 stopni
 
 
+def test_trace_drops_diagonal_segments() -> None:
+    img = _blank(120, 120)
+    img[10:110, 10:110] = (0, 0, 0)  # skos 45°
+    segments = LineTracer(min_line_length=20).trace(img)
+    assert all(_is_axial(s.x1, s.y1, s.x2, s.y2, 6.0) for s in segments)
+
+
 def test_second_pass_recovers_bus_rail() -> None:
     # Szyna listwy w pelnej skali: segmenty tuszu 73px z przerwami 21px (kolka wezlow).
     # Przebieg glowny (min_line_length=120 > 73) jej NIE widzi; drugi przebieg + merge

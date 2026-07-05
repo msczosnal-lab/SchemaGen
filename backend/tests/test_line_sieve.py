@@ -2,7 +2,7 @@
 
 from backend.models.schema import Component, GraphicLine, Terminal
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.line_sieve import apply_sieve, recover_terminal_bridges
+from backend.recognize.line_sieve import apply_sieve, apply_terminal_gate, recover_terminal_bridges
 
 # Symbol: bbox [100,100,300,200] (x1,y1,x2,y2)
 COMP = Component(id="sym_0", type="relay", bbox=[100, 100, 300, 200], source="yolo")
@@ -141,4 +141,29 @@ def test_wire_spanning_most_of_large_symbol_stays_wire() -> None:
     plc = Component(id="plc", type="terminal_plc", bbox=[100, 100, 776, 574], source="yolo")
     bus = _wire([[120, 300], [740, 300]])
     [out] = apply_sieve([bus], [plc], [], edge_tol=6.0)
+    assert out.role == "wire"
+
+
+# --- terminal gate (po wyprowadzeniu terminali) ---
+def test_terminal_gate_demotes_wire_without_terminal_contact() -> None:
+    comp = Component(id="A", type="relay", bbox=[0, 0, 40, 40], source="yolo")
+    wire = _wire([[100, 20], [200, 20]])  # daleko od symbolu bez terminali
+    [out] = apply_terminal_gate([wire], [comp], tol=10)
+    assert out.role == "other"
+
+
+def test_terminal_gate_keeps_wire_touching_terminal() -> None:
+    comp = Component(
+        id="X1", type="zlaczka", bbox=[100, 100, 150, 180], source="yolo",
+        terminals=[Terminal(id="1", x=0.0, y=0.5), Terminal(id="2", x=1.0, y=0.5)],
+    )
+    wire = _wire([[100, 140], [300, 140]])  # start przy lewym terminalu
+    [out] = apply_terminal_gate([wire], [comp], tol=10)
+    assert out.role == "wire"
+
+
+def test_terminal_gate_keeps_internal_bridge() -> None:
+    strip = _strip()
+    bridge = _wire([[140, 150], [260, 150]])
+    [out] = apply_terminal_gate([bridge], [strip], tol=10)
     assert out.role == "wire"

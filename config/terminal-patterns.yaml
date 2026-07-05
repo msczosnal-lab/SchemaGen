@@ -1,5 +1,7 @@
 # Wzorce terminali per klasa symbolu (prompt 018-terminals).
-# Pozycja = edge + frac wzgledem bbox (0..1). required=true -> zawsze tworzony.
+# Pozycja = edge + frac wzgledem bbox. required=true = slot obowiazkowy TYLKO gdy jest
+# kandydat (przeciecie wire z krawedzia lub tusz na obwodzie cropa); nie tworz nominalnie.
+# Nauka wzorca: labeler + zapis GT per klasa (jak galeria symboli ONNX).
 version: 1
 classes:
   zlaczka:

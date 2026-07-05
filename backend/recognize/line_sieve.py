@@ -73,6 +73,55 @@ def apply_sieve(
     return out
 
 
+def apply_terminal_gate(
+    lines: list[GraphicLine],
+    components: list[Component],
+    *,
+    tol: float = 8.0,
+) -> list[GraphicLine]:
+    """Drugie sito: wire/bus zostaje przewodem tylko gdy koniec dotyka terminala.
+
+    Wolane PO wyprowadzeniu terminali. Linie bez kontaktu z zadnym terminalem -> other.
+    Mostki (konce w 2 roznych terminalach tego samego komponentu) zostaja wire.
+    """
+    out: list[GraphicLine] = []
+    for ln in lines:
+        if not LineClassifier.is_connection_candidate(ln):
+            out.append(ln)
+            continue
+        if _touches_any_terminal(ln, components, tol):
+            out.append(ln)
+            continue
+        inside = _containing_component(ln, components, 2.0)
+        if inside is not None and _bridges_two_terminals(ln, inside, tol):
+            out.append(ln)
+            continue
+        out.append(ln.model_copy(update={"role": "other"}))
+    return out
+
+
+def _touches_any_terminal(
+    line: GraphicLine, components: list[Component], tol: float
+) -> bool:
+    """True gdy przynajmniej jeden koniec linii trafia w terminal dowolnego komponentu."""
+    ep = _endpoints(line)
+    if ep is None:
+        return False
+    for pt in ep:
+        for c in components:
+            if not c.terminals or len(c.bbox) < 4:
+                continue
+            x1, y1, x2, y2 = c.bbox[0], c.bbox[1], c.bbox[2], c.bbox[3]
+            w = (x2 - x1) or 1.0
+            h = (y2 - y1) or 1.0
+            for t in c.terminals:
+                ax = x1 + t.x * w
+                ay = y1 + t.y * h
+                if math.hypot(pt[0] - ax, pt[1] - ay) <= tol:
+                    return True
+    return False
+
+
 def recover_terminal_bridges(
     lines: list[GraphicLine],
     components: list[Component],

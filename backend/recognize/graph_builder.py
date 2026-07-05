@@ -28,19 +28,21 @@ from backend.paths import REGISTRY_PATH
 from backend.runtime_config import (
     connection_require_terminal,
     roi_bottom_cut_frac,
-    terminal_tol_frac,
-    terminal_tol_min,
+    terminal_patterns,
+    terminal_tol_contact_frac,
+    terminal_tol_contact_min,
+    terminal_tol_join_frac,
+    terminal_tol_join_min,
+    terminal_tol_pattern_frac,
+    terminal_tol_pattern_min,
 )
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.line_sieve import apply_sieve, recover_terminal_bridges
+from backend.recognize.line_sieve import apply_sieve, apply_terminal_gate, recover_terminal_bridges
 from backend.recognize.line_tracer import LineTracer
 from backend.recognize.arrow_supplement import supplement_arrow_detections
-from backend.recognize.mostek_orient_map import is_mostek_class
-from backend.recognize.mostek_terminals import derive_mostek_terminals, load_bgr
-from backend.recognize.net_builder import (
-    build_connections as build_net_connections,
-    derive_auto_terminals,
-)
+from backend.recognize.mostek_terminals import load_bgr
+from backend.recognize.net_builder import build_connections as build_net_connections
+from backend.recognize.terminal_resolver import resolve as resolve_terminals
 from backend.recognize.ocr_engine import PaddleOcrEngine
 from backend.recognize.relation_resolver import RelationResolver
 from backend.recognize.symbol_detector import OnnxSymbolDetector
@@ -107,36 +109,39 @@ class GraphBuilder:
         # 3c) ROI: odetnij linie z dolu arkusza (tabliczka/tabelki) — config
         graphic_lines = _apply_roi(graphic_lines, size, roi_bottom_cut_frac())
 
-        # 4) Auto-zaciski: terminal = kontakt konca wire z krawedzia bboxa
-        #    (komponenty bez recznych terminali GT). Daje adresowanie comp:terminal.
-        tol = _terminal_tol(size)
-        merge_tol = _terminal_merge_tol(size)
+        # 4) Terminale: wzorzec klasy (TerminalResolver) lub fallback auto-zaciski
+        contact_tol = _contact_tol(size)
+        join_tol = _join_tol(size)
+        pattern_tol = _pattern_tol(size)
+        merge_tol = min(contact_tol, 15.0)
+        patterns = terminal_patterns()
         candidate_lines = [
             ln for ln in graphic_lines if LineClassifier.is_connection_candidate(ln)
         ]
         for c in components:
             if c.terminals:
                 continue
-            if is_mostek_class(c.type) and image_bgr is not None:
-                c.terminals = derive_mostek_terminals(c, image_bgr)
-            if not c.terminals:
-                c.terminals = derive_auto_terminals(
-                    c, candidate_lines, tol, merge_tol=merge_tol
-                )
+            c.terminals = resolve_terminals(
+                c, candidate_lines, image_bgr, patterns,
+                contact_tol=contact_tol, pattern_tol=pattern_tol, merge_tol=merge_tol,
+            )
 
-        # 4b) Odzysk mostkow w listwie: linie zdemotowane do 'other' przez sito, ktorych
-        #     konce trafiaja w 2 terminale tego samego komponentu, wracaja jako wire
-        #     (mostek terminal<->terminal -> Connection kind="link").
+        # 4b) Odzysk mostkow w listwie
         graphic_lines = recover_terminal_bridges(
-            graphic_lines, components, bridge_tol=tol
+            graphic_lines, components, bridge_tol=join_tol
+        )
+
+        # 4c) Sito terminalowe: wire tylko gdy dotyka terminala (OD-DO)
+        graphic_lines = apply_terminal_gate(
+            graphic_lines, components, tol=join_tol
         )
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
         connections, potentials = build_net_connections(
             graphic_lines,
             components,
-            join_tol=tol,
-            terminal_tol=tol,
+            join_tol=join_tol,
+            terminal_tol=join_tol,
             require_terminal=_require_terminal(),
         )
 
@@ -207,10 +212,10 @@ def _require_terminal() -> bool:
         return False
 
 
-def _terminal_tol(size: tuple[int, int] | None) -> float:
+def _contact_tol(size: tuple[int, int] | None) -> float:
     try:
-        frac = terminal_tol_frac()
-        tmin = terminal_tol_min()
+        frac = terminal_tol_contact_frac()
+        tmin = terminal_tol_contact_min()
     except Exception:
         frac, tmin = TERMINAL_TOL_FRAC, TERMINAL_TOL_MIN
     if not size:
@@ -219,10 +224,40 @@ def _terminal_tol(size: tuple[int, int] | None) -> float:
     return max(tmin, frac * max(w, h))
 
 
+def _join_tol(size: tuple[int, int] | None) -> float:
+    try:
+        frac = terminal_tol_join_frac()
+        tmin = terminal_tol_join_min()
+    except Exception:
+        frac, tmin = TERMINAL_TOL_FRAC, TERMINAL_TOL_MIN
+    if not size:
+        return tmin
+    w, h = size
+    return max(tmin, frac * max(w, h))
+
+
+def _pattern_tol(size: tuple[int, int] | None) -> float:
+    try:
+        frac = terminal_tol_pattern_frac()
+        tmin = terminal_tol_pattern_min()
+    except Exception:
+        return TERMINAL_TOL_MIN
+    if not size:
+        return tmin
+    w, h = size
+    return max(tmin, frac * max(w, h))
+
+
+def _terminal_tol(size: tuple[int, int] | None) -> float:
+    """Kompatybilnosc wsteczna (preview_schema)."""
+    return _join_tol(size)
+
+
 def _terminal_merge_tol(size: tuple[int, int] | None) -> float:
     """Osobna tolerancja scalania stubow na krawedzi (nie skalowana z rozmiarem strony)."""
     try:
-        return terminal_tol_min()
+        from backend.runtime_config import terminal_tol_join_min
+        return terminal_tol_join_min()
     except Exception:
         return TERMINAL_TOL_MIN
 

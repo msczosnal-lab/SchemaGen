@@ -154,3 +154,29 @@ def test_wire_resolves_to_terminal_address() -> None:
     assert len(conns) == 1
     assert {conns[0].from_ref, conns[0].to} == {"A2", "X1:1"}
     assert conns[0].kind == "power"  # rozne komponenty = kabel, nie link
+
+
+def test_diagonal_join_rejected() -> None:
+    """Skos + poziom stykajace sie w punkcie NIE tworza jednego netu."""
+    diag = _wire([[40, 60], [120, 140]])  # ~45°
+    horiz = _wire([[120, 140], [200, 140]])
+    conns, _ = build_connections([diag, horiz], [A, B], join_tol=10, terminal_tol=10)
+    assert conns == []
+
+
+def test_bus_through_three_terminals_on_path_creates_potential() -> None:
+    """Szyna przez 3 zlaczki: terminale na sciezce linii, nie tylko na koncach."""
+    boxes = [
+        Component(
+            id=f"z{i}", type="zlaczka", bbox=[100 + i * 94, 100, 150 + i * 94, 180],
+            source="yolo",
+            terminals=[Terminal(id="1", x=0.0, y=0.5), Terminal(id="2", x=1.0, y=0.5)],
+        )
+        for i in range(3)
+    ]
+    # pozioma szyna y=140 przez lewe terminale z1,z2,z3 (x=100,194,288)
+    bus = _wire([[80, 140], [350, 140]])
+    conns, pots = build_connections([bus], boxes, join_tol=10, terminal_tol=10)
+    node_refs = {x for c in conns for x in (c.from_ref, c.to)}
+    assert len(node_refs) >= 3
+    assert len(pots) >= 1

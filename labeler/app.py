@@ -14,6 +14,7 @@ from backend.catalog import list_element_labels, register_labels
 from backend.colors.palette import load_palette
 from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
 from backend.geometry.bbox_layout import enrich_label_record
+from backend.class_map import component_type_from_bbox
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
 from backend.tag_usage import record_tag_usage
 from backend.type_picker import list_type_picker
@@ -22,6 +23,7 @@ from labeler.runtime_draft import image_size_for_page, schema_to_label_record
 from backend.models.label import LabelRecord
 from backend.models.schema import Component, GraphicLine
 from backend.recognize.net_builder import derive_auto_terminals
+from backend.recognize.terminal_patterns_io import build_pattern_from_bboxes, save_class_pattern
 from backend.recognize.pipeline import recognize_file
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -131,6 +133,30 @@ class DeriveTerminalsPayload(BaseModel):
     bbox: list[float]                 # [x1, y1, x2, y2] w pikselach obrazu
     lines: list[dict] = []            # [{points:[[x,y]...], role}]
     tol: float = 12.0
+    merge_tol: float | None = None
+
+
+@app.get("/api/terminal-config")
+def api_terminal_config() -> dict:
+    """Progi terminali z config/runtime.yaml (labeler = runtime)."""
+    from backend.runtime_config import (
+        terminal_tol_contact_frac,
+        terminal_tol_contact_min,
+        terminal_tol_join_min,
+    )
+
+    return {
+        "contact_tol_frac": terminal_tol_contact_frac(),
+        "contact_tol_min": terminal_tol_contact_min(),
+        "merge_tol_min": terminal_tol_join_min(),
+        "merge_tol_cap": 15.0,
+    }
+
+
+def _effective_merge_tol(contact_tol: float, merge_tol: float | None) -> float:
+    if merge_tol is not None:
+        return merge_tol
+    return min(contact_tol, 15.0)
 
 
 def _gt_line_role(raw: str) -> str:
@@ -151,7 +177,9 @@ def post_derive_terminals(body: DeriveTerminalsPayload) -> dict:
         )
         for i, ln in enumerate(body.lines)
     ]
-    terms = derive_auto_terminals(comp, lines, body.tol)
+    terms = derive_auto_terminals(
+        comp, lines, body.tol, merge_tol=_effective_merge_tol(body.tol, body.merge_tol)
+    )
     return {"terminals": [{"id": t.id, "x": t.x, "y": t.y} for t in terms]}
 
 
@@ -164,6 +192,7 @@ class DeriveTerminalsPagePayload(BaseModel):
     bboxes: list[BboxDeriveItem] = []
     lines: list[dict] = []
     tol: float = 12.0
+    merge_tol: float | None = None
 
 
 def _graphic_lines_from_payload(raw_lines: list[dict]) -> list[GraphicLine]:
@@ -182,15 +211,84 @@ def post_derive_terminals_page(body: DeriveTerminalsPagePayload) -> dict:
     """Auto-zaciski dla wszystkich bboxow strony (batch)."""
     lines = _graphic_lines_from_payload(body.lines)
     results: dict[str, list[dict[str, float | str]]] = {}
+    merge = _effective_merge_tol(body.tol, body.merge_tol)
     for item in body.bboxes:
         comp = Component(id=item.id, type="_", bbox=item.bbox)
-        terms = derive_auto_terminals(comp, lines, body.tol)
+        terms = derive_auto_terminals(comp, lines, body.tol, merge_tol=merge)
         results[item.id] = [{"id": t.id, "x": t.x, "y": t.y} for t in terms]
     with_terms = sum(1 for v in results.values() if v)
     return {
         "results": results,
         "with_terminals": with_terms,
         "total": len(results),
+    }
+
+
+class SaveTerminalPatternPayload(BaseModel):
+    class_name: str = ""
+    page_id: str = ""
+    bbox_id: str = ""
+    method: str = "line-contact"
+    frac_tol: float = 0.15
+    bboxes: list[dict] = []
+
+
+@app.post("/api/save-terminal-pattern")
+def post_save_terminal_pattern(body: SaveTerminalPatternPayload) -> dict:
+    """Uśrednij terminale GT bboxow klasy -> zapis do terminal-patterns.yaml."""
+    class_name = (body.class_name or "").strip()
+    samples: list[dict] = []
+
+    if body.page_id:
+        data = load_annotation(body.page_id)
+        if not data:
+            raise HTTPException(404, f"Brak adnotacji: {body.page_id}")
+        raw_bboxes = data.get("bboxes") or []
+        if not class_name and body.bbox_id:
+            for b in raw_bboxes:
+                if str(b.get("id")) == body.bbox_id:
+                    class_name = component_type_from_bbox(
+                        str(b.get("class_name") or ""), str(b.get("tag") or "")
+                    )
+                    break
+        for b in raw_bboxes:
+            cls = component_type_from_bbox(
+                str(b.get("class_name") or ""), str(b.get("tag") or "")
+            )
+            if cls != class_name:
+                continue
+            terms = b.get("terminals") or []
+            if terms:
+                samples.append({"terminals": terms})
+    elif body.bboxes:
+        for b in body.bboxes:
+            cls = component_type_from_bbox(
+                str(b.get("class_name") or ""), str(b.get("tag") or "")
+            )
+            if class_name and cls != class_name:
+                continue
+            if not class_name:
+                class_name = cls
+            terms = b.get("terminals") or []
+            if terms:
+                samples.append({"terminals": terms})
+    else:
+        raise HTTPException(400, "Podaj page_id lub bboxes")
+
+    if not class_name:
+        raise HTTPException(400, "Nie udało się ustalić class_name")
+    if not samples:
+        raise HTTPException(400, f"Brak bboxow z terminalami dla klasy {class_name}")
+
+    pattern = build_pattern_from_bboxes(
+        samples, method=body.method, frac_tol=body.frac_tol
+    )
+    save_class_pattern(class_name, pattern)
+    return {
+        "status": "saved",
+        "class_name": class_name,
+        "sample_count": len(samples),
+        "pattern": pattern,
     }
 
 

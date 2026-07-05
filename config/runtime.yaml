@@ -26,6 +26,13 @@ roi_bottom_cut_frac: 0.93
 #   za duzo falszywych conn / lacza sie sasiednie symbole -> obniz frac (np. 0.009).
 terminal_tol_frac: 0.012
 terminal_tol_min: 12.0
+# Rozdzielenie tolerancji (018-terminals): kontakt linii, scalanie netu/sito, dopasowanie patternu.
+terminal_tol_contact_frac: 0.012
+terminal_tol_contact_min: 12.0
+terminal_tol_join_frac: 0.012
+terminal_tol_join_min: 12.0
+terminal_tol_pattern_frac: 0.008
+terminal_tol_pattern_min: 8.0
 
 # Progi Hough (LineTracer) wzgledne do rozdzielczosci strony. KALIBRACJA szumu:
 #   p040 ~6617px -> min_len ~132px. Za duzo segmentow (szum tekstu/tla) -> podnies
@@ -49,6 +56,12 @@ hough_second_pass: true
 hough_bus_min_len_frac: 0.01
 hough_bus_gap_frac: 0.004
 hough_bus_axis_tol_deg: 6.0
+
+# Schemat elektryczny: przewody tylko poziomo/pionowo; zlaczenia pod katem prostym.
+wire_axis_only: true
+wire_axis_tol_deg: 6.0
+wire_join_orthogonal_only: true
+wire_join_angle_tol_deg: 8.0
 
 # Strict: Connection powstaje TYLKO gdy oba konce trafiaja w terminal (adres comp:terminal).
 # true  -> znikaja falszywe polaczenia 'od srodka symbolu' i bledne terminale; ryzyko: symbol
