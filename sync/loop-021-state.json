@@ -1,8 +1,9 @@
 {
   "started": "2026-07-05T13:45:00",
-  "score_start_p027": 48.5,
-  "score_current_p027": 48.5,
+  "score_start_p027": 48.42,
+  "score_current_p027": 48.42,
   "iteration": 0,
   "accepted_changes": [],
-  "plateau_streak": 0
+  "plateau_streak": 0,
+  "note": "GT lines relabeled p027 (2026-07-05): 96 wire, 0 bus; was 93 lines / 2 bus"
 }

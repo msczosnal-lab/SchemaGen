@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-07-05 [Cursor] — GT linie p027 relabeled (labeler)
+
+Filip poprawił linie GT na p027 w labelerze. **Bez zmian kodu** — baseline loop 021 odświeżony.
+
+| | Było | Teraz |
+|---|------|-------|
+| Linie GT | 93 (w tym **2× bus**) | **96× wire** (0 bus) |
+| Bbox GT | 154 | 155 |
+| SCORE p027 | 48.50 | **48.42** |
+| lines F1 | 0.430 (P=0.311 R=0.701) | **0.432** (P=0.289 R=0.852) |
+| components F1 | 0.692 (82/154) | 0.689 (82/155) |
+| % dł. linii GT bez RT | ~30% | **~15%** |
+
+Bus→wire w GT zgodne z runtime (`wire` only). Metryki diff bez zmian.
+
+`sync/loop-021-state.json`: `score_start_p027` = `score_current_p027` = **48.42**.
+
+Commit pending: `[Cursor] sync: GT linie p027 relabeled — baseline score 48.42`
+
+---
+
 ## 2026-07-05 [Cursor] — fix: typ GT z `tag` (diff components zgodny z YOLO)
 
 **Problem:** `label_to_schema` używał `class_name` (= `element` dla wszystkich bboxów labelera). Runtime YOLO ma kanoniczne id (`zlaczka`, `mostek`…). Diff wymaga zgodności typu → **0/154** mimo IoU≥0.5 u 82 bboxów.
