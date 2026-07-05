@@ -143,17 +143,27 @@ def _remap_conn_ref(
     gt_by_id: dict,
 ) -> str | None:
     sym_id, term_id = _parse_ref(ref)
-    if sym_id not in rt_to_gt:
+    if sym_id in rt_to_gt:
+        gt_sym = rt_to_gt[sym_id]
+        if term_id is None:
+            return gt_sym
+        tmap = terminal_remaps.get(sym_id, {})
+        if term_id in tmap:
+            return f"{gt_sym}:{tmap[term_id]}"
+        gt_comp = gt_by_id.get(gt_sym)
+        if gt_comp and any(t.id == term_id for t in gt_comp.terminals):
+            return f"{gt_sym}:{term_id}"
         return None
-    gt_sym = rt_to_gt[sym_id]
-    if term_id is None:
-        return gt_sym
-    tmap = terminal_remaps.get(sym_id, {})
-    if term_id in tmap:
-        return f"{gt_sym}:{tmap[term_id]}"
-    gt_comp = gt_by_id.get(gt_sym)
-    if gt_comp and any(t.id == term_id for t in gt_comp.terminals):
-        return f"{gt_sym}:{term_id}"
+    if sym_id in gt_by_id:
+        gt_sym = sym_id
+        if term_id is None:
+            return gt_sym
+        gt_comp = gt_by_id[gt_sym]
+        if any(t.id == term_id for t in gt_comp.terminals):
+            return f"{gt_sym}:{term_id}"
+        return None
+    if not rt_to_gt and term_id is None:
+        return ref
     return None
 
 
