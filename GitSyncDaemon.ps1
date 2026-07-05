@@ -85,9 +85,14 @@ $pullOnlyNoted = $false
 
 do {
     try {
-        Get-ChildItem -Path (Join-Path $RepoPath ".git") -Recurse -Filter "*.lock" -ErrorAction SilentlyContinue | ForEach-Object {
-            Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
-        }
+        # UWAGA: NIE kasować aktywnych *.lock - to niszczy ochrone git przed
+        # rownoleglym zapisem i korumpuje .git/packed-refs. Usuwamy TYLKO locki
+        # starsze niz 60 s (pozostale po zawieszonym/ubitym procesie git).
+        $lockCutoff = (Get-Date).AddSeconds(-60)
+        Get-ChildItem -Path (Join-Path $RepoPath ".git") -Recurse -Filter "*.lock" -ErrorAction SilentlyContinue |
+            Where-Object { $_.LastWriteTime -lt $lockCutoff } | ForEach-Object {
+                Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
+            }
 
         & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
 
