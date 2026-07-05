@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-07-05 [Claude] — 020-diff-score: funkcja celu GT↔runtime (implementacja)
+
+**Zakres:** skalarny score 0–100 jako metryka pętli iteracyjnej p027 (decyzja Filip: najpierw metryka, potem 018-terminals mierzony tą metryką). Prompt: [`sync/prompts/020-diff-score.md`](prompts/020-diff-score.md). Kontrakty nietknięte, `backend/recognize/` bez zmian.
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `backend/validate/diff_metrics.py` | **`diff_lines`** — geometria polilinii (próbkowanie + grid hash, pokrycie ≤tol), P/R/F1 + `per_role`; **`per_class`** i **`model_gaps`** w `diff_components` (klasy z GT bez trafienia = strata modelu YOLO, nie kodu); P/R/F1 we wszystkich `diff_*`; **`aggregate_score`** — ważona suma f1, renormalizacja przy braku GT w warstwie. Stare klucze wyjścia bez zmian |
+| `config/eval-weights.yaml` **(nowy)** | Wagi: components 0.30, lines 0.25, connections 0.35, tags 0.10; `line_match_tol: 8` px |
+| `backend/runtime_config.py` | `eval_settings()` / `eval_weights()` / `line_match_tol()` (defaults gdy brak yaml) |
+| `scripts/diff_gt_runtime.py` | SCORE + **delta vs poprzedni run** + historia `data/output/diff_gt_runtime/{pid}_history.jsonl` (ts, git HEAD, per_layer); top-3 kubły strat; `model_gaps` z adnotacją `[MODEL]` |
+| `scripts/eval_val_pages.py` | `lines` + `score` per strona, `mean_score` w summary i stdout |
+| `backend/tests/test_diff_metrics.py` | +9 testów (12 total w pliku): prf, per_class/model_gaps, diff_lines (identyczne/przesunięte/częściowe/puste), aggregate_score (perfect/renormalizacja/monotoniczność) |
+
+### Testy
+
+`pytest backend/tests/test_diff_metrics.py` → **12 passed** (sandbox ZW; pełny pytest do potwierdzenia na PC Filip — na PC ZW brak środowiska GPU/zależności pełnego pipeline).
+
+### Do zrobienia u Ciebie (Cursor)
+
+1. `pytest backend/tests labeler/tests` — oczekiwane 226+9
+2. `python scripts/diff_gt_runtime.py --page p027` — **score bazowy p027** (punkt odniesienia dla 018-terminals)
+3. `python scripts/eval_val_pages.py --page p040` — bez regresji + score
+4. [RYZYKO] `diff_lines` na pełnej stronie ~6617px: próbkowanie co 4px → sprawdź czas; jak >10s, podnieś `step` w `_lines_prf`
+
+---
+
 ## 2026-07-04 [Claude] — 018-lines-quality DONE (implementacja)
 
 **Zakres:** jakość linii (Hough pod kółka węzłów, skalowany merge, kalibracja palety, overlay, diag). Kontrakty nietknięte (`SchemaModel`, sygnatury protokołów, `net_builder`, sito, `derive_mostek_terminals`).

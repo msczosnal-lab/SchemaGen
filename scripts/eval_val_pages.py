@@ -24,9 +24,12 @@ from backend.models.label import LabelRecord
 from backend.paths import CONFIG, RAW
 from backend.recognize.pipeline import recognize_file
 from labeler.export import label_to_schema
+from backend.runtime_config import eval_weights, line_match_tol
 from backend.validate.diff_metrics import (
+    aggregate_score,
     diff_components,
     diff_connections,
+    diff_lines,
     diff_tags,
     page_id as resolve_page_id,
 )
@@ -82,6 +85,8 @@ def eval_page(pid: str) -> dict | None:
         report["connections"] = diff_connections(gt_schema, runtime)
         report["components"] = diff_components(gt_schema, runtime)
         report["tags"] = diff_tags(gt_schema, runtime)
+        report["lines"] = diff_lines(gt_schema, runtime, tol=line_match_tol())
+        report["score"] = aggregate_score(report, eval_weights())
 
     return report
 
@@ -113,11 +118,17 @@ def main() -> int:
         print("[BLAD] Zaden raport — brak danych lokalnych")
         return 1
 
+    scored = [r for r in reports if "score" in r]
     summary = {
         "pages": len(reports),
         "total_conn_match": sum(r.get("connections", {}).get("match", 0) for r in reports),
         "total_conn_gt": sum(r.get("connections", {}).get("gt_count", 0) for r in reports),
         "total_bbox_match": sum(r.get("components", {}).get("match", 0) for r in reports),
+        "mean_score": round(
+            sum(r["score"]["score"] for r in scored) / len(scored), 2
+        )
+        if scored
+        else None,
         "reports": reports,
     }
 
@@ -132,11 +143,15 @@ def main() -> int:
             pid = r["page_id"]
             conn = r.get("connections", {})
             comp = r.get("components", {})
+            score = r.get("score", {}).get("score")
+            score_txt = f" | score {score:.1f}" if score is not None else ""
             print(
                 f"{pid}: bbox {comp.get('match', '?')}/{comp.get('gt_count', '?')} | "
                 f"conn {conn.get('match', '?')}/{conn.get('gt_count', '?')} | "
-                f"tags {r['runtime'].get('tags_filled', 0)}"
+                f"tags {r['runtime'].get('tags_filled', 0)}{score_txt}"
             )
+        if summary["mean_score"] is not None:
+            print(f"MEAN SCORE: {summary['mean_score']:.2f}/100")
 
     return 0
 

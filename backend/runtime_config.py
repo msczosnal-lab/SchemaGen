@@ -11,6 +11,7 @@ from backend.paths import CONFIG
 
 INGEST_CFG = CONFIG / "ingest.yaml"
 RUNTIME_CFG = CONFIG / "runtime.yaml"
+EVAL_CFG = CONFIG / "eval-weights.yaml"
 
 
 def _load_yaml(path: Path, defaults: dict) -> dict:
@@ -27,6 +28,31 @@ def _load_yaml(path: Path, defaults: dict) -> dict:
 @lru_cache(maxsize=1)
 def ingest_settings() -> dict:
     return _load_yaml(INGEST_CFG, {"pdf_dpi": 400, "legacy_pdf_dpi": 200})
+
+
+@lru_cache(maxsize=1)
+def eval_settings() -> dict:
+    """Wagi funkcji celu GT<->runtime (zadanie 020)."""
+    return _load_yaml(
+        EVAL_CFG,
+        {
+            "eval_weights": {
+                "components": 0.30,
+                "lines": 0.25,
+                "connections": 0.35,
+                "tags": 0.10,
+            },
+            "line_match_tol": 8,
+        },
+    )
+
+
+def eval_weights() -> dict:
+    return dict(eval_settings().get("eval_weights") or {})
+
+
+def line_match_tol() -> float:
+    return float(eval_settings().get("line_match_tol", 8))
 
 
 @lru_cache(maxsize=1)

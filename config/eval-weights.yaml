@@ -1,0 +1,11 @@
+# Wagi funkcji celu GT<->runtime (aggregate_score, zadanie 020).
+# Warstwa bez GT na stronie jest wylaczana, wagi renormalizowane.
+eval_weights:
+  components: 0.30
+  lines: 0.25
+  connections: 0.35
+  tags: 0.10
+
+# Tolerancja dopasowania linii [px] (diff_lines): punkt GT "trafiony",
+# gdy linia runtime przebiega blizej niz line_match_tol.
+line_match_tol: 8
