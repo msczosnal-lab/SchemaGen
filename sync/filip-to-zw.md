@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-07-05 [Cursor] — loop 021 w toku (Fable review)
+
+**Baseline:** p027 SCORE **48.45** (GT po relabelu linii: 155 bbox, 96 wire). p040 **45.30** (bbox 17/19).
+
+| iter | zmiana | p027 SCORE | wynik |
+|------|--------|------------|-------|
+| it1 | `_merge_horizontal_rails` (line_tracer) | 48.42 | **COFNIĘTE** (Δ≤0 vs 48.50; lines R↑ ale SCORE↓) |
+| it2 | `yolo_conf_threshold` 0.25→**0.20** | **49.44** | **OK** (+0.99), bbox **86/155** |
+
+**p040 regresja:** score 45.30 (było 33.39), bbox 17/19 (było 9/19) — **bez regresji**.
+
+Kubły [MODEL] bez zmian: `strzalka_potencjalu_wejsciowa`, `zwarta_listwa_zlaczek`. Następny kubeł kodu: linie (precision 0.29) lub tagi (7).
+
+Stan: `sync/loop-021-state.json`. Commit pending: `[Cursor] loop 021 it2: yolo conf 0.20 — p027 49.44`
+
+---
+
 ## 2026-07-05 [Cursor] — GT linie p027 relabeled (labeler)
 
 Filip poprawił linie GT na p027 w labelerze. **Bez zmian kodu** — baseline loop 021 odświeżony.
