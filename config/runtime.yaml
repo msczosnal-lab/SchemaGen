@@ -46,7 +46,7 @@ hough_gap_floor: 4
 #   za malo szyny / dziury -> obniz bus_min_len_frac (0.008) lub podnies bus_gap_frac.
 #   za duzo szumu poziomego/pionowego -> podnies bus_min_len_frac lub zwez bus_axis_tol_deg.
 hough_second_pass: true
-hough_bus_min_len_frac: 0.008
+hough_bus_min_len_frac: 0.01
 hough_bus_gap_frac: 0.005
 hough_bus_axis_tol_deg: 6.0
 
