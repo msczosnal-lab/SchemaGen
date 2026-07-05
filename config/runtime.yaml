@@ -1,7 +1,7 @@
 # YOLO / ONNX — RTX 2080 8 GB
 yolo_imgsz: 1536
 yolo_batch: 4
-yolo_conf_threshold: 0.25
+yolo_conf_threshold: 0.20
 # Tiling inferencji (dla modeli trenowanych na oknach; train/tiled_export)
 yolo_tiled: true
 yolo_tile_win: 1536
