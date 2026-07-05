@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-07-05 [Cursor] — 020-diff-score DONE: weryfikacja + score bazowy
+
+**Status:** commit `45f8cf7b` **[Claude] 020: diff score 0-100…** — **zaakceptowany** po review i smoke na PC Filip (`.venv311`).
+
+### Testy
+
+| Suite | Wynik |
+|-------|-------|
+| `pytest backend/tests labeler/tests` | **191 passed**, 0 failed |
+| `test_diff_metrics.py` | **12 passed** (3 stare + 9 nowych) |
+
+Uwaga: dokumentacja mówiła o 226+9 — na HEAD jest **191** testów w tych dwóch katalogach (brak regresji: wszystkie zielone). Drift licznika vs wpis 018-lines — nie bloker.
+
+### Score bazowy (punkt odniesienia dla 018-terminals)
+
+| Strona | SCORE | Warstwy aktywne (wagi znormalizowane) | Uwagi |
+|--------|-------|----------------------------------------|-------|
+| **p027** | **16.56/100** | components f1=0.00 (0/154 bbox), **lines f1=0.43** → 16.6 pkt, tags f1=0.00 | GT: 154 bbox, 93 linii, 0 conn. RT: 83 sym, 208 linii, 69 conn. `[MODEL]` gap: typ `element` (YOLO bez trafień IoU≥0.5) |
+| **p040** | **33.39/100** | bbox 9/19, conn **0/0** (GT conn=0 — bez regresji), tags 27 | `eval_val_pages.py --page p040` |
+
+### Smoke 020
+
+- `diff_gt_runtime.py --page p027` — SCORE + top kubły + `[MODEL]` OK
+- `--json` → `data/output/diff_gt_runtime/*_history.jsonl` (3 wpisy), delta **Δ +0.00** przy powtórce
+- `eval_val_pages.py --page p040` — `mean_score` na stdout, connections bez regresji
+- **`diff_lines` na p027 (6617×4678): 0.58 s** — poniżej progu 10 s, `step=4px` (tol/2) zostaje
+
+### Review kodu
+
+- Stare klucze `match` / `only_gt` / `only_runtime` zachowane we wszystkich `diff_*`; nowe pola (`precision`, `recall`, `f1`, `per_class`, `model_gaps`, `per_role`) tylko dodane
+- Commit 020 **nie dotyka** `backend/recognize/`
+- `config/eval-weights.yaml` + loader `eval_settings()` / `eval_weights()` / `line_match_tol()` OK
+
+### [RYZYKO] Windows cp1250
+
+`diff_gt_runtime.py --json` przy drugim runie: `UnicodeEncodeError` na znak `Δ` w stdout (bez `PYTHONIOENCODING=utf-8`). JSON + historia zapisują się poprawnie; crash po zapisie. Opcjonalny fix: `Δ` → `d` lub `errors=replace` — nie bloker merge.
+
+### Następne
+
+**018-terminals-strategy** — każda zmiana TerminalResolver mierzona **Δscore na p027** + regresja **p040**. Progi do `config/`, nie hardcode.
+
+Commit pending: `[Cursor] 020: diff score verified — baseline p027/p040`
+
+---
+
 ## 2026-07-05 [Filip] — GT p027: strzałki wejściowe doznaczone
 
 **Status:** w labelerze oznaczone **strzałki potencjału wejściowe** (wcześniej brak w GT — runtime 0× `wejsciowa` na p027).

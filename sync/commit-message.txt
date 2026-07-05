@@ -1,7 +1,1 @@
-# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
-[Claude] 020: diff score 0-100 + diff_lines + per-class + model_gaps + historia delta
+﻿[Cursor] 020: diff score verified — baseline p027 16.56, p040 33.39
