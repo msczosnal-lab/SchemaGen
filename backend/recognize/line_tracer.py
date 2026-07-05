@@ -156,6 +156,7 @@ def _merge_horizontal_rails(
     return rest + merged_h
 
 
+def _merge_collinear(
     segments: list[LineSegment],
     angle_tol_deg: float = 6.0,
     gap_tol: float = 12.0,
