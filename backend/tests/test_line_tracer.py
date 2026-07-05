@@ -9,6 +9,7 @@ from backend.recognize.line_tracer import (
     auto_line_params,
     _is_axial,
     _merge_collinear,
+    _merge_horizontal_rails,
 )
 
 
