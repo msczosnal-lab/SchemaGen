@@ -2,16 +2,17 @@
   "started": "2026-07-05T13:45:00",
   "score_start_p027": 48.50,
   "score_current_p027": 49.93,
-  "iteration": 4,
+  "iteration": 5,
   "accepted_changes": [
     "it2: yolo_conf_threshold 0.25->0.20 (config/runtime.yaml) | 48.45->49.44 | bbox 82->86/155",
     "it4: yolo_conf_threshold 0.20->0.18 (config/runtime.yaml) | 49.44->49.93 | bbox 86->88/155"
   ],
   "reverted": [
     "it1: _merge_horizontal_rails (line_tracer) | 48.45->48.42 | COFNIETE",
-    "it3: hough_min_len_frac 0.02->0.021 (runtime.yaml) | 49.44->49.05 | COFNIETE"
+    "it3: hough_min_len_frac 0.02->0.021 (runtime.yaml) | 49.44->49.05 | COFNIETE",
+    "it5: hough_gap_frac 0.0015->0.0018 (runtime.yaml) | 49.93->48.23 | COFNIETE"
   ],
-  "plateau_streak": 0,
+  "plateau_streak": 1,
   "loop_armed": "15m",
   "loop_prompt": "sync/prompts/021-loop-p027.md"
 }
