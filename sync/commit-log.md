@@ -133,3 +133,4 @@
 | 2026-07-04 22:21 | Cursor | 226a5186 | [Cursor] fix: sito zachowuje dlugie przewody (OCR pasek + terminal_plc) — p027 connections |
 | 2026-07-05 10:19 | Cursor | f01e204d | [Cursor] sync: sesja 2026-07-05 — sito p027, Start-Labeler, GT wejsciowe, plan loop jutro |
 | 2026-07-05 12:59 | Claude | 8aaa811e | [Claude] 020: diff score 0-100 + diff_lines + per-class + model_gaps + historia delta |
+| 2026-07-05 13:02 | Cursor | f5a2d46e | [Cursor] 020: diff score verified — baseline p027 16.56, p040 33.39 |
