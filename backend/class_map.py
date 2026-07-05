@@ -139,7 +139,18 @@ def load_group_map() -> dict[str, str]:
     return m
 
 
-def tag_to_class(
+def component_type_from_bbox(class_name: str, tag: str) -> str:
+    """Typ komponentu do SchemaModel / diff GT.
+
+  W labelerze `class_name` zostaje czesto generyczne ``element``; rzeczywisty
+  symbol jest w polu ``tag`` (label_pl z palety). Runtime YOLO uzywa kanonicznych
+  id z palety — ten helper mapuje GT na ta sama przestrzen nazw.
+    """
+    if class_name and class_name != "element":
+        return class_name
+    return tag_to_class(tag) or class_name or "element"
+
+
     tag: str,
     palette_map: dict[str, str] | None = None,
     group_map: dict[str, str] | None = None,
