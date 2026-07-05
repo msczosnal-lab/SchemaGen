@@ -1,1 +1,6 @@
-﻿[Cursor] loop 021: p027 score 48.5→49.93 (yolo conf 0.18)
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
