@@ -327,34 +327,18 @@ def diff_lines(gt_schema, runtime, tol: float = 8.0) -> dict:
 def diff_components(gt_schema, runtime, iou_threshold: float = 0.5) -> dict:
     gt_boxes = [(c.id, c.bbox, c.type) for c in gt_schema.components]
     rt_boxes = [(c.id, c.bbox, c.type) for c in runtime.components]
-    matched_gt: set[str] = set()
-    matched_rt: set[str] = set()
-    pairs: list[dict] = []
-
-    for gt_id, gt_bb, gt_type in gt_boxes:
-        best_iou = 0.0
-        best_rt = None
-        for rt_id, rt_bb, rt_type in rt_boxes:
-            if rt_id in matched_rt:
-                continue
-            if gt_type and rt_type and gt_type != rt_type:
-                continue
-            iou = _bbox_iou(gt_bb, rt_bb)
-            if iou > best_iou:
-                best_iou = iou
-                best_rt = rt_id
-        if best_rt and best_iou >= iou_threshold:
-            matched_gt.add(gt_id)
-            matched_rt.add(best_rt)
-            pairs.append({"gt": gt_id, "runtime": best_rt, "iou": round(best_iou, 3)})
+    pairing = pair_components(gt_schema, runtime, iou_threshold=iou_threshold)
+    pairs = pairing["pairs"]
+    matched_gt = pairing["matched_gt"]
+    matched_rt = pairing["matched_rt"]
 
     out = {
         "gt_count": len(gt_boxes),
         "runtime_count": len(rt_boxes),
         "match": len(pairs),
         "pairs": pairs,
-        "only_gt": [g[0] for g in gt_boxes if g[0] not in matched_gt],
-        "only_runtime": [r[0] for r in rt_boxes if r[0] not in matched_rt],
+        "only_gt": pairing["only_gt"],
+        "only_runtime": pairing["only_runtime"],
     }
     out.update(_prf(len(pairs), len(gt_boxes), len(rt_boxes)))
 
