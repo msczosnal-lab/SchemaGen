@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-07-05 [Cursor] — 022 krok 0: remap ID w diff_connections
+
+**Zakres:** parowanie komponentów IoU + translacja adresów runtime→GT przed porównaniem connections. Prompt: [`sync/prompts/022-labeler-graph-v2.md`](prompts/022-labeler-graph-v2.md) krok 0.
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `backend/validate/diff_metrics.py` | **`pair_components`** (greedy malejąco IoU, 1:1); **`diff_connections`** remapuje `sym_i:t` → id GT po IoU bbox + terminal po pozycji absolutnej (`terminal_tol_pattern` z runtime.yaml); `diff_components` korzysta z `pair_components`; fallback identyczności dla refów bez bbox (kompatybilność testów) |
+| `backend/tests/test_diff_id_remap.py` **(nowy)** | 3 testy: parowanie IoU, F1=1.0 przy różnych id, only_runtime bez pary |
+
+### Testy
+
+`pytest backend/tests/test_diff_metrics.py backend/tests/test_diff_id_remap.py` → **15 passed**
+
+### Smoke diff (po zmianie)
+
+| Strona | SCORE | Δ vs poprzedni | connections GT | conn match | Uwagi |
+|--------|-------|----------------|----------------|------------|-------|
+| p027 | **50.46** | +0.00 (vs 23:40, 30f562c9) | 0 | 0/0 | Warstwa connections wyłączona z score (brak GT conn). Remap widoczny w `only_runtime` (np. `element_* → sym_3:1`). Skok 49.93→50.46 z wcześniejszego runu = **lines f1** (0.433→0.446), nie remap |
+| p040 | **47.70** | pierwszy run w historii | 0 | 0/0 | j.w. — GT bez connections; remap częściowy w only_runtime |
+
+**Wniosek:** remap naprawia metrykę strukturalnie (gdy GT ma connections z własnymi id labelera). Na p027/p040 score bez zmian — GT `conn=0`. Pełny efekt po migracji GT do grafu v2 (kroki 2–8 promptu 022).
+
+Commit pending: `[Cursor] diff: remap ID symboli/terminali w diff_connections (022 krok 0)`
+
+---
+
 ## 2026-07-05 [Claude] — 020-diff-score: funkcja celu GT↔runtime (implementacja)
 
 **Zakres:** skalarny score 0–100 jako metryka pętli iteracyjnej p027 (decyzja Filip: najpierw metryka, potem 018-terminals mierzony tą metryką). Prompt: [`sync/prompts/020-diff-score.md`](prompts/020-diff-score.md). Kontrakty nietknięte, `backend/recognize/` bez zmian.
