@@ -147,3 +147,4 @@
 | 2026-07-05 15:30 | Cursor | 59ef0380 | [Cursor] loop 021: p027 score 48.5→49.93 (yolo conf 0.18) |
 | 2026-07-05 15:31 | Cursor | a71bb173 | [Cursor] loop 021: p027 score 48.5→49.93 (yolo conf 0.18) |
 | 2026-07-05 23:35 | Cursor | e85942fc | [Cursor] fix preview: zielony wire widoczny, czerwone tylko wezly |
+| 2026-07-05 23:43 | Cursor | 7666d916 | [Cursor] diff: remap ID symboli/terminali w diff_connections (022 krok 0) |
