@@ -146,3 +146,4 @@
 | 2026-07-05 14:43 | Cursor | a5b1a976 | [Cursor] loop 021: p027 score 48.5→49.93 (yolo conf 0.20→0.18) |
 | 2026-07-05 15:30 | Cursor | 59ef0380 | [Cursor] loop 021: p027 score 48.5→49.93 (yolo conf 0.18) |
 | 2026-07-05 15:31 | Cursor | a71bb173 | [Cursor] loop 021: p027 score 48.5→49.93 (yolo conf 0.18) |
+| 2026-07-05 23:35 | Cursor | e85942fc | [Cursor] fix preview: zielony wire widoczny, czerwone tylko wezly |
