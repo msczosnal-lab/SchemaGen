@@ -21,6 +21,18 @@ Stan: `sync/loop-021-state.json`. Commit pending: `[Cursor] loop 021 it2: yolo c
 
 ---
 
+## 2026-07-05 [Cursor] — loop 021 STOP (plateau)
+
+**p027:** 48.50 → **49.93** (+1.43) | **p040:** 45.30 (bez regresji)
+
+Zaakceptowane: `yolo_conf_threshold` 0.25→0.20→**0.18** (config/runtime.yaml).
+
+STOP: plateau it5/it6 + kubły kodowe wyczerpane ([MODEL] strzałki, YOLO recall). Log: `sync/loop-021-log.md`.
+
+Commit: `[Cursor] loop 021: p027 score 48.5→49.93`
+
+---
+
 ## 2026-07-05 [Cursor] — GT linie p027 relabeled (labeler)
 
 Filip poprawił linie GT na p027 w labelerze. **Bez zmian kodu** — baseline loop 021 odświeżony.
