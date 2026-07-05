@@ -137,3 +137,4 @@
 | 2026-07-05 13:15 | Cursor | 24c2f85a | [Cursor] GT type z tagu w label_to_schema — diff components zgodny z YOLO |
 | 2026-07-05 12:46 | Claude | 45f8cf7b | [Claude] 020: diff score 0-100 + diff_lines + per-class + model_gaps + historia delta |
 | 2026-07-05 13:29 | Claude | 0629eaf4 | [Claude] fix GitSyncDaemon: nie kasuj aktywnych .git *.lock (tylko >60s) — koniec korupcji packed-refs |
+| 2026-07-05 13:35 | Claude | 1380489c | [Claude] test: weryfikacja GitSync po naprawie locków i restarcie |
