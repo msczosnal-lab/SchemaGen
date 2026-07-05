@@ -254,6 +254,8 @@ def _hough_cfg() -> dict:
             "bus_min_len_frac": BUS_MIN_LEN_FRAC,
             "bus_gap_frac": BUS_GAP_FRAC,
             "bus_axis_tol_deg": BUS_AXIS_TOL_DEG,
+            "rail_merge_y_tol": 8.0,
+            "rail_merge_gap_frac": 0.012,
         }
 
 

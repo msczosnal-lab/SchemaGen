@@ -80,6 +80,8 @@ def runtime_settings() -> dict:
             "hough_bus_min_len_frac": 0.01,
             "hough_bus_gap_frac": 0.004,
             "hough_bus_axis_tol_deg": 6.0,
+            "hough_rail_merge_y_tol": 8.0,
+            "hough_rail_merge_gap_frac": 0.012,
             # Strict: Connection tylko gdy oba konce trafiaja w terminal.
             "connection_require_terminal": False,
             # Warstwa relacji (RelationResolver)
@@ -226,6 +228,8 @@ def hough_params() -> dict:
         "gap_floor": int(s["hough_gap_floor"]),
         "second_pass": bool(s.get("hough_second_pass", False)),
         "bus_min_len_frac": float(s.get("hough_bus_min_len_frac", 0.01)),
-        "bus_gap_frac": float(s.get("hough_bus_gap_frac", 0.004)),
-        "bus_axis_tol_deg": float(s.get("hough_bus_axis_tol_deg", 6.0)),
-    }
+            "bus_gap_frac": float(s.get("hough_bus_gap_frac", 0.004)),
+            "bus_axis_tol_deg": float(s.get("hough_bus_axis_tol_deg", 6.0)),
+            "rail_merge_y_tol": float(s.get("hough_rail_merge_y_tol", 8.0)),
+            "rail_merge_gap_frac": float(s.get("hough_rail_merge_gap_frac", 0.012)),
+        }
