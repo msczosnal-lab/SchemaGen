@@ -78,7 +78,8 @@ def rebuild_connections_from_gt(schema, size):
 
 
 # Kolory BGR
-_C_WIRE = (40, 200, 40)      # zielony — wykryty przewod
+_C_WIRE = (40, 200, 40)      # zielony — wire w netcie (>=2 wezly)
+_C_WIRE_ORPHAN = (0, 160, 255)  # pomaranczowy — wire poza netem / bez Connection
 _C_BUS = (220, 120, 0)       # niebieski — szyna (deprecated, gdyby byl)
 _C_OTHER = (160, 160, 160)   # szary — odrzucony artefakt
 _C_FRAME = (200, 100, 200)   # fiolet — obramowka bbox
@@ -123,25 +124,25 @@ def _node_anchor(node_id: str, comps_by_id: dict) -> tuple[int, int] | None:
     return int((x1 + x2) / 2), int((y1 + y2) / 2)
 
 
-def _connected_nets(schema, size):
-    """Rekonstrukcja netow (ta sama logika co net_builder) -> tylko te, ktore daly
-    polaczenie (>=2 wezly). Zwraca liste (polylines_netu, [punkty_wezlow])."""
+def _connected_nets(schema, size) -> list[list[GraphicLine]]:
+    """Nety z >=2 wezlami terminalowymi (ta sama logika co net_builder)."""
     tol = _terminal_tol(size)
     cands = [
         ln for ln in schema.graphic_lines
         if LineClassifier.is_connection_candidate(ln) and len(ln.points) >= 2
     ]
-    comps_by_id = {c.id: c for c in schema.components}
     req = _require_terminal()
-    out = []
+    out: list[list[GraphicLine]] = []
     for net in _group_into_nets(cands, tol, schema.components, tol):
         nodes = _nodes_on_net(net, schema.components, tol, req)
         if len(nodes) < 2:
             continue
-        polys = [ln.points for ln in net]
-        anchors = [a for a in (_node_anchor(n, comps_by_id) for n in nodes) if a]
-        out.append((polys, anchors))
+        out.append(net)
     return out
+
+
+def _connected_line_ids(nets: list[list[GraphicLine]]) -> set[int]:
+    return {id(ln) for net in nets for ln in net}
 
 
 def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
@@ -151,35 +152,43 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
     white = np.full_like(img, 255)
     out = cv2.addWeighted(img, 0.30, white, 0.70, 0)
 
-    # 1) Linie graficzne wg roli — wire/bus + odrzucone artefakty
-    _ROLE_COLORS = {
-        "wire": _C_WIRE,
-        "bus": _C_BUS,
-        "other": _C_OTHER,
-        "frame": _C_FRAME,
-        "dash": _C_DASH,
-    }
+    connected_nets = _connected_nets(schema, size)
+    connected_ids = _connected_line_ids(connected_nets)
+    comps_by_id = {c.id: c for c in schema.components}
+
+    # 1) Artefakty (szary/fiolet/olive)
     for ln in schema.graphic_lines:
-        color = _ROLE_COLORS.get(ln.role)
-        if color is None:
+        if ln.role not in ("other", "frame", "dash"):
             continue
+        color = {"other": _C_OTHER, "frame": _C_FRAME, "dash": _C_DASH}[ln.role]
         pts = np.array(ln.points, dtype=np.int32)
         if len(pts) >= 2:
-            thick = 2 if ln.role in ("wire", "bus") else 1
+            cv2.polylines(out, [pts], False, color, 1, cv2.LINE_AA)
+
+    # 2) Wire/bus — zielony = w netcie z Connection; pomarancz = osierocone wire
+    for ln in schema.graphic_lines:
+        if ln.role not in ("wire", "bus"):
+            continue
+        in_net = id(ln) in connected_ids
+        color = _C_WIRE if in_net else _C_WIRE_ORPHAN
+        pts = np.array(ln.points, dtype=np.int32)
+        if len(pts) >= 2:
+            thick = 3 if in_net else 2
             cv2.polylines(out, [pts], False, color, thick, cv2.LINE_AA)
 
-    # 2) TRASOWANIE: przewody netu, ktory dal Connection -> czerwony PO realnej sciezce
-    nets = _connected_nets(schema, size)
-    for polys, anchors in nets:
-        for pts in polys:
-            arr = np.array(pts, dtype=np.int32)
-            if len(arr) >= 2:
-                cv2.polylines(out, [arr], False, _C_CONN, 3, cv2.LINE_AA)
-        for ax, ay in anchors:  # wezly netu (terminal / symbol)
+    # 3) Wezly netow z Connection — czerwone kropki (bez nakladania czerwonej polilinii na zielony)
+    tol = _terminal_tol(size)
+    req = _require_terminal()
+    for net in connected_nets:
+        for n in _nodes_on_net(net, schema.components, tol, req):
+            a = _node_anchor(n, comps_by_id)
+            if a is None:
+                continue
+            ax, ay = a
             cv2.circle(out, (ax, ay), 6, _C_CONN, -1)
             cv2.circle(out, (ax, ay), 6, (255, 255, 255), 1)
 
-    # 3) Bboxy symboli + terminale (z etykieta id). Etykieta = nr_bbox:nazwa.
+    # 4) Bboxy symboli + terminale (z etykieta id). Etykieta = nr_bbox:nazwa.
     for i, c in enumerate(schema.components):
         if len(c.bbox) < 4:
             continue
@@ -199,8 +208,10 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
             cv2.putText(out, str(t.id), (ax + 8, ay - 6),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
 
-    # 4) Naglowek + legenda + liczniki
+    # 5) Naglowek + legenda + liczniki
     n_wire = sum(1 for l in schema.graphic_lines if l.role == "wire")
+    n_wire_conn = sum(1 for l in schema.graphic_lines if l.role == "wire" and id(l) in connected_ids)
+    n_wire_orphan = n_wire - n_wire_conn
     n_bus = sum(1 for l in schema.graphic_lines if l.role == "bus")
     n_other = sum(1 for l in schema.graphic_lines if l.role == "other")
     n_frame = sum(1 for l in schema.graphic_lines if l.role == "frame")
@@ -208,9 +219,9 @@ def draw_schema(img: np.ndarray, schema, title: str) -> np.ndarray:
     cv2.putText(out, title, (10, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (200, 0, 0), 2)
     legend = [
         (f"components: {len(schema.components)}", _C_BBOX),
-        (f"wire: {n_wire} | bus: {n_bus}", _C_WIRE),
+        (f"wire net: {n_wire_conn} | wire orphan: {n_wire_orphan} | bus: {n_bus}", _C_WIRE),
         (f"other: {n_other} | frame: {n_frame} | dash: {n_dash}", _C_OTHER),
-        (f"connections: {len(schema.connections)} | potentials: {len(schema.potentials)}", _C_CONN),
+        (f"connections: {len(schema.connections)} | wezly (czerwone)", _C_CONN),
         ("terminale (zolte z id)", _C_TERM),
     ]
     for i, (txt, col) in enumerate(legend):
@@ -283,7 +294,9 @@ def main() -> int:
             if ":" in str(c.from_ref) and ":" in str(c.to)
         )
         print(
-            f"[diag] connection_require_terminal={_require_terminal()} | "
+            f"[diag] wire={sum(1 for l in schema.graphic_lines if l.role == 'wire')} "
+            f"other={sum(1 for l in schema.graphic_lines if l.role == 'other')} | "
+            f"connection_require_terminal={_require_terminal()} | "
             f"connections={len(schema.connections)} "
             f"(oba konce na terminalu: {n_term}, z luznym 'comp': {len(schema.connections) - n_term})"
         )

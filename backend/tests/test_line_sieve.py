@@ -152,13 +152,66 @@ def test_terminal_gate_demotes_wire_without_terminal_contact() -> None:
     assert out.role == "other"
 
 
-def test_terminal_gate_keeps_wire_touching_terminal() -> None:
+def test_terminal_gate_demotes_single_ended_stub() -> None:
     comp = Component(
         id="X1", type="zlaczka", bbox=[100, 100, 150, 180], source="yolo",
         terminals=[Terminal(id="1", x=0.0, y=0.5), Terminal(id="2", x=1.0, y=0.5)],
     )
-    wire = _wire([[100, 140], [300, 140]])  # start przy lewym terminalu
+    wire = _wire([[100, 140], [300, 140]])  # tylko lewy koniec przy terminalu
     [out] = apply_terminal_gate([wire], [comp], tol=10)
+    assert out.role == "other"
+
+
+def test_terminal_gate_keeps_wire_between_two_terminals() -> None:
+    a = Component(
+        id="A", type="zlaczka", bbox=[100, 100, 150, 180], source="yolo",
+        terminals=[Terminal(id="1", x=1.0, y=0.5)],
+    )
+    b = Component(
+        id="B", type="zlaczka", bbox=[300, 100, 350, 180], source="yolo",
+        terminals=[Terminal(id="1", x=0.0, y=0.5)],
+    )
+    wire = _wire([[150, 140], [300, 140]])
+    [out] = apply_terminal_gate([wire], [a, b], tol=10)
+    assert out.role == "wire"
+
+
+def test_terminal_gate_probe_finds_bbox_without_terminals() -> None:
+    """Drugi bbox bez terminali — probe widzi kontakt wire z krawedzia."""
+    a = Component(
+        id="A", type="zlaczka", bbox=[100, 100, 150, 180], source="yolo",
+        terminals=[Terminal(id="1", x=1.0, y=0.5)],
+    )
+    b = Component(id="B", type="zlaczka", bbox=[298, 100, 348, 180], source="yolo")
+    wire = _wire([[150, 140], [300, 140]])
+    [out] = apply_terminal_gate([wire], [a, b], tol=10, probe_tol=25)
+    assert out.role == "wire"
+
+
+def test_terminal_gate_keeps_bus_crossing_boxes_without_terminals() -> None:
+    """p027: szyna przez rzad zlaczek bez terminali — przecina >=2 bboxy."""
+    boxes = [
+        Component(id=f"z{i}", type="zlaczka", bbox=[100 + i * 94, 100, 150 + i * 94, 180], source="yolo")
+        for i in range(4)
+    ]
+    bus = _wire([[80, 140], [500, 140]])
+    [out] = apply_terminal_gate([bus], boxes, tol=10)
+    assert out.role == "wire"
+
+
+def test_terminal_gate_keeps_bus_with_terminals_on_path() -> None:
+    boxes = [
+        Component(
+            id=f"z{i}",
+            type="zlaczka",
+            bbox=[100 + i * 94, 100, 150 + i * 94, 180],
+            source="yolo",
+            terminals=[Terminal(id="1", x=0.5, y=0.5)],
+        )
+        for i in range(4)
+    ]
+    bus = _wire([[80, 140], [500, 140]])
+    [out] = apply_terminal_gate([bus], boxes, tol=10)
     assert out.role == "wire"
 
 

@@ -131,9 +131,9 @@ class GraphBuilder:
             graphic_lines, components, bridge_tol=join_tol
         )
 
-        # 4c) Sito terminalowe: wire tylko gdy dotyka terminala (OD-DO)
+        # 4c) Sito terminalowe: wire tylko OD-DO (oba konce + probe bbox)
         graphic_lines = apply_terminal_gate(
-            graphic_lines, components, tol=join_tol
+            graphic_lines, components, tol=join_tol, probe_tol=max(join_tol * 2.5, join_tol + 12.0)
         )
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)

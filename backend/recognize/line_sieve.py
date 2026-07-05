@@ -78,48 +78,166 @@ def apply_terminal_gate(
     components: list[Component],
     *,
     tol: float = 8.0,
+    probe_tol: float | None = None,
 ) -> list[GraphicLine]:
-    """Drugie sito: wire/bus zostaje przewodem tylko gdy koniec dotyka terminala.
+    """Drugie sito: wire/bus zostaje przewodem tylko gdy oba konce maja terminal (OD-DO).
 
-    Wolane PO wyprowadzeniu terminali. Linie bez kontaktu z zadnym terminalem -> other.
-    Mostki (konce w 2 roznych terminalach tego samego komponentu) zostaja wire.
+    Wolane PO wyprowadzeniu terminali. Wyjatki: mostek wewnetrzny, szyna z >=2 terminalami
+    na sciezce. Gdy jeden koniec nie trafia — probe_tol szuka bboxa / kontaktu z krawedzia.
     """
+    probe = probe_tol if probe_tol is not None else max(tol * 2.5, tol + 12.0)
+    wire_cands = [ln for ln in lines if LineClassifier.is_connection_candidate(ln)]
     out: list[GraphicLine] = []
     for ln in lines:
         if not LineClassifier.is_connection_candidate(ln):
             out.append(ln)
             continue
-        if _touches_any_terminal(ln, components, tol):
-            out.append(ln)
-            continue
-        inside = _containing_component(ln, components, 2.0)
-        if inside is not None and _bridges_two_terminals(ln, inside, tol):
+        if _passes_terminal_gate(ln, components, wire_cands, tol, probe):
             out.append(ln)
             continue
         out.append(ln.model_copy(update={"role": "other"}))
     return out
 
 
-def _touches_any_terminal(
-    line: GraphicLine, components: list[Component], tol: float
+def _passes_terminal_gate(
+    line: GraphicLine,
+    components: list[Component],
+    wire_lines: list[GraphicLine],
+    tol: float,
+    probe_tol: float,
 ) -> bool:
-    """True gdy przynajmniej jeden koniec linii trafia w terminal dowolnego komponentu."""
+    inside = _containing_component(line, components, 2.0)
+    if inside is not None and _bridges_two_terminals(line, inside, tol):
+        return True
+    if _components_with_terminals_on_path(line, components, tol) >= 2:
+        return True
+    if _components_crossed_by_wire(line, components, tol) >= 2:
+        return True
     ep = _endpoints(line)
     if ep is None:
         return False
-    for pt in ep:
-        for c in components:
-            if not c.terminals or len(c.bbox) < 4:
-                continue
-            x1, y1, x2, y2 = c.bbox[0], c.bbox[1], c.bbox[2], c.bbox[3]
-            w = (x2 - x1) or 1.0
-            h = (y2 - y1) or 1.0
-            for t in c.terminals:
-                ax = x1 + t.x * w
-                ay = y1 + t.y * h
-                if math.hypot(pt[0] - ax, pt[1] - ay) <= tol:
-                    return True
+    ok0 = _endpoint_hits_terminal(ep[0], components, tol)
+    ok1 = _endpoint_hits_terminal(ep[1], components, tol)
+    if not ok0:
+        ok0 = _probe_open_endpoint(ep[0], components, wire_lines, tol, probe_tol)
+    if not ok1:
+        ok1 = _probe_open_endpoint(ep[1], components, wire_lines, tol, probe_tol)
+    return ok0 and ok1
+
+
+def _endpoint_hits_terminal(
+    point: list[float], components: list[Component], tol: float
+) -> bool:
+    from backend.recognize.net_builder import _nearest_component, _nearest_terminal
+
+    c = _nearest_component(point, components, tol)
+    if c is None or not c.terminals:
+        return False
+    return _nearest_terminal(point, c, tol) is not None
+
+
+def _probe_open_endpoint(
+    point: list[float],
+    components: list[Component],
+    wire_lines: list[GraphicLine],
+    tol: float,
+    probe_tol: float,
+) -> bool:
+    """Jeden koniec bez terminala — szerszy promien: bbox mogl byc ledwo poza tol."""
+    if _endpoint_hits_terminal(point, components, probe_tol):
+        return True
+    from backend.recognize.net_builder import (
+        _nearest_component,
+        _nearest_terminal,
+        derive_auto_terminals,
+    )
+    from backend.recognize.terminal_geometry import line_bbox_edge_contacts
+
+    c = _nearest_component(point, components, probe_tol)
+    if c is None:
+        return False
+    if c.terminals:
+        return _nearest_terminal(point, c, probe_tol) is not None
+    contacts = line_bbox_edge_contacts(c, wire_lines, tol)
+    if not contacts:
+        return False
+    for cx, cy in contacts:
+        if math.hypot(point[0] - cx, point[1] - cy) <= probe_tol:
+            return True
+    for t in derive_auto_terminals(c, wire_lines, tol):
+        if len(c.bbox) < 4:
+            break
+        x1, y1, x2, y2 = c.bbox[:4]
+        w = (x2 - x1) or 1.0
+        h = (y2 - y1) or 1.0
+        ax = x1 + t.x * w
+        ay = y1 + t.y * h
+        if math.hypot(point[0] - ax, point[1] - ay) <= probe_tol:
+            return True
     return False
+
+
+def _components_crossed_by_wire(
+    line: GraphicLine, components: list[Component], tol: float
+) -> int:
+    """Ile bboxow przecina osiowy przewod (szyna bez wyprowadzonych terminali)."""
+    ep = _endpoints(line)
+    if ep is None:
+        return 0
+    p, q = ep
+    count = 0
+    for c in components:
+        if len(c.bbox) < 4:
+            continue
+        if _segment_crosses_bbox(p, q, c.bbox, tol):
+            count += 1
+    return count
+
+
+def _segment_crosses_bbox(
+    p: list[float], q: list[float], bbox: list[float], margin: float
+) -> bool:
+    x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]
+    orient = _orientation(p, q)
+    if orient == "h":
+        y = (p[1] + q[1]) / 2
+        if y < y1 - margin or y > y2 + margin:
+            return False
+        return _overlap_frac(p[0], q[0], x1, x2) > 0.05
+    if orient == "v":
+        x = (p[0] + q[0]) / 2
+        if x < x1 - margin or x > x2 + margin:
+            return False
+        return _overlap_frac(p[1], q[1], y1, y2) > 0.05
+    lb = _line_bbox([p, q])
+    return not (
+        lb[2] < x1 - margin
+        or lb[0] > x2 + margin
+        or lb[3] < y1 - margin
+        or lb[1] > y2 + margin
+    )
+
+
+def _components_with_terminals_on_path(
+    line: GraphicLine, components: list[Component], tol: float
+) -> int:
+    """Ile roznych bboxow ma terminal na polilinii (szyna przez rzad zlaczek)."""
+    from backend.recognize.net_builder import _point_on_line_path
+
+    seen: set[str] = set()
+    for c in components:
+        if not c.terminals or len(c.bbox) < 4:
+            continue
+        x1, y1, x2, y2 = c.bbox[0], c.bbox[1], c.bbox[2], c.bbox[3]
+        w = (x2 - x1) or 1.0
+        h = (y2 - y1) or 1.0
+        for t in c.terminals:
+            ax = x1 + t.x * w
+            ay = y1 + t.y * h
+            if _point_on_line_path([ax, ay], line, tol):
+                seen.add(c.id)
+                break
+    return len(seen)
 
 
 def recover_terminal_bridges(
