@@ -22,7 +22,7 @@ from backend.models.schema import (
     Terminal,
 )
 from backend.paths import CONFIG, LABELED, RAW
-from backend.class_map import build_class_map, load_palette_map, resolve_class_id
+from backend.class_map import build_class_map, component_type_from_bbox, load_palette_map, resolve_class_id
 
 
 def load_class_map() -> dict[str, int]:
@@ -41,7 +41,7 @@ def label_to_schema(record: LabelRecord) -> SchemaModel:
     components = [
         Component(
             id=b.id,
-            type=b.class_name,
+            type=component_type_from_bbox(b.class_name, b.tag),
             tag=b.tag,
             bbox=[b.x, b.y, b.x + b.width, b.y + b.height],
             source="manual",

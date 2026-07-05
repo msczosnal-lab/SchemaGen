@@ -3,6 +3,7 @@
 from backend.class_map import (
     build_class_map,
     class_train_role,
+    component_type_from_bbox,
     is_yolo_exportable,
     load_train_roles,
     load_yolo_exclude_classes,
@@ -32,6 +33,12 @@ def test_tag_matches_palette_label():
     # "silnik" (palette label_pl) -> kanoniczne id "motor"
     assert tag_to_class("silnik") == "motor"
     assert tag_to_class("Silnik") == "motor"  # case/akcent-insensitive
+
+
+def test_component_type_from_bbox_prefers_tag_over_element():
+    assert component_type_from_bbox("element", "złączka") == "zlaczka"
+    assert component_type_from_bbox("motor", "-M1") == "motor"
+    assert component_type_from_bbox("element", "") == "element"
 
 
 def test_empty_tag_is_none():

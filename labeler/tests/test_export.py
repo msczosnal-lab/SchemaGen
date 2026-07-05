@@ -21,6 +21,29 @@ def test_label_to_schema() -> None:
     assert model.components[0].type == "motor"
 
 
+def test_label_to_schema_type_from_tag_when_element() -> None:
+    record = LabelRecord(
+        page_id="t",
+        image_path="t.png",
+        bboxes=[
+            BboxAnnotation(
+                id="z1", class_name="element", x=0, y=0, width=10, height=10, tag="złączka"
+            ),
+            BboxAnnotation(
+                id="a1",
+                class_name="element",
+                x=20,
+                y=0,
+                width=10,
+                height=10,
+                tag="Strzałka potencjału (wejściowa)",
+            ),
+        ],
+    )
+    types = [c.type for c in label_to_schema(record).components]
+    assert types == ["zlaczka", "strzalka_potencjalu_wejsciowa"]
+
+
 def test_label_to_schema_maps_terminals() -> None:
     record = LabelRecord(
         page_id="t",
