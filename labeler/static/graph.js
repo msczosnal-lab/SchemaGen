@@ -813,6 +813,8 @@ function setMode(next) {
 function renderLineList() {
   const list = document.getElementById("line-list");
   if (!list) return;
+  const countEl = document.getElementById("line-count");
+  if (countEl) countEl.textContent = String(graph.lines.length);
   list.innerHTML = "";
   const order = graph.lines.map((line, i) => ({ line, i }));
   order.sort((a, b) => lineNum(a.line.id) - lineNum(b.line.id) || a.i - b.i);
