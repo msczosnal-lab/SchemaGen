@@ -90,6 +90,16 @@ def validate_graph(
             errors,
         )
 
+    term_use: dict[str, str] = {}
+    for ln in graph.lines:
+        for label, ref in (("from", ln.from_ref), ("to", ln.to)):
+            if ref in term_use:
+                errors.append(
+                    f"terminal {ref} uzyty w {term_use[ref]} i {ln.id} ({label})"
+                )
+            else:
+                term_use[ref] = ln.id
+
     return GraphValidationResult(valid=not errors, errors=errors, warnings=warnings)
 
 

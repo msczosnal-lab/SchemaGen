@@ -1141,9 +1141,9 @@ function redraw() {
     });
   });
 
-  drawLinesLayer();
-
   ctx.restore();
+
+  drawLinesLayerScreen();
 
   if (mode === MODE_BBOX) {
     graph.symbols.forEach((sym, i) => {
