@@ -707,12 +707,6 @@ function deleteSelectedTerminal() {
   redraw();
 }
 
-function typeStr(v) {
-  if (typeof v === "string") return v;
-  if (v && typeof v === "object") return String(v.id || v.label_pl || "");
-  return v ? String(v) : "";
-}
-
 async function searchPalette(q) {
   if (!q.trim()) {
     paletteResults.innerHTML = "";
@@ -727,6 +721,11 @@ async function searchPalette(q) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = label;
+      const c = colorFromKey(slug);
+      if (c !== UNASSIGNED_COLOR) {
+        btn.style.background = c;
+        btn.style.color = "#fff";
+      }
       btn.onclick = () => {
         assignTypeToSelected(slug);
         paletteResults.innerHTML = "";
