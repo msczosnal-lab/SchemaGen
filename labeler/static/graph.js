@@ -394,69 +394,6 @@ function lineToRef(line) {
   return line.to ?? line.to_ref ?? "";
 }
 
-function pageImageSize() {
-  return {
-    w: bgImage?.naturalWidth || graph.image_width || canvas.width,
-    h: bgImage?.naturalHeight || graph.image_height || canvas.height,
-  };
-}
-
-function fitViewToPage() {
-  const { w: iw, h: ih } = pageImageSize();
-  const pad = Math.max(32, Math.min(iw, ih) * 0.015);
-  const availW = canvas.width - 2 * pad;
-  const availH = canvas.height - 2 * pad;
-  scale = Math.min(availW / iw, availH / ih);
-  scale = Math.min(Math.max(scale, 0.02), 8);
-  originX = pad + (availW - iw * scale) / 2;
-  originY = pad + (availH - ih * scale) / 2;
-  savePageViewport(currentPageId);
-  redraw();
-}
-
-function fitViewToGraph() {
-  const bounds = graphContentBounds();
-  if (!bounds) {
-    fitViewToPage();
-    return;
-  }
-  const pad = Math.max(40, Math.min(canvas.width, canvas.height) * 0.02);
-  const availW = canvas.width - 2 * pad;
-  const availH = canvas.height - 2 * pad;
-  scale = Math.min(availW / bounds.width, availH / bounds.height);
-  scale = Math.min(Math.max(scale, 0.05), 32);
-  originX = pad + (availW - bounds.width * scale) / 2 - bounds.minX * scale;
-  originY = pad + (availH - bounds.height * scale) / 2 - bounds.minY * scale;
-  savePageViewport(currentPageId);
-  redraw();
-}
-
-function loadAllViewports() {
-  try {
-    return JSON.parse(localStorage.getItem(VIEWPORT_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
-function loadPageViewport(pageId) {
-  if (!pageId) return null;
-  const vp = loadAllViewports()[pageId];
-  if (!vp || !Number.isFinite(vp.scale) || vp.scale <= 0) return null;
-  return vp;
-}
-
-function savePageViewport(pageId) {
-  if (!pageId) return;
-  try {
-    const all = loadAllViewports();
-    all[pageId] = { scale, originX, originY };
-    localStorage.setItem(VIEWPORT_KEY, JSON.stringify(all));
-  } catch {
-    /* ignore */
-  }
-}
-
 function graphContentBounds() {
   let minX = Infinity;
   let minY = Infinity;
