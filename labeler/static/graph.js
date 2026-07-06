@@ -595,13 +595,99 @@ function lineDisplayPoints(line) {
   return orthoRoutePoints(a, b);
 }
 
-function buildLineVertices(draft, toPos) {
-  if (!draft.middles.length) return [];
-  return [
-    [Math.round(draft.fromPos.x), Math.round(draft.fromPos.y)],
-    ...draft.middles.map((p) => [Math.round(p[0]), Math.round(p[1])]),
-    [Math.round(toPos.x), Math.round(toPos.y)],
-  ];
+function resolveTerminalByRef(ref) {
+  const p = parseTerminalRef(ref);
+  if (!p) return null;
+  const symIdx = graph.symbols.findIndex((s) => s.id === p.symId);
+  if (symIdx < 0) return null;
+  const termIdx = (graph.symbols[symIdx].terminals || []).findIndex(
+    (t) => String(t.id) === p.termId
+  );
+  if (termIdx < 0) return null;
+  return { symIdx, termIdx, ref: `${p.symId}:${p.termId}` };
+}
+
+function terminalEdge(t) {
+  const dL = t.x;
+  const dR = 1 - t.x;
+  const dT = t.y;
+  const dB = 1 - t.y;
+  const m = Math.min(dL, dR, dT, dB);
+  if (m === dL) return "left";
+  if (m === dR) return "right";
+  if (m === dT) return "top";
+  return "bottom";
+}
+
+function terminalSlidesY(edge) {
+  return edge === "left" || edge === "right";
+}
+
+function terminalSlidesX(edge) {
+  return edge === "top" || edge === "bottom";
+}
+
+function setTerminalAbsPos(sym, term, absX, absY) {
+  const b = bboxRect(sym);
+  const edge = terminalEdge(term);
+  if (edge === "left") {
+    term.x = 0;
+    term.y = +Math.max(0, Math.min(1, (absY - b.y) / (b.height || 1))).toFixed(4);
+  } else if (edge === "right") {
+    term.x = 1;
+    term.y = +Math.max(0, Math.min(1, (absY - b.y) / (b.height || 1))).toFixed(4);
+  } else if (edge === "top") {
+    term.y = 0;
+    term.x = +Math.max(0, Math.min(1, (absX - b.x) / (b.width || 1))).toFixed(4);
+  } else {
+    term.y = 1;
+    term.x = +Math.max(0, Math.min(1, (absX - b.x) / (b.width || 1))).toFixed(4);
+  }
+}
+
+/** Bez przegubów: przesuń terminale wzdłuż krawędzi, aby linia była prosta H/V. */
+function alignTerminalsStraight(fromHit, toHit) {
+  const fromSym = graph.symbols[fromHit.symIdx];
+  const toSym = graph.symbols[toHit.symIdx];
+  const fromTerm = fromSym.terminals[fromHit.termIdx];
+  const toTerm = toSym.terminals[toHit.termIdx];
+  const fromPos = terminalAbsPos(fromSym, fromTerm);
+  const toPos = terminalAbsPos(toSym, toTerm);
+  const fromEdge = terminalEdge(fromTerm);
+  const toEdge = terminalEdge(toTerm);
+
+  if (terminalSlidesY(fromEdge) && terminalSlidesY(toEdge)) {
+    const targetY = (fromPos.y + toPos.y) / 2;
+    setTerminalAbsPos(fromSym, fromTerm, fromPos.x, targetY);
+    setTerminalAbsPos(toSym, toTerm, toPos.x, targetY);
+    return true;
+  }
+  if (terminalSlidesX(fromEdge) && terminalSlidesX(toEdge)) {
+    const targetX = (fromPos.x + toPos.x) / 2;
+    setTerminalAbsPos(fromSym, fromTerm, targetX, fromPos.y);
+    setTerminalAbsPos(toSym, toTerm, targetX, toPos.y);
+    return true;
+  }
+  return false;
+}
+
+function buildLineVertices(fromPos, middles, toPos) {
+  const start = [Math.round(fromPos.x), Math.round(fromPos.y)];
+  const end = [Math.round(toPos.x), Math.round(toPos.y)];
+  if (!middles.length) return [];
+
+  const beforeLast =
+    middles.length >= 2
+      ? middles[middles.length - 2]
+      : [fromPos.x, fromPos.y];
+  const corner = orthoCornerPoint(beforeLast, toPos);
+  const out = [start];
+  for (let i = 0; i < middles.length - 1; i++) {
+    out.push([Math.round(middles[i][0]), Math.round(middles[i][1])]);
+  }
+  out.push([Math.round(corner[0]), Math.round(corner[1])]);
+  out.push(end);
+  return out;
 }
 
 function cancelLineDraft() {
@@ -627,18 +713,40 @@ function completeLineDraft(hit) {
   }
   lineCompleting = true;
   try {
+    const fromHit = resolveTerminalByRef(lineDraft.fromRef);
     const toSym = graph.symbols[hit.symIdx];
-    const toPos = terminalAbsPos(toSym, toSym.terminals[hit.termIdx]);
+    const toTerm = toSym.terminals[hit.termIdx];
+    if (!fromHit) return;
+
+    let vertices;
+    if (!lineDraft.middles.length) {
+      const straight = alignTerminalsStraight(fromHit, hit);
+      const fromSym = graph.symbols[fromHit.symIdx];
+      const fromTerm = fromSym.terminals[fromHit.termIdx];
+      const a = terminalAbsPos(fromSym, fromTerm);
+      const b = terminalAbsPos(toSym, toTerm);
+      vertices = straight
+        ? [[Math.round(a.x), Math.round(a.y)], [Math.round(b.x), Math.round(b.y)]]
+        : [];
+    } else {
+      const fromSym = graph.symbols[fromHit.symIdx];
+      const fromTerm = fromSym.terminals[fromHit.termIdx];
+      const a = terminalAbsPos(fromSym, fromTerm);
+      const b = terminalAbsPos(toSym, toTerm);
+      vertices = buildLineVertices(a, lineDraft.middles, b);
+    }
+
     const line = {
       id: nextLineId(),
       from: lineDraft.fromRef,
       to: hit.ref,
-      vertices: buildLineVertices(lineDraft, toPos),
+      vertices,
       kind: currentLineKind(),
     };
     graph.lines.push(line);
     cancelLineDraft();
     markDirty();
+    renderSymbolList();
     renderLineList();
     redraw();
     saveStatusEl.textContent = `Dodano ${formatLineLabel(line)}`;
