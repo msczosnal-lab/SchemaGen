@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] labeler: SchematicGraph v2 model + graph_validate (022 krok 2)

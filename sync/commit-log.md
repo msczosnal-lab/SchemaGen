@@ -149,3 +149,4 @@
 | 2026-07-05 23:35 | Cursor | e85942fc | [Cursor] fix preview: zielony wire widoczny, czerwone tylko wezly |
 | 2026-07-05 23:43 | Cursor | 7666d916 | [Cursor] diff: remap ID symboli/terminali w diff_connections (022 krok 0) |
 | 2026-07-05 23:43 | Cursor | 851cc286 | [Cursor] diff: remap ID symboli/terminali w diff_connections (022 krok 0) |
+| 2026-07-06 21:15 | Cursor | cee4c0be | [Cursor] labeler: SchematicGraph v2 model + graph_validate (022 krok 2) |
