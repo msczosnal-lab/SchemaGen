@@ -179,9 +179,11 @@ def _assign_potentials(
 
 
 def _union_rail_terminals(graph: SchematicGraph, uf: _UnionFind) -> None:
-    """L/R na obrysie tej samej złączki = ten sam węzeł toru szyny (domknięcie)."""
+    """L/R na obrysie złączki = ten sam węzeł toru szyny (domknięcie)."""
     edge_frac = 0.05
     for sym in graph.symbols:
+        if sym.type != "zlaczka":
+            continue
         left: list[str] = []
         right: list[str] = []
         for t in sym.terminals:
