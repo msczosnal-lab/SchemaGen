@@ -164,3 +164,4 @@
 | 2026-07-06 22:07 | Cursor | 52c72d94 | [Cursor] labeler v2: terminal przy drugim kliku w bbox, poza bbox odznacza |
 | 2026-07-06 22:09 | Cursor | d23ade3e | [Cursor] labeler v2: tryb Linia OD-DO (L), kind, lista linii (022 k6) |
 | 2026-07-06 22:10 | Cursor | a7bf6f62 | [Cursor] labeler v2: etykieta bbox skaluje się z zoomem, max 2× szerokość ramki |
+| 2026-07-06 22:11 | Cursor | 7f862bbe | [Cursor] labeler v2: kontrast etykiet — ciemny tekst, białe tło, bez białego na jasnym |
