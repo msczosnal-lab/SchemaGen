@@ -386,12 +386,17 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   ctx.restore();
 }
 
+function lineEndpoint(raw, which) {
+  if (which === "from") return raw["from"] ?? raw.from_ref ?? raw.fromRef ?? "";
+  return raw["to"] ?? raw.to_ref ?? raw.toRef ?? "";
+}
+
 function lineFromRef(line) {
-  return line.from ?? line.from_ref ?? "";
+  return lineEndpoint(line, "from");
 }
 
 function lineToRef(line) {
-  return line.to ?? line.to_ref ?? "";
+  return lineEndpoint(line, "to");
 }
 
 function graphContentBounds() {
@@ -591,18 +596,21 @@ function orthoRoutePoints(from, to) {
 }
 
 function lineDisplayPoints(line) {
+  const v = (line.vertices || []).map((p) => [Number(p[0]), Number(p[1])]);
   const a = terminalPosByRef(lineFromRef(line));
   const b = terminalPosByRef(lineToRef(line));
-  if (!a || !b) return [];
-  const v = line.vertices || [];
-  const start = [Math.round(a.x), Math.round(a.y)];
-  const end = [Math.round(b.x), Math.round(b.y)];
-  if (!v.length) return [start, end];
-  const mids =
-    v.length >= 2
-      ? v.slice(1, -1).map((p) => [Math.round(p[0]), Math.round(p[1])])
-      : v.map((p) => [Math.round(p[0]), Math.round(p[1])]);
-  return mids.length ? [start, ...mids, end] : [start, end];
+  if (a && b) {
+    const start = [Math.round(a.x), Math.round(a.y)];
+    const end = [Math.round(b.x), Math.round(b.y)];
+    if (!v.length) return [start, end];
+    const mids =
+      v.length >= 2
+        ? v.slice(1, -1).map((p) => [Math.round(p[0]), Math.round(p[1])])
+        : v.map((p) => [Math.round(p[0]), Math.round(p[1])]);
+    return mids.length ? [start, ...mids, end] : [start, end];
+  }
+  if (v.length >= 2) return v.map((p) => [Math.round(p[0]), Math.round(p[1])]);
+  return [];
 }
 
 function terminalUsedRef(ref) {
@@ -945,8 +953,8 @@ function normalizeLines(raw) {
   const seenPair = new Set();
   const out = [];
   for (const l of raw || []) {
-    const from = l.from ?? l.from_ref;
-    const to = l.to ?? l.to_ref;
+    const from = lineEndpoint(l, "from");
+    const to = lineEndpoint(l, "to");
     if (!from || !to) continue;
     const pairKey = `${from}|${to}`;
     if (seenId.has(l.id) || seenPair.has(pairKey)) continue;
