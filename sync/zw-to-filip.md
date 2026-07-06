@@ -5,7 +5,30 @@
 
 ---
 
-## 2026-07-05 [Cursor] — 022 krok 0: remap ID w diff_connections
+## 2026-07-06 [Cursor] — 022 krok 2: SchematicGraph + graph_validate
+
+**Zakres:** model Pydantic v2 + walidacja ortho/snap/obrys terminala. Prompt 022 krok 2.
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `backend/models/schematic_graph.py` **(nowy)** | `SchematicGraph`, `GraphSymbol`, `GraphLine` (alias `from`), `version: 2`, wymiary obrazu |
+| `labeler/graph_validate.py` **(nowy)** | `validate_graph`, `graph_rules()` (progi z runtime.yaml), `GraphValidationResult` |
+| `backend/models/__init__.py` | eksport `SchematicGraph` |
+| `backend/tests/test_schematic_graph.py` **(nowy)** | roundtrip JSON + alias `from` |
+| `backend/tests/test_graph_validate.py` **(nowy)** | 7 testów: OK, puste vertices, obrys, ref, ortho, snap |
+
+### Testy
+
+`pytest backend/tests/test_schematic_graph.py backend/tests/test_graph_validate.py` → **9 passed**
+
+Następny krok: `graph_compile` → SchemaModel (krok 3).
+
+Commit pending: `[Cursor] labeler: SchematicGraph v2 model + graph_validate (022 krok 2)`
+
+---
+
 
 **Zakres:** parowanie komponentów IoU + translacja adresów runtime→GT przed porównaniem connections. Prompt: [`sync/prompts/022-labeler-graph-v2.md`](prompts/022-labeler-graph-v2.md) krok 0.
 

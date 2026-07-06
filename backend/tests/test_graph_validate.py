@@ -32,7 +32,7 @@ def _valid_graph(**kwargs) -> SchematicGraph:
                     "id": "L1",
                     "from": "a:1",
                     "to": "b:2",
-                    "vertices": [[100, 150], [300, 150]],
+                    "vertices": [[100, 150], [400, 150]],
                     "kind": "power",
                 }
             ),
