@@ -180,3 +180,4 @@
 | 2026-07-06 22:33 | Cursor | b90bbc50 | [Cursor] labeler v2: szare tło canvas przy odwróconym PNG (dark mode) |
 | 2026-07-06 22:36 | Cursor | 878adc85 | [Cursor] labeler v2: fix dopasuj — zoom w px bitmapy, F=cała strona Shift+F=adnotacje |
 | 2026-07-06 22:41 | Cursor | 173f67d6 | [Cursor] labeler v2: fix linii — bez dopasuj, lista zawsze widoczna, zoom auto |
+| 2026-07-06 22:47 | Cursor | b83ad383 | [Cursor] labeler v2: linie widoczne (px ekranu), proste OD-DO, terminal 1× |
