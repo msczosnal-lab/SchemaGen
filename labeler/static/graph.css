@@ -96,6 +96,19 @@ body.graph-v2.invert-bg #canvas-panel canvas {
 #save-bar #save-btn { width: 100%; margin: 0; }
 #save-bar #save-status { margin: 8px 0 0; min-height: 1.2em; }
 
+#lines-block {
+  flex-shrink: 0;
+  max-height: 28vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #444;
+}
+#lines-block .panel-title { margin: 0 0 6px; font-size: 1rem; }
+.lines-list { max-height: 22vh; }
+
 .tool-panel {
   display: flex;
   flex-direction: column;

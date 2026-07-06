@@ -40,7 +40,6 @@
         <button id="mode-bbox" type="button" class="mode-btn active" title="Tryb bbox (B)">⬚ Bbox</button>
         <button id="mode-line" type="button" class="mode-btn" title="Tryb linia (L)">╱ Linia</button>
         <button id="invert-bg-btn" type="button" class="mode-btn" title="Odwróć kolory tła PNG (I)" aria-pressed="false">◐ Odwróć tło</button>
-        <button id="fit-view-btn" type="button" class="mode-btn" title="Cała strona PNG w oknie (F) · Shift+F = bbox/linie">⊡ Dopasuj</button>
       </div>
       <canvas id="canvas" width="800" height="600"></canvas>
       <p id="hint">Bbox: przeciągnij · zaznaczony + klik w środku = terminal · klik poza = odznacz</p>
@@ -50,6 +49,10 @@
       <div id="save-bar">
         <button id="save-btn" type="button">Zapisz graf</button>
         <p id="save-status" class="muted"></p>
+      </div>
+      <div id="lines-block">
+        <h2 class="panel-title">Linie (<span id="line-count">0</span>)</h2>
+        <ul id="line-list" class="tool-list lines-list"></ul>
       </div>
       <div id="bbox-tool-panel" class="tool-panel">
         <h2 class="panel-title">Symbole (bbox)</h2>
@@ -69,7 +72,7 @@
         <ul id="symbol-list" class="tool-list"></ul>
       </div>
       <div id="line-tool-panel" class="tool-panel hidden">
-        <h2 class="panel-title">Linie OD→DO</h2>
+        <h2 class="panel-title">Rysuj linię</h2>
         <p class="muted panel-hint">Terminal źródłowy → opcjonalnie załamania → terminal docelowy</p>
         <label>Kind
           <select id="line-kind">
@@ -80,11 +83,10 @@
             <option value="other">other</option>
           </select>
         </label>
-        <ul id="line-list" class="tool-list"></ul>
         <button id="delete-line-btn" type="button" class="delete-btn">Usuń linię</button>
       </div>
     </aside>
   </main>
-  <script src="/static/graph.js?v=27"></script>
+  <script src="/static/graph.js?v=28"></script>
 </body>
 </html>

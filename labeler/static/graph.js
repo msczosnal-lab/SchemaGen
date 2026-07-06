@@ -1849,6 +1849,11 @@ function initPanelResize() {
   lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
   updateTypeTagPlaceholders();
   updateInvertBgButton();
+  try {
+    localStorage.removeItem("graphViewportByPage");
+  } catch {
+    /* ignore */
+  }
   initPanelResize();
   try {
     await loadPages();
