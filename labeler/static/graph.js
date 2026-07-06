@@ -1392,7 +1392,7 @@ canvas.addEventListener("mousedown", (e) => {
 
   clickSelectCandidate = symbolHitTest(imgPt);
   clickOnSelectedBBox =
-    selectedSymIdx >= 0 && clickSelectCandidate === selectedSymIdx;
+    selectedSymIdx >= 0 && terminalCreateHit(graph.symbols[selectedSymIdx], imgPt);
   drawing = true;
   drawMoved = false;
   startX = imgPt.x;
@@ -1452,7 +1452,7 @@ canvas.addEventListener("mouseup", (e) => {
   if (!drawMoved) {
     if (clickOnSelectedBBox && selectedSymIdx >= 0) {
       const sym = graph.symbols[selectedSymIdx];
-      if (sym && insideBbox(bboxRect(sym), imgPt)) {
+      if (sym && terminalCreateHit(sym, imgPt)) {
         addTerminalAt(selectedSymIdx, imgPt);
         return;
       }
