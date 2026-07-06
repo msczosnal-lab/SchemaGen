@@ -151,3 +151,4 @@
 | 2026-07-05 23:43 | Cursor | 851cc286 | [Cursor] diff: remap ID symboli/terminali w diff_connections (022 krok 0) |
 | 2026-07-06 21:15 | Cursor | cee4c0be | [Cursor] labeler: SchematicGraph v2 model + graph_validate (022 krok 2) |
 | 2026-07-06 21:20 | Cursor | f7e8f095 | [Cursor] labeler: graph_compile SchematicGraph→SchemaModel (022 krok 3) |
+| 2026-07-06 21:43 | Cursor | befceb64 | [Cursor] labeler: graph v2 API CRUD + SQLite + prefill (022 krok 4) |

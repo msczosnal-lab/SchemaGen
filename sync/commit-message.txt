@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] labeler: graph v2 API CRUD + SQLite + prefill (022 krok 4)
