@@ -1,0 +1,120 @@
+============================================================
+22_A_153_PL_Adamed_AGV_SA2_20250706_p027
+symbols=18 lines=5 terminals=49
+valid=True
+--- lines ---
+  L0: sym_9:2 -> sym_10:2 [power]
+  L1: sym_10:3 -> sym_11:2 [power]
+  L2: sym_11:4 -> sym_12:2 [power]
+  L3: sym_12:4 -> sym_13:2 [power]
+  L5: sym_13:4 -> sym_20:1 [power]
+--- symbols ---
+  #1 sym_1 strzalka_potencjalu_wejsciowa tag=24VDC_1V1/27.7 terms=[1]
+  #2 sym_2 strzalka_potencjalu_wejsciowa tag=24VDC_2V1/27.7 terms=[1]
+  #3 sym_3 strzalka_potencjalu_wejsciowa tag=0VDC_1V1/27.7 terms=[1]
+  #4 sym_4 strzalka_potencjalu_wejsciowa tag=04VDC_2V1/27.7 terms=[1]
+  #5 sym_6 custom_wyłącznik_nadprądowy tag=-F24_1 terms=[1,2]
+  #6 sym_7 mostek tag= terms=[1,2,3]
+  #7 sym_8 unknown tag= terms=[1,2]
+  #8 sym_9 zlaczka tag= terms=[1,2,3]
+  #9 sym_10 zlaczka tag= terms=[1,2,3,4]
+  #10 sym_11 zlaczka tag= terms=[1,2,3,4]
+  #11 sym_12 zlaczka tag= terms=[1,2,3,4]
+  #12 sym_13 zlaczka tag= terms=[1,2,3,4]
+  #13 sym_15 zlaczka tag= terms=[1,2,3,4]
+  #14 sym_16 zlaczka tag= terms=[1,2,3]
+  #15 sym_17 zlaczka tag= terms=[1,2,3]
+  #16 sym_18 zlaczka tag= terms=[1,2,3]
+  #17 sym_19 zlaczka tag= terms=[1,2,3]
+  #18 sym_20 zlaczka tag= terms=[1,2,3]
+--- dump ---
+bbox: strzalka_potencjalu_wejsciowa [24VDC_1V1/27.7]
+  terminal_1 @ (1.000,0.508)
+bbox: strzalka_potencjalu_wejsciowa [24VDC_2V1/27.7]
+  terminal_1 @ (1.000,0.508)
+bbox: strzalka_potencjalu_wejsciowa [0VDC_1V1/27.7]
+  terminal_1 @ (1.000,0.543)
+bbox: strzalka_potencjalu_wejsciowa [04VDC_2V1/27.7]
+  terminal_1 @ (1.000,0.611)
+bbox: custom_wyłącznik_nadprądowy [-F24_1]
+  terminal_1 @ (0.947,0.000)
+  terminal_2 @ (0.947,1.000)
+bbox: mostek
+  terminal_1 @ (0.316,0.000)
+  terminal_2 @ (0.306,1.000)
+  terminal_3 @ (1.000,0.301)
+bbox: unknown
+  terminal_1 @ (0.951,0.000)
+  terminal_2 @ (0.951,1.000)
+bbox: zlaczka
+  terminal_1 @ (0.556,1.000)
+  terminal_2 @ (1.000,0.508) → L0
+  terminal_3 @ (0.569,0.000)
+bbox: zlaczka
+  terminal_1 @ (0.579,0.000)
+  terminal_2 @ (0.000,0.527) → L0
+  terminal_3 @ (1.000,0.538) → L1
+  terminal_4 @ (0.560,1.000)
+bbox: zlaczka
+  terminal_1 @ (0.565,0.000)
+  terminal_2 @ (0.000,0.547) → L1
+  terminal_3 @ (0.551,1.000)
+  terminal_4 @ (1.000,0.560) → L2
+bbox: zlaczka
+  terminal_1 @ (0.585,0.000)
+  terminal_2 @ (0.000,0.508) → L2
+  terminal_3 @ (0.580,1.000)
+  terminal_4 @ (1.000,0.508) → L3
+bbox: zlaczka
+  terminal_1 @ (0.537,0.000)
+  terminal_2 @ (0.000,0.521) → L3
+  terminal_3 @ (0.532,1.000)
+  terminal_4 @ (1.000,0.530) → L5
+bbox: zlaczka
+  terminal_1 @ (0.000,0.523)
+  terminal_2 @ (0.543,1.000)
+  terminal_3 @ (1.000,0.523)
+  terminal_4 @ (0.556,0.000)
+bbox: zlaczka
+  terminal_1 @ (0.000,0.571)
+  terminal_2 @ (0.581,1.000)
+  terminal_3 @ (1.000,0.574)
+bbox: zlaczka
+  terminal_1 @ (0.000,0.527)
+  terminal_2 @ (0.521,1.000)
+  terminal_3 @ (1.000,0.542)
+bbox: zlaczka
+  terminal_1 @ (0.595,1.000)
+  terminal_2 @ (0.000,0.500)
+  terminal_3 @ (1.000,0.504)
+bbox: zlaczka
+  terminal_1 @ (0.000,0.519)
+  terminal_2 @ (1.000,0.519)
+  terminal_3 @ (0.555,1.000)
+bbox: zlaczka
+  terminal_1 @ (0.000,0.521) → L5
+  terminal_2 @ (1.000,0.522)
+  terminal_3 @ (0.521,1.000)
+line: L0 OD sym_9:2 DO sym_10:2; kind=power
+line: L1 OD sym_10:3 DO sym_11:2; kind=power
+line: L2 OD sym_11:4 DO sym_12:2; kind=power
+line: L3 OD sym_12:4 DO sym_13:2; kind=power
+line: L5 OD sym_13:4 DO sym_20:1; kind=power
+
+============================================================
+22_A_153_PL_Adamed_AGV_SA2_20250706_p028
+symbols=0 lines=0 terminals=0
+valid=True
+--- lines ---
+--- symbols ---
+--- dump ---
+
+
+============================================================
+22_A_153_PL_Adamed_AGV_SA2_20250706_p048
+symbols=0 lines=0 terminals=0
+valid=True
+--- lines ---
+--- symbols ---
+--- dump ---
+
