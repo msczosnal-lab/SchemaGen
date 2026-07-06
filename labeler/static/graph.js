@@ -5,15 +5,11 @@ const BBOX_SEL = "#ffd43b";
 const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
 const TERMINAL_R = 16;
-const TERMINAL_LABEL_PX = 22;
+const TERMINAL_LABEL_PX = 28;
 const BBOX_STROKE = 5;
 const BBOX_STROKE_SEL = 7;
 const TERMINAL_STROKE = 3.5;
 const DRAG_THRESHOLD = 4;
-
-const MODE_BBOX = "bbox";
-const MODE_TERMINAL = "terminal";
-let mode = MODE_BBOX;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
 const RECENT_PAGES_MAX = 3;
