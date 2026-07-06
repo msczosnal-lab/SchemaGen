@@ -1,1 +1,1 @@
-﻿[Cursor] labeler v2: panel boczny zależny od trybu Bbox / Linia
+﻿[Cursor] labeler v2: grubsze zielone linie połączeń (9px)

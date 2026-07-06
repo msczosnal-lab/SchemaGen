@@ -166,3 +166,4 @@
 | 2026-07-06 22:10 | Cursor | a7bf6f62 | [Cursor] labeler v2: etykieta bbox skaluje się z zoomem, max 2× szerokość ramki |
 | 2026-07-06 22:11 | Cursor | 7f862bbe | [Cursor] labeler v2: kontrast etykiet — ciemny tekst, białe tło, bez białego na jasnym |
 | 2026-07-06 22:11 | Cursor | 0d902af3 | [Cursor] labeler v2: opis linii — nr bbox + tag zamiast sym_N |
+| 2026-07-06 22:12 | Cursor | c75be605 | [Cursor] labeler v2: panel boczny zależny od trybu Bbox / Linia |

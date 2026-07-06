@@ -20,7 +20,8 @@ const MODE_BBOX = "bbox";
 const MODE_LINE = "line";
 const LINE_COLOR = "#40c057";
 const LINE_COLOR_SEL = "#94d82d";
-const LINE_STROKE = 5;
+const LINE_STROKE = 9;
+const LINE_STROKE_SEL = 12;
 
 let mode = MODE_BBOX;
 let lineDraft = null;
@@ -636,7 +637,7 @@ function drawLinesLayer() {
     const pts = lineDisplayPoints(line);
     drawPolyline(pts, {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
-      width: i === selectedLineIdx ? LINE_STROKE + 2 : LINE_STROKE,
+      width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
     const a = terminalPosByRef(line.from);
     const b = terminalPosByRef(line.to);
