@@ -39,6 +39,11 @@
       <p id="hint">Bbox: przeciągnij · zaznaczony + klik w środku = terminal · klik poza = odznacz</p>
     </section>
     <aside id="annotations-panel">
+      <div id="save-bar">
+        <button id="save-btn" type="button">Zapisz graf</button>
+        <p id="save-status" class="muted"></p>
+      </div>
+      <div id="sidebar-scroll">
       <div id="bbox-tool-panel">
         <h2>Symbole (bbox)</h2>
         <ul id="symbol-list"></ul>
@@ -72,8 +77,7 @@
         <ul id="line-list"></ul>
         <button id="delete-line-btn" type="button" class="delete-btn">Usuń linię</button>
       </div>
-      <button id="save-btn" type="button">Zapisz graf</button>
-      <p id="save-status" class="muted"></p>
+      </div>
     </aside>
   </main>
   <script src="/static/graph.js?v=16"></script>
