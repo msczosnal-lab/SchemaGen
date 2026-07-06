@@ -853,7 +853,7 @@ function redraw() {
     ctx.strokeStyle = sel ? BBOX_SEL : col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
     ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
-    drawBboxLabelImage(sym, r, sel);
+    if (mode === MODE_BBOX) drawBboxLabelImage(sym, r, sel);
   });
 
   graph.symbols.forEach((sym, i) => {
@@ -906,17 +906,19 @@ function redraw() {
     });
   });
 
-  graph.lines.forEach((line, i) => {
-    const mid = lineMidpointImage(line);
-    if (!mid) return;
-    const p = imageToCanvasPt(mid.x, mid.y);
-    drawLabelPill(p.cx, p.cy - 14, line.id, {
-      selected: i === selectedLineIdx,
-      fontPx: 22,
-      selFontPx: 28,
-      variant: "line",
+  if (mode === MODE_LINE) {
+    graph.lines.forEach((line, i) => {
+      const mid = lineMidpointImage(line);
+      if (!mid) return;
+      const p = imageToCanvasPt(mid.x, mid.y);
+      drawLabelPill(p.cx, p.cy - 14, line.id, {
+        selected: i === selectedLineIdx,
+        fontPx: 22,
+        selFontPx: 28,
+        variant: "line",
+      });
     });
-  });
+  }
 }
 
 function pageMeta(pageId) {
