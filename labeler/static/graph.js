@@ -564,8 +564,8 @@ function orthoRoutePoints(from, to) {
 }
 
 function lineDisplayPoints(line) {
-  const a = terminalPosByRef(line.from);
-  const b = terminalPosByRef(line.to);
+  const a = terminalPosByRef(lineFromRef(line));
+  const b = terminalPosByRef(lineToRef(line));
   if (!a || !b) return line.vertices || [];
   if (line.vertices?.length >= 2) return line.vertices;
   return orthoRoutePoints(a, b);
@@ -597,7 +597,7 @@ let lineCompleting = false;
 
 function completeLineDraft(hit) {
   if (lineCompleting || !lineDraft || hit.ref === lineDraft.fromRef) return;
-  if (graph.lines.some((l) => l.from === lineDraft.fromRef && l.to === hit.ref)) {
+  if (graph.lines.some((l) => lineFromRef(l) === lineDraft.fromRef && lineToRef(l) === hit.ref)) {
     saveStatusEl.textContent = "Taka linia już istnieje (ten sam OD → DO)";
     return;
   }
@@ -694,31 +694,28 @@ function renderLineList() {
   });
 }
 
-function drawPolyline(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
+function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
   if (!points || points.length < 2) return;
   ctx.strokeStyle = color;
-  ctx.lineWidth = width / scale;
+  ctx.lineWidth = width;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.setLineDash(dash.map((d) => d / scale));
+  ctx.setLineDash(dash);
   ctx.beginPath();
-  ctx.moveTo(points[0][0], points[0][1]);
-  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+  const p0 = imageToCanvasPt(points[0][0], points[0][1]);
+  ctx.moveTo(p0.cx, p0.cy);
+  for (let i = 1; i < points.length; i++) {
+    const p = imageToCanvasPt(points[i][0], points[i][1]);
+    ctx.lineTo(p.cx, p.cy);
+  }
   ctx.stroke();
   ctx.setLineDash([]);
 }
 
-function lineMidpointImage(line) {
-  const pts = lineDisplayPoints(line);
-  if (!pts.length) return null;
-  const idx = Math.floor((pts.length - 1) / 2);
-  return { x: pts[idx][0], y: pts[idx][1] };
-}
-
-function drawLinesLayer() {
+function drawLinesOverlay() {
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
-    drawPolyline(pts, {
+    drawPolylineScreen(pts, {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
       width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
@@ -726,18 +723,14 @@ function drawLinesLayer() {
 
   if (mode === MODE_LINE && selectedLineIdx >= 0) {
     const line = graph.lines[selectedLineIdx];
-    const a = terminalPosByRef(line.from);
-    const b = terminalPosByRef(line.to);
-    if (a) {
-      ctx.fillStyle = "#228be6";
+    const a = terminalPosByRef(lineFromRef(line));
+    const b = terminalPosByRef(lineToRef(line));
+    for (const pos of [a, b]) {
+      if (!pos) continue;
+      const p = imageToCanvasPt(pos.x, pos.y);
       ctx.beginPath();
-      ctx.arc(a.x, a.y, 10 / scale, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    if (b) {
-      ctx.fillStyle = "#fa5252";
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, 10 / scale, 0, Math.PI * 2);
+      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
+      ctx.fillStyle = pos === a ? "#228be6" : "#fa5252";
       ctx.fill();
     }
   }
@@ -745,12 +738,20 @@ function drawLinesLayer() {
   if (lineDraft) {
     const draftPts = [[lineDraft.fromPos.x, lineDraft.fromPos.y], ...lineDraft.middles];
     if (cursorImgPt) draftPts.push([cursorImgPt.x, cursorImgPt.y]);
-    drawPolyline(draftPts, { color: "#82c91e", width: LINE_STROKE, dash: [8, 6] });
+    drawPolylineScreen(draftPts, { color: "#82c91e", width: LINE_STROKE, dash: [10, 8] });
+    const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
     ctx.fillStyle = "#228be6";
     ctx.beginPath();
-    ctx.arc(lineDraft.fromPos.x, lineDraft.fromPos.y, 10 / scale, 0, Math.PI * 2);
+    ctx.arc(p.cx, p.cy, 11, 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function lineMidpointImage(line) {
+  const pts = lineDisplayPoints(line);
+  if (!pts.length) return null;
+  const idx = Math.floor((pts.length - 1) / 2);
+  return { x: pts[idx][0], y: pts[idx][1] };
 }
 
 function markDirty() {
