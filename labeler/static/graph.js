@@ -669,14 +669,7 @@ async function searchPalette(q) {
       btn.type = "button";
       btn.textContent = label;
       btn.onclick = () => {
-        const sym = graph.symbols[selectedSymIdx];
-        if (sym) {
-          sym.type = slug;
-          symTypeInput.value = slug;
-          markDirty();
-          renderSymbolList();
-          redraw();
-        }
+        assignTypeToSelected(slug);
         paletteResults.innerHTML = "";
       };
       paletteResults.appendChild(btn);
@@ -887,10 +880,12 @@ canvas.addEventListener("mouseup", (e) => {
   graph.symbols.push(sym);
   selectedSymIdx = graph.symbols.length - 1;
   selectedTermIdx = -1;
+  applyLastDefaultsToSymbol(sym);
   markDirty();
   renderSymbolList();
   renderSymbolEditor();
   symTypeInput.focus();
+  symTypeInput.select();
   redraw();
 });
 
@@ -952,6 +947,19 @@ symTypeInput.addEventListener("input", () => {
   }
 });
 
+symTypeInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const value = symTypeInput.value.trim() || lastUsedType;
+  if (value) assignTypeToSelected(value);
+});
+
+symTypeInput.addEventListener("blur", () => {
+  const sym = graph.symbols[selectedSymIdx];
+  const value = symTypeInput.value.trim();
+  if (sym && value) rememberLastType(value);
+});
+
 symTagInput.addEventListener("input", () => {
   const sym = graph.symbols[selectedSymIdx];
   if (sym) {
@@ -960,6 +968,19 @@ symTagInput.addEventListener("input", () => {
     renderSymbolList();
     redraw();
   }
+});
+
+symTagInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const value = symTagInput.value.trim() || lastUsedBboxTag;
+  if (value) assignBboxTagToSelected(value);
+});
+
+symTagInput.addEventListener("blur", () => {
+  const sym = graph.symbols[selectedSymIdx];
+  const value = symTagInput.value.trim();
+  if (sym && value) rememberLastBboxTag(value);
 });
 
 document.getElementById("save-btn").addEventListener("click", saveGraph);
@@ -975,6 +996,9 @@ pageNextBtn.addEventListener("click", () => {
 });
 
 (async function init() {
+  lastUsedType = loadStored(LAST_TYPE_KEY);
+  lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
+  updateTypeTagPlaceholders();
   try {
     await loadPages();
     if (pageIds.length) await selectPage(pageIds[0]);
