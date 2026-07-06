@@ -5,8 +5,10 @@ const BBOX_SEL = "#ffd43b";
 const UNASSIGNED_COLOR = "#6c757d";
 const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
-const TERMINAL_R = 16;
-const TERMINAL_R_SEL = 20;
+const TERMINAL_R = 22;
+const TERMINAL_R_SEL = 28;
+const TERMINAL_HIT_EXTRA = 16;
+const TERMINAL_CREATE_PAD = 36;
 const TERMINAL_LABEL_PX = 58;
 const TERMINAL_LABEL_SEL_PX = 74;
 const BBOX_LABEL_PX = 54;
@@ -246,6 +248,18 @@ function insideBbox(b, imgPt) {
   );
 }
 
+/** Rozszerzony hit-test przy zaznaczonym bbox — łatwiejsze dodawanie terminala na krawędzi. */
+function terminalCreateHit(sym, imgPt) {
+  const b = bboxRect(sym);
+  const pad = Math.max(16, TERMINAL_CREATE_PAD / (scale || 1));
+  return (
+    imgPt.x >= b.x - pad &&
+    imgPt.x <= b.x + b.width + pad &&
+    imgPt.y >= b.y - pad &&
+    imgPt.y <= b.y + b.height + pad
+  );
+}
+
 function typeStr(v) {
   if (typeof v === "string") return v;
   if (v && typeof v === "object") return String(v.id || v.label_pl || "");
@@ -474,7 +488,7 @@ function formatLineLabel(line) {
 function terminalHitTest(sym, imgPt) {
   const ts = sym.terminals || [];
   if (!ts.length) return -1;
-  const tolImg = Math.max(8, (TERMINAL_R + 6) / (scale || 1));
+  const tolImg = Math.max(14, (TERMINAL_R + TERMINAL_HIT_EXTRA) / (scale || 1));
   let best = -1;
   let bestD = tolImg;
   ts.forEach((t, i) => {
