@@ -178,3 +178,4 @@
 | 2026-07-06 22:29 | Cursor | 20c9bba3 | [Cursor] labeler v2: większe kropki terminali i szerszy hit-test dodawania |
 | 2026-07-06 22:31 | Cursor | f9cbb343 | [Cursor] labeler v2: ortho przy kończeniu linii, prosta linia przez środkowanie terminali |
 | 2026-07-06 22:33 | Cursor | b90bbc50 | [Cursor] labeler v2: szare tło canvas przy odwróconym PNG (dark mode) |
+| 2026-07-06 22:36 | Cursor | 878adc85 | [Cursor] labeler v2: fix dopasuj — zoom w px bitmapy, F=cała strona Shift+F=adnotacje |

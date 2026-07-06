@@ -431,6 +431,8 @@ function fitViewToGraph() {
   savePageViewport(currentPageId);
   redraw();
 }
+
+function loadAllViewports() {
   try {
     return JSON.parse(localStorage.getItem(VIEWPORT_KEY) || "{}");
   } catch {
