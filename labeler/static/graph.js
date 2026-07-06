@@ -1272,6 +1272,9 @@ function pickInitialPageId() {
 
 async function selectPage(pageId) {
   if (!pageId) return;
+  if (currentPageId && currentPageId !== pageId) {
+    savePageViewport(currentPageId);
+  }
   if (currentPageId && dirty) {
     const ok = window.confirm(`Zapisać zmiany na ${currentPageId} przed przejściem?`);
     if (ok) await saveGraph();
@@ -1279,9 +1282,6 @@ async function selectPage(pageId) {
 
   currentPageId = pageId;
   storeValue(LAST_PAGE_KEY, pageId);
-  scale = 1;
-  originX = 0;
-  originY = 0;
   selectedSymIdx = -1;
   selectedTermIdx = -1;
   selectedLineIdx = -1;
@@ -1318,6 +1318,18 @@ async function selectPage(pageId) {
   renderPageList();
   renderRecentPages();
   updatePageNav();
+  const vp = loadPageViewport(pageId);
+  if (vp) {
+    scale = vp.scale;
+    originX = vp.originX;
+    originY = vp.originY;
+  } else if (graph.symbols.length || graph.lines.length) {
+    fitViewToGraph();
+  } else {
+    scale = 1;
+    originX = 0;
+    originY = 0;
+  }
   redraw();
   const idx = currentPageIndex();
   const nSym = graph.symbols.length;
@@ -1475,6 +1487,7 @@ canvas.addEventListener("wheel", (e) => {
   originX = cx - factor * (cx - originX);
   originY = cy - factor * (cy - originY);
   scale *= factor;
+  savePageViewport(currentPageId);
   redraw();
 }, { passive: false });
 
@@ -1504,6 +1517,11 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "i" || e.key === "I") {
     e.preventDefault();
     toggleInvertBg();
+    return;
+  }
+  if (e.key === "f" || e.key === "F") {
+    e.preventDefault();
+    fitViewToGraph();
     return;
   }
   if (e.key === "Escape") {
@@ -1610,6 +1628,7 @@ document.getElementById("delete-line-btn")?.addEventListener("click", deleteSele
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 document.getElementById("invert-bg-btn")?.addEventListener("click", toggleInvertBg);
+document.getElementById("fit-view-btn")?.addEventListener("click", fitViewToGraph);
 pagePrevBtn.addEventListener("click", () => {
   const idx = currentPageIndex();
   if (idx > 0) selectPage(pageIds[idx - 1]);
