@@ -921,11 +921,8 @@ function renderSymbolList() {
     if (i === selectedSymIdx) li.classList.add("active");
     const col = colorFromKey(symColorKey(sym));
     li.style.borderLeftColor = col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
-    if (col !== UNASSIGNED_COLOR) {
-      li.style.background = pillColorsFromKey(symColorKey(sym)).fill;
-    } else {
-      li.style.removeProperty("background");
-    }
+    li.style.removeProperty("background");
+    li.style.color = "#eee";
     li.onclick = () => selectSymbol(i);
     list.appendChild(li);
   });
@@ -1008,9 +1005,12 @@ async function searchPalette(q) {
       btn.type = "button";
       btn.textContent = label;
       const c = colorFromKey(slug);
+      btn.style.background = "";
+      btn.style.color = "#eee";
       if (c !== UNASSIGNED_COLOR) {
-        btn.style.background = c;
-        btn.style.color = "#fff";
+        btn.style.borderLeft = `4px solid ${c}`;
+      } else {
+        btn.style.removeProperty("border-left");
       }
       btn.onclick = () => {
         assignTypeToSelected(slug);
