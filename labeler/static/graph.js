@@ -136,13 +136,27 @@ function terminalAbsPos(sym, t) {
 }
 
 function nearBbox(b, imgPt) {
-  const m = Math.max(20, 0.4 * Math.min(b.width, b.height));
-  return (
-    imgPt.x >= b.x - m &&
-    imgPt.x <= b.x + b.width + m &&
-    imgPt.y >= b.y - m &&
-    imgPt.y <= b.y + b.height + m
-  );
+  const tol = Math.max(14, 18 / (scale || 1));
+  const onLeft = Math.abs(imgPt.x - b.x) <= tol;
+  const onRight = Math.abs(imgPt.x - (b.x + b.width)) <= tol;
+  const onTop = Math.abs(imgPt.y - b.y) <= tol;
+  const onBottom = Math.abs(imgPt.y - (b.y + b.height)) <= tol;
+  const inY = imgPt.y >= b.y - tol && imgPt.y <= b.y + b.height + tol;
+  const inX = imgPt.x >= b.x - tol && imgPt.x <= b.x + b.width + tol;
+  return (onLeft && inY) || (onRight && inY) || (onTop && inX) || (onBottom && inX);
+}
+
+function drawTerminalLabel(ax, ay, r, text) {
+  const fs = TERMINAL_LABEL_PX / scale;
+  ctx.font = `bold ${fs}px sans-serif`;
+  const tx = ax + r + 5 / scale;
+  const ty = ay + fs * 0.35;
+  ctx.lineWidth = 5 / scale;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineJoin = "round";
+  ctx.strokeText(text, tx, ty);
+  ctx.fillStyle = "#111111";
+  ctx.fillText(text, tx, ty);
 }
 
 function terminalHitTest(sym, imgPt) {
@@ -327,10 +341,7 @@ function redraw() {
       ctx.lineWidth = TERMINAL_STROKE / scale;
       ctx.strokeStyle = "#1a1a1a";
       ctx.stroke();
-      const label = String(t.id);
-      ctx.font = `bold ${12 / scale}px sans-serif`;
-      ctx.fillStyle = "#111";
-      ctx.fillText(label, a.x + r + 2 / scale, a.y - r);
+      drawTerminalLabel(a.x, a.y, r, String(t.id));
     });
   });
 
