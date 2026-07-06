@@ -17,6 +17,7 @@ from backend.models.schema import (
     UserIntent,
     ValidationReport,
 )
+from backend.models.schematic_graph import GraphLine, GraphSymbol, SchematicGraph
 
 __all__ = [
     "BboxAnnotation",
@@ -24,10 +25,13 @@ __all__ = [
     "Connection",
     "ConnectionAnnotation",
     "GraphicLine",
+    "GraphLine",
+    "GraphSymbol",
     "LabelRecord",
     "LineAnnotation",
     "SchemaMeta",
     "SchemaModel",
+    "SchematicGraph",
     "SymbolDetection",
     "TextAnnotation",
     "UserIntent",
