@@ -12,7 +12,15 @@ from pydantic import BaseModel
 
 from backend.catalog import list_element_labels, register_labels
 from backend.colors.palette import load_palette
-from backend.db import init_db, list_pages, load_annotation, save_annotation, upsert_page
+from backend.db import (
+    init_db,
+    list_pages,
+    load_annotation,
+    load_schematic_graph,
+    save_annotation,
+    save_schematic_graph,
+    upsert_page,
+)
 from backend.geometry.bbox_layout import enrich_label_record
 from backend.class_map import component_type_from_bbox
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
@@ -20,8 +28,12 @@ from backend.tag_usage import record_tag_usage
 from backend.type_picker import list_type_picker
 from labeler.export import export_all, write_data_yaml
 from labeler.runtime_draft import image_size_for_page, schema_to_label_record
+from labeler.graph_validate import graph_rules, validate_graph
+from labeler.graph_serialize import graph_to_dump
+from labeler.graph_prefill import prefill_graph
 from backend.models.label import LabelRecord
 from backend.models.schema import Component, GraphicLine
+from backend.models.schematic_graph import SchematicGraph
 from backend.recognize.net_builder import derive_auto_terminals
 from backend.recognize.terminal_patterns_io import build_pattern_from_bboxes, save_class_pattern
 from backend.recognize.pipeline import recognize_file
@@ -327,6 +339,7 @@ def post_import_runtime_draft(page_id: str, force: bool = False) -> dict:
 
 @app.get("/api/annotations/{page_id}")
 def get_annotations(page_id: str) -> dict:
+    """DEPRECATED v1 — użyj GET /api/graph/{page_id} dla GT grafowego."""
     data = load_annotation(page_id)
     if not data:
         return {"page_id": page_id, "bboxes": [], "texts": [], "lines": [], "connections": []}
@@ -344,6 +357,7 @@ class AnnotationPayload(BaseModel):
 
 @app.post("/api/annotations")
 def post_annotations(body: AnnotationPayload) -> dict:
+    """DEPRECATED v1 — użyj POST /api/graph/{page_id} dla GT grafowego."""
     record = enrich_label_record(body.record)
     save_annotation(record.page_id, record.model_dump())
     upsert_page(record.page_id, record.image_path, status="labeled")
