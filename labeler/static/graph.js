@@ -677,7 +677,7 @@ function drawLinesLayer() {
     });
   });
 
-  if (selectedLineIdx >= 0) {
+  if (mode === MODE_LINE && selectedLineIdx >= 0) {
     const line = graph.lines[selectedLineIdx];
     const a = terminalPosByRef(line.from);
     const b = terminalPosByRef(line.to);
