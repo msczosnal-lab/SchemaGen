@@ -569,10 +569,20 @@ function lineSnapPoint(raw, shiftKey) {
   return applyLineOrtho(lineAnchorPoint(), raw, orthoOn);
 }
 
+function orthoCornerPoint(from, to) {
+  const fx = Array.isArray(from) ? from[0] : from.x;
+  const fy = Array.isArray(from) ? from[1] : from.y;
+  const dx = Math.abs(to.x - fx);
+  const dy = Math.abs(to.y - fy);
+  if (dx >= dy) return [to.x, fy];
+  return [fx, to.y];
+}
+
 function orthoRoutePoints(from, to) {
+  const corner = orthoCornerPoint(from, to);
   return [
     [from.x, from.y],
-    [to.x, from.y],
+    [Math.round(corner[0]), Math.round(corner[1])],
     [to.x, to.y],
   ];
 }
