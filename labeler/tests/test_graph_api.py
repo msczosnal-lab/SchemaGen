@@ -135,23 +135,21 @@ def test_prefill_mock_yolo(tmp_db, monkeypatch, tmp_path):
         lambda path=None: {"version": 1, "classes": {"zlaczka": zlaczka_pattern}},
     )
 
-    def fake_detect(self, image_path):
-        return [
-            SymbolDetection(
-                class_id=5,
-                class_name="zlaczka",
-                x=100,
-                y=200,
-                width=50,
-                height=80,
-                confidence=0.9,
-            ),
-        ]
+    class FakeDet:
+        def detect(self, image_path):
+            return [
+                SymbolDetection(
+                    class_id=5,
+                    class_name="zlaczka",
+                    x=100,
+                    y=200,
+                    width=50,
+                    height=80,
+                    confidence=0.9,
+                ),
+            ]
 
-    monkeypatch.setattr(
-        "labeler.graph_prefill._default_detector",
-        lambda: type("D", (), {"detect": fake_detect})(),
-    )
+    monkeypatch.setattr(gp, "_default_detector", lambda: FakeDet())
 
     res = client.post(f"/api/graph/{PAGE}/prefill")
     assert res.status_code == 200
@@ -185,10 +183,11 @@ def test_prefill_409_without_force(tmp_db, monkeypatch, tmp_path):
     monkeypatch.setattr(
         gp, "load_patterns", lambda path=None: {"version": 1, "classes": {}}
     )
-    monkeypatch.setattr(
-        "labeler.graph_prefill._default_detector",
-        lambda: type("D", (), {"detect": lambda self, image_path: []})(),
-    )
+    class FakeDet:
+        def detect(self, image_path):
+            return []
+
+    monkeypatch.setattr(gp, "_default_detector", lambda: FakeDet())
 
     first = client.post(f"/api/graph/{PAGE}/prefill")
     assert first.status_code == 200
