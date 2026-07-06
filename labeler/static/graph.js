@@ -263,33 +263,31 @@ function colorFromKey(key) {
 
 function pillColorsFromKey(key) {
   const stroke = colorFromKey(key);
-  if (stroke === UNASSIGNED_COLOR) {
-    return { fill: "#fff3bf", stroke: BBOX_COLOR, text: "#111111" };
-  }
-  const m = stroke.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
-  if (m) {
-    const sat = Math.min(parseFloat(m[2]), 70);
-    return {
-      fill: `hsl(${m[1]}, ${sat}%, 88%)`,
-      stroke,
-      text: "#111111",
-    };
-  }
-  return { fill: "#fff3bf", stroke, text: "#111111" };
+  return {
+    fill: "#ffffff",
+    stroke: stroke !== UNASSIGNED_COLOR ? stroke : BBOX_COLOR,
+    text: "#111111",
+  };
 }
 
 function applyInputTypeColor(input, key) {
   const k = (key || "").trim();
+  input.style.background = "#2a2a2a";
+  input.style.color = "#eee";
   if (!k) {
-    input.style.removeProperty("background");
-    input.style.removeProperty("color");
-    input.style.removeProperty("border-color");
+    input.style.removeProperty("border-left");
     return;
   }
-  const c = colorFromKey(k);
-  input.style.background = c;
-  input.style.color = "#fff";
-  input.style.borderColor = c;
+  input.style.borderLeft = `4px solid ${colorFromKey(k)}`;
+}
+
+function drawOutlinedText(text, x, y, lineWidth) {
+  ctx.lineJoin = "round";
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = "#ffffff";
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = "#111111";
+  ctx.fillText(text, x, y);
 }
 
 function bboxLabelText(sym) {
@@ -331,12 +329,12 @@ function drawBboxLabelImage(sym, r, selected) {
     const pc = pillColorsFromKey(symColorKey(sym));
     ctx.fillStyle = pc.fill;
     ctx.strokeStyle = pc.stroke;
-    ctx.lineWidth = 2 / scale;
+    ctx.lineWidth = 2.5 / scale;
   }
   ctx.fillRect(bx, by, badgeW, badgeH);
   ctx.strokeRect(bx, by, badgeW, badgeH);
-  ctx.fillStyle = "#111111";
-  ctx.fillText(label, bx + pad, by + fs + pad * 0.35);
+  ctx.font = `900 ${fs}px Segoe UI, Arial, sans-serif`;
+  drawOutlinedText(label, bx + pad, by + fs + pad * 0.35, Math.max(2, 4 / scale));
 }
 
 function imageToCanvasPt(x, y) {
@@ -376,7 +374,13 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   }
   ctx.fillRect(bx, by, w, h);
   ctx.strokeRect(bx, by, w, h);
-  ctx.fillStyle = textColor;
+  ctx.font = `900 ${fs}px Segoe UI, Arial, sans-serif`;
+  const outline = selected ? 5 : 4;
+  ctx.lineWidth = outline;
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#ffffff";
+  ctx.strokeText(text, tx, ty);
+  ctx.fillStyle = "#111111";
   ctx.fillText(text, tx, ty);
   ctx.restore();
 }
