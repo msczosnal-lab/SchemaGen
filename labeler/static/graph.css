@@ -5,6 +5,10 @@ header a { color: #8ec8ff; }
 #recent-page-list li.active { outline: 2px solid #ffd43b; }
 #recent-page-list li.empty { cursor: default; color: #888; border-left-color: #555; background: transparent; }
 .mode-disabled { opacity: 0.4; cursor: not-allowed !important; }
+#bbox-tool-panel.hidden,
+#line-tool-panel.hidden { display: none; }
+.panel-hint { font-size: 0.85rem; margin: 0 0 10px; line-height: 1.35; }
+#delete-line-btn { margin-top: 10px; width: 100%; }
 #symbol-list li { padding: 8px 10px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; border-left: 4px solid #f76707; }
 #symbol-list li.active { outline: 2px solid #ffd43b; background: #3a3a3a; }
 #symbol-editor label { display: block; margin: 8px 0; font-size: 0.85rem; color: #bbb; }
@@ -14,8 +18,8 @@ header a { color: #8ec8ff; }
 .palette-list button { display: block; width: 100%; text-align: left; margin: 2px 0; padding: 6px 8px; background: #383838; border: none; color: #eee; border-radius: 4px; cursor: pointer; }
 .palette-list button:hover { background: #4a4a4a; }
 #line-panel { margin-top: 16px; padding-top: 12px; border-top: 1px solid #444; }
-#line-panel label { display: block; margin: 8px 0; font-size: 0.85rem; color: #bbb; }
-#line-panel select { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #eee; }
+#line-tool-panel label { display: block; margin: 8px 0; font-size: 0.85rem; color: #bbb; }
+#line-tool-panel select { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #eee; }
 #line-list li { padding: 8px 10px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; border-left: 4px solid #40c057; font-size: 0.85rem; }
 #line-list li.active { outline: 2px solid #ffd43b; background: #3a3a3a; }
 .secondary-btn { margin: 8px 0; padding: 8px 12px; background: #555; border: none; color: #fff; border-radius: 4px; cursor: pointer; width: 100%; }

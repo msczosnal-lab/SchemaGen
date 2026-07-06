@@ -567,6 +567,11 @@ function deleteSelectedLine() {
   redraw();
 }
 
+function updateSidebarForMode() {
+  document.getElementById("bbox-tool-panel")?.classList.toggle("hidden", mode !== MODE_BBOX);
+  document.getElementById("line-tool-panel")?.classList.toggle("hidden", mode !== MODE_LINE);
+}
+
 function setMode(next) {
   mode = next;
   drawing = false;
@@ -577,7 +582,11 @@ function setMode(next) {
     selectedSymIdx = -1;
     selectedTermIdx = -1;
     renderSymbolEditor();
+  } else {
+    selectedLineIdx = -1;
+    renderLineList();
   }
+  updateSidebarForMode();
   document.getElementById("mode-bbox")?.classList.toggle("active", mode === MODE_BBOX);
   document.getElementById("mode-line")?.classList.toggle("active", mode === MODE_LINE);
   canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
@@ -1410,6 +1419,7 @@ symTagInput.addEventListener("blur", () => {
 document.getElementById("save-btn").addEventListener("click", saveGraph);
 document.getElementById("prefill-btn").addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
+document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 pagePrevBtn.addEventListener("click", () => {
