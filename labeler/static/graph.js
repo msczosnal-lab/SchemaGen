@@ -1470,18 +1470,7 @@ async function selectPage(pageId) {
   renderPageList();
   renderRecentPages();
   updatePageNav();
-  const vp = loadPageViewport(pageId);
-  if (vp) {
-    scale = vp.scale;
-    originX = vp.originX;
-    originY = vp.originY;
-  } else if (graph.symbols.length || graph.lines.length) {
-    fitViewToPage();
-  } else {
-    scale = 1;
-    originX = 0;
-    originY = 0;
-  }
+  applyDefaultView();
   redraw();
   const idx = currentPageIndex();
   const nSym = graph.symbols.length;
@@ -1639,7 +1628,6 @@ canvas.addEventListener("wheel", (e) => {
   originX = cx - factor * (cx - originX);
   originY = cy - factor * (cy - originY);
   scale *= factor;
-  savePageViewport(currentPageId);
   redraw();
 }, { passive: false });
 
@@ -1669,12 +1657,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "i" || e.key === "I") {
     e.preventDefault();
     toggleInvertBg();
-    return;
-  }
-  if (e.key === "f" || e.key === "F") {
-    e.preventDefault();
-    if (e.shiftKey) fitViewToGraph();
-    else fitViewToPage();
     return;
   }
   if (e.key === "Escape") {
@@ -1781,7 +1763,6 @@ document.getElementById("delete-line-btn")?.addEventListener("click", deleteSele
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 document.getElementById("invert-bg-btn")?.addEventListener("click", toggleInvertBg);
-document.getElementById("fit-view-btn")?.addEventListener("click", fitViewToPage);
 pagePrevBtn.addEventListener("click", () => {
   const idx = currentPageIndex();
   if (idx > 0) selectPage(pageIds[idx - 1]);
