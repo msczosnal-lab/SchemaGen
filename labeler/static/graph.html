@@ -39,24 +39,26 @@
       <p id="hint">Bbox: przeciągnij · zaznaczony + klik w środku = terminal · klik poza = odznacz</p>
     </section>
     <aside id="annotations-panel">
-      <h2>Symbole</h2>
-      <ul id="symbol-list"></ul>
-      <div id="symbol-editor" class="hidden">
-        <h3>Edycja symbolu</h3>
-        <label>Typ (slug)
-          <input id="sym-type-input" type="text" placeholder="np. zlaczka, cewka_przekaznika" />
-        </label>
-        <div id="palette-results" class="palette-list"></div>
-        <label>Tag (opcjonalny)
-          <input id="sym-tag-input" type="text" placeholder="-K1" />
-        </label>
-        <h4>Terminale</h4>
-        <ul id="terminal-list"></ul>
-        <button id="delete-symbol-btn" type="button" class="delete-btn">Usuń symbol</button>
+      <div id="bbox-tool-panel">
+        <h2>Symbole (bbox)</h2>
+        <ul id="symbol-list"></ul>
+        <div id="symbol-editor" class="hidden">
+          <h3>Edycja symbolu</h3>
+          <label>Typ (slug)
+            <input id="sym-type-input" type="text" placeholder="np. zlaczka, cewka_przekaznika" />
+          </label>
+          <div id="palette-results" class="palette-list"></div>
+          <label>Tag (opcjonalny)
+            <input id="sym-tag-input" type="text" placeholder="-K1" />
+          </label>
+          <h4>Terminale</h4>
+          <ul id="terminal-list"></ul>
+          <button id="delete-symbol-btn" type="button" class="delete-btn">Usuń symbol</button>
+        </div>
       </div>
-      <button id="save-btn" type="button">Zapisz graf</button>
-      <div id="line-panel">
-        <h2>Linie</h2>
+      <div id="line-tool-panel" class="hidden">
+        <h2>Linie OD→DO</h2>
+        <p class="muted panel-hint">Terminal źródłowy → opcjonalnie załamania → terminal docelowy</p>
         <label>Kind
           <select id="line-kind">
             <option value="power">power</option>
@@ -68,7 +70,9 @@
           </select>
         </label>
         <ul id="line-list"></ul>
+        <button id="delete-line-btn" type="button" class="delete-btn">Usuń linię</button>
       </div>
+      <button id="save-btn" type="button">Zapisz graf</button>
       <p id="save-status" class="muted"></p>
     </aside>
   </main>
