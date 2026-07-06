@@ -178,11 +178,37 @@ function canvasToImage(cx, cy) {
   return { x: (cx - originX) / scale, y: (cy - originY) / scale };
 }
 
-function clientToCanvas(e) {
+function canvasDisplayMetrics() {
   const rect = canvas.getBoundingClientRect();
+  const iw = canvas.width || 1;
+  const ih = canvas.height || 1;
+  const imgAspect = iw / ih;
+  const boxAspect = rect.width / Math.max(rect.height, 1);
+  let drawW;
+  let drawH;
+  let offsetX;
+  let offsetY;
+  if (boxAspect > imgAspect) {
+    drawH = rect.height;
+    drawW = drawH * imgAspect;
+    offsetX = (rect.width - drawW) / 2;
+    offsetY = 0;
+  } else {
+    drawW = rect.width;
+    drawH = drawW / imgAspect;
+    offsetX = 0;
+    offsetY = (rect.height - drawH) / 2;
+  }
+  return { rect, drawW, drawH, offsetX, offsetY };
+}
+
+function clientToCanvas(e) {
+  const m = canvasDisplayMetrics();
+  const x = e.clientX - m.rect.left - m.offsetX;
+  const y = e.clientY - m.rect.top - m.offsetY;
   return {
-    cx: (e.clientX - rect.left) * (canvas.width / rect.width),
-    cy: (e.clientY - rect.top) * (canvas.height / rect.height),
+    cx: (x / m.drawW) * canvas.width,
+    cy: (y / m.drawH) * canvas.height,
   };
 }
 
