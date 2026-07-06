@@ -5,7 +5,41 @@
 
 ---
 
-## 2026-07-06 [Cursor] — 022 krok 2: SchematicGraph + graph_validate
+## 2026-07-06 [Cursor] — 022 krok 3: graph_compile → SchemaModel
+
+**Zakres:** deterministyczna kompilacja SchematicGraph v2 do SchemaModel + potencjał z link.
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `labeler/graph_compile.py` **(nowy)** | `graph_to_schema()`: symbols→components, lines→graphic_lines(wire)+Connection, auto-routing ortho L, domknięcie potential po `kind:link` + L/R złączki |
+| `labeler/tests/test_graph_compile.py` **(nowy)** | 6 testów: connection, auto-route prosty/L, tor szyny 3 złączki, mostek wewnętrzny, meta |
+
+### Testy (022 kroki 0–3 łącznie)
+
+`pytest backend/tests/test_diff_id_remap.py backend/tests/test_diff_metrics.py backend/tests/test_schematic_graph.py backend/tests/test_graph_validate.py labeler/tests/test_graph_compile.py` → **30 passed**
+
+Pełny `pytest backend/tests labeler/tests` — do potwierdzenia na PC (oczekiwane 241+).
+
+### Review krok 3
+
+| Wymaganie promptu | Status |
+|---|---|
+| symbols→components+terminals | ✅ |
+| lines→graphic_lines(wire)+Connection | ✅ |
+| puste vertices→auto L-route | ✅ |
+| potential z domknięcia link (≥2 złączki) | ✅ tag skrajnej (-X1) lub POT_n |
+| mostek L↔R jednej złączki bez potential | ✅ |
+| SchemaModel nietknięty | ✅ tylko kompilacja DO |
+| graph_serialize / API / UI | ⏳ kroki 4–7 |
+
+Następny krok: API CRUD + SQLite + prefill (krok 4).
+
+Commit pending: `[Cursor] labeler: graph_compile SchematicGraph→SchemaModel (022 krok 3)`
+
+---
+
 
 **Zakres:** model Pydantic v2 + walidacja ortho/snap/obrys terminala. Prompt 022 krok 2.
 
