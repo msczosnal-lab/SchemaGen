@@ -34,6 +34,7 @@ const RECENT_PAGES_KEY = "graphRecentPages";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
 const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
+const LAYOUT_WIDTHS_KEY = "graphLayoutWidths";
 
 let lastUsedType = "";
 let lastUsedBboxTag = "";
@@ -1432,10 +1433,83 @@ pageNextBtn.addEventListener("click", () => {
   if (idx >= 0 && idx < pageIds.length - 1) selectPage(pageIds[idx + 1]);
 });
 
+function readLayoutVar(layout, name, fallback) {
+  const raw = getComputedStyle(layout).getPropertyValue(name).trim();
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function saveLayoutWidths(layout) {
+  try {
+    localStorage.setItem(
+      LAYOUT_WIDTHS_KEY,
+      JSON.stringify({
+        left: readLayoutVar(layout, "--left-w", 280),
+        right: readLayoutVar(layout, "--right-w", 320),
+      })
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+function initPanelResize() {
+  const layout = document.getElementById("graph-layout");
+  const leftHandle = document.getElementById("resize-left");
+  const rightHandle = document.getElementById("resize-right");
+  if (!layout || !leftHandle || !rightHandle) return;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(LAYOUT_WIDTHS_KEY) || "{}");
+    if (saved.left) layout.style.setProperty("--left-w", `${saved.left}px`);
+    if (saved.right) layout.style.setProperty("--right-w", `${saved.right}px`);
+  } catch {
+    /* ignore */
+  }
+
+  function bindHandle(handle, side) {
+    handle.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      handle.classList.add("dragging");
+      document.body.style.cursor = "col-resize";
+      const startX = e.clientX;
+      const startLeft = readLayoutVar(layout, "--left-w", 280);
+      const startRight = readLayoutVar(layout, "--right-w", 320);
+
+      function onMove(ev) {
+        const dx = ev.clientX - startX;
+        if (side === "left") {
+          const w = Math.min(520, Math.max(200, Math.round(startLeft + dx)));
+          layout.style.setProperty("--left-w", `${w}px`);
+        } else {
+          const w = Math.min(560, Math.max(240, Math.round(startRight - dx)));
+          layout.style.setProperty("--right-w", `${w}px`);
+        }
+      }
+
+      function onUp() {
+        handle.classList.remove("dragging");
+        document.body.style.removeProperty("cursor");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        saveLayoutWidths(layout);
+      }
+
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+  }
+
+  bindHandle(leftHandle, "left");
+  bindHandle(rightHandle, "right");
+}
+
 (async function init() {
   lastUsedType = loadStored(LAST_TYPE_KEY);
   lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
   updateTypeTagPlaceholders();
+  initPanelResize();
   try {
     await loadPages();
     if (pageIds.length) await selectPage(pageIds[0]);
