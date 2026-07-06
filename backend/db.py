@@ -45,6 +45,11 @@ def init_db() -> None:
                 usage_count INTEGER NOT NULL DEFAULT 0,
                 last_used_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS schematic_graph (
+                page_id TEXT PRIMARY KEY,
+                payload_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
             """
         )
         conn.commit()
