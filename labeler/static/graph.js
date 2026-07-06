@@ -7,10 +7,10 @@ const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
 const TERMINAL_R = 16;
 const TERMINAL_R_SEL = 20;
-const TERMINAL_LABEL_PX = 48;
-const TERMINAL_LABEL_SEL_PX = 62;
-const BBOX_LABEL_PX = 36;
-const BBOX_LABEL_SEL_PX = 44;
+const TERMINAL_LABEL_PX = 58;
+const TERMINAL_LABEL_SEL_PX = 74;
+const BBOX_LABEL_PX = 54;
+const BBOX_LABEL_SEL_PX = 68;
 const BBOX_STROKE = 5;
 const BBOX_STROKE_SEL = 7;
 const TERMINAL_STROKE = 3.5;
@@ -30,6 +30,7 @@ let lineOrtho = true;
 let selectedLineIdx = -1;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
+const LAST_PAGE_KEY = "graphLastPage";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
 const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
@@ -289,6 +290,14 @@ function drawOutlinedText(text, x, y, lineWidth) {
   ctx.strokeText(text, x, y);
   ctx.fillStyle = "#111111";
   ctx.fillText(text, x, y);
+}
+
+function bboxTagLabel(sym) {
+  const tag = (sym.tag || "").trim();
+  if (tag) return tag;
+  const t = typeStr(sym.type);
+  if (t) return t;
+  return sym.id;
 }
 
 function bboxLabelText(sym) {
@@ -853,7 +862,6 @@ function redraw() {
     ctx.strokeStyle = sel ? BBOX_SEL : col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
     ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
-    if (mode === MODE_BBOX) drawBboxLabelImage(sym, r, sel);
   });
 
   graph.symbols.forEach((sym, i) => {
@@ -888,6 +896,21 @@ function redraw() {
   drawLinesLayer();
 
   ctx.restore();
+
+  if (mode === MODE_BBOX) {
+    graph.symbols.forEach((sym, i) => {
+      const r = bboxRect(sym);
+      const cx = (r.x + r.width / 2) * scale + originX;
+      const cy = r.y * scale + originY - 10;
+      drawLabelPill(cx, cy, bboxTagLabel(sym), {
+        selected: i === selectedSymIdx,
+        fontPx: BBOX_LABEL_PX,
+        selFontPx: BBOX_LABEL_SEL_PX,
+        variant: "bbox",
+        colorKey: symColorKey(sym),
+      });
+    });
+  }
 
   graph.symbols.forEach((sym, i) => {
     const selSym = i === selectedSymIdx;
@@ -1164,6 +1187,15 @@ function updatePageNav() {
   pageNextBtn.disabled = idx >= total - 1;
 }
 
+function pickInitialPageId() {
+  const last = loadStored(LAST_PAGE_KEY);
+  if (last && pageIds.includes(last)) return last;
+  for (const id of recentPageIds()) {
+    if (pageIds.includes(id)) return id;
+  }
+  return pageIds[0];
+}
+
 async function selectPage(pageId) {
   if (!pageId) return;
   if (currentPageId && dirty) {
@@ -1172,6 +1204,7 @@ async function selectPage(pageId) {
   }
 
   currentPageId = pageId;
+  storeValue(LAST_PAGE_KEY, pageId);
   scale = 1;
   originX = 0;
   originY = 0;
@@ -1213,7 +1246,13 @@ async function selectPage(pageId) {
   updatePageNav();
   redraw();
   const idx = currentPageIndex();
-  saveStatusEl.textContent = graph.symbols.length ? "Wczytano graf" : "Pusty graf — Import draft lub rysuj bbox";
+  const nSym = graph.symbols.length;
+  const nLin = graph.lines.length;
+  if (!nSym && !nLin) {
+    saveStatusEl.textContent = "Pusty graf — Import draft lub rysuj bbox";
+  } else {
+    saveStatusEl.textContent = `Wczytano: ${nSym} sym., ${nLin} linii`;
+  }
   setMode(mode);
 }
 
