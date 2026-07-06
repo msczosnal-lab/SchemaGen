@@ -390,6 +390,105 @@ def post_export(page_id: str) -> dict[str, str]:
     return paths
 
 
+# --- SchematicGraph v2 (prompt 022) ---
+
+
+def _empty_graph(page_id: str) -> SchematicGraph:
+    w, h = image_size_for_page(page_id)
+    return SchematicGraph(
+        page_id=page_id,
+        image_width=max(w, 1),
+        image_height=max(h, 1),
+        symbols=[],
+        lines=[],
+    )
+
+
+@app.get("/api/graph-rules")
+def api_graph_rules() -> dict:
+    return graph_rules()
+
+
+@app.post("/api/graph/validate")
+def post_graph_validate(body: SchematicGraph) -> dict:
+    result = validate_graph(body)
+    return {
+        "valid": result.valid,
+        "errors": result.errors,
+        "warnings": result.warnings,
+    }
+
+
+@app.get("/api/graph/{page_id}")
+def get_graph(page_id: str) -> dict:
+    data = load_schematic_graph(page_id)
+    if not data:
+        return _empty_graph(page_id).model_dump(mode="json", by_alias=True)
+    return data
+
+
+@app.post("/api/graph/{page_id}")
+def post_graph(page_id: str, body: SchematicGraph) -> dict:
+    if body.page_id and body.page_id != page_id:
+        raise HTTPException(400, "page_id w body nie zgadza sie z URL")
+    graph = body.model_copy(update={"page_id": page_id})
+    result = validate_graph(graph)
+    if not result.valid:
+        raise HTTPException(422, detail={"errors": result.errors})
+    save_schematic_graph(page_id, graph.model_dump(mode="json", by_alias=True))
+    upsert_page(page_id, f"{page_id}.png", status="labeled")
+    out = {
+        "status": "saved",
+        "page_id": page_id,
+        "symbol_count": len(graph.symbols),
+        "line_count": len(graph.lines),
+    }
+    if result.warnings:
+        out["warnings"] = result.warnings
+    return out
+
+
+@app.get("/api/graph/{page_id}/dump")
+def get_graph_dump(page_id: str) -> dict:
+    data = load_schematic_graph(page_id)
+    if not data:
+        raise HTTPException(404, f"Brak grafu v2: {page_id}")
+    graph = SchematicGraph.model_validate(data)
+    return {"page_id": page_id, "dump": graph_to_dump(graph)}
+
+
+@app.post("/api/graph/{page_id}/prefill")
+def post_graph_prefill(page_id: str, force: bool = False) -> dict:
+    try:
+        graph = prefill_graph(page_id, force=force)
+    except FileExistsError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    save_schematic_graph(
+        page_id, graph.model_dump(mode="json", by_alias=True)
+    )
+    upsert_page(page_id, f"{page_id}.png", status="draft")
+    return {
+        "status": "draft",
+        "page_id": page_id,
+        "symbol_count": len(graph.symbols),
+        "line_count": len(graph.lines),
+        "terminal_count": sum(len(s.terminals) for s in graph.symbols),
+    }
+
+
+@app.post("/api/export/{page_id}")
+def post_export(page_id: str) -> dict[str, str]:
+    data = load_annotation(page_id)
+    if not data:
+        raise HTTPException(404, "Brak adnotacji")
+    record = LabelRecord.model_validate(data)
+    paths = export_all(record)
+    write_data_yaml()
+    return paths
+
+
 def run(host: str = "127.0.0.1", port: int = 8765) -> None:
     import uvicorn
 
