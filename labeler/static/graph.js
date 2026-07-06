@@ -336,10 +336,17 @@ function redraw() {
     const ts = sym.terminals || [];
     if (!ts.length) return;
     const selSym = i === selectedSymIdx;
-    const r = TERMINAL_R / scale;
     ts.forEach((t, ti) => {
       const a = terminalAbsPos(sym, t);
       const selTerm = selSym && ti === selectedTermIdx;
+      const r = (selTerm ? TERMINAL_R_SEL : TERMINAL_R) / scale;
+      if (selTerm) {
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, r + 6 / scale, 0, Math.PI * 2);
+        ctx.strokeStyle = TERMINAL_SEL;
+        ctx.lineWidth = 4 / scale;
+        ctx.stroke();
+      }
       ctx.beginPath();
       ctx.arc(a.x, a.y, r + 4 / scale, 0, Math.PI * 2);
       ctx.fillStyle = "#fff";
@@ -348,10 +355,10 @@ function redraw() {
       ctx.arc(a.x, a.y, r, 0, Math.PI * 2);
       ctx.fillStyle = selTerm ? TERMINAL_SEL : TERMINAL_COLOR;
       ctx.fill();
-      ctx.lineWidth = TERMINAL_STROKE / scale;
+      ctx.lineWidth = (selTerm ? TERMINAL_STROKE + 1.5 : TERMINAL_STROKE) / scale;
       ctx.strokeStyle = "#1a1a1a";
       ctx.stroke();
-      drawTerminalLabel(a.x, a.y, r, String(t.id));
+      drawTerminalLabel(a.x, a.y, r, String(t.id), selTerm);
     });
   });
 
