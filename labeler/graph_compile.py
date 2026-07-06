@@ -148,6 +148,7 @@ def _assign_potentials(
 ) -> list[str]:
     """Domknięcie przechodnie po kind=link → wspólny potential (≥2 symbole)."""
     uf = _UnionFind()
+    _union_rail_terminals(graph, uf)
     for ln in graph.lines:
         if ln.kind != "link":
             continue
@@ -175,6 +176,23 @@ def _assign_potentials(
             conn.potential = pot_f
 
     return potentials
+
+
+def _union_rail_terminals(graph: SchematicGraph, uf: _UnionFind) -> None:
+    """L/R na obrysie tej samej złączki = ten sam węzeł toru szyny (domknięcie)."""
+    edge_frac = 0.05
+    for sym in graph.symbols:
+        left: list[str] = []
+        right: list[str] = []
+        for t in sym.terminals:
+            ref = f"{sym.id}:{t.id}"
+            if t.x <= edge_frac:
+                left.append(ref)
+            if t.x >= 1.0 - edge_frac:
+                right.append(ref)
+        for lref in left:
+            for rref in right:
+                uf.union(lref, rref)
 
 
 def _potential_name(
