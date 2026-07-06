@@ -107,6 +107,44 @@ def load_annotation(page_id: str) -> dict[str, Any] | None:
     return json.loads(row["payload_json"])
 
 
+def save_schematic_graph(page_id: str, payload: dict[str, Any]) -> None:
+    init_db()
+    now = datetime.now(timezone.utc).isoformat()
+    with db_session() as conn:
+        conn.execute(
+            """
+            INSERT INTO schematic_graph (page_id, payload_json, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(page_id) DO UPDATE SET
+                payload_json=excluded.payload_json,
+                updated_at=excluded.updated_at
+            """,
+            (page_id, json.dumps(payload, ensure_ascii=False), now),
+        )
+
+
+def load_schematic_graph(page_id: str) -> dict[str, Any] | None:
+    init_db()
+    with db_session() as conn:
+        row = conn.execute(
+            "SELECT payload_json FROM schematic_graph WHERE page_id = ?",
+            (page_id,),
+        ).fetchone()
+    if not row:
+        return None
+    return json.loads(row["payload_json"])
+
+
+def has_schematic_graph(page_id: str) -> bool:
+    init_db()
+    with db_session() as conn:
+        row = conn.execute(
+            "SELECT 1 FROM schematic_graph WHERE page_id = ?",
+            (page_id,),
+        ).fetchone()
+    return row is not None
+
+
 def list_pages() -> list[dict[str, str]]:
     init_db()
     with db_session() as conn:
