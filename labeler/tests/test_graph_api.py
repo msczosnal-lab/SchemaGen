@@ -52,7 +52,7 @@ def _valid_graph_payload() -> dict:
                 "id": "L1",
                 "from": "a:1",
                 "to": "b:2",
-                "vertices": [[100, 150], [400, 150]],
+                "vertices": [[100, 150], [500, 150]],
                 "kind": "power",
             },
         ],
@@ -114,6 +114,7 @@ def test_prefill_mock_yolo(tmp_db, monkeypatch, tmp_path):
         b"\x00\x00\x05\x00\x01\r\n-\xdb\x00\x00\x00\x00IEND\xaeB`\x82"
     )
     monkeypatch.setattr(paths_mod, "RAW", tmp_path)
+    monkeypatch.setattr(gp, "RAW", tmp_path)
     monkeypatch.setattr(
         gp,
         "image_size_for_page",
@@ -176,6 +177,7 @@ def test_prefill_409_without_force(tmp_db, monkeypatch, tmp_path):
         b"\x00\x00\x05\x00\x01\r\n-\xdb\x00\x00\x00\x00IEND\xaeB`\x82"
     )
     monkeypatch.setattr(paths_mod, "RAW", tmp_path)
+    monkeypatch.setattr(gp, "RAW", tmp_path)
     monkeypatch.setattr(
         gp, "image_size_for_page", lambda page_id: (1000, 800)
     )
