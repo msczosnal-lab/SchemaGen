@@ -387,21 +387,34 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   ctx.restore();
 }
 
-function bboxNr(sym) {
-  const m = String(sym.id).match(/^sym_(\d+)$/);
-  return m ? m[1] : sym.id;
+function parseTerminalRef(ref) {
+  const s = String(ref || "");
+  const i = s.lastIndexOf(":");
+  if (i <= 0) return null;
+  return { symId: s.slice(0, i), termId: s.slice(i + 1) };
+}
+
+/** Kolejny numer bbox (1-based) jak w liście symboli — bez luk w sym_N. */
+function symbolListNr(sym) {
+  const idx = graph.symbols.findIndex((s) => s.id === sym.id);
+  return idx >= 0 ? idx + 1 : "?";
 }
 
 function formatLineEndpoint(ref) {
-  const m = String(ref || "").match(/^([^:]+):(.+)$/);
-  if (!m) return ref;
-  const sym = graph.symbols.find((s) => s.id === m[1]);
+  const p = parseTerminalRef(ref);
+  if (!p) return ref;
+  const sym = graph.symbols.find((s) => s.id === p.symId);
   if (!sym) return ref;
-  const nr = bboxNr(sym);
+  const nr = symbolListNr(sym);
   const tag = (sym.tag || "").trim();
   const type = typeStr(sym.type);
-  const label = tag || type || `#${nr}`;
-  return `${nr} ${label}:${m[2]}`;
+  const name = tag || type || sym.id;
+  return `#${nr} ${name} · T${p.termId}`;
+}
+
+function lineNum(id) {
+  const m = String(id).match(/^L(\d+)$/);
+  return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER;
 }
 
 function formatLineLabel(line) {
