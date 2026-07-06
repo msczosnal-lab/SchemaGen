@@ -157,3 +157,4 @@
 | 2026-07-06 21:55 | Cursor | a0cee9c9 | [Cursor] labeler v2: 3 ostatnio edytowane strony w panelu bocznym |
 | 2026-07-06 21:57 | Cursor | 5703a7d6 | [Cursor] labeler v2: grubsze ramki bbox i terminale na canvasie |
 | 2026-07-06 22:00 | Cursor | c9a5617b | [Cursor] labeler v2: terminal na krawędzi (mouseup), większe etykiety, bez osobnego trybu |
+| 2026-07-06 22:01 | Cursor | dc36418f | [Cursor] labeler v2: większa cyfra terminala, wyraźne podświetlenie zaznaczenia |
