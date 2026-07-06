@@ -160,3 +160,4 @@
 | 2026-07-06 22:01 | Cursor | dc36418f | [Cursor] labeler v2: większa cyfra terminala, wyraźne podświetlenie zaznaczenia |
 | 2026-07-06 22:02 | Cursor | 5cd0ea62 | [Cursor] labeler v2: etykiety bbox/terminal w px ekranu, wysoki kontrast |
 | 2026-07-06 22:03 | Cursor | 75de6a57 | [Cursor] labeler v2: ostatni typ/tag bbox — auto przy nowym prostokącie (jak v1) |
+| 2026-07-06 22:06 | Cursor | 1c6b4a9c | [Cursor] labeler v2: kolory typów tagów (hash jak v1) — bbox, lista, paleta |
