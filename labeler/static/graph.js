@@ -844,6 +844,28 @@ function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, d
   ctx.setLineDash([]);
 }
 
+function lineDraftPreviewPoints() {
+  if (!lineDraft) return [];
+  const from = lineDraft.fromPos;
+  if (!cursorImgPt) {
+    return [[from.x, from.y], ...lineDraft.middles];
+  }
+  if (!lineDraft.middles.length) {
+    return orthoRoutePoints(from, cursorImgPt);
+  }
+  const beforeLast =
+    lineDraft.middles.length >= 1
+      ? lineDraft.middles[lineDraft.middles.length - 1]
+      : [from.x, from.y];
+  const corner = orthoCornerPoint(beforeLast, cursorImgPt);
+  return [
+    [from.x, from.y],
+    ...lineDraft.middles.slice(0, -1),
+    [Math.round(corner[0]), Math.round(corner[1])],
+    [cursorImgPt.x, cursorImgPt.y],
+  ];
+}
+
 function drawLinesOverlay() {
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
@@ -874,9 +896,11 @@ function drawLinesOverlay() {
   }
 
   if (lineDraft) {
-    const draftPts = [[lineDraft.fromPos.x, lineDraft.fromPos.y], ...lineDraft.middles];
-    if (cursorImgPt) draftPts.push([cursorImgPt.x, cursorImgPt.y]);
-    drawPolylineScreen(draftPts, { color: "#82c91e", width: LINE_STROKE, dash: [10, 8] });
+    drawPolylineScreen(lineDraftPreviewPoints(), {
+      color: "#82c91e",
+      width: LINE_STROKE,
+      dash: [10, 8],
+    });
     const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
     ctx.fillStyle = "#228be6";
     ctx.beginPath();
