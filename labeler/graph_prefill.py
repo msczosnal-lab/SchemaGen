@@ -88,6 +88,15 @@ def _sort_key(det: SymbolDetection) -> tuple[float, float]:
     return (cy, cx)
 
 
+def _default_detector() -> OnnxSymbolDetector:
+    from backend.recognize.graph_builder import _active_model_path
+
+    path = _active_model_path()
+    if not path:
+        raise FileNotFoundError("Brak aktywnego modelu ONNX w registry")
+    return OnnxSymbolDetector(path)
+
+
 def prefill_graph(
     page_id: str,
     *,
@@ -105,7 +114,7 @@ def prefill_graph(
     if w <= 0 or h <= 0:
         raise FileNotFoundError(f"Brak obrazu lub rozmiaru dla {page_id}")
 
-    det = detector or OnnxSymbolDetector()
+    det = detector or _default_detector()
     detections = sorted(det.detect(str(image_path)), key=_sort_key)
 
     image_bgr = None

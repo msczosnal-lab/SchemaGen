@@ -149,7 +149,8 @@ def test_prefill_mock_yolo(tmp_db, monkeypatch, tmp_path):
         ]
 
     monkeypatch.setattr(
-        "labeler.graph_prefill.OnnxSymbolDetector.detect", fake_detect
+        "labeler.graph_prefill._default_detector",
+        lambda: type("D", (), {"detect": fake_detect})(),
     )
 
     res = client.post(f"/api/graph/{PAGE}/prefill")
@@ -185,8 +186,8 @@ def test_prefill_409_without_force(tmp_db, monkeypatch, tmp_path):
         gp, "load_patterns", lambda path=None: {"version": 1, "classes": {}}
     )
     monkeypatch.setattr(
-        "labeler.graph_prefill.OnnxSymbolDetector.detect",
-        lambda self, image_path: [],
+        "labeler.graph_prefill._default_detector",
+        lambda: type("D", (), {"detect": lambda self, image_path: []})(),
     )
 
     first = client.post(f"/api/graph/{PAGE}/prefill")
