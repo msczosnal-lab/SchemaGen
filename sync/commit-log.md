@@ -169,3 +169,4 @@
 | 2026-07-06 22:12 | Cursor | c75be605 | [Cursor] labeler v2: panel boczny zależny od trybu Bbox / Linia |
 | 2026-07-06 22:12 | Cursor | 13b7c970 | [Cursor] labeler v2: grubsze zielone linie połączeń (9px) |
 | 2026-07-06 22:12 | Cursor | e101c53f | [Cursor] labeler v2: przycisk Zapisz i status na górze panelu bocznego |
+| 2026-07-06 22:15 | Cursor | 7dd809b0 | [Cursor] labeler v2: listy bbox/linii na pełną wysokość, resizable panele boczne |
