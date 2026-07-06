@@ -1070,14 +1070,14 @@ async function selectPage(pageId) {
 
   renderSymbolList();
   renderSymbolEditor();
+  renderLineList();
   renderPageList();
   renderRecentPages();
   updatePageNav();
   redraw();
   const idx = currentPageIndex();
   saveStatusEl.textContent = graph.symbols.length ? "Wczytano graf" : "Pusty graf — Import draft lub rysuj bbox";
-  document.getElementById("hint").textContent =
-    `Strona ${idx >= 0 ? idx + 1 : "?"} / ${pageIds.length}: ${pageId} — bbox: przeciągnij · zaznaczony + klik w środku = terminal · poza = odznacz`;
+  setMode(mode);
 }
 
 function isTypingField(el) {
@@ -1089,6 +1089,18 @@ function isTypingField(el) {
 canvas.addEventListener("mousedown", (e) => {
   if (e.button !== 0) return;
   const imgPt = imgPointFromEvent(e);
+
+  if (mode === MODE_LINE) {
+    const termHit = findTerminalAt(imgPt);
+    if (termHit) {
+      if (!lineDraft) startLineDraft(termHit);
+      else completeLineDraft(termHit);
+    } else if (lineDraft) {
+      addLineMiddlePoint(imgPt, e.shiftKey);
+    }
+    redraw();
+    return;
+  }
 
   for (let i = graph.symbols.length - 1; i >= 0; i--) {
     const hit = terminalHitTest(graph.symbols[i], imgPt);
@@ -1112,6 +1124,13 @@ canvas.addEventListener("mousedown", (e) => {
 });
 
 canvas.addEventListener("mousemove", (e) => {
+  if (mode === MODE_LINE) {
+    if (lineDraft) {
+      cursorImgPt = lineSnapPoint(imgPointFromEvent(e), e.shiftKey);
+      redraw();
+    }
+    return;
+  }
   if (draggingTerminal) {
     const sym = graph.symbols[draggingTerminal.symIdx];
     const t = sym?.terminals?.[draggingTerminal.termIdx];
@@ -1141,6 +1160,7 @@ canvas.addEventListener("mousemove", (e) => {
 });
 
 canvas.addEventListener("mouseup", (e) => {
+  if (mode === MODE_LINE) return;
   if (draggingTerminal) {
     if (terminalDragMoved) {
       markDirty();
@@ -1221,7 +1241,29 @@ document.addEventListener("keydown", (e) => {
     saveGraph();
     return;
   }
+  if (e.key === "b" || e.key === "B") {
+    e.preventDefault();
+    setMode(MODE_BBOX);
+    return;
+  }
+  if (e.key === "l" || e.key === "L") {
+    e.preventDefault();
+    setMode(MODE_LINE);
+    return;
+  }
   if (e.key === "Escape") {
+    if (lineDraft) {
+      cancelLineDraft();
+      saveStatusEl.textContent = "Anulowano rysowanie linii";
+      redraw();
+      return;
+    }
+    if (selectedLineIdx >= 0) {
+      selectedLineIdx = -1;
+      renderLineList();
+      redraw();
+      return;
+    }
     selectedTermIdx = -1;
     if (selectedSymIdx >= 0) {
       selectedSymIdx = -1;
@@ -1232,6 +1274,18 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key === "Delete" || e.key === "Backspace") {
+    if (mode === MODE_LINE && lineDraft?.middles?.length) {
+      e.preventDefault();
+      lineDraft.middles.pop();
+      markDirty();
+      redraw();
+      return;
+    }
+    if (mode === MODE_LINE && selectedLineIdx >= 0) {
+      e.preventDefault();
+      deleteSelectedLine();
+      return;
+    }
     if (selectedSymIdx >= 0 && selectedTermIdx >= 0) {
       e.preventDefault();
       deleteSelectedTerminal();
@@ -1297,6 +1351,8 @@ symTagInput.addEventListener("blur", () => {
 document.getElementById("save-btn").addEventListener("click", saveGraph);
 document.getElementById("prefill-btn").addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
+document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
+document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 pagePrevBtn.addEventListener("click", () => {
   const idx = currentPageIndex();
   if (idx > 0) selectPage(pageIds[idx - 1]);

@@ -33,7 +33,7 @@
       </div>
       <div id="mode-bar">
         <button id="mode-bbox" type="button" class="mode-btn active" title="Tryb bbox (B)">⬚ Bbox</button>
-        <button id="mode-line" type="button" class="mode-btn mode-disabled" disabled title="Krok 6 — linie OD-DO">╱ Linia</button>
+        <button id="mode-line" type="button" class="mode-btn" title="Tryb linia (L)">╱ Linia</button>
       </div>
       <canvas id="canvas" width="800" height="600"></canvas>
       <p id="hint">Bbox: przeciągnij · zaznaczony + klik w środku = terminal · klik poza = odznacz</p>
@@ -55,6 +55,20 @@
         <button id="delete-symbol-btn" type="button" class="delete-btn">Usuń symbol</button>
       </div>
       <button id="save-btn" type="button">Zapisz graf</button>
+      <div id="line-panel">
+        <h2>Linie</h2>
+        <label>Kind
+          <select id="line-kind">
+            <option value="power">power</option>
+            <option value="signal">signal</option>
+            <option value="pe">pe</option>
+            <option value="control">control</option>
+            <option value="link">link</option>
+            <option value="other">other</option>
+          </select>
+        </label>
+        <ul id="line-list"></ul>
+      </div>
       <p id="save-status" class="muted"></p>
     </aside>
   </main>
