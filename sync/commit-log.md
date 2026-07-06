@@ -175,3 +175,4 @@
 | 2026-07-06 22:24 | Cursor | e3a38155 | [Cursor] labeler v2: większe tagi, pamięć ostatniej strony, licznik linii po wczytaniu |
 | 2026-07-06 22:24 | Cursor | 4226089a | [Cursor] labeler v2: przełącznik odwrócenia kolorów tła PNG (I) |
 | 2026-07-06 22:29 | Cursor | a6908101 | [Cursor] labeler v2: linie w px ekranu + dopasowanie widoku po odświeżeniu |
+| 2026-07-06 22:29 | Cursor | 20c9bba3 | [Cursor] labeler v2: większe kropki terminali i szerszy hit-test dodawania |
