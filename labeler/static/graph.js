@@ -32,6 +32,7 @@ let selectedLineIdx = -1;
 const RECENT_PAGES_KEY = "graphRecentPages";
 const LAST_PAGE_KEY = "graphLastPage";
 const INVERT_BG_KEY = "graphInvertBg";
+const VIEWPORT_KEY = "graphViewportByPage";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
 const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
@@ -346,6 +347,96 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   ctx.restore();
 }
 
+function lineFromRef(line) {
+  return line.from ?? line.from_ref ?? "";
+}
+
+function lineToRef(line) {
+  return line.to ?? line.to_ref ?? "";
+}
+
+function canvasViewSize() {
+  const rect = canvas.getBoundingClientRect();
+  return { w: Math.max(rect.width, 120), h: Math.max(rect.height, 120) };
+}
+
+function loadAllViewports() {
+  try {
+    return JSON.parse(localStorage.getItem(VIEWPORT_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function loadPageViewport(pageId) {
+  if (!pageId) return null;
+  const vp = loadAllViewports()[pageId];
+  if (!vp || !Number.isFinite(vp.scale) || vp.scale <= 0) return null;
+  return vp;
+}
+
+function savePageViewport(pageId) {
+  if (!pageId) return;
+  try {
+    const all = loadAllViewports();
+    all[pageId] = { scale, originX, originY };
+    localStorage.setItem(VIEWPORT_KEY, JSON.stringify(all));
+  } catch {
+    /* ignore */
+  }
+}
+
+function graphContentBounds() {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  let n = 0;
+  const grow = (x, y) => {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x);
+    maxY = Math.max(maxY, y);
+    n += 1;
+  };
+  for (const sym of graph.symbols) {
+    const r = bboxRect(sym);
+    grow(r.x, r.y);
+    grow(r.x + r.width, r.y + r.height);
+    for (const t of sym.terminals || []) {
+      const a = terminalAbsPos(sym, t);
+      grow(a.x, a.y);
+    }
+  }
+  for (const line of graph.lines) {
+    for (const pt of lineDisplayPoints(line)) grow(pt[0], pt[1]);
+  }
+  if (!n) return null;
+  const span = Math.max(maxX - minX, maxY - minY, 40);
+  const pad = span * 0.08 + 24;
+  return {
+    minX: minX - pad,
+    minY: minY - pad,
+    width: maxX - minX + pad * 2,
+    height: maxY - minY + pad * 2,
+  };
+}
+
+function fitViewToGraph() {
+  const bounds = graphContentBounds();
+  if (!bounds) return;
+  const { w: viewW, h: viewH } = canvasViewSize();
+  const pad = 28;
+  const sx = (viewW - pad * 2) / bounds.width;
+  const sy = (viewH - pad * 2) / bounds.height;
+  scale = Math.min(Math.max(Math.min(sx, sy), 0.05), 12);
+  originX = (viewW - bounds.width * scale) / 2 - bounds.minX * scale;
+  originY = (viewH - bounds.height * scale) / 2 - bounds.minY * scale;
+  savePageViewport(currentPageId);
+  redraw();
+}
+
 function parseTerminalRef(ref) {
   const s = String(ref || "");
   const i = s.lastIndexOf(":");
@@ -377,7 +468,7 @@ function lineNum(id) {
 }
 
 function formatLineLabel(line) {
-  return `${line.id}: ${formatLineEndpoint(line.from)} → ${formatLineEndpoint(line.to)} [${line.kind || "power"}]`;
+  return `${line.id}: ${formatLineEndpoint(lineFromRef(line))} → ${formatLineEndpoint(lineToRef(line))} [${line.kind || "power"}]`;
 }
 
 function terminalHitTest(sym, imgPt) {
