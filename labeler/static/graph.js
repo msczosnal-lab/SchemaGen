@@ -7,6 +7,9 @@ const TERMINAL_SEL = "#fa5252";
 const TERMINAL_R = 10;
 const DRAG_THRESHOLD = 4;
 
+const RECENT_PAGES_KEY = "graphRecentPages";
+const RECENT_PAGES_MAX = 3;
+
 let pageIds = [];
 let pagesMeta = [];
 let currentPageId = null;
@@ -169,6 +172,8 @@ function symbolHitTest(imgPt) {
 function markDirty() {
   dirty = true;
   saveStatusEl.textContent = "Niezapisane zmiany";
+  touchRecentPage(currentPageId);
+  renderRecentPages();
 }
 
 function applyGraph(data) {
@@ -232,7 +237,9 @@ async function saveGraph() {
     dirty = false;
     const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
     saveStatusEl.textContent = `Zapisano: ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
-    renderPageList();
+    touchRecentPage(currentPageId);
+    await loadPages();
+    renderRecentPages();
   } catch (err) {
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
   }
@@ -311,6 +318,83 @@ function redraw() {
   });
 
   ctx.restore();
+}
+
+function pageMeta(pageId) {
+  return pagesMeta.find((p) => p.id === pageId);
+}
+
+function pageEditedAt(page) {
+  if (!page) return "";
+  return page.graph_updated_at || page.annotation_updated_at || "";
+}
+
+function loadRecentPageIds() {
+  try {
+    const raw = localStorage.getItem(RECENT_PAGES_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) {
+      return parsed.filter((id) => typeof id === "string" && id).slice(0, RECENT_PAGES_MAX);
+    }
+  } catch {
+    /* ignore */
+  }
+  return [];
+}
+
+function saveRecentPageIds(ids) {
+  localStorage.setItem(RECENT_PAGES_KEY, JSON.stringify(ids.slice(0, RECENT_PAGES_MAX)));
+}
+
+function touchRecentPage(pageId) {
+  if (!pageId) return;
+  const ids = loadRecentPageIds().filter((id) => id !== pageId);
+  ids.unshift(pageId);
+  saveRecentPageIds(ids);
+}
+
+function recentPageIds() {
+  const seen = new Set();
+  const out = [];
+  for (const id of loadRecentPageIds()) {
+    if (seen.has(id) || !pageMeta(id)) continue;
+    seen.add(id);
+    out.push(id);
+    if (out.length >= RECENT_PAGES_MAX) return out;
+  }
+  const byServer = [...pagesMeta]
+    .filter((p) => pageEditedAt(p))
+    .sort((a, b) => pageEditedAt(b).localeCompare(pageEditedAt(a)));
+  for (const p of byServer) {
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    out.push(p.id);
+    if (out.length >= RECENT_PAGES_MAX) break;
+  }
+  return out;
+}
+
+function renderRecentPages() {
+  const list = document.getElementById("recent-page-list");
+  if (!list) return;
+  list.innerHTML = "";
+  const ids = recentPageIds();
+  if (!ids.length) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = "Brak historii edycji";
+    list.appendChild(li);
+    return;
+  }
+  ids.forEach((id) => {
+    const p = pageMeta(id);
+    const li = document.createElement("li");
+    li.textContent = p?.filename || id;
+    if (id === currentPageId) li.classList.add("active");
+    li.title = id;
+    li.onclick = () => selectPage(id);
+    list.appendChild(li);
+  });
 }
 
 function renderPageList() {
@@ -454,6 +538,7 @@ async function loadPages() {
     (a.id || "").localeCompare(b.id || "", undefined, { numeric: true })
   );
   pageIds = pagesMeta.map((p) => p.id);
+  renderRecentPages();
   renderPageList();
   updatePageNav();
 }
@@ -518,6 +603,7 @@ async function selectPage(pageId) {
   renderSymbolList();
   renderSymbolEditor();
   renderPageList();
+  renderRecentPages();
   updatePageNav();
   redraw();
   const idx = currentPageIndex();

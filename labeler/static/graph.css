@@ -1,5 +1,9 @@
 .v2-badge { font-size: 0.65em; background: #f76707; color: #111; padding: 2px 8px; border-radius: 4px; vertical-align: middle; }
 header a { color: #8ec8ff; }
+#recent-pages-block { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #444; }
+#recent-page-list li { padding: 6px 10px; margin: 3px 0; background: #2d3748; border-radius: 4px; cursor: pointer; font-size: 0.9rem; border-left: 4px solid #4dabf7; }
+#recent-page-list li.active { outline: 2px solid #ffd43b; }
+#recent-page-list li.empty { cursor: default; color: #888; border-left-color: #555; background: transparent; }
 .mode-disabled { opacity: 0.4; cursor: not-allowed !important; }
 #symbol-list li { padding: 8px 10px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; border-left: 4px solid #f76707; }
 #symbol-list li.active { outline: 2px solid #ffd43b; background: #3a3a3a; }
