@@ -609,10 +609,20 @@ function applyGraph(data) {
         name: t.name || "",
       })),
     })),
-    lines: data.lines || [],
+    lines: (data.lines || []).map((l) => ({
+      id: l.id,
+      from: l.from,
+      to: l.to,
+      vertices: (l.vertices || []).map((v) => [...v]),
+      kind: l.kind || "power",
+    })),
   };
   symSeq = graph.symbols.reduce((m, s) => {
     const match = String(s.id).match(/^sym_(\d+)$/);
+    return match ? Math.max(m, Number(match[1]) + 1) : m;
+  }, 0);
+  lineSeq = graph.lines.reduce((m, l) => {
+    const match = String(l.id).match(/^L(\d+)$/);
     return match ? Math.max(m, Number(match[1]) + 1) : m;
   }, 0);
   dirty = false;
@@ -675,8 +685,11 @@ async function runPrefill() {
     applyGraph(data);
     selectedSymIdx = -1;
     selectedTermIdx = -1;
+    selectedLineIdx = -1;
+    cancelLineDraft();
     renderSymbolList();
     renderSymbolEditor();
+    renderLineList();
     redraw();
     dirty = false;
     saveStatusEl.textContent =
@@ -735,6 +748,8 @@ function redraw() {
       ctx.stroke();
     });
   });
+
+  drawLinesLayer();
 
   ctx.restore();
 
