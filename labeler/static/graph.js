@@ -5,7 +5,9 @@ const BBOX_SEL = "#ffd43b";
 const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
 const TERMINAL_R = 16;
-const TERMINAL_LABEL_PX = 28;
+const TERMINAL_R_SEL = 20;
+const TERMINAL_LABEL_PX = 40;
+const TERMINAL_LABEL_SEL_PX = 54;
 const BBOX_STROKE = 5;
 const BBOX_STROKE_SEL = 7;
 const TERMINAL_STROKE = 3.5;
@@ -142,19 +144,27 @@ function onBboxEdge(b, imgPt) {
   return (onLeft && inY) || (onRight && inY) || (onTop && inX) || (onBottom && inX);
 }
 
-function drawTerminalLabel(ax, ay, r, text) {
-  const fs = TERMINAL_LABEL_PX / scale;
-  ctx.font = `bold ${fs}px sans-serif`;
-  const tx = ax + r + 6 / scale;
+function drawTerminalLabel(ax, ay, r, text, selected = false) {
+  const fs = (selected ? TERMINAL_LABEL_SEL_PX : TERMINAL_LABEL_PX) / scale;
+  ctx.font = `900 ${fs}px sans-serif`;
+  const tx = ax + r + 8 / scale;
   const ty = ay + fs * 0.35;
-  const pad = 5 / scale;
+  const pad = (selected ? 7 : 5) / scale;
   const w = ctx.measureText(text).width + pad * 2;
   const h = fs + pad * 2;
-  ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-  ctx.strokeStyle = "#111";
-  ctx.lineWidth = 2.5 / scale;
-  ctx.fillRect(tx - pad, ty - fs - pad * 0.3, w, h);
-  ctx.strokeRect(tx - pad, ty - fs - pad * 0.3, w, h);
+  const bx = tx - pad;
+  const by = ty - fs - pad * 0.3;
+  if (selected) {
+    ctx.fillStyle = "#ffd43b";
+    ctx.strokeStyle = TERMINAL_SEL;
+    ctx.lineWidth = 5 / scale;
+  } else {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 2.5 / scale;
+  }
+  ctx.fillRect(bx, by, w, h);
+  ctx.strokeRect(bx, by, w, h);
   ctx.fillStyle = "#111";
   ctx.fillText(text, tx, ty);
 }
