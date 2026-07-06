@@ -478,17 +478,6 @@ def post_graph_prefill(page_id: str, force: bool = False) -> dict:
     }
 
 
-@app.post("/api/export/{page_id}")
-def post_export(page_id: str) -> dict[str, str]:
-    data = load_annotation(page_id)
-    if not data:
-        raise HTTPException(404, "Brak adnotacji")
-    record = LabelRecord.model_validate(data)
-    paths = export_all(record)
-    write_data_yaml()
-    return paths
-
-
 def run(host: str = "127.0.0.1", port: int = 8765) -> None:
     import uvicorn
 

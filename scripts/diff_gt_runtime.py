@@ -34,7 +34,7 @@ from backend.validate.diff_metrics import (
     diff_tags,
     page_id,
 )
-from labeler.export import label_to_schema
+from labeler.gt_loader import gt_source, load_gt_schema
 
 OUT_DIR = _ROOT / "data" / "output" / "diff_gt_runtime"
 
@@ -130,21 +130,17 @@ def main() -> int:
         print(f"[BLAD] Brak {img}")
         return 1
 
-    gt_data = load_annotation(pid)
-    gt_lines = 0
-    gt_bboxes = 0
-    gt_schema = None
-    if gt_data:
-        rec = LabelRecord.model_validate(gt_data)
-        gt_schema = label_to_schema(rec)
-        gt_lines = len(rec.lines)
-        gt_bboxes = len(rec.bboxes)
+    gt_schema = load_gt_schema(pid)
+    src = gt_source(pid)
+    gt_bboxes = len(gt_schema.components) if gt_schema else 0
+    gt_lines = len(gt_schema.graphic_lines) if gt_schema else 0
 
     runtime = recognize_file(str(img))
 
     report = {
         "page_id": pid,
         "gt": {
+            "source": src,
             "bboxes": gt_bboxes,
             "lines": gt_lines,
             "connections": len(gt_schema.connections) if gt_schema else 0,
@@ -180,7 +176,8 @@ def main() -> int:
         tags = report.get("tags", {})
         lines_d = report.get("lines", {})
         print(f"=== {pid} ===")
-        print(f"GT: {gt_bboxes} bbox, {gt_lines} linii, {conn.get('gt_count', 0)} conn")
+        src = report["gt"].get("source") or "brak"
+        print(f"GT [{src}]: {gt_bboxes} bbox, {gt_lines} linii, {conn.get('gt_count', 0)} conn")
         print(
             f"Runtime: {len(runtime.components)} sym, "
             f"{len(runtime.graphic_lines)} linii, {conn.get('runtime_count', 0)} conn"

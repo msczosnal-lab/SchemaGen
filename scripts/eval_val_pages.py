@@ -19,11 +19,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from backend.db import load_annotation
-from backend.models.label import LabelRecord
 from backend.paths import CONFIG, RAW
 from backend.recognize.pipeline import recognize_file
-from labeler.export import label_to_schema
+from labeler.gt_loader import gt_source, load_gt_schema
 from backend.runtime_config import eval_weights, line_match_tol
 from backend.validate.diff_metrics import (
     aggregate_score,
@@ -50,15 +48,10 @@ def eval_page(pid: str) -> dict | None:
     if not img.exists():
         return None
 
-    gt_data = load_annotation(pid)
-    gt_schema = None
-    gt_bboxes = 0
-    gt_lines = 0
-    if gt_data:
-        rec = LabelRecord.model_validate(gt_data)
-        gt_schema = label_to_schema(rec)
-        gt_bboxes = len(rec.bboxes)
-        gt_lines = len(rec.lines)
+    gt_schema = load_gt_schema(pid)
+    src = gt_source(pid)
+    gt_bboxes = len(gt_schema.components) if gt_schema else 0
+    gt_lines = len(gt_schema.graphic_lines) if gt_schema else 0
 
     runtime = recognize_file(str(img))
 
@@ -66,6 +59,7 @@ def eval_page(pid: str) -> dict | None:
         "page_id": pid,
         "image": str(img),
         "gt": {
+            "source": src,
             "bboxes": gt_bboxes,
             "lines": gt_lines,
             "connections": len(gt_schema.connections) if gt_schema else 0,
