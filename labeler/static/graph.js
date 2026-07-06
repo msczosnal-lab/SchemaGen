@@ -225,12 +225,64 @@ function onBboxEdge(b, imgPt) {
   return (onLeft && inY) || (onRight && inY) || (onTop && inX) || (onBottom && inX);
 }
 
+function typeStr(v) {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") return String(v.id || v.label_pl || "");
+  return v ? String(v) : "";
+}
+
+function symColorKey(sym) {
+  const t = typeStr(sym?.type).trim();
+  if (t) return t;
+  return (sym?.tag || "").trim();
+}
+
+function colorFromKey(key) {
+  if (!key || !key.trim()) return UNASSIGNED_COLOR;
+  let h = 0;
+  const s = key.trim().toLocaleLowerCase("pl");
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const hue = (h * 137.508) % 360;
+  return `hsl(${hue.toFixed(1)}, 72%, 46%)`;
+}
+
+function pillColorsFromKey(key) {
+  const stroke = colorFromKey(key);
+  if (stroke === UNASSIGNED_COLOR) {
+    return { fill: "#fff3bf", stroke: BBOX_COLOR, text: "#111111" };
+  }
+  const m = stroke.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
+  if (m) {
+    const sat = Math.min(parseFloat(m[2]), 70);
+    return {
+      fill: `hsl(${m[1]}, ${sat}%, 88%)`,
+      stroke,
+      text: "#111111",
+    };
+  }
+  return { fill: "#fff3bf", stroke, text: "#111111" };
+}
+
+function applyInputTypeColor(input, key) {
+  const k = (key || "").trim();
+  if (!k) {
+    input.style.removeProperty("background");
+    input.style.removeProperty("color");
+    input.style.removeProperty("border-color");
+    return;
+  }
+  const c = colorFromKey(k);
+  input.style.background = c;
+  input.style.color = "#fff";
+  input.style.borderColor = c;
+}
+
 function imageToCanvasPt(x, y) {
   return { cx: x * scale + originX, cy: y * scale + originY };
 }
 
 /** Etykieta w px ekranu (canvas) — zawsze czytelna niezależnie od zoomu. */
-function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL_PX, selFontPx = TERMINAL_LABEL_SEL_PX, variant = "terminal" } = {}) {
+function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL_PX, selFontPx = TERMINAL_LABEL_SEL_PX, variant = "terminal", colorKey = "" } = {}) {
   if (!text) return;
   const fs = selected ? selFontPx : fontPx;
   const pad = selected ? 9 : 7;
@@ -244,14 +296,17 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   const ty = cy;
   const bx = tx - pad;
   const by = ty - fs - pad * 0.2;
+  let textColor = "#111111";
   if (selected) {
     ctx.fillStyle = "#ffd43b";
     ctx.strokeStyle = TERMINAL_SEL;
     ctx.lineWidth = 4;
   } else if (variant === "bbox") {
-    ctx.fillStyle = "#fff3bf";
-    ctx.strokeStyle = BBOX_COLOR;
+    const pc = pillColorsFromKey(colorKey);
+    ctx.fillStyle = pc.fill;
+    ctx.strokeStyle = pc.stroke;
     ctx.lineWidth = 3;
+    textColor = pc.text;
   } else {
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#111111";
@@ -259,7 +314,7 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   }
   ctx.fillRect(bx, by, w, h);
   ctx.strokeRect(bx, by, w, h);
-  ctx.fillStyle = "#111111";
+  ctx.fillStyle = textColor;
   ctx.fillText(text, tx, ty);
   ctx.restore();
 }
@@ -413,7 +468,8 @@ function redraw() {
   graph.symbols.forEach((sym, i) => {
     const r = bboxRect(sym);
     const sel = i === selectedSymIdx;
-    ctx.strokeStyle = sel ? BBOX_SEL : BBOX_COLOR;
+    const col = colorFromKey(symColorKey(sym));
+    ctx.strokeStyle = sel ? BBOX_SEL : col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
     ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
   });
@@ -459,6 +515,7 @@ function redraw() {
       fontPx: BBOX_LABEL_PX,
       selFontPx: BBOX_LABEL_SEL_PX,
       variant: "bbox",
+      colorKey: symColorKey(sym),
     });
   });
 
