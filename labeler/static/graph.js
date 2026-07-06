@@ -713,6 +713,10 @@ let lineCompleting = false;
 
 function completeLineDraft(hit) {
   if (lineCompleting || !lineDraft || hit.ref === lineDraft.fromRef) return;
+  if (terminalUsedRef(hit.ref)) {
+    saveStatusEl.textContent = `Terminal zajęty: ${formatLineEndpoint(hit.ref)} — każdy terminal max 1 linia`;
+    return;
+  }
   if (graph.lines.some((l) => lineFromRef(l) === lineDraft.fromRef && lineToRef(l) === hit.ref)) {
     saveStatusEl.textContent = "Taka linia już istnieje (ten sam OD → DO)";
     return;
@@ -724,19 +728,13 @@ function completeLineDraft(hit) {
     const toTerm = toSym.terminals[hit.termIdx];
     if (!fromHit) return;
 
-    let vertices;
+    const fromSym = graph.symbols[fromHit.symIdx];
+    const fromTerm = fromSym.terminals[fromHit.termIdx];
+    let vertices = [];
+
     if (!lineDraft.middles.length) {
-      const straight = alignTerminalsStraight(fromHit, hit);
-      const fromSym = graph.symbols[fromHit.symIdx];
-      const fromTerm = fromSym.terminals[fromHit.termIdx];
-      const a = terminalAbsPos(fromSym, fromTerm);
-      const b = terminalAbsPos(toSym, toTerm);
-      vertices = straight
-        ? [[Math.round(a.x), Math.round(a.y)], [Math.round(b.x), Math.round(b.y)]]
-        : [];
+      alignTerminalsStraight(fromHit, hit);
     } else {
-      const fromSym = graph.symbols[fromHit.symIdx];
-      const fromTerm = fromSym.terminals[fromHit.termIdx];
       const a = terminalAbsPos(fromSym, fromTerm);
       const b = terminalAbsPos(toSym, toTerm);
       vertices = buildLineVertices(a, lineDraft.middles, b);
@@ -855,7 +853,10 @@ function lineDraftPreviewPoints() {
     return [[from.x, from.y], ...lineDraft.middles];
   }
   if (!lineDraft.middles.length) {
-    return orthoRoutePoints(from, cursorImgPt);
+    return [
+      [from.x, from.y],
+      [cursorImgPt.x, cursorImgPt.y],
+    ];
   }
   const beforeLast =
     lineDraft.middles.length >= 1
@@ -870,10 +871,28 @@ function lineDraftPreviewPoints() {
   ];
 }
 
-function drawLinesLayer() {
+function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
+  if (!points || points.length < 2) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.setLineDash(dash);
+  ctx.beginPath();
+  const p0 = imageToCanvasPt(points[0][0], points[0][1]);
+  ctx.moveTo(p0.cx, p0.cy);
+  for (let i = 1; i < points.length; i++) {
+    const p = imageToCanvasPt(points[i][0], points[i][1]);
+    ctx.lineTo(p.cx, p.cy);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawLinesLayerScreen() {
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
-    drawPolylineImage(pts, {
+    drawPolylineScreen(pts, {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
       width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
@@ -883,29 +902,26 @@ function drawLinesLayer() {
     const line = graph.lines[selectedLineIdx];
     const a = terminalPosByRef(lineFromRef(line));
     const b = terminalPosByRef(lineToRef(line));
-    if (a) {
-      ctx.fillStyle = "#228be6";
+    for (const pos of [a, b]) {
+      if (!pos) continue;
+      const p = imageToCanvasPt(pos.x, pos.y);
+      ctx.fillStyle = pos === a ? "#228be6" : "#fa5252";
       ctx.beginPath();
-      ctx.arc(a.x, a.y, 10 / scale, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    if (b) {
-      ctx.fillStyle = "#fa5252";
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, 10 / scale, 0, Math.PI * 2);
+      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
   if (lineDraft) {
-    drawPolylineImage(lineDraftPreviewPoints(), {
+    drawPolylineScreen(lineDraftPreviewPoints(), {
       color: "#82c91e",
       width: LINE_STROKE,
       dash: [10, 8],
     });
+    const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
     ctx.fillStyle = "#228be6";
     ctx.beginPath();
-    ctx.arc(lineDraft.fromPos.x, lineDraft.fromPos.y, 11 / scale, 0, Math.PI * 2);
+    ctx.arc(p.cx, p.cy, 11, 0, Math.PI * 2);
     ctx.fill();
   }
 }
