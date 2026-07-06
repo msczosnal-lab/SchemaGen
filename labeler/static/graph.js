@@ -27,7 +27,6 @@ let mode = MODE_BBOX;
 let lineDraft = null;
 let cursorImgPt = null;
 let lineOrtho = true;
-let lineSeq = 0;
 let selectedLineIdx = -1;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
@@ -369,6 +368,10 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
     ctx.strokeStyle = pc.stroke;
     ctx.lineWidth = 3;
     textColor = pc.text;
+  } else if (variant === "line") {
+    ctx.fillStyle = selected ? "#d3f9d8" : "#ffffff";
+    ctx.strokeStyle = selected ? LINE_COLOR_SEL : LINE_COLOR;
+    ctx.lineWidth = 3;
   } else {
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "#111111";
@@ -710,6 +713,29 @@ function markDirty() {
   renderRecentPages();
 }
 
+function normalizeLines(raw) {
+  const seenId = new Set();
+  const seenPair = new Set();
+  const out = [];
+  for (const l of raw || []) {
+    const from = l.from ?? l.from_ref;
+    const to = l.to ?? l.to_ref;
+    if (!from || !to) continue;
+    const pairKey = `${from}|${to}`;
+    if (seenId.has(l.id) || seenPair.has(pairKey)) continue;
+    seenId.add(l.id);
+    seenPair.add(pairKey);
+    out.push({
+      id: l.id,
+      from,
+      to,
+      vertices: (l.vertices || []).map((v) => [...v]),
+      kind: l.kind || "power",
+    });
+  }
+  return out;
+}
+
 function applyGraph(data) {
   graph = {
     version: data.version ?? 2,
@@ -728,20 +754,10 @@ function applyGraph(data) {
         name: t.name || "",
       })),
     })),
-    lines: (data.lines || []).map((l) => ({
-      id: l.id,
-      from: l.from,
-      to: l.to,
-      vertices: (l.vertices || []).map((v) => [...v]),
-      kind: l.kind || "power",
-    })),
+    lines: normalizeLines(data.lines),
   };
   symSeq = graph.symbols.reduce((m, s) => {
     const match = String(s.id).match(/^sym_(\d+)$/);
-    return match ? Math.max(m, Number(match[1]) + 1) : m;
-  }, 0);
-  lineSeq = graph.lines.reduce((m, l) => {
-    const match = String(l.id).match(/^L(\d+)$/);
     return match ? Math.max(m, Number(match[1]) + 1) : m;
   }, 0);
   dirty = false;
