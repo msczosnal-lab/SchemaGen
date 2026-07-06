@@ -1054,6 +1054,7 @@ function updateInvertBgButton() {
   if (!btn) return;
   btn.classList.toggle("active", invertBg);
   btn.setAttribute("aria-pressed", invertBg ? "true" : "false");
+  document.body.classList.toggle("invert-bg", invertBg);
 }
 
 function setInvertBg(on) {
