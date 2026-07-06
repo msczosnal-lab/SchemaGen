@@ -149,7 +149,15 @@ def list_pages() -> list[dict[str, str]]:
     init_db()
     with db_session() as conn:
         rows = conn.execute(
-            "SELECT id, filename, status FROM pages ORDER BY id"
+            """
+            SELECT p.id, p.filename, p.status,
+                   g.updated_at AS graph_updated_at,
+                   a.updated_at AS annotation_updated_at
+            FROM pages p
+            LEFT JOIN schematic_graph g ON g.page_id = p.id
+            LEFT JOIN annotations a ON a.page_id = p.id
+            ORDER BY p.id
+            """
         ).fetchall()
     return [dict(row) for row in rows]
 
