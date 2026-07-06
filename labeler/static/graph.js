@@ -395,12 +395,42 @@ function lineToRef(line) {
   return line.to ?? line.to_ref ?? "";
 }
 
-function canvasViewSize() {
-  const rect = canvas.getBoundingClientRect();
-  return { w: Math.max(rect.width, 120), h: Math.max(rect.height, 120) };
+function pageImageSize() {
+  return {
+    w: bgImage?.naturalWidth || graph.image_width || canvas.width,
+    h: bgImage?.naturalHeight || graph.image_height || canvas.height,
+  };
 }
 
-function loadAllViewports() {
+function fitViewToPage() {
+  const { w: iw, h: ih } = pageImageSize();
+  const pad = Math.max(32, Math.min(iw, ih) * 0.015);
+  const availW = canvas.width - 2 * pad;
+  const availH = canvas.height - 2 * pad;
+  scale = Math.min(availW / iw, availH / ih);
+  scale = Math.min(Math.max(scale, 0.02), 8);
+  originX = pad + (availW - iw * scale) / 2;
+  originY = pad + (availH - ih * scale) / 2;
+  savePageViewport(currentPageId);
+  redraw();
+}
+
+function fitViewToGraph() {
+  const bounds = graphContentBounds();
+  if (!bounds) {
+    fitViewToPage();
+    return;
+  }
+  const pad = Math.max(40, Math.min(canvas.width, canvas.height) * 0.02);
+  const availW = canvas.width - 2 * pad;
+  const availH = canvas.height - 2 * pad;
+  scale = Math.min(availW / bounds.width, availH / bounds.height);
+  scale = Math.min(Math.max(scale, 0.05), 32);
+  originX = pad + (availW - bounds.width * scale) / 2 - bounds.minX * scale;
+  originY = pad + (availH - bounds.height * scale) / 2 - bounds.minY * scale;
+  savePageViewport(currentPageId);
+  redraw();
+}
   try {
     return JSON.parse(localStorage.getItem(VIEWPORT_KEY) || "{}");
   } catch {
@@ -463,21 +493,7 @@ function graphContentBounds() {
   };
 }
 
-function fitViewToGraph() {
-  const bounds = graphContentBounds();
-  if (!bounds) return;
-  const { w: viewW, h: viewH } = canvasViewSize();
-  const pad = 28;
-  const sx = (viewW - pad * 2) / bounds.width;
-  const sy = (viewH - pad * 2) / bounds.height;
-  scale = Math.min(Math.max(Math.min(sx, sy), 0.05), 12);
-  originX = (viewW - bounds.width * scale) / 2 - bounds.minX * scale;
-  originY = (viewH - bounds.height * scale) / 2 - bounds.minY * scale;
-  savePageViewport(currentPageId);
-  redraw();
-}
-
-function parseTerminalRef(ref) {
+function loadAllViewports() {
   const s = String(ref || "");
   const i = s.lastIndexOf(":");
   if (i <= 0) return null;
@@ -1507,7 +1523,7 @@ async function selectPage(pageId) {
     originX = vp.originX;
     originY = vp.originY;
   } else if (graph.symbols.length || graph.lines.length) {
-    fitViewToGraph();
+    fitViewToPage();
   } else {
     scale = 1;
     originX = 0;
@@ -1704,7 +1720,8 @@ document.addEventListener("keydown", (e) => {
   }
   if (e.key === "f" || e.key === "F") {
     e.preventDefault();
-    fitViewToGraph();
+    if (e.shiftKey) fitViewToGraph();
+    else fitViewToPage();
     return;
   }
   if (e.key === "Escape") {
@@ -1811,7 +1828,7 @@ document.getElementById("delete-line-btn")?.addEventListener("click", deleteSele
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
 document.getElementById("invert-bg-btn")?.addEventListener("click", toggleInvertBg);
-document.getElementById("fit-view-btn")?.addEventListener("click", fitViewToGraph);
+document.getElementById("fit-view-btn")?.addEventListener("click", fitViewToPage);
 pagePrevBtn.addEventListener("click", () => {
   const idx = currentPageIndex();
   if (idx > 0) selectPage(pageIds[idx - 1]);
