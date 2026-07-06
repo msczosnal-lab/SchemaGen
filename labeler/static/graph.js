@@ -146,29 +146,43 @@ function onBboxEdge(b, imgPt) {
   return (onLeft && inY) || (onRight && inY) || (onTop && inX) || (onBottom && inX);
 }
 
-function drawTerminalLabel(ax, ay, r, text, selected = false) {
-  const fs = (selected ? TERMINAL_LABEL_SEL_PX : TERMINAL_LABEL_PX) / scale;
-  ctx.font = `900 ${fs}px sans-serif`;
-  const tx = ax + r + 8 / scale;
-  const ty = ay + fs * 0.35;
-  const pad = (selected ? 7 : 5) / scale;
-  const w = ctx.measureText(text).width + pad * 2;
+function imageToCanvasPt(x, y) {
+  return { cx: x * scale + originX, cy: y * scale + originY };
+}
+
+/** Etykieta w px ekranu (canvas) — zawsze czytelna niezależnie od zoomu. */
+function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL_PX, selFontPx = TERMINAL_LABEL_SEL_PX, variant = "terminal" } = {}) {
+  if (!text) return;
+  const fs = selected ? selFontPx : fontPx;
+  const pad = selected ? 9 : 7;
+  ctx.save();
+  ctx.font = `900 ${fs}px Segoe UI, Arial, sans-serif`;
+  ctx.textBaseline = "alphabetic";
+  const tw = ctx.measureText(text).width;
+  const w = tw + pad * 2;
   const h = fs + pad * 2;
+  const tx = cx;
+  const ty = cy;
   const bx = tx - pad;
-  const by = ty - fs - pad * 0.3;
+  const by = ty - fs - pad * 0.2;
   if (selected) {
     ctx.fillStyle = "#ffd43b";
     ctx.strokeStyle = TERMINAL_SEL;
-    ctx.lineWidth = 5 / scale;
+    ctx.lineWidth = 4;
+  } else if (variant === "bbox") {
+    ctx.fillStyle = "#fff3bf";
+    ctx.strokeStyle = BBOX_COLOR;
+    ctx.lineWidth = 3;
   } else {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 2.5 / scale;
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#111111";
+    ctx.lineWidth = 3;
   }
   ctx.fillRect(bx, by, w, h);
   ctx.strokeRect(bx, by, w, h);
-  ctx.fillStyle = "#111";
+  ctx.fillStyle = "#111111";
   ctx.fillText(text, tx, ty);
+  ctx.restore();
 }
 
 function terminalHitTest(sym, imgPt) {
@@ -323,15 +337,6 @@ function redraw() {
     ctx.strokeStyle = sel ? BBOX_SEL : BBOX_COLOR;
     ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
-    const label = [typeStr(sym.type), sym.tag].filter(Boolean).join(" ");
-    if (label) {
-      ctx.font = `bold ${14 / scale}px sans-serif`;
-      ctx.fillStyle = "#fff";
-      ctx.strokeStyle = "#111";
-      ctx.lineWidth = 3 / scale;
-      ctx.strokeText(label, r.x + 4 / scale, r.y - 6 / scale);
-      ctx.fillText(label, r.x + 4 / scale, r.y - 6 / scale);
-    }
   });
 
   graph.symbols.forEach((sym, i) => {
@@ -360,11 +365,39 @@ function redraw() {
       ctx.lineWidth = (selTerm ? TERMINAL_STROKE + 1.5 : TERMINAL_STROKE) / scale;
       ctx.strokeStyle = "#1a1a1a";
       ctx.stroke();
-      drawTerminalLabel(a.x, a.y, r, String(t.id), selTerm);
     });
   });
 
   ctx.restore();
+
+  graph.symbols.forEach((sym, i) => {
+    const r = bboxRect(sym);
+    const label = [typeStr(sym.type), sym.tag].filter(Boolean).join(" ");
+    if (!label) return;
+    const p = imageToCanvasPt(r.x, r.y);
+    drawLabelPill(p.cx + 4, p.cy - 6, label, {
+      selected: i === selectedSymIdx,
+      fontPx: BBOX_LABEL_PX,
+      selFontPx: BBOX_LABEL_SEL_PX,
+      variant: "bbox",
+    });
+  });
+
+  graph.symbols.forEach((sym, i) => {
+    const selSym = i === selectedSymIdx;
+    (sym.terminals || []).forEach((t, ti) => {
+      const a = terminalAbsPos(sym, t);
+      const selTerm = selSym && ti === selectedTermIdx;
+      const dotR = selTerm ? TERMINAL_R_SEL : TERMINAL_R;
+      const p = imageToCanvasPt(a.x, a.y);
+      drawLabelPill(p.cx + dotR * scale + 10, p.cy + 6, String(t.id), {
+        selected: selTerm,
+        fontPx: TERMINAL_LABEL_PX,
+        selFontPx: TERMINAL_LABEL_SEL_PX,
+        variant: "terminal",
+      });
+    });
+  });
 }
 
 function pageMeta(pageId) {
