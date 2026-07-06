@@ -1,5 +1,20 @@
 .v2-badge { font-size: 0.65em; background: #f76707; color: #111; padding: 2px 8px; border-radius: 4px; vertical-align: middle; }
 header a { color: #8ec8ff; }
+#save-bar {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1e1e1e;
+  padding-bottom: 10px;
+  margin: -12px -12px 10px;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid #444;
+}
+#save-bar #save-btn { width: 100%; margin: 0; }
+#save-bar #save-status { margin: 8px 0 0; min-height: 1.2em; }
+#annotations-panel { overflow: hidden; }
+#sidebar-scroll { flex: 1; overflow: auto; min-height: 0; }
 #recent-pages-block { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #444; }
 #recent-page-list li { padding: 6px 10px; margin: 3px 0; background: #2d3748; border-radius: 4px; cursor: pointer; font-size: 0.9rem; border-left: 4px solid #4dabf7; }
 #recent-page-list li.active { outline: 2px solid #ffd43b; }
