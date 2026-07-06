@@ -53,7 +53,12 @@ def startup() -> None:
 
 
 @app.get("/")
-def index() -> FileResponse:
+def graph_ui() -> FileResponse:
+    return FileResponse(STATIC_DIR / "graph.html")
+
+
+@app.get("/legacy")
+def legacy_ui() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
