@@ -829,7 +829,7 @@ async function selectPage(pageId) {
   const idx = currentPageIndex();
   saveStatusEl.textContent = graph.symbols.length ? "Wczytano graf" : "Pusty graf — Import draft lub rysuj bbox";
   document.getElementById("hint").textContent =
-    `Strona ${idx >= 0 ? idx + 1 : "?"} / ${pageIds.length}: ${pageId} — bbox: przeciągnij, puść = koniec · zaznaczony + klik krawędź = terminal`;
+    `Strona ${idx >= 0 ? idx + 1 : "?"} / ${pageIds.length}: ${pageId} — bbox: przeciągnij · zaznaczony + klik w środku = terminal · poza = odznacz`;
 }
 
 function isTypingField(el) {
@@ -907,7 +907,7 @@ canvas.addEventListener("mouseup", (e) => {
     if (
       selectedSymIdx >= 0 &&
       clickSelectCandidate === selectedSymIdx &&
-      onBboxEdge(bboxRect(graph.symbols[selectedSymIdx]), imgPt)
+      insideBbox(bboxRect(graph.symbols[selectedSymIdx]), imgPt)
     ) {
       addTerminalAt(selectedSymIdx, imgPt);
       return;
