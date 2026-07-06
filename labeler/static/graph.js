@@ -1511,6 +1511,7 @@ document.getElementById("delete-symbol-btn").addEventListener("click", deleteSel
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
 document.getElementById("mode-line")?.addEventListener("click", () => setMode(MODE_LINE));
+document.getElementById("invert-bg-btn")?.addEventListener("click", toggleInvertBg);
 pagePrevBtn.addEventListener("click", () => {
   const idx = currentPageIndex();
   if (idx > 0) selectPage(pageIds[idx - 1]);
@@ -1596,6 +1597,7 @@ function initPanelResize() {
   lastUsedType = loadStored(LAST_TYPE_KEY);
   lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
   updateTypeTagPlaceholders();
+  updateInvertBgButton();
   initPanelResize();
   try {
     await loadPages();
