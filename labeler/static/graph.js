@@ -831,20 +831,16 @@ function renderLineList() {
   });
 }
 
-function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
+function drawPolylineImage(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
   if (!points || points.length < 2) return;
   ctx.strokeStyle = color;
-  ctx.lineWidth = width;
+  ctx.lineWidth = width / scale;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.setLineDash(dash);
+  ctx.setLineDash(dash.map((d) => d / scale));
   ctx.beginPath();
-  const p0 = imageToCanvasPt(points[0][0], points[0][1]);
-  ctx.moveTo(p0.cx, p0.cy);
-  for (let i = 1; i < points.length; i++) {
-    const p = imageToCanvasPt(points[i][0], points[i][1]);
-    ctx.lineTo(p.cx, p.cy);
-  }
+  ctx.moveTo(points[0][0], points[0][1]);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
   ctx.stroke();
   ctx.setLineDash([]);
 }
@@ -871,10 +867,10 @@ function lineDraftPreviewPoints() {
   ];
 }
 
-function drawLinesOverlay() {
+function drawLinesLayer() {
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
-    drawPolylineScreen(pts, {
+    drawPolylineImage(pts, {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
       width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
@@ -885,31 +881,28 @@ function drawLinesOverlay() {
     const a = terminalPosByRef(lineFromRef(line));
     const b = terminalPosByRef(lineToRef(line));
     if (a) {
-      const p = imageToCanvasPt(a.x, a.y);
       ctx.fillStyle = "#228be6";
       ctx.beginPath();
-      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
+      ctx.arc(a.x, a.y, 10 / scale, 0, Math.PI * 2);
       ctx.fill();
     }
     if (b) {
-      const p = imageToCanvasPt(b.x, b.y);
       ctx.fillStyle = "#fa5252";
       ctx.beginPath();
-      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, 10 / scale, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
   if (lineDraft) {
-    drawPolylineScreen(lineDraftPreviewPoints(), {
+    drawPolylineImage(lineDraftPreviewPoints(), {
       color: "#82c91e",
       width: LINE_STROKE,
       dash: [10, 8],
     });
-    const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
     ctx.fillStyle = "#228be6";
     ctx.beginPath();
-    ctx.arc(p.cx, p.cy, 11, 0, Math.PI * 2);
+    ctx.arc(lineDraft.fromPos.x, lineDraft.fromPos.y, 11 / scale, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -1129,9 +1122,9 @@ function redraw() {
     });
   });
 
-  ctx.restore();
+  drawLinesLayer();
 
-  drawLinesOverlay();
+  ctx.restore();
 
   if (mode === MODE_BBOX) {
     graph.symbols.forEach((sym, i) => {
@@ -1434,9 +1427,6 @@ function pickInitialPageId() {
 
 async function selectPage(pageId) {
   if (!pageId) return;
-  if (currentPageId && currentPageId !== pageId) {
-    savePageViewport(currentPageId);
-  }
   if (currentPageId && dirty) {
     const ok = window.confirm(`Zapisać zmiany na ${currentPageId} przed przejściem?`);
     if (ok) await saveGraph();
