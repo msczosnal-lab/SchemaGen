@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] labeler: graph_compile SchematicGraph→SchemaModel (022 krok 3)
