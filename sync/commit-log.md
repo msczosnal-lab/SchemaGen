@@ -176,3 +176,4 @@
 | 2026-07-06 22:24 | Cursor | 4226089a | [Cursor] labeler v2: przełącznik odwrócenia kolorów tła PNG (I) |
 | 2026-07-06 22:29 | Cursor | a6908101 | [Cursor] labeler v2: linie w px ekranu + dopasowanie widoku po odświeżeniu |
 | 2026-07-06 22:29 | Cursor | 20c9bba3 | [Cursor] labeler v2: większe kropki terminali i szerszy hit-test dodawania |
+| 2026-07-06 22:31 | Cursor | f9cbb343 | [Cursor] labeler v2: ortho przy kończeniu linii, prosta linia przez środkowanie terminali |
