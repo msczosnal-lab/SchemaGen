@@ -162,3 +162,4 @@
 | 2026-07-06 22:03 | Cursor | 75de6a57 | [Cursor] labeler v2: ostatni typ/tag bbox — auto przy nowym prostokącie (jak v1) |
 | 2026-07-06 22:06 | Cursor | 1c6b4a9c | [Cursor] labeler v2: kolory typów tagów (hash jak v1) — bbox, lista, paleta |
 | 2026-07-06 22:07 | Cursor | 52c72d94 | [Cursor] labeler v2: terminal przy drugim kliku w bbox, poza bbox odznacza |
+| 2026-07-06 22:09 | Cursor | d23ade3e | [Cursor] labeler v2: tryb Linia OD-DO (L), kind, lista linii (022 k6) |
