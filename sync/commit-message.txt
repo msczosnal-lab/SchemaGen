@@ -1,1 +1,6 @@
-﻿[Cursor] labeler v2: większe tagi, pamięć ostatniej strony, licznik linii po wczytaniu
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+

@@ -172,3 +172,4 @@
 | 2026-07-06 22:15 | Cursor | 7dd809b0 | [Cursor] labeler v2: listy bbox/linii na pełną wysokość, resizable panele boczne |
 | 2026-07-06 22:19 | Cursor | 13e80c74 | [Cursor] labeler v2: naprawa oznaczników linii (numeracja, deduplikacja, etykiety) |
 | 2026-07-06 22:19 | Cursor | 1053161b | [Cursor] labeler v2: etykiety bbox/linii tylko w aktywnym narzędziu |
+| 2026-07-06 22:24 | Cursor | e3a38155 | [Cursor] labeler v2: większe tagi, pamięć ostatniej strony, licznik linii po wczytaniu |

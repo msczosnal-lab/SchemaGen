@@ -283,68 +283,12 @@ function applyInputTypeColor(input, key) {
   input.style.borderLeft = `4px solid ${colorFromKey(k)}`;
 }
 
-function drawOutlinedText(text, x, y, lineWidth) {
-  ctx.lineJoin = "round";
-  ctx.lineWidth = lineWidth;
-  ctx.strokeStyle = "#ffffff";
-  ctx.strokeText(text, x, y);
-  ctx.fillStyle = "#111111";
-  ctx.fillText(text, x, y);
-}
-
 function bboxTagLabel(sym) {
   const tag = (sym.tag || "").trim();
   if (tag) return tag;
   const t = typeStr(sym.type);
   if (t) return t;
   return sym.id;
-}
-
-function bboxLabelText(sym) {
-  const parts = [sym.id];
-  const t = typeStr(sym.type);
-  if (t) parts.push(t);
-  if (sym.tag) parts.push(sym.tag);
-  return parts.join(" ");
-}
-
-function drawBboxLabelImage(sym, r, selected) {
-  const label = bboxLabelText(sym);
-  const pad = 4 / scale;
-  const maxW = Math.max(2 * r.width, 20 / scale);
-  const minFs = 12 / scale;
-  let fs = Math.min(r.width * 0.45, r.height * 0.55, 96 / scale);
-  if (selected) fs *= 1.12;
-  fs = Math.max(minFs, fs);
-
-  ctx.font = `900 ${fs}px Segoe UI, Arial, sans-serif`;
-  let tw = ctx.measureText(label).width;
-  while (fs > minFs && tw + pad * 2 > maxW) {
-    fs *= 0.88;
-    ctx.font = `900 ${fs}px Segoe UI, Arial, sans-serif`;
-    tw = ctx.measureText(label).width;
-  }
-
-  const badgeW = Math.min(tw + pad * 2, maxW);
-  const badgeH = fs + pad * 1.4;
-  let bx = r.x;
-  let by = r.y - badgeH - 3 / scale;
-  if (by < 0) by = r.y + pad * 0.5;
-
-  if (selected) {
-    ctx.fillStyle = "#ffd43b";
-    ctx.strokeStyle = TERMINAL_SEL;
-    ctx.lineWidth = 3 / scale;
-  } else {
-    const pc = pillColorsFromKey(symColorKey(sym));
-    ctx.fillStyle = pc.fill;
-    ctx.strokeStyle = pc.stroke;
-    ctx.lineWidth = 2.5 / scale;
-  }
-  ctx.fillRect(bx, by, badgeW, badgeH);
-  ctx.strokeRect(bx, by, badgeW, badgeH);
-  ctx.font = `900 ${fs}px Segoe UI, Arial, sans-serif`;
-  drawOutlinedText(label, bx + pad, by + fs + pad * 0.35, Math.max(2, 4 / scale));
 }
 
 function imageToCanvasPt(x, y) {
