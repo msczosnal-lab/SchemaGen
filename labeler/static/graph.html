@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>SchemaGen Labeler — GT graf v2</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="/static/graph.css" />
+</head>
+<body>
+  <header>
+    <h1>SchemaGen Labeler <span class="v2-badge">GT v2</span></h1>
+    <p>Bbox + terminale → SchematicGraph · <a href="/legacy">Stary labeler (v1)</a></p>
+  </header>
+  <main class="layout">
+    <aside id="pages-panel">
+      <div id="graph-workflow">
+        <h2>Workflow</h2>
+        <p class="muted">1. Import draft (YOLO) · 2. Bbox + terminale · 3. Zapisz</p>
+        <button id="prefill-btn" type="button" class="secondary-btn">⤓ Import draft (YOLO)</button>
+      </div>
+      <h2>Strony</h2>
+      <ul id="page-list"></ul>
+    </aside>
+    <section id="canvas-panel">
+      <div id="page-nav">
+        <button id="page-prev" type="button" title="Poprzednia strona">←</button>
+        <span id="page-position">— / —</span>
+        <button id="page-next" type="button" title="Następna strona">→</button>
+      </div>
+      <div id="mode-bar">
+        <button id="mode-bbox" type="button" class="mode-btn active" title="Tryb bbox (B)">⬚ Bbox</button>
+        <button id="mode-line" type="button" class="mode-btn mode-disabled" disabled title="Krok 6 — linie OD-DO">╱ Linia</button>
+      </div>
+      <canvas id="canvas" width="800" height="600"></canvas>
+      <p id="hint">Zaznacz symbol → klik na krawędź = terminal · Del = usuń · Ctrl+S = zapis</p>
+    </section>
+    <aside id="annotations-panel">
+      <h2>Symbole</h2>
+      <ul id="symbol-list"></ul>
+      <div id="symbol-editor" class="hidden">
+        <h3>Edycja symbolu</h3>
+        <label>Typ (slug)
+          <input id="sym-type-input" type="text" placeholder="np. zlaczka, cewka_przekaznika" />
+        </label>
+        <div id="palette-results" class="palette-list"></div>
+        <label>Tag (opcjonalny)
+          <input id="sym-tag-input" type="text" placeholder="-K1" />
+        </label>
+        <h4>Terminale</h4>
+        <ul id="terminal-list"></ul>
+        <button id="delete-symbol-btn" type="button" class="delete-btn">Usuń symbol</button>
+      </div>
+      <button id="save-btn" type="button">Zapisz graf</button>
+      <p id="save-status" class="muted"></p>
+    </aside>
+  </main>
+  <script src="/static/graph.js?v=1"></script>
+</body>
+</html>
