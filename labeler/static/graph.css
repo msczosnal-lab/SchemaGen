@@ -1,38 +1,136 @@
 .v2-badge { font-size: 0.65em; background: #f76707; color: #111; padding: 2px 8px; border-radius: 4px; vertical-align: middle; }
 header a { color: #8ec8ff; }
+
+body.graph-v2 { overflow: hidden; }
+
+.graph-layout {
+  --left-w: 280px;
+  --right-w: 320px;
+  grid-template-columns: var(--left-w) 6px 1fr 6px var(--right-w) !important;
+  height: calc(100vh - 72px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.resize-handle {
+  cursor: col-resize;
+  background: transparent;
+  align-self: stretch;
+  min-height: 0;
+  z-index: 3;
+  touch-action: none;
+}
+.resize-handle:hover,
+.resize-handle.dragging {
+  background: rgba(74, 158, 255, 0.35);
+}
+
+#pages-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  padding: 12px;
+  border-right: none;
+}
+#pages-panel-top {
+  flex-shrink: 0;
+}
+#pages-panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #444;
+}
+
+#canvas-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+#canvas-panel canvas {
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100vh - 200px);
+  object-fit: contain;
+}
+
+#annotations-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  padding: 12px;
+  border-left: none;
+}
+
 #save-bar {
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 2;
   background: #1e1e1e;
   padding-bottom: 10px;
-  margin: -12px -12px 10px;
+  margin: -12px -12px 8px;
   padding: 12px 12px 10px;
   border-bottom: 1px solid #444;
 }
 #save-bar #save-btn { width: 100%; margin: 0; }
 #save-bar #save-status { margin: 8px 0 0; min-height: 1.2em; }
-#annotations-panel { overflow: hidden; }
-#sidebar-scroll { flex: 1; overflow: auto; min-height: 0; }
+
+.tool-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.tool-panel.hidden { display: none; }
+
+.panel-title {
+  flex-shrink: 0;
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+#symbol-editor {
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.tool-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#line-tool-panel .panel-hint,
+#line-tool-panel label {
+  flex-shrink: 0;
+}
+#line-tool-panel #delete-line-btn {
+  flex-shrink: 0;
+  margin-top: 8px;
+  width: 100%;
+}
+
 #recent-pages-block { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #444; }
 #recent-page-list li { padding: 6px 10px; margin: 3px 0; background: #2d3748; border-radius: 4px; cursor: pointer; font-size: 0.9rem; border-left: 4px solid #4dabf7; }
 #recent-page-list li.active { outline: 2px solid #ffd43b; }
 #recent-page-list li.empty { cursor: default; color: #888; border-left-color: #555; background: transparent; }
 .mode-disabled { opacity: 0.4; cursor: not-allowed !important; }
-#bbox-tool-panel.hidden,
-#line-tool-panel.hidden { display: none; }
 .panel-hint { font-size: 0.85rem; margin: 0 0 10px; line-height: 1.35; }
-#delete-line-btn { margin-top: 10px; width: 100%; }
 #symbol-list li { padding: 8px 10px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; border-left: 4px solid #f76707; }
 #symbol-list li.active { outline: 2px solid #ffd43b; background: #3a3a3a; }
 #symbol-editor label { display: block; margin: 8px 0; font-size: 0.85rem; color: #bbb; }
 #symbol-editor input { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #eee; }
 #terminal-list li { padding: 4px 0; font-size: 0.9rem; color: #ccc; }
-.palette-list { max-height: 160px; overflow: auto; margin: 6px 0; }
+.palette-list { max-height: 120px; overflow: auto; margin: 6px 0; }
 .palette-list button { display: block; width: 100%; text-align: left; margin: 2px 0; padding: 6px 8px; background: #383838; border: none; color: #eee; border-radius: 4px; cursor: pointer; }
 .palette-list button:hover { background: #4a4a4a; }
-#line-panel { margin-top: 16px; padding-top: 12px; border-top: 1px solid #444; }
 #line-tool-panel label { display: block; margin: 8px 0; font-size: 0.85rem; color: #bbb; }
 #line-tool-panel select { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #eee; }
 #line-list li { padding: 8px 10px; margin: 4px 0; background: #333; border-radius: 4px; cursor: pointer; border-left: 4px solid #40c057; font-size: 0.85rem; }
