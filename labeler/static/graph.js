@@ -466,20 +466,19 @@ function findTerminalAt(imgPt) {
 }
 
 function terminalPosByRef(ref) {
-  const m = String(ref || "").match(/^([^:]+):(.+)$/);
-  if (!m) return null;
-  const sym = graph.symbols.find((s) => s.id === m[1]);
+  const p = parseTerminalRef(ref);
+  if (!p) return null;
+  const sym = graph.symbols.find((s) => s.id === p.symId);
   if (!sym) return null;
-  const t = (sym.terminals || []).find((x) => String(x.id) === m[2]);
+  const t = (sym.terminals || []).find((x) => String(x.id) === p.termId);
   if (!t) return null;
   return terminalAbsPos(sym, t);
 }
 
 function nextLineId() {
   const used = new Set(graph.lines.map((l) => l.id));
-  let n = lineSeq;
+  let n = 1;
   while (used.has(`L${n}`)) n += 1;
-  lineSeq = n + 1;
   return `L${n}`;
 }
 
@@ -544,23 +543,34 @@ function startLineDraft(hit) {
   saveStatusEl.textContent = `Linia OD ${formatLineEndpoint(hit.ref)} — klik terminal DO (Esc / Enter)`;
 }
 
+let lineCompleting = false;
+
 function completeLineDraft(hit) {
-  if (!lineDraft || hit.ref === lineDraft.fromRef) return;
-  const toSym = graph.symbols[hit.symIdx];
-  const toPos = terminalAbsPos(toSym, toSym.terminals[hit.termIdx]);
-  const line = {
-    id: nextLineId(),
-    from: lineDraft.fromRef,
-    to: hit.ref,
-    vertices: buildLineVertices(lineDraft, toPos),
-    kind: currentLineKind(),
-  };
-  graph.lines.push(line);
-  cancelLineDraft();
-  markDirty();
-  renderLineList();
-  redraw();
-  saveStatusEl.textContent = `Dodano ${formatLineLabel(line)}`;
+  if (lineCompleting || !lineDraft || hit.ref === lineDraft.fromRef) return;
+  if (graph.lines.some((l) => l.from === lineDraft.fromRef && l.to === hit.ref)) {
+    saveStatusEl.textContent = "Taka linia już istnieje (ten sam OD → DO)";
+    return;
+  }
+  lineCompleting = true;
+  try {
+    const toSym = graph.symbols[hit.symIdx];
+    const toPos = terminalAbsPos(toSym, toSym.terminals[hit.termIdx]);
+    const line = {
+      id: nextLineId(),
+      from: lineDraft.fromRef,
+      to: hit.ref,
+      vertices: buildLineVertices(lineDraft, toPos),
+      kind: currentLineKind(),
+    };
+    graph.lines.push(line);
+    cancelLineDraft();
+    markDirty();
+    renderLineList();
+    redraw();
+    saveStatusEl.textContent = `Dodano ${formatLineLabel(line)}`;
+  } finally {
+    lineCompleting = false;
+  }
 }
 
 function addLineMiddlePoint(imgPt, shiftKey) {
@@ -619,7 +629,9 @@ function renderLineList() {
   const list = document.getElementById("line-list");
   if (!list) return;
   list.innerHTML = "";
-  graph.lines.forEach((line, i) => {
+  const order = graph.lines.map((line, i) => ({ line, i }));
+  order.sort((a, b) => lineNum(a.line.id) - lineNum(b.line.id) || a.i - b.i);
+  order.forEach(({ line, i }) => {
     const li = document.createElement("li");
     li.textContent = formatLineLabel(line);
     if (i === selectedLineIdx) li.classList.add("active");
@@ -646,6 +658,13 @@ function drawPolyline(points, { color = LINE_COLOR, width = LINE_STROKE, dash = 
   ctx.setLineDash([]);
 }
 
+function lineMidpointImage(line) {
+  const pts = lineDisplayPoints(line);
+  if (!pts.length) return null;
+  const idx = Math.floor((pts.length - 1) / 2);
+  return { x: pts[idx][0], y: pts[idx][1] };
+}
+
 function drawLinesLayer() {
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
@@ -653,21 +672,25 @@ function drawLinesLayer() {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
       width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
+  });
+
+  if (selectedLineIdx >= 0) {
+    const line = graph.lines[selectedLineIdx];
     const a = terminalPosByRef(line.from);
     const b = terminalPosByRef(line.to);
     if (a) {
       ctx.fillStyle = "#228be6";
       ctx.beginPath();
-      ctx.arc(a.x, a.y, 8 / scale, 0, Math.PI * 2);
+      ctx.arc(a.x, a.y, 10 / scale, 0, Math.PI * 2);
       ctx.fill();
     }
     if (b) {
       ctx.fillStyle = "#fa5252";
       ctx.beginPath();
-      ctx.arc(b.x, b.y, 8 / scale, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, 10 / scale, 0, Math.PI * 2);
       ctx.fill();
     }
-  });
+  }
 
   if (lineDraft) {
     const draftPts = [[lineDraft.fromPos.x, lineDraft.fromPos.y], ...lineDraft.middles];
@@ -852,17 +875,30 @@ function redraw() {
 
   graph.symbols.forEach((sym, i) => {
     const selSym = i === selectedSymIdx;
+    const symNr = symbolListNr(sym);
     (sym.terminals || []).forEach((t, ti) => {
       const a = terminalAbsPos(sym, t);
       const selTerm = selSym && ti === selectedTermIdx;
       const dotR = selTerm ? TERMINAL_R_SEL : TERMINAL_R;
       const p = imageToCanvasPt(a.x, a.y);
-      drawLabelPill(p.cx + dotR * scale + 10, p.cy + 6, String(t.id), {
+      drawLabelPill(p.cx + dotR * scale + 10, p.cy + 6, `${symNr}:${t.id}`, {
         selected: selTerm,
         fontPx: TERMINAL_LABEL_PX,
         selFontPx: TERMINAL_LABEL_SEL_PX,
         variant: "terminal",
       });
+    });
+  });
+
+  graph.lines.forEach((line, i) => {
+    const mid = lineMidpointImage(line);
+    if (!mid) return;
+    const p = imageToCanvasPt(mid.x, mid.y);
+    drawLabelPill(p.cx, p.cy - 14, line.id, {
+      selected: i === selectedLineIdx,
+      fontPx: 22,
+      selFontPx: 28,
+      variant: "line",
     });
   });
 }
