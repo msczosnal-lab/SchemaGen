@@ -216,15 +216,13 @@ function terminalAbsPos(sym, t) {
   return { x: b.x + t.x * b.width, y: b.y + t.y * b.height };
 }
 
-function onBboxEdge(b, imgPt) {
-  const tol = Math.max(16, 24 / (scale || 1));
-  const onLeft = Math.abs(imgPt.x - b.x) <= tol;
-  const onRight = Math.abs(imgPt.x - (b.x + b.width)) <= tol;
-  const onTop = Math.abs(imgPt.y - b.y) <= tol;
-  const onBottom = Math.abs(imgPt.y - (b.y + b.height)) <= tol;
-  const inY = imgPt.y >= b.y - tol && imgPt.y <= b.y + b.height + tol;
-  const inX = imgPt.x >= b.x - tol && imgPt.x <= b.x + b.width + tol;
-  return (onLeft && inY) || (onRight && inY) || (onTop && inX) || (onBottom && inX);
+function insideBbox(b, imgPt) {
+  return (
+    imgPt.x >= b.x &&
+    imgPt.x <= b.x + b.width &&
+    imgPt.y >= b.y &&
+    imgPt.y <= b.y + b.height
+  );
 }
 
 function typeStr(v) {
