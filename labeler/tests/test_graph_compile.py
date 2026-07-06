@@ -62,6 +62,37 @@ def test_graph_compile_auto_route_L_shape() -> None:
     assert schema.graphic_lines[0].role == "wire"
 
 
+def test_graph_compile_auto_route_corner_when_offset() -> None:
+    g = SchematicGraph(
+        page_id="t",
+        image_width=500,
+        image_height=500,
+        symbols=[
+            GraphSymbol(
+                id="a",
+                type="x",
+                bbox=[0, 0, 100, 100],
+                terminals=[Terminal(id="1", x=1.0, y=0.5)],
+            ),
+            GraphSymbol(
+                id="b",
+                type="x",
+                bbox=[200, 200, 300, 300],
+                terminals=[Terminal(id="1", x=0.0, y=0.5)],
+            ),
+        ],
+        lines=[
+            GraphLine.model_validate(
+                {"id": "L1", "from": "a:1", "to": "b:1", "kind": "power"}
+            ),
+        ],
+    )
+    pts = graph_to_schema(g).graphic_lines[0].points
+    assert len(pts) == 3
+    assert pts[0] == [100.0, 50.0]
+    assert pts[-1] == [200.0, 250.0]
+
+
 def test_graph_compile_link_bus_potential() -> None:
     """Trzy złączki połączone link → wspólny potential na torze szyny."""
     g = SchematicGraph(
