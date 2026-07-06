@@ -725,12 +725,18 @@ function drawLinesOverlay() {
     const line = graph.lines[selectedLineIdx];
     const a = terminalPosByRef(lineFromRef(line));
     const b = terminalPosByRef(lineToRef(line));
-    for (const pos of [a, b]) {
-      if (!pos) continue;
-      const p = imageToCanvasPt(pos.x, pos.y);
+    if (a) {
+      const p = imageToCanvasPt(a.x, a.y);
+      ctx.fillStyle = "#228be6";
       ctx.beginPath();
       ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
-      ctx.fillStyle = pos === a ? "#228be6" : "#fa5252";
+      ctx.fill();
+    }
+    if (b) {
+      const p = imageToCanvasPt(b.x, b.y);
+      ctx.fillStyle = "#fa5252";
+      ctx.beginPath();
+      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -961,9 +967,9 @@ function redraw() {
     });
   });
 
-  drawLinesLayer();
-
   ctx.restore();
+
+  drawLinesOverlay();
 
   if (mode === MODE_BBOX) {
     graph.symbols.forEach((sym, i) => {
