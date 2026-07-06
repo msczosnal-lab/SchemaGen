@@ -168,3 +168,4 @@
 | 2026-07-06 22:11 | Cursor | 0d902af3 | [Cursor] labeler v2: opis linii — nr bbox + tag zamiast sym_N |
 | 2026-07-06 22:12 | Cursor | c75be605 | [Cursor] labeler v2: panel boczny zależny od trybu Bbox / Linia |
 | 2026-07-06 22:12 | Cursor | 13b7c970 | [Cursor] labeler v2: grubsze zielone linie połączeń (9px) |
+| 2026-07-06 22:12 | Cursor | e101c53f | [Cursor] labeler v2: przycisk Zapisz i status na górze panelu bocznego |
