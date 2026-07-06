@@ -1040,6 +1040,8 @@ async function selectPage(pageId) {
   originY = 0;
   selectedSymIdx = -1;
   selectedTermIdx = -1;
+  selectedLineIdx = -1;
+  cancelLineDraft();
 
   bgImage = await new Promise((resolve, reject) => {
     const img = new Image();
