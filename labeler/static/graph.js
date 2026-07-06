@@ -44,6 +44,7 @@ let drawMoved = false;
 let startX = 0;
 let startY = 0;
 let clickSelectCandidate = -1;
+let clickOnSelectedBBox = false;
 let draggingTerminal = null;
 let terminalDragMoved = false;
 
