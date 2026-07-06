@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-07-06 [Cursor] — 022 krok 4: API CRUD + SQLite + prefill
+
+**Zakres:** endpointy FastAPI, tabela `schematic_graph`, prefill YOLO+wzorce, dump, hook GT w diff/eval.
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `backend/db.py` | tabela `schematic_graph`, `save/load/has_schematic_graph` |
+| `labeler/graph_prefill.py` **(nowy)** | `prefill_graph` — YOLO bbox, `nominal_terminals_from_pattern`, lines=[] |
+| `labeler/graph_serialize.py` **(nowy)** | `graph_to_dump` — lista tekstowa GT |
+| `labeler/gt_loader.py` **(nowy)** | `load_gt_schema`, `gt_source` (graph_v2 > label_v1) |
+| `labeler/app.py` | 6 endpointów: graph-rules, validate, GET/POST graph, dump, prefill; v1 annotations deprecated |
+| `scripts/diff_gt_runtime.py`, `scripts/eval_val_pages.py` | GT przez `load_gt_schema`, pole `gt.source` |
+| `labeler/tests/test_graph_api.py` **(nowy)** | 8 testów API |
+
+### Endpointy (smoke curl / Swagger :8765)
+
+```
+POST /api/graph/p040/prefill
+GET  /api/graph/p040
+GET  /api/graph/p040/dump
+POST /api/graph/validate
+```
+
+### Testy
+
+`pytest backend/tests labeler/tests` → **240 passed**
+
+### Uwagi
+
+- Stary UI (:8765) nadal używa `/api/annotations` v1 — canvas v2 w krokach 5–7
+- Po prefill: `diff_gt_runtime --page p040` pokaże `GT [graph_v2]` (connections=0 dopóki nie narysujesz linii)
+- Następny krok: canvas bbox + terminale (krok 5)
+
+Commit pending: `[Cursor] labeler: graph v2 API CRUD + SQLite + prefill (022 krok 4)`
+
+---
+
 ## 2026-07-06 [Cursor] — 022 krok 3: graph_compile → SchemaModel
 
 **Zakres:** deterministyczna kompilacja SchematicGraph v2 do SchemaModel + potencjał z link.
