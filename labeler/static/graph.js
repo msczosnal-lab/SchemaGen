@@ -92,14 +92,6 @@ function rememberLastBboxTag(tag) {
   updateTypeTagPlaceholders();
 }
 
-function suggestedType(sym) {
-  return typeStr(sym?.type).trim() || lastUsedType;
-}
-
-function suggestedBboxTag(sym) {
-  return (sym?.tag || "").trim() || lastUsedBboxTag;
-}
-
 function updateTypeTagPlaceholders() {
   symTypeInput.placeholder = lastUsedType
     ? `Ostatni: ${lastUsedType} — Enter aby przypisać`
@@ -613,8 +605,8 @@ function renderSymbolEditor() {
     return;
   }
   symbolEditor.classList.remove("hidden");
-  symTypeInput.value = suggestedType(sym);
-  symTagInput.value = suggestedBboxTag(sym);
+  symTypeInput.value = typeStr(sym.type);
+  symTagInput.value = sym.tag || "";
   updateTypeTagPlaceholders();
   renderTerminalList();
 }
