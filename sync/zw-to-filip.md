@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-07-06 [Cursor] — 022 krok 5: canvas GT v2 (bbox + terminale)
+
+**Zakres:** UI v2 na `/`, stary labeler na `/legacy`. Bbox pomarańczowy, terminale żółte, prefill + zapis grafu.
+
+### Zmiany
+
+| Plik | Co |
+|------|-----|
+| `labeler/static/graph.html` **(nowy)** | layout: strony, canvas, panel symbolu |
+| `labeler/static/graph.js` **(nowy)** | load/save/prefill, zoom, rysowanie bbox, terminale na krawędzi |
+| `labeler/static/graph.css` **(nowy)** | style v2 |
+| `labeler/app.py` | `GET /` → graph.html, `GET /legacy` → index.html |
+| `labeler/tests/test_graph_routes.py` **(nowy)** | routing + static |
+
+### Smoke Filipa
+
+```
+.\.venv311\Scripts\python.exe -m labeler.app
+# :8765/ — Import draft → bbox/terminale → Zapisz graf
+# :8765/legacy — stary labeler v1
+```
+
+### Następny krok
+
+Krok 6: LineMode (linia OD-DO ortho + kind) w `graph.js`.
+
+---
+
 ## 2026-07-06 [Cursor] — 022 krok 4: API CRUD + SQLite + prefill
 
 **Zakres:** endpointy FastAPI, tabela `schematic_graph`, prefill YOLO+wzorce, dump, hook GT w diff/eval.
