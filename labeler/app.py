@@ -429,7 +429,8 @@ def get_graph(page_id: str) -> dict:
     data = load_schematic_graph(page_id)
     if not data:
         return _empty_graph(page_id).model_dump(mode="json", by_alias=True)
-    return data
+    graph = SchematicGraph.model_validate(data)
+    return graph.model_dump(mode="json", by_alias=True)
 
 
 @app.post("/api/graph/{page_id}")
