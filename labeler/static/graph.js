@@ -16,6 +16,19 @@ const BBOX_STROKE_SEL = 7;
 const TERMINAL_STROKE = 3.5;
 const DRAG_THRESHOLD = 4;
 
+const MODE_BBOX = "bbox";
+const MODE_LINE = "line";
+const LINE_COLOR = "#40c057";
+const LINE_COLOR_SEL = "#94d82d";
+const LINE_STROKE = 5;
+
+let mode = MODE_BBOX;
+let lineDraft = null;
+let cursorImgPt = null;
+let lineOrtho = true;
+let lineSeq = 0;
+let selectedLineIdx = -1;
+
 const RECENT_PAGES_KEY = "graphRecentPages";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
@@ -61,6 +74,7 @@ const symTypeInput = document.getElementById("sym-type-input");
 const symTagInput = document.getElementById("sym-tag-input");
 const paletteResults = document.getElementById("palette-results");
 const symbolEditor = document.getElementById("symbol-editor");
+const lineKindSelect = document.getElementById("line-kind");
 
 function loadStored(key) {
   try {
