@@ -385,6 +385,27 @@ function drawLabelPill(cx, cy, text, { selected = false, fontPx = TERMINAL_LABEL
   ctx.restore();
 }
 
+function bboxNr(sym) {
+  const m = String(sym.id).match(/^sym_(\d+)$/);
+  return m ? m[1] : sym.id;
+}
+
+function formatLineEndpoint(ref) {
+  const m = String(ref || "").match(/^([^:]+):(.+)$/);
+  if (!m) return ref;
+  const sym = graph.symbols.find((s) => s.id === m[1]);
+  if (!sym) return ref;
+  const nr = bboxNr(sym);
+  const tag = (sym.tag || "").trim();
+  const type = typeStr(sym.type);
+  const label = tag || type || `#${nr}`;
+  return `${nr} ${label}:${m[2]}`;
+}
+
+function formatLineLabel(line) {
+  return `${line.id}: ${formatLineEndpoint(line.from)} → ${formatLineEndpoint(line.to)} [${line.kind || "power"}]`;
+}
+
 function terminalHitTest(sym, imgPt) {
   const ts = sym.terminals || [];
   if (!ts.length) return -1;
@@ -505,7 +526,7 @@ function startLineDraft(hit) {
   const pos = terminalAbsPos(sym, sym.terminals[hit.termIdx]);
   lineDraft = { fromRef: hit.ref, fromPos: pos, middles: [] };
   selectedLineIdx = -1;
-  saveStatusEl.textContent = `Linia OD ${hit.ref} — klik terminal DO (Enter / Esc)`;
+  saveStatusEl.textContent = `Linia OD ${formatLineEndpoint(hit.ref)} — klik terminal DO (Esc / Enter)`;
 }
 
 function completeLineDraft(hit) {
@@ -524,7 +545,7 @@ function completeLineDraft(hit) {
   markDirty();
   renderLineList();
   redraw();
-  saveStatusEl.textContent = `Dodano ${line.id}: ${line.from} → ${line.to}`;
+  saveStatusEl.textContent = `Dodano ${formatLineLabel(line)}`;
 }
 
 function addLineMiddlePoint(imgPt, shiftKey) {
@@ -576,7 +597,7 @@ function renderLineList() {
   list.innerHTML = "";
   graph.lines.forEach((line, i) => {
     const li = document.createElement("li");
-    li.textContent = `${line.id}: ${line.from} → ${line.to} [${line.kind || "power"}]`;
+    li.textContent = formatLineLabel(line);
     if (i === selectedLineIdx) li.classList.add("active");
     li.onclick = () => {
       selectedLineIdx = i;
