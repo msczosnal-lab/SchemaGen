@@ -179,7 +179,7 @@ function applyGraph(data) {
     image_height: data.image_height || canvas.height,
     symbols: (data.symbols || []).map((s) => ({
       id: s.id,
-      type: s.type || "",
+      type: typeStr(s.type),
       tag: s.tag || "",
       bbox: [...s.bbox],
       terminals: (s.terminals || []).map((t) => ({
@@ -273,7 +273,7 @@ function redraw() {
     ctx.strokeStyle = sel ? BBOX_SEL : BBOX_COLOR;
     ctx.lineWidth = (sel ? 3 : 2) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
-    const label = [sym.type, sym.tag].filter(Boolean).join(" ");
+    const label = [typeStr(sym.type), sym.tag].filter(Boolean).join(" ");
     if (label) {
       ctx.font = `bold ${14 / scale}px sans-serif`;
       ctx.fillStyle = "#fff";
@@ -331,7 +331,7 @@ function renderSymbolList() {
   graph.symbols.forEach((sym, i) => {
     const li = document.createElement("li");
     const nTerm = (sym.terminals || []).length;
-    li.textContent = `${sym.id}: ${sym.type || "?"} ${sym.tag || ""} (${nTerm} term.)`;
+    li.textContent = `${sym.id}: ${typeStr(sym.type) || "?"} ${sym.tag || ""} (${nTerm} term.)`;
     if (i === selectedSymIdx) li.classList.add("active");
     li.onclick = () => selectSymbol(i);
     list.appendChild(li);
@@ -397,6 +397,12 @@ function deleteSelectedTerminal() {
   redraw();
 }
 
+function typeStr(v) {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") return String(v.id || v.label_pl || "");
+  return v ? String(v) : "";
+}
+
 async function searchPalette(q) {
   if (!q.trim()) {
     paletteResults.innerHTML = "";
@@ -405,10 +411,12 @@ async function searchPalette(q) {
   try {
     const data = await fetchJson(`/api/symbol-palette?q=${encodeURIComponent(q)}&limit=20`);
     paletteResults.innerHTML = "";
-    (data.symbols || []).forEach((slug) => {
+    (data.symbols || []).forEach((entry) => {
+      const slug = typeStr(entry.id || entry);
+      const label = entry.label_pl || slug || "?";
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.textContent = slug;
+      btn.textContent = label;
       btn.onclick = () => {
         const sym = graph.symbols[selectedSymIdx];
         if (sym) {
