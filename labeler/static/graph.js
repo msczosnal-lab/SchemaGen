@@ -206,7 +206,7 @@ function buildPayload() {
     image_height: bgImage ? bgImage.naturalHeight : graph.image_height,
     symbols: graph.symbols.map((s) => ({
       id: s.id,
-      type: s.type || "unknown",
+      type: typeStr(s.type) || "unknown",
       tag: s.tag || undefined,
       bbox: s.bbox,
       terminals: (s.terminals || []).map((t) => ({
@@ -363,7 +363,7 @@ function renderSymbolEditor() {
     return;
   }
   symbolEditor.classList.remove("hidden");
-  symTypeInput.value = sym.type || "";
+  symTypeInput.value = typeStr(sym.type);
   symTagInput.value = sym.tag || "";
   renderTerminalList();
 }

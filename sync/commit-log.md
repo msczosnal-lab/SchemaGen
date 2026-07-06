@@ -153,3 +153,4 @@
 | 2026-07-06 21:20 | Cursor | f7e8f095 | [Cursor] labeler: graph_compile SchematicGraph→SchemaModel (022 krok 3) |
 | 2026-07-06 21:43 | Cursor | befceb64 | [Cursor] labeler: graph v2 API CRUD + SQLite + prefill (022 krok 4) |
 | 2026-07-06 21:50 | Cursor | 5adb6a5b | [Cursor] labeler: canvas GT v2 bbox+terminale, / → graph, /legacy → v1 (022 krok 5) |
+| 2026-07-06 21:54 | Cursor | aeafce07 | [Cursor] fix: graph labeler palette — typ jako slug, nie [object Object] (022 k5) |
