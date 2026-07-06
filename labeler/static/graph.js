@@ -238,8 +238,13 @@ async function saveGraph() {
     const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
     saveStatusEl.textContent = `Zapisano: ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
     touchRecentPage(currentPageId);
-    await loadPages();
+    const meta = pageMeta(currentPageId);
+    if (meta) {
+      meta.graph_updated_at = new Date().toISOString();
+      meta.status = "labeled";
+    }
     renderRecentPages();
+    renderPageList();
   } catch (err) {
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
   }
@@ -261,6 +266,10 @@ async function runPrefill() {
     dirty = false;
     saveStatusEl.textContent =
       `Draft: ${res.symbol_count} sym., ${res.terminal_count} term.`;
+    touchRecentPage(currentPageId);
+    const meta = pageMeta(currentPageId);
+    if (meta) meta.graph_updated_at = new Date().toISOString();
+    renderRecentPages();
     renderPageList();
   } catch (err) {
     saveStatusEl.textContent = `Prefill: ${err.message}`;
