@@ -34,7 +34,6 @@ let selectedLineIdx = -1;
 const RECENT_PAGES_KEY = "graphRecentPages";
 const LAST_PAGE_KEY = "graphLastPage";
 const INVERT_BG_KEY = "graphInvertBg";
-const VIEWPORT_KEY = "graphViewportByPage";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
 const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
