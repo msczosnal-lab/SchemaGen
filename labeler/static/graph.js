@@ -131,8 +131,8 @@ function terminalAbsPos(sym, t) {
   return { x: b.x + t.x * b.width, y: b.y + t.y * b.height };
 }
 
-function nearBbox(b, imgPt) {
-  const tol = Math.max(14, 18 / (scale || 1));
+function onBboxEdge(b, imgPt) {
+  const tol = Math.max(16, 24 / (scale || 1));
   const onLeft = Math.abs(imgPt.x - b.x) <= tol;
   const onRight = Math.abs(imgPt.x - (b.x + b.width)) <= tol;
   const onTop = Math.abs(imgPt.y - b.y) <= tol;
@@ -145,13 +145,17 @@ function nearBbox(b, imgPt) {
 function drawTerminalLabel(ax, ay, r, text) {
   const fs = TERMINAL_LABEL_PX / scale;
   ctx.font = `bold ${fs}px sans-serif`;
-  const tx = ax + r + 5 / scale;
+  const tx = ax + r + 6 / scale;
   const ty = ay + fs * 0.35;
-  ctx.lineWidth = 5 / scale;
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineJoin = "round";
-  ctx.strokeText(text, tx, ty);
-  ctx.fillStyle = "#111111";
+  const pad = 5 / scale;
+  const w = ctx.measureText(text).width + pad * 2;
+  const h = fs + pad * 2;
+  ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 2.5 / scale;
+  ctx.fillRect(tx - pad, ty - fs - pad * 0.3, w, h);
+  ctx.strokeRect(tx - pad, ty - fs - pad * 0.3, w, h);
+  ctx.fillStyle = "#111";
   ctx.fillText(text, tx, ty);
 }
 
@@ -633,7 +637,7 @@ async function selectPage(pageId) {
   const idx = currentPageIndex();
   saveStatusEl.textContent = graph.symbols.length ? "Wczytano graf" : "Pusty graf — Import draft lub rysuj bbox";
   document.getElementById("hint").textContent =
-    `Strona ${idx >= 0 ? idx + 1 : "?"} / ${pageIds.length}: ${pageId} — B = bbox | zaznacz → krawędź = terminal`;
+    `Strona ${idx >= 0 ? idx + 1 : "?"} / ${pageIds.length}: ${pageId} — bbox: przeciągnij, puść = koniec · zaznaczony + klik krawędź = terminal`;
 }
 
 function isTypingField(el) {
@@ -646,19 +650,14 @@ canvas.addEventListener("mousedown", (e) => {
   if (e.button !== 0) return;
   const imgPt = imgPointFromEvent(e);
 
-  if (selectedSymIdx >= 0) {
-    const sym = graph.symbols[selectedSymIdx];
-    const hit = terminalHitTest(sym, imgPt);
+  for (let i = graph.symbols.length - 1; i >= 0; i--) {
+    const hit = terminalHitTest(graph.symbols[i], imgPt);
     if (hit >= 0) {
-      draggingTerminal = { symIdx: selectedSymIdx, termIdx: hit };
+      selectSymbol(i);
+      draggingTerminal = { symIdx: i, termIdx: hit };
       selectedTermIdx = hit;
       terminalDragMoved = false;
       renderTerminalList();
-      return;
-    }
-    const b = bboxRect(sym);
-    if (nearBbox(b, imgPt)) {
-      addTerminalAt(selectedSymIdx, imgPt);
       return;
     }
   }
@@ -713,6 +712,14 @@ canvas.addEventListener("mouseup", (e) => {
   const imgPt = imgPointFromEvent(e);
 
   if (!drawMoved) {
+    if (
+      selectedSymIdx >= 0 &&
+      clickSelectCandidate === selectedSymIdx &&
+      onBboxEdge(bboxRect(graph.symbols[selectedSymIdx]), imgPt)
+    ) {
+      addTerminalAt(selectedSymIdx, imgPt);
+      return;
+    }
     if (clickSelectCandidate >= 0) {
       selectSymbol(clickSelectCandidate);
     } else {
