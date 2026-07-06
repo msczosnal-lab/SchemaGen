@@ -633,6 +633,13 @@ function renderSymbolList() {
     const nTerm = (sym.terminals || []).length;
     li.textContent = `${sym.id}: ${typeStr(sym.type) || "?"} ${sym.tag || ""} (${nTerm} term.)`;
     if (i === selectedSymIdx) li.classList.add("active");
+    const col = colorFromKey(symColorKey(sym));
+    li.style.borderLeftColor = col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
+    if (col !== UNASSIGNED_COLOR) {
+      li.style.background = pillColorsFromKey(symColorKey(sym)).fill;
+    } else {
+      li.style.removeProperty("background");
+    }
     li.onclick = () => selectSymbol(i);
     list.appendChild(li);
   });
@@ -665,6 +672,8 @@ function renderSymbolEditor() {
   symbolEditor.classList.remove("hidden");
   symTypeInput.value = typeStr(sym.type);
   symTagInput.value = sym.tag || "";
+  applyInputTypeColor(symTypeInput, typeStr(sym.type));
+  applyInputTypeColor(symTagInput, sym.tag);
   updateTypeTagPlaceholders();
   renderTerminalList();
 }
