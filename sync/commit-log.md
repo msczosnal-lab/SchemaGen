@@ -170,3 +170,4 @@
 | 2026-07-06 22:12 | Cursor | 13b7c970 | [Cursor] labeler v2: grubsze zielone linie połączeń (9px) |
 | 2026-07-06 22:12 | Cursor | e101c53f | [Cursor] labeler v2: przycisk Zapisz i status na górze panelu bocznego |
 | 2026-07-06 22:15 | Cursor | 7dd809b0 | [Cursor] labeler v2: listy bbox/linii na pełną wysokość, resizable panele boczne |
+| 2026-07-06 22:19 | Cursor | 13e80c74 | [Cursor] labeler v2: naprawa oznaczników linii (numeracja, deduplikacja, etykiety) |
