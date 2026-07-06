@@ -593,9 +593,20 @@ function orthoRoutePoints(from, to) {
 function lineDisplayPoints(line) {
   const a = terminalPosByRef(lineFromRef(line));
   const b = terminalPosByRef(lineToRef(line));
-  if (!a || !b) return line.vertices || [];
-  if (line.vertices?.length >= 2) return line.vertices;
-  return orthoRoutePoints(a, b);
+  if (!a || !b) return [];
+  const v = line.vertices || [];
+  const start = [Math.round(a.x), Math.round(a.y)];
+  const end = [Math.round(b.x), Math.round(b.y)];
+  if (!v.length) return [start, end];
+  const mids =
+    v.length >= 2
+      ? v.slice(1, -1).map((p) => [Math.round(p[0]), Math.round(p[1])])
+      : v.map((p) => [Math.round(p[0]), Math.round(p[1])]);
+  return mids.length ? [start, ...mids, end] : [start, end];
+}
+
+function terminalUsedRef(ref) {
+  return graph.lines.some((l) => lineFromRef(l) === ref || lineToRef(l) === ref);
 }
 
 function resolveTerminalByRef(ref) {
@@ -675,21 +686,9 @@ function alignTerminalsStraight(fromHit, toHit) {
 }
 
 function buildLineVertices(fromPos, middles, toPos) {
-  const start = [Math.round(fromPos.x), Math.round(fromPos.y)];
-  const end = [Math.round(toPos.x), Math.round(toPos.y)];
-  if (!middles.length) return [];
-
-  const beforeLast =
-    middles.length >= 2
-      ? middles[middles.length - 2]
-      : [fromPos.x, fromPos.y];
-  const corner = orthoCornerPoint(beforeLast, toPos);
-  const out = [start];
-  for (let i = 0; i < middles.length - 1; i++) {
-    out.push([Math.round(middles[i][0]), Math.round(middles[i][1])]);
-  }
-  out.push([Math.round(corner[0]), Math.round(corner[1])]);
-  out.push(end);
+  const out = [[Math.round(fromPos.x), Math.round(fromPos.y)]];
+  for (const m of middles) out.push([Math.round(m[0]), Math.round(m[1])]);
+  out.push([Math.round(toPos.x), Math.round(toPos.y)]);
   return out;
 }
 
@@ -699,6 +698,10 @@ function cancelLineDraft() {
 }
 
 function startLineDraft(hit) {
+  if (terminalUsedRef(hit.ref)) {
+    saveStatusEl.textContent = `Terminal zajęty: ${formatLineEndpoint(hit.ref)} — każdy terminal max 1 linia`;
+    return;
+  }
   const sym = graph.symbols[hit.symIdx];
   const pos = terminalAbsPos(sym, sym.terminals[hit.termIdx]);
   lineDraft = { fromRef: hit.ref, fromPos: pos, middles: [] };
