@@ -366,6 +366,224 @@ function symbolHitTest(imgPt) {
   return -1;
 }
 
+function findTerminalAt(imgPt) {
+  for (let i = graph.symbols.length - 1; i >= 0; i--) {
+    const sym = graph.symbols[i];
+    const ti = terminalHitTest(sym, imgPt);
+    if (ti >= 0) {
+      const t = sym.terminals[ti];
+      return { symIdx: i, termIdx: ti, ref: `${sym.id}:${t.id}` };
+    }
+  }
+  return null;
+}
+
+function terminalPosByRef(ref) {
+  const m = String(ref || "").match(/^([^:]+):(.+)$/);
+  if (!m) return null;
+  const sym = graph.symbols.find((s) => s.id === m[1]);
+  if (!sym) return null;
+  const t = (sym.terminals || []).find((x) => String(x.id) === m[2]);
+  if (!t) return null;
+  return terminalAbsPos(sym, t);
+}
+
+function nextLineId() {
+  const used = new Set(graph.lines.map((l) => l.id));
+  let n = lineSeq;
+  while (used.has(`L${n}`)) n += 1;
+  lineSeq = n + 1;
+  return `L${n}`;
+}
+
+function currentLineKind() {
+  return lineKindSelect?.value || "power";
+}
+
+function lineAnchorPoint() {
+  if (!lineDraft) return null;
+  if (lineDraft.middles.length) return lineDraft.middles[lineDraft.middles.length - 1];
+  return [lineDraft.fromPos.x, lineDraft.fromPos.y];
+}
+
+function applyLineOrtho(anchor, raw, orthoOn) {
+  if (!anchor || !orthoOn) return raw;
+  const dx = Math.abs(raw.x - anchor[0]);
+  const dy = Math.abs(raw.y - anchor[1]);
+  if (dx >= dy) return { x: raw.x, y: anchor[1] };
+  return { x: anchor[0], y: raw.y };
+}
+
+function lineSnapPoint(raw, shiftKey) {
+  const orthoOn = lineOrtho && !shiftKey;
+  return applyLineOrtho(lineAnchorPoint(), raw, orthoOn);
+}
+
+function orthoRoutePoints(from, to) {
+  return [
+    [from.x, from.y],
+    [to.x, from.y],
+    [to.x, to.y],
+  ];
+}
+
+function lineDisplayPoints(line) {
+  const a = terminalPosByRef(line.from);
+  const b = terminalPosByRef(line.to);
+  if (!a || !b) return line.vertices || [];
+  if (line.vertices?.length >= 2) return line.vertices;
+  return orthoRoutePoints(a, b);
+}
+
+function buildLineVertices(draft, toPos) {
+  if (!draft.middles.length) return [];
+  return [
+    [Math.round(draft.fromPos.x), Math.round(draft.fromPos.y)],
+    ...draft.middles.map((p) => [Math.round(p[0]), Math.round(p[1])]),
+    [Math.round(toPos.x), Math.round(toPos.y)],
+  ];
+}
+
+function cancelLineDraft() {
+  lineDraft = null;
+  cursorImgPt = null;
+}
+
+function startLineDraft(hit) {
+  const sym = graph.symbols[hit.symIdx];
+  const pos = terminalAbsPos(sym, sym.terminals[hit.termIdx]);
+  lineDraft = { fromRef: hit.ref, fromPos: pos, middles: [] };
+  selectedLineIdx = -1;
+  saveStatusEl.textContent = `Linia OD ${hit.ref} — klik terminal DO (Enter / Esc)`;
+}
+
+function completeLineDraft(hit) {
+  if (!lineDraft || hit.ref === lineDraft.fromRef) return;
+  const toSym = graph.symbols[hit.symIdx];
+  const toPos = terminalAbsPos(toSym, toSym.terminals[hit.termIdx]);
+  const line = {
+    id: nextLineId(),
+    from: lineDraft.fromRef,
+    to: hit.ref,
+    vertices: buildLineVertices(lineDraft, toPos),
+    kind: currentLineKind(),
+  };
+  graph.lines.push(line);
+  cancelLineDraft();
+  markDirty();
+  renderLineList();
+  redraw();
+  saveStatusEl.textContent = `Dodano ${line.id}: ${line.from} → ${line.to}`;
+}
+
+function addLineMiddlePoint(imgPt, shiftKey) {
+  if (!lineDraft) return;
+  const pt = lineSnapPoint(imgPt, shiftKey);
+  const anchor = lineAnchorPoint();
+  if (anchor && Math.hypot(pt.x - anchor[0], pt.y - anchor[1]) <= 2 / scale) return;
+  lineDraft.middles.push([pt.x, pt.y]);
+  markDirty();
+  redraw();
+}
+
+function deleteSelectedLine() {
+  if (selectedLineIdx < 0) return;
+  graph.lines.splice(selectedLineIdx, 1);
+  selectedLineIdx = -1;
+  markDirty();
+  renderLineList();
+  redraw();
+}
+
+function setMode(next) {
+  mode = next;
+  drawing = false;
+  drawMoved = false;
+  draggingTerminal = null;
+  if (mode !== MODE_LINE) cancelLineDraft();
+  if (mode === MODE_LINE) {
+    selectedSymIdx = -1;
+    selectedTermIdx = -1;
+    renderSymbolEditor();
+  }
+  document.getElementById("mode-bbox")?.classList.toggle("active", mode === MODE_BBOX);
+  document.getElementById("mode-line")?.classList.toggle("active", mode === MODE_LINE);
+  canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
+  const hintEl = document.getElementById("hint");
+  if (hintEl) {
+    hintEl.textContent =
+      mode === MODE_LINE
+        ? "Linia: terminal OD → (opcjonalnie punkty orto) → terminal DO · Backspace = cofnij · Esc = anuluj"
+        : "Bbox: przeciągnij · zaznaczony + klik w środku = terminal · poza = odznacz";
+  }
+  redraw();
+}
+
+function renderLineList() {
+  const list = document.getElementById("line-list");
+  if (!list) return;
+  list.innerHTML = "";
+  graph.lines.forEach((line, i) => {
+    const li = document.createElement("li");
+    li.textContent = `${line.id}: ${line.from} → ${line.to} [${line.kind || "power"}]`;
+    if (i === selectedLineIdx) li.classList.add("active");
+    li.onclick = () => {
+      selectedLineIdx = i;
+      renderLineList();
+      redraw();
+    };
+    list.appendChild(li);
+  });
+}
+
+function drawPolyline(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
+  if (!points || points.length < 2) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width / scale;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.setLineDash(dash.map((d) => d / scale));
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1]);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawLinesLayer() {
+  graph.lines.forEach((line, i) => {
+    const pts = lineDisplayPoints(line);
+    drawPolyline(pts, {
+      color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
+      width: i === selectedLineIdx ? LINE_STROKE + 2 : LINE_STROKE,
+    });
+    const a = terminalPosByRef(line.from);
+    const b = terminalPosByRef(line.to);
+    if (a) {
+      ctx.fillStyle = "#228be6";
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, 8 / scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (b) {
+      ctx.fillStyle = "#fa5252";
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 8 / scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  if (lineDraft) {
+    const draftPts = [[lineDraft.fromPos.x, lineDraft.fromPos.y], ...lineDraft.middles];
+    if (cursorImgPt) draftPts.push([cursorImgPt.x, cursorImgPt.y]);
+    drawPolyline(draftPts, { color: "#82c91e", width: LINE_STROKE, dash: [8, 6] });
+    ctx.fillStyle = "#228be6";
+    ctx.beginPath();
+    ctx.arc(lineDraft.fromPos.x, lineDraft.fromPos.y, 10 / scale, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
 function markDirty() {
   dirty = true;
   saveStatusEl.textContent = "Niezapisane zmiany";
