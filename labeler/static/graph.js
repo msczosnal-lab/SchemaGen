@@ -765,6 +765,7 @@ function redraw() {
     ctx.strokeStyle = sel ? BBOX_SEL : col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
     ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
+    drawBboxLabelImage(sym, r, sel);
   });
 
   graph.symbols.forEach((sym, i) => {
@@ -799,20 +800,6 @@ function redraw() {
   drawLinesLayer();
 
   ctx.restore();
-
-  graph.symbols.forEach((sym, i) => {
-    const r = bboxRect(sym);
-    const label = [typeStr(sym.type), sym.tag].filter(Boolean).join(" ");
-    if (!label) return;
-    const p = imageToCanvasPt(r.x, r.y);
-    drawLabelPill(p.cx + 4, p.cy - 6, label, {
-      selected: i === selectedSymIdx,
-      fontPx: BBOX_LABEL_PX,
-      selFontPx: BBOX_LABEL_SEL_PX,
-      variant: "bbox",
-      colorKey: symColorKey(sym),
-    });
-  });
 
   graph.symbols.forEach((sym, i) => {
     const selSym = i === selectedSymIdx;
