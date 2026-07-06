@@ -109,6 +109,7 @@ function assignTypeToSelected(type) {
   if (!t) return;
   sym.type = t;
   symTypeInput.value = t;
+  applyInputTypeColor(symTypeInput, t);
   rememberLastType(t);
   markDirty();
   renderSymbolList();
@@ -122,6 +123,7 @@ function assignBboxTagToSelected(tag) {
   if (!t) return;
   sym.tag = t;
   symTagInput.value = t;
+  applyInputTypeColor(symTagInput, t);
   rememberLastBboxTag(t);
   markDirty();
   renderSymbolList();
@@ -999,6 +1001,7 @@ symTypeInput.addEventListener("input", () => {
   const sym = graph.symbols[selectedSymIdx];
   if (sym) {
     sym.type = symTypeInput.value.trim();
+    applyInputTypeColor(symTypeInput, sym.type);
     markDirty();
     renderSymbolList();
     redraw();
@@ -1022,6 +1025,7 @@ symTagInput.addEventListener("input", () => {
   const sym = graph.symbols[selectedSymIdx];
   if (sym) {
     sym.tag = symTagInput.value.trim();
+    applyInputTypeColor(symTagInput, sym.tag);
     markDirty();
     renderSymbolList();
     redraw();
