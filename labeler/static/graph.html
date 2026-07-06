@@ -6,25 +6,30 @@
   <link rel="stylesheet" href="/static/style.css" />
   <link rel="stylesheet" href="/static/graph.css" />
 </head>
-<body>
+<body class="graph-v2">
   <header>
     <h1>SchemaGen Labeler <span class="v2-badge">GT v2</span></h1>
     <p>Bbox + terminale → SchematicGraph · <a href="/legacy">Stary labeler (v1)</a></p>
   </header>
-  <main class="layout">
+  <main class="layout graph-layout" id="graph-layout">
     <aside id="pages-panel">
-      <div id="recent-pages-block">
-        <h2>Ostatnie</h2>
-        <ul id="recent-page-list"></ul>
+      <div id="pages-panel-top">
+        <div id="recent-pages-block">
+          <h2>Ostatnie</h2>
+          <ul id="recent-page-list"></ul>
+        </div>
+        <div id="graph-workflow">
+          <h2>Workflow</h2>
+          <p class="muted">1. Import draft (YOLO) · 2. Bbox + terminale · 3. Zapisz</p>
+          <button id="prefill-btn" type="button" class="secondary-btn">⤓ Import draft (YOLO)</button>
+        </div>
       </div>
-      <div id="graph-workflow">
-        <h2>Workflow</h2>
-        <p class="muted">1. Import draft (YOLO) · 2. Bbox + terminale · 3. Zapisz</p>
-        <button id="prefill-btn" type="button" class="secondary-btn">⤓ Import draft (YOLO)</button>
+      <div id="pages-panel-scroll">
+        <h2>Strony</h2>
+        <ul id="page-list"></ul>
       </div>
-      <h2>Strony</h2>
-      <ul id="page-list"></ul>
     </aside>
+    <div class="resize-handle" id="resize-left" title="Szerokość lewego panelu"></div>
     <section id="canvas-panel">
       <div id="page-nav">
         <button id="page-prev" type="button" title="Poprzednia strona">←</button>
