@@ -155,3 +155,4 @@
 | 2026-07-06 21:50 | Cursor | 5adb6a5b | [Cursor] labeler: canvas GT v2 bbox+terminale, / → graph, /legacy → v1 (022 krok 5) |
 | 2026-07-06 21:54 | Cursor | aeafce07 | [Cursor] fix: graph labeler palette — typ jako slug, nie [object Object] (022 k5) |
 | 2026-07-06 21:55 | Cursor | a0cee9c9 | [Cursor] labeler v2: 3 ostatnio edytowane strony w panelu bocznym |
+| 2026-07-06 21:57 | Cursor | 5703a7d6 | [Cursor] labeler v2: grubsze ramki bbox i terminale na canvasie |
