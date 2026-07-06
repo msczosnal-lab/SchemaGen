@@ -16,3 +16,8 @@ print("symbols:", len(g.get("symbols", [])))
 print("lines:", len(g.get("lines", [])))
 for line in g.get("lines", []):
     print(line)
+    for label, ref in ("from", line.get("from")), ("to", line.get("to")):
+        sid, tid = ref.split(":", 1)
+        sym = next(s for s in g["symbols"] if s["id"] == sid)
+        t = next((x for x in sym["terminals"] if str(x["id"]) == tid), None)
+        print(f"  {label} {ref} -> term={t}, bbox={sym['bbox']}")
