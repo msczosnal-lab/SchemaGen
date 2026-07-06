@@ -431,7 +431,30 @@ function graphContentBounds() {
   };
 }
 
-function loadAllViewports() {
+function applyDefaultView() {
+  if (!graph.symbols.length && !graph.lines.length) {
+    scale = 1;
+    originX = 0;
+    originY = 0;
+    return;
+  }
+  const bounds = graphContentBounds();
+  if (!bounds) {
+    scale = 1;
+    originX = 0;
+    originY = 0;
+    return;
+  }
+  const pad = Math.max(40, Math.min(canvas.width, canvas.height) * 0.02);
+  const availW = canvas.width - 2 * pad;
+  const availH = canvas.height - 2 * pad;
+  scale = Math.min(availW / bounds.width, availH / bounds.height);
+  scale = Math.min(Math.max(scale, 0.05), 32);
+  originX = pad + (availW - bounds.width * scale) / 2 - bounds.minX * scale;
+  originY = pad + (availH - bounds.height * scale) / 2 - bounds.minY * scale;
+}
+
+function parseTerminalRef(ref) {
   const s = String(ref || "");
   const i = s.lastIndexOf(":");
   if (i <= 0) return null;
