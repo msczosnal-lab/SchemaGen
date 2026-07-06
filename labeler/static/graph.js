@@ -4,7 +4,10 @@ const BBOX_COLOR = "#f76707";
 const BBOX_SEL = "#ffd43b";
 const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
-const TERMINAL_R = 10;
+const TERMINAL_R = 16;
+const BBOX_STROKE = 5;
+const BBOX_STROKE_SEL = 7;
+const TERMINAL_STROKE = 3.5;
 const DRAG_THRESHOLD = 4;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
@@ -287,7 +290,7 @@ function redraw() {
     const r = bboxRect(sym);
     const sel = i === selectedSymIdx;
     ctx.strokeStyle = sel ? BBOX_SEL : BBOX_COLOR;
-    ctx.lineWidth = (sel ? 3 : 2) / scale;
+    ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
     const label = [typeStr(sym.type), sym.tag].filter(Boolean).join(" ");
     if (label) {
@@ -309,14 +312,14 @@ function redraw() {
       const a = terminalAbsPos(sym, t);
       const selTerm = selSym && ti === selectedTermIdx;
       ctx.beginPath();
-      ctx.arc(a.x, a.y, r + 2 / scale, 0, Math.PI * 2);
+      ctx.arc(a.x, a.y, r + 4 / scale, 0, Math.PI * 2);
       ctx.fillStyle = "#fff";
       ctx.fill();
       ctx.beginPath();
       ctx.arc(a.x, a.y, r, 0, Math.PI * 2);
       ctx.fillStyle = selTerm ? TERMINAL_SEL : TERMINAL_COLOR;
       ctx.fill();
-      ctx.lineWidth = 2 / scale;
+      ctx.lineWidth = TERMINAL_STROKE / scale;
       ctx.strokeStyle = "#1a1a1a";
       ctx.stroke();
       const label = String(t.id);
@@ -677,7 +680,7 @@ canvas.addEventListener("mousemove", (e) => {
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
   ctx.strokeStyle = BBOX_COLOR;
-  ctx.lineWidth = 2 / scale;
+  ctx.lineWidth = BBOX_STROKE / scale;
   ctx.setLineDash([6 / scale, 3 / scale]);
   ctx.strokeRect(startX, startY, imgPt.x - startX, imgPt.y - startY);
   ctx.setLineDash([]);
