@@ -2,6 +2,7 @@
 
 const BBOX_COLOR = "#f76707";
 const BBOX_SEL = "#ffd43b";
+const UNASSIGNED_COLOR = "#6c757d";
 const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
 const TERMINAL_R = 16;
