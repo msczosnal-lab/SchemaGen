@@ -17,6 +17,11 @@ const DRAG_THRESHOLD = 4;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
 const RECENT_PAGES_MAX = 3;
+const LAST_TYPE_KEY = "schemagen:last-tag";
+const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
+
+let lastUsedType = "";
+let lastUsedBboxTag = "";
 
 let pageIds = [];
 let pagesMeta = [];
@@ -54,6 +59,87 @@ const symTypeInput = document.getElementById("sym-type-input");
 const symTagInput = document.getElementById("sym-tag-input");
 const paletteResults = document.getElementById("palette-results");
 const symbolEditor = document.getElementById("symbol-editor");
+
+function loadStored(key) {
+  try {
+    return (localStorage.getItem(key) || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function storeValue(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+
+function rememberLastType(type) {
+  const t = typeStr(type).trim();
+  if (!t) return;
+  lastUsedType = t;
+  storeValue(LAST_TYPE_KEY, t);
+  updateTypeTagPlaceholders();
+}
+
+function rememberLastBboxTag(tag) {
+  const t = (tag || "").trim();
+  if (!t) return;
+  lastUsedBboxTag = t;
+  storeValue(LAST_BBOX_TAG_KEY, t);
+  updateTypeTagPlaceholders();
+}
+
+function suggestedType(sym) {
+  return typeStr(sym?.type).trim() || lastUsedType;
+}
+
+function suggestedBboxTag(sym) {
+  return (sym?.tag || "").trim() || lastUsedBboxTag;
+}
+
+function updateTypeTagPlaceholders() {
+  symTypeInput.placeholder = lastUsedType
+    ? `Ostatni: ${lastUsedType} — Enter aby przypisać`
+    : "np. zlaczka, cewka_przekaznika";
+  symTagInput.placeholder = lastUsedBboxTag
+    ? `Ostatni: ${lastUsedBboxTag} — Enter aby przypisać`
+    : "-K1";
+}
+
+function assignTypeToSelected(type) {
+  const sym = graph.symbols[selectedSymIdx];
+  if (!sym) return;
+  const t = typeStr(type).trim();
+  if (!t) return;
+  sym.type = t;
+  symTypeInput.value = t;
+  rememberLastType(t);
+  markDirty();
+  renderSymbolList();
+  redraw();
+}
+
+function assignBboxTagToSelected(tag) {
+  const sym = graph.symbols[selectedSymIdx];
+  if (!sym) return;
+  const t = (tag || "").trim();
+  if (!t) return;
+  sym.tag = t;
+  symTagInput.value = t;
+  rememberLastBboxTag(t);
+  markDirty();
+  renderSymbolList();
+  redraw();
+}
+
+function applyLastDefaultsToSymbol(sym) {
+  if (!sym) return;
+  if (lastUsedType && !typeStr(sym.type).trim()) sym.type = lastUsedType;
+  if (lastUsedBboxTag && !(sym.tag || "").trim()) sym.tag = lastUsedBboxTag;
+}
 
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
@@ -527,8 +613,9 @@ function renderSymbolEditor() {
     return;
   }
   symbolEditor.classList.remove("hidden");
-  symTypeInput.value = typeStr(sym.type);
-  symTagInput.value = sym.tag || "";
+  symTypeInput.value = suggestedType(sym);
+  symTagInput.value = suggestedBboxTag(sym);
+  updateTypeTagPlaceholders();
   renderTerminalList();
 }
 
