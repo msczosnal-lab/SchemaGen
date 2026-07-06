@@ -31,6 +31,7 @@ let selectedLineIdx = -1;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
 const LAST_PAGE_KEY = "graphLastPage";
+const INVERT_BG_KEY = "graphInvertBg";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
 const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
@@ -38,6 +39,8 @@ const LAYOUT_WIDTHS_KEY = "graphLayoutWidths";
 
 let lastUsedType = "";
 let lastUsedBboxTag = "";
+
+let invertBg = loadStored(INVERT_BG_KEY) === "1";
 
 let pageIds = [];
 let pagesMeta = [];
@@ -792,12 +795,41 @@ async function runPrefill() {
   }
 }
 
+function updateInvertBgButton() {
+  const btn = document.getElementById("invert-bg-btn");
+  if (!btn) return;
+  btn.classList.toggle("active", invertBg);
+  btn.setAttribute("aria-pressed", invertBg ? "true" : "false");
+}
+
+function setInvertBg(on) {
+  invertBg = !!on;
+  storeValue(INVERT_BG_KEY, invertBg ? "1" : "0");
+  updateInvertBgButton();
+  redraw();
+}
+
+function toggleInvertBg() {
+  setInvertBg(!invertBg);
+}
+
+function drawBgImage() {
+  if (!bgImage) return;
+  if (invertBg) {
+    ctx.filter = "invert(1)";
+    ctx.drawImage(bgImage, 0, 0);
+    ctx.filter = "none";
+  } else {
+    ctx.drawImage(bgImage, 0, 0);
+  }
+}
+
 function redraw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
-  if (bgImage) ctx.drawImage(bgImage, 0, 0);
+  drawBgImage();
 
   graph.symbols.forEach((sym, i) => {
     const r = bboxRect(sym);
@@ -1369,6 +1401,11 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "l" || e.key === "L") {
     e.preventDefault();
     setMode(MODE_LINE);
+    return;
+  }
+  if (e.key === "i" || e.key === "I") {
+    e.preventDefault();
+    toggleInvertBg();
     return;
   }
   if (e.key === "Escape") {
