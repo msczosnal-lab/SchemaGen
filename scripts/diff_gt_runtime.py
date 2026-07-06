@@ -21,8 +21,6 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from backend.db import load_annotation
-from backend.models.label import LabelRecord
 from backend.paths import RAW
 from backend.recognize.pipeline import recognize_file
 from backend.runtime_config import eval_weights, line_match_tol
