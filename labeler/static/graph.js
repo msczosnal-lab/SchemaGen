@@ -936,8 +936,8 @@ function redraw() {
       const p = imageToCanvasPt(mid.x, mid.y);
       drawLabelPill(p.cx, p.cy - 14, line.id, {
         selected: i === selectedLineIdx,
-        fontPx: 22,
-        selFontPx: 28,
+        fontPx: 26,
+        selFontPx: 32,
         variant: "line",
       });
     });
@@ -1618,7 +1618,7 @@ function initPanelResize() {
   initPanelResize();
   try {
     await loadPages();
-    if (pageIds.length) await selectPage(pageIds[0]);
+    if (pageIds.length) await selectPage(pickInitialPageId());
   } catch (err) {
     saveStatusEl.textContent = `Init: ${err.message}`;
   }
