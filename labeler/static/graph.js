@@ -1203,6 +1203,8 @@ function redraw() {
       });
     });
   }
+
+  drawLinesLayerScreen();
 }
 
 function pageMeta(pageId) {
