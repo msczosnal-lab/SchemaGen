@@ -865,6 +865,13 @@ function lineDraftPreviewPoints() {
   ];
 }
 
+/** Ile px canvasu = 1 px ekranu (canvas jest CSS-skalowany do widoku). */
+function screenToCanvasFactor() {
+  const m = canvasDisplayMetrics();
+  const f = canvas.width / (m.drawW || canvas.width);
+  return Number.isFinite(f) && f > 0 ? f : 1;
+}
+
 function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
   if (!points || points.length < 2) return;
   ctx.strokeStyle = color;
@@ -883,13 +890,14 @@ function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, d
   ctx.setLineDash([]);
 }
 
-/** Linie na wierzchu — po etykietach terminali (fillRect zakrywał zielone linie). */
+/** Linie na wierzchu, grubość stała w px EKRANU (canvas 6617px skalowany do ~1200px). */
 function drawLinesLayerScreen() {
+  const k = screenToCanvasFactor();
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
     drawPolylineScreen(pts, {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
-      width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
+      width: (i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE) * k,
     });
   });
 
@@ -901,14 +909,14 @@ function drawLinesLayerScreen() {
       const p = imageToCanvasPt(a.x, a.y);
       ctx.fillStyle = "#228be6";
       ctx.beginPath();
-      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
+      ctx.arc(p.cx, p.cy, 10 * k, 0, Math.PI * 2);
       ctx.fill();
     }
     if (b) {
       const p = imageToCanvasPt(b.x, b.y);
       ctx.fillStyle = "#fa5252";
       ctx.beginPath();
-      ctx.arc(p.cx, p.cy, 10, 0, Math.PI * 2);
+      ctx.arc(p.cx, p.cy, 10 * k, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -916,8 +924,8 @@ function drawLinesLayerScreen() {
   if (lineDraft) {
     drawPolylineScreen(lineDraftPreviewPoints(), {
       color: "#82c91e",
-      width: LINE_STROKE,
-      dash: [10, 8],
+      width: LINE_STROKE * k,
+      dash: [10 * k, 8 * k],
     });
     const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
     ctx.fillStyle = "#228be6";
