@@ -182,3 +182,4 @@
 | 2026-07-06 22:41 | Cursor | 173f67d6 | [Cursor] labeler v2: fix linii — bez dopasuj, lista zawsze widoczna, zoom auto |
 | 2026-07-06 22:47 | Cursor | b83ad383 | [Cursor] labeler v2: linie widoczne (px ekranu), proste OD-DO, terminal 1× |
 | 2026-07-06 22:56 | Cursor | d9949c1a | [Cursor] labeler v2: wczytane linie widoczne — rysowanie jak bboxy, cache bust GET |
+| 2026-07-07 17:49 | Cursor | bc1f9739 | [Cursor] labeler v2: linie nad etykietami terminali (fillRect je zakrywał) |
