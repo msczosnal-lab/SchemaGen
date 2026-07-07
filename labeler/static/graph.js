@@ -930,7 +930,7 @@ function drawLinesLayerScreen() {
     const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
     ctx.fillStyle = "#228be6";
     ctx.beginPath();
-    ctx.arc(p.cx, p.cy, 11, 0, Math.PI * 2);
+    ctx.arc(p.cx, p.cy, 11 * k, 0, Math.PI * 2);
     ctx.fill();
   }
 }
