@@ -183,3 +183,4 @@
 | 2026-07-06 22:47 | Cursor | b83ad383 | [Cursor] labeler v2: linie widoczne (px ekranu), proste OD-DO, terminal 1× |
 | 2026-07-06 22:56 | Cursor | d9949c1a | [Cursor] labeler v2: wczytane linie widoczne — rysowanie jak bboxy, cache bust GET |
 | 2026-07-07 17:49 | Cursor | bc1f9739 | [Cursor] labeler v2: linie nad etykietami terminali (fillRect je zakrywał) |
+| 2026-07-07 19:14 | Cursor | a36957ea | [Cursor] labeler v2: grubosc linii stala w px ekranu (canvas 6617px byl skalowany -> linie 1.6px, niewidoczne) |

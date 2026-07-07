@@ -1,1 +1,6 @@
-﻿[Cursor] labeler v2: grubosc linii stala w px ekranu (canvas 6617px byl skalowany -> linie 1.6px, niewidoczne)
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
