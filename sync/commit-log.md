@@ -184,3 +184,4 @@
 | 2026-07-06 22:56 | Cursor | d9949c1a | [Cursor] labeler v2: wczytane linie widoczne — rysowanie jak bboxy, cache bust GET |
 | 2026-07-07 17:49 | Cursor | bc1f9739 | [Cursor] labeler v2: linie nad etykietami terminali (fillRect je zakrywał) |
 | 2026-07-07 19:14 | Cursor | a36957ea | [Cursor] labeler v2: grubosc linii stala w px ekranu (canvas 6617px byl skalowany -> linie 1.6px, niewidoczne) |
+| 2026-07-07 21:32 | Cursor | 4a10a4c3 | [Cursor] labeler: HTML no-cache (reset ladowal stary graph.js -> wczytane linie niewidoczne) + v33 |
