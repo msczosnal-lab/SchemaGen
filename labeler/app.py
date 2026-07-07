@@ -52,9 +52,12 @@ def startup() -> None:
         upsert_page(png.stem, png.name)
 
 
+_NO_CACHE_HEADERS = {"Cache-Control": "no-cache, no-store, must-revalidate"}
+
+
 @app.get("/")
 def graph_ui() -> FileResponse:
-    return FileResponse(STATIC_DIR / "graph.html")
+    return FileResponse(STATIC_DIR / "graph.html", headers=_NO_CACHE_HEADERS)
 
 
 @app.get("/legacy")
