@@ -840,20 +840,6 @@ function renderLineList() {
   });
 }
 
-function drawPolylineImage(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
-  if (!points || points.length < 2) return;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width / scale;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.setLineDash(dash.map((d) => d / scale));
-  ctx.beginPath();
-  ctx.moveTo(points[0][0], points[0][1]);
-  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-}
-
 function lineDraftPreviewPoints() {
   if (!lineDraft) return [];
   const from = lineDraft.fromPos;
