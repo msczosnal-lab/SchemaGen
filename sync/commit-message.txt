@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: nazwa listwy na zaznaczonym linku (tryb Linia) z propagacja po polaczonej szynie, wybor linku przelacza na tryb Linia
