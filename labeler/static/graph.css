@@ -117,6 +117,7 @@ body.graph-v2.invert-bg #canvas-panel canvas {
   overflow: hidden;
 }
 .tool-panel.hidden { display: none; }
+.hidden { display: none !important; }
 
 .panel-title {
   flex-shrink: 0;
