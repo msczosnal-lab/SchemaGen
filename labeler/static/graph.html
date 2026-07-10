@@ -63,8 +63,12 @@
             <input id="sym-type-input" type="text" placeholder="np. zlaczka, cewka_przekaznika" />
           </label>
           <div id="palette-results" class="palette-list"></div>
-          <label>Tag (opcjonalny)
-            <input id="sym-tag-input" type="text" placeholder="-K1" />
+          <label>Tag — pozycja / nr na szynie
+            <input id="sym-tag-input" type="text" placeholder="np. 1, 12" />
+          </label>
+          <label id="sym-listwa-label" class="hidden">Listwa (potencjał)
+            <input id="sym-listwa-input" type="text" list="listwa-datalist" placeholder="np. S24VDC" />
+            <datalist id="listwa-datalist"></datalist>
           </label>
           <h4>Terminale</h4>
           <ul id="terminal-list"></ul>

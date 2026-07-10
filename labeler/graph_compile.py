@@ -217,6 +217,19 @@ def _potential_name(
 
     sym_by_id = {s.id: s for s in symbols}
     sym_ids = {m.split(":", 1)[0] for m in members}
+    listwa_names: set[str] = set()
+    for sid in sym_ids:
+        sym = sym_by_id.get(sid)
+        if not sym:
+            continue
+        lw = (sym.listwa or "").strip()
+        if lw:
+            listwa_names.add(lw)
+    if len(listwa_names) == 1:
+        return next(iter(listwa_names))
+    if len(listwa_names) > 1:
+        return sorted(listwa_names)[0]
+
     ordered = sorted(
         (sym_by_id[sid] for sid in sym_ids if sid in sym_by_id),
         key=lambda s: (s.bbox[0] + s.bbox[2]) / 2 if len(s.bbox) >= 4 else 0.0,
