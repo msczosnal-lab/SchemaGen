@@ -582,8 +582,8 @@ function applyLineOrtho(anchor, raw, orthoOn) {
 }
 
 function lineSnapPoint(raw, shiftKey) {
-  const orthoOn = lineOrtho && !shiftKey;
-  return applyLineOrtho(lineAnchorPoint(), raw, orthoOn);
+  void shiftKey;
+  return applyLineOrtho(lineAnchorPoint(), raw, true);
 }
 
 function orthoCornerPoint(from, to) {
