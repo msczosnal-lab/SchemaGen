@@ -2537,7 +2537,7 @@ function initPanelResize() {
 }
 
 window.addEventListener("beforeunload", () => {
-  if (!dirty || !currentPageId || !historyReady) return;
+  if ((!dirty && !saveInFlight) || !currentPageId || !historyReady) return;
   try {
     const payload = buildPayload();
     const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
