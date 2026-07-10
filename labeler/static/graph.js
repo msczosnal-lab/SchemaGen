@@ -22,8 +22,8 @@ const MODE_BBOX = "bbox";
 const MODE_LINE = "line";
 const LINE_COLOR = "#40c057";
 const LINE_COLOR_SEL = "#94d82d";
-const LINE_STROKE = 9;
-const LINE_STROKE_SEL = 12;
+const LINE_STROKE = 4.5;
+const LINE_STROKE_SEL = 6;
 
 let mode = MODE_BBOX;
 let lineDraft = null;
