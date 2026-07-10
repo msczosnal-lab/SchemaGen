@@ -201,20 +201,6 @@ def _potential_name(
     members: set[str], symbols: list[GraphSymbol], lines: list[GraphLine], idx: int
 ) -> str:
     member_set = set(members)
-    rails: set[str] = set()
-    for ln in lines:
-        if ln.kind != "link":
-            continue
-        rail = (ln.rail or "").strip()
-        if not rail:
-            continue
-        if ln.from_ref in member_set or ln.to in member_set:
-            rails.add(rail)
-    if len(rails) == 1:
-        return next(iter(rails))
-    if len(rails) > 1:
-        return sorted(rails)[0]
-
     sym_by_id = {s.id: s for s in symbols}
     sym_ids = {m.split(":", 1)[0] for m in members}
     listwa_names: set[str] = set()
@@ -229,6 +215,20 @@ def _potential_name(
         return next(iter(listwa_names))
     if len(listwa_names) > 1:
         return sorted(listwa_names)[0]
+
+    rails: set[str] = set()
+    for ln in lines:
+        if ln.kind != "link":
+            continue
+        rail = (ln.rail or "").strip()
+        if not rail:
+            continue
+        if ln.from_ref in member_set or ln.to in member_set:
+            rails.add(rail)
+    if len(rails) == 1:
+        return next(iter(rails))
+    if len(rails) > 1:
+        return sorted(rails)[0]
 
     ordered = sorted(
         (sym_by_id[sid] for sid in sym_ids if sid in sym_by_id),
