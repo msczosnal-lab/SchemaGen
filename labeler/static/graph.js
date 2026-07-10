@@ -42,7 +42,6 @@ const AUTOSAVE_MS = 500;
 
 let lastUsedType = "";
 let lastUsedBboxTag = "";
-let lastUsedRail = "";
 
 let invertBg = loadStored(INVERT_BG_KEY) === "1";
 
@@ -82,7 +81,9 @@ let terminalDragUndoPushed = false;
 let symTypeUndoPushed = false;
 let symTagUndoPushed = false;
 let symListwaUndoPushed = false;
-let lineRailUndoPushed = false;
+let autosaveTimer = null;
+let saveInFlight = false;
+let saveQueued = false;
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
