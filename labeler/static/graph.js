@@ -1519,22 +1519,30 @@ function selectSymbol(idx) {
 
 function deleteSelectedSymbol() {
   if (selectedSymIdx < 0) return;
+  const sym = graph.symbols[selectedSymIdx];
+  const symId = sym?.id;
   graph.symbols.splice(selectedSymIdx, 1);
   selectedSymIdx = -1;
   selectedTermIdx = -1;
+  if (symId) purgeLinesForSymbol(symId);
   markDirty();
   renderSymbolList();
   renderSymbolEditor();
+  renderLineList();
   redraw();
 }
 
 function deleteSelectedTerminal() {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym || selectedTermIdx < 0) return;
+  const term = sym.terminals[selectedTermIdx];
+  const ref = term ? `${sym.id}:${term.id}` : "";
   sym.terminals.splice(selectedTermIdx, 1);
   selectedTermIdx = -1;
+  if (ref) purgeLinesUsingRef(ref);
   markDirty();
   renderTerminalList();
+  renderLineList();
   redraw();
 }
 
@@ -1721,8 +1729,15 @@ canvas.addEventListener("mousedown", (e) => {
     } else if (lineDraft) {
       addLineMiddlePoint(imgPt, e.shiftKey);
     } else {
-      saveStatusEl.textContent =
-        "Kliknij krawędź bboxa (żółta kropka = terminal) — linia OD terminal DO terminal";
+      const li = pickLineAt(imgPt);
+      if (li >= 0) selectLine(li);
+      else {
+        selectedLineIdx = -1;
+        renderLineList();
+        syncLineKindSelect();
+        saveStatusEl.textContent =
+          "Kliknij linię (zaznacz) lub krawędź bboxa (terminal OD/DO)";
+      }
     }
     redraw();
     return;
@@ -1905,14 +1920,18 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key === "Delete" || e.key === "Backspace") {
-    if (mode === MODE_LINE && lineDraft?.middles?.length) {
+    if (mode === MODE_LINE && lineDraft) {
       e.preventDefault();
-      lineDraft.middles.pop();
-      markDirty();
+      if (lineDraft.middles?.length) {
+        lineDraft.middles.pop();
+        markDirty();
+      } else {
+        cancelLineDraft();
+      }
       redraw();
       return;
     }
-    if (mode === MODE_LINE && selectedLineIdx >= 0) {
+    if (selectedLineIdx >= 0 && graph.lines[selectedLineIdx]) {
       e.preventDefault();
       deleteSelectedLine();
       return;
