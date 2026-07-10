@@ -511,7 +511,39 @@ function listwaFromLineEndpoints(line) {
 
 function lineRailDisplay(line) {
   if (!isLinkKind(line.kind)) return "";
+  const own = (line.rail || "").trim();
+  if (own) return own;
   return listwaFromLineEndpoints(line);
+}
+
+/** Zbiór id linków połączonych z danym (wspólna złączka) = jedna szyna. */
+function railChainLinkIds(start) {
+  const symsOf = (l) => {
+    const set = new Set();
+    const a = parseTerminalRef(lineFromRef(l));
+    const b = parseTerminalRef(lineToRef(l));
+    if (a) set.add(a.symId);
+    if (b) set.add(b.symId);
+    return set;
+  };
+  const links = graph.lines.filter((l) => isLinkKind(l.kind));
+  const result = new Set([start.id]);
+  const queue = [start];
+  while (queue.length) {
+    const cur = queue.pop();
+    const curSyms = symsOf(cur);
+    for (const l of links) {
+      if (result.has(l.id)) continue;
+      for (const s of symsOf(l)) {
+        if (curSyms.has(s)) {
+          result.add(l.id);
+          queue.push(l);
+          break;
+        }
+      }
+    }
+  }
+  return result;
 }
 
 function collectListwaSuggestions() {
@@ -661,10 +693,17 @@ function syncLineToolPanel() {
   syncSelectedLineIdx();
   const line = selectedLine();
   const kind = line ? line.kind || "power" : currentLineKind();
+  const showName = isLinkKind(kind);
 
   if (lineKindSelect) {
     if (line) lineKindSelect.value = kind;
     else if (!lineKindSelect.value) lineKindSelect.value = "power";
+  }
+
+  linkNameLabel?.classList.toggle("hidden", !showName);
+  linkNameHint?.classList.toggle("hidden", !showName);
+  if (linkNameInput && document.activeElement !== linkNameInput) {
+    linkNameInput.value = line ? (line.rail || "").trim() || listwaFromLineEndpoints(line) : "";
   }
 
   if (deleteLineBtn) deleteLineBtn.classList.toggle("hidden", !line);
