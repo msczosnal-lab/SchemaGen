@@ -140,6 +140,30 @@ body.graph-v2.invert-bg #canvas-panel canvas {
   list-style: none;
 }
 
+#lines-block #delete-line-btn {
+  flex-shrink: 0;
+  margin-top: 8px;
+  width: 100%;
+}
+#lines-block #delete-line-btn.hidden { display: none; }
+
+#line-tool-panel #line-rail-wrap label {
+  display: block;
+  margin: 8px 0;
+  font-size: 0.85rem;
+  color: #bbb;
+}
+#line-tool-panel #line-rail-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #eee;
+}
+#line-tool-panel #line-rail-wrap.hidden { display: none; }
+
 #line-tool-panel .panel-hint,
 #line-tool-panel label {
   flex-shrink: 0;
