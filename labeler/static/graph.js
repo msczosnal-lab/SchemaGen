@@ -537,7 +537,7 @@ function refreshListwaDatalist() {
   }
 }
 
-function refreshListwaDatalist() {
+function formatLineEndpoint(ref) {
   const p = parseTerminalRef(ref);
   if (!p) return ref;
   const sym = graph.symbols.find((s) => s.id === p.symId);
@@ -1095,7 +1095,6 @@ function completeLineDraft(hit) {
       kind,
       rail: "",
     };
-    if (isLinkKind(kind)) line.rail = listwaFromLineEndpoints(line);
     graph.lines.push(line);
     cancelLineDraft();
     markDirty();
