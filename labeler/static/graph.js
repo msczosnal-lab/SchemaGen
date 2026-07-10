@@ -1524,8 +1524,11 @@ async function saveGraph({ auto = false } = {}) {
     return;
   }
   saveInFlight = true;
+  saveQueued = false;
+  // Payload odzwierciedla biezacy stan — od teraz uznajemy go za zapisany.
+  // Kazda edycja w trakcie awaita ponownie ustawi dirty=true (markDirty).
+  dirty = false;
   let ok = false;
-  let statusMsg = "";
   try {
     const payload = buildPayload();
     const res = await fetchJson(`/api/graph/${currentPageId}`, {
@@ -1534,9 +1537,7 @@ async function saveGraph({ auto = false } = {}) {
       body: JSON.stringify(payload),
     });
     const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
-    statusMsg = auto
-      ? `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${warn}`
-      : `Zapisano: ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
+    saveStatusEl.textContent = `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
     touchRecentPage(currentPageId);
     const meta = pageMeta(currentPageId);
     if (meta) {
@@ -1547,19 +1548,13 @@ async function saveGraph({ auto = false } = {}) {
     renderPageList();
     ok = true;
   } catch (err) {
+    dirty = true;
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
   } finally {
     saveInFlight = false;
-    const needsAnother = saveQueued || dirty;
-    saveQueued = false;
-    if (ok) {
-      if (needsAnother) {
-        void saveGraph({ auto: true });
-      } else {
-        dirty = false;
-        saveStatusEl.textContent = statusMsg;
-      }
-    } else if (needsAnother) {
+    if (ok && (saveQueued || dirty)) {
+      void saveGraph({ auto: true });
+    } else if (!ok) {
       scheduleAutoSave();
     }
   }
