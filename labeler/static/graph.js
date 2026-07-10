@@ -1198,16 +1198,17 @@ function drawTerminalDot(x, y, { selected = false } = {}) {
 
 /** Linie + terminale w px obrazu (wewnątrz ctx.scale — zoom jak podkład). */
 function drawWiresAndTerminalsImage() {
+  const selIdx = syncSelectedLineIdx();
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
     drawPolylineImage(pts, {
-      color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
-      width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
+      color: i === selIdx ? LINE_COLOR_SEL : LINE_COLOR,
+      width: i === selIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
   });
 
-  if (mode === MODE_LINE && selectedLineIdx >= 0) {
-    const line = graph.lines[selectedLineIdx];
+  if (mode === MODE_LINE && selIdx >= 0) {
+    const line = graph.lines[selIdx];
     const a = terminalPosByRef(lineFromRef(line));
     const b = terminalPosByRef(lineToRef(line));
     if (a) drawTerminalDot(a.x, a.y, { selected: false });
@@ -1266,6 +1267,7 @@ function normalizeLines(raw) {
       to,
       vertices: (l.vertices || []).map((v) => [...v]),
       kind: l.kind || "power",
+      rail: (l.rail || "").trim(),
     });
   }
   return out;
@@ -1302,7 +1304,9 @@ function applyGraph(data) {
     return match ? Math.max(m, Number(match[1]) + 1) : m;
   }, 0);
   dirty = orthoFixed;
-  syncLineKindSelect();
+  selectedLineId = null;
+  selectedLineIdx = -1;
+  syncLineToolPanel();
 }
 
 function buildPayload() {
@@ -1329,6 +1333,7 @@ function buildPayload() {
       to: lineToRef(l),
       vertices: orthoNormalizeLineVertices(l),
       kind: l.kind || "power",
+      rail: (l.rail || "").trim() || undefined,
     })),
   };
 }
@@ -1368,6 +1373,7 @@ async function runPrefill() {
     applyGraph(data);
     selectedSymIdx = -1;
     selectedTermIdx = -1;
+    selectedLineId = null;
     selectedLineIdx = -1;
     cancelLineDraft();
     renderSymbolList();
