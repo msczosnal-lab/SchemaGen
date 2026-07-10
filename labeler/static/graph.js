@@ -1146,6 +1146,7 @@ function deleteSelectedLine() {
 }
 
 function updateSidebarForMode() {
+  document.getElementById("bbox-tool-panel")?.classList.toggle("hidden", mode !== MODE_BBOX);
   document.getElementById("line-tool-panel")?.classList.toggle("hidden", mode !== MODE_LINE);
 }
 
@@ -1155,8 +1156,13 @@ function setMode(next) {
   drawMoved = false;
   draggingTerminal = null;
   if (mode !== MODE_LINE) cancelLineDraft();
-  renderLineList();
-  renderSymbolEditor();
+  if (mode === MODE_LINE) {
+    selectedSymIdx = -1;
+    selectedTermIdx = -1;
+    renderSymbolEditor();
+  } else {
+    renderLineList();
+  }
   updateSidebarForMode();
   syncLineToolPanel();
   document.getElementById("mode-bbox")?.classList.toggle("active", mode === MODE_BBOX);
