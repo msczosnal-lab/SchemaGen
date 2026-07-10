@@ -1127,38 +1127,11 @@ function redraw() {
     const sel = i === selectedSymIdx;
     const col = colorFromKey(symColorKey(sym));
     ctx.strokeStyle = sel ? BBOX_SEL : col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
-    ctx.lineWidth = (sel ? BBOX_STROKE_SEL : BBOX_STROKE) / scale;
+    ctx.lineWidth = sel ? BBOX_STROKE_SEL : BBOX_STROKE;
     ctx.strokeRect(r.x, r.y, r.width, r.height);
   });
 
-  graph.symbols.forEach((sym, i) => {
-    const ts = sym.terminals || [];
-    if (!ts.length) return;
-    const selSym = i === selectedSymIdx;
-    ts.forEach((t, ti) => {
-      const a = terminalAbsPos(sym, t);
-      const selTerm = selSym && ti === selectedTermIdx;
-      const r = (selTerm ? TERMINAL_R_SEL : TERMINAL_R) / scale;
-      if (selTerm) {
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, r + 6 / scale, 0, Math.PI * 2);
-        ctx.strokeStyle = TERMINAL_SEL;
-        ctx.lineWidth = 4 / scale;
-        ctx.stroke();
-      }
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, r + 4 / scale, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = selTerm ? TERMINAL_SEL : TERMINAL_COLOR;
-      ctx.fill();
-      ctx.lineWidth = (selTerm ? TERMINAL_STROKE + 1.5 : TERMINAL_STROKE) / scale;
-      ctx.strokeStyle = "#1a1a1a";
-      ctx.stroke();
-    });
-  });
+  drawWiresAndTerminalsImage();
 
   ctx.restore();
 
