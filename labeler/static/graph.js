@@ -2469,6 +2469,17 @@ function initPanelResize() {
   bindHandle(rightHandle, "right");
 }
 
+window.addEventListener("beforeunload", () => {
+  if (!dirty || !currentPageId || !historyReady) return;
+  try {
+    const payload = buildPayload();
+    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+    navigator.sendBeacon(`/api/graph/${currentPageId}`, blob);
+  } catch {
+    /* ignore */
+  }
+});
+
 (async function init() {
   lastUsedType = loadStored(LAST_TYPE_KEY);
   lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
