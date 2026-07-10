@@ -14,7 +14,9 @@ def graph_to_dump(graph: SchematicGraph) -> str:
 
     for sym in graph.symbols:
         tag_part = f" [{sym.tag}]" if sym.tag else ""
-        lines_out.append(f"bbox: {sym.type}{tag_part}")
+        lw = (sym.listwa or "").strip()
+        lw_part = f" listwa={lw}" if lw else ""
+        lines_out.append(f"bbox: {sym.type}{tag_part}{lw_part}")
         for t in sym.terminals:
             ref = f"{sym.id}:{t.id}"
             linked = term_to_lines.get(ref, [])

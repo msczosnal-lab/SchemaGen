@@ -11,6 +11,7 @@ class GraphSymbol(BaseModel):
     id: str
     type: str
     tag: str = ""
+    listwa: str = ""  # nazwa potencjału / toru (np. S24VDC) — gł. złączka
     bbox: list[float] = Field(default_factory=list)  # [x1, y1, x2, y2] px absolutne
     terminals: list[Terminal] = Field(default_factory=list)
 
