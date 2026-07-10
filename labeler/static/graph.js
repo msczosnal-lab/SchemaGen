@@ -28,7 +28,6 @@ const TERMINAL_R_SEL = LINE_STROKE_SEL;
 let mode = MODE_BBOX;
 let lineDraft = null;
 let cursorImgPt = null;
-let lineOrtho = true;
 let selectedLineIdx = -1;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
@@ -795,13 +794,6 @@ function alignTerminalsStraight(fromHit, toHit) {
     return true;
   }
   return false;
-}
-
-function buildLineVertices(fromPos, middles, toPos) {
-  const out = [[Math.round(fromPos.x), Math.round(fromPos.y)]];
-  for (const m of middles) out.push([Math.round(m[0]), Math.round(m[1])]);
-  out.push([Math.round(toPos.x), Math.round(toPos.y)]);
-  return out;
 }
 
 /** Po kliknięciu terminala DO: ostatni przegub → kąt 90° (wejście prostopadle do krawędzi). */
