@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: fix nieskonczonej petli auto-zapisu (dirty nigdy nie czyszczone) + sendBeacon gdy zapis trwa przy F5
