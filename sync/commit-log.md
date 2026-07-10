@@ -185,3 +185,4 @@
 | 2026-07-07 17:49 | Cursor | bc1f9739 | [Cursor] labeler v2: linie nad etykietami terminali (fillRect je zakrywał) |
 | 2026-07-07 19:14 | Cursor | a36957ea | [Cursor] labeler v2: grubosc linii stala w px ekranu (canvas 6617px byl skalowany -> linie 1.6px, niewidoczne) |
 | 2026-07-07 21:32 | Cursor | 4a10a4c3 | [Cursor] labeler: HTML no-cache (reset ladowal stary graph.js -> wczytane linie niewidoczne) + v33 |
+| 2026-07-10 22:31 | Cursor | 4bdd8846 | [Cursor] labeler: auto-zapis + zawsze widoczne pole Potencjał/listwa na zlaczce, usuniete zbedne przyciski i nadpisywanie rail |

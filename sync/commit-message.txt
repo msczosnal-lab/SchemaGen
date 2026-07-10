@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] labeler: auto-zapis + zawsze widoczne pole Potencjał/listwa na zlaczce, usuniete zbedne przyciski i nadpisywanie rail
