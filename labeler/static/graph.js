@@ -1860,9 +1860,10 @@ canvas.addEventListener("mousedown", (e) => {
       const li = pickLineAt(imgPt);
       if (li >= 0) selectLine(li);
       else {
+        selectedLineId = null;
         selectedLineIdx = -1;
+        syncLineToolPanel();
         renderLineList();
-        syncLineKindSelect();
         saveStatusEl.textContent =
           "Kliknij linię (zaznacz) lub krawędź bboxa (terminal OD/DO)";
       }
@@ -2032,8 +2033,10 @@ document.addEventListener("keydown", (e) => {
       redraw();
       return;
     }
-    if (selectedLineIdx >= 0) {
+    if (selectedLineId) {
+      selectedLineId = null;
       selectedLineIdx = -1;
+      syncLineToolPanel();
       renderLineList();
       redraw();
       return;
@@ -2059,7 +2062,7 @@ document.addEventListener("keydown", (e) => {
       redraw();
       return;
     }
-    if (selectedLineIdx >= 0 && graph.lines[selectedLineIdx]) {
+    if (selectedLine()) {
       e.preventDefault();
       deleteSelectedLine();
       return;
@@ -2225,6 +2228,8 @@ function initPanelResize() {
 
 (async function init() {
   lastUsedType = loadStored(LAST_TYPE_KEY);
+  lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
+  lastUsedRail = loadStored(LAST_RAIL_KEY);
   lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
   updateTypeTagPlaceholders();
   updateInvertBgButton();
