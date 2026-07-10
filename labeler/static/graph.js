@@ -1480,12 +1480,15 @@ function redraw() {
   });
 
   if (mode === MODE_LINE) {
+    const selIdx = syncSelectedLineIdx();
     graph.lines.forEach((line, i) => {
       const mid = lineMidpointImage(line);
       if (!mid) return;
       const p = imageToCanvasPt(mid.x, mid.y);
-      drawLabelPill(p.cx, p.cy - 14, line.id, {
-        selected: i === selectedLineIdx,
+      const rail = isLinkKind(line.kind) && (line.rail || "").trim();
+      const label = rail ? `${line.id} ${rail}` : line.id;
+      drawLabelPill(p.cx, p.cy - 14, label, {
+        selected: i === selIdx,
         fontPx: 26,
         selFontPx: 32,
         variant: "line",
@@ -1784,6 +1787,7 @@ async function selectPage(pageId) {
   storeValue(LAST_PAGE_KEY, pageId);
   selectedSymIdx = -1;
   selectedTermIdx = -1;
+  selectedLineId = null;
   selectedLineIdx = -1;
   cancelLineDraft();
 
@@ -2234,6 +2238,4 @@ function initPanelResize() {
     await loadPages();
     if (pageIds.length) await selectPage(pickInitialPageId());
   } catch (err) {
-    saveStatusEl.textContent = `Init: ${err.message}`;
-  }
-})();
+    saveStatusEl.textContent = `Init: ${er
