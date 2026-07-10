@@ -1167,8 +1167,6 @@ function redraw() {
     });
   });
 
-  drawLinesLayerScreen();
-
   if (mode === MODE_LINE) {
     graph.lines.forEach((line, i) => {
       const mid = lineMidpointImage(line);
