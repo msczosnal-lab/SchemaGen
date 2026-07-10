@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from backend.models.label import BboxAnnotation, LabelRecord, Terminal as LabelTerminal
+from backend.models.label import (
+    BboxAnnotation,
+    ConnectionAnnotation,
+    LabelRecord,
+    LineAnnotation,
+    Terminal as LabelTerminal,
+)
 from labeler.migrate_label_v1 import label_record_to_graph, migrate_page
 
 
@@ -38,14 +44,10 @@ def test_label_record_to_graph_bbox_and_terminals_only():
             ),
         ],
         lines=[
-            {
-                "id": "wire_old",
-                "points": [[0, 0], [100, 0]],
-                "role": "wire",
-            }
+            LineAnnotation(id="wire_old", points=[[0, 0], [100, 0]], role="wire"),
         ],
         connections=[
-            {"id": "c1", "from": "b1:L", "to": "b2:1", "kind": "power"},
+            ConnectionAnnotation(id="c1", **{"from": "b1:L"}, to="b2:1", kind="power"),
         ],
     )
 
