@@ -1778,6 +1778,7 @@ async function searchPalette(q) {
         btn.style.removeProperty("border-left");
       }
       btn.onclick = () => {
+        pushUndoSnapshot();
         assignTypeToSelected(slug);
         paletteResults.innerHTML = "";
       };
@@ -2237,7 +2238,10 @@ symTagInput.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();
   const value = symTagInput.value.trim() || lastUsedBboxTag;
-  if (value) assignBboxTagToSelected(value);
+  if (value) {
+    if (!symTagUndoPushed) pushUndoSnapshot();
+    assignBboxTagToSelected(value);
+  }
 });
 
 symTagInput.addEventListener("blur", () => {
@@ -2259,13 +2263,13 @@ function applyLineKindFromUi() {
   else line.rail = currentLineRail();
   markDirty();
   renderLineList();
+  syncLineToolPanel();
 }
 
 function applyRailFromUi() {
   const rail = currentLineRail();
   const line = selectedLine();
   if (line && isLinkKind(line.kind)) {
-    if (line.rail !== rail) pushUndoSnapshot();
     line.rail = rail;
     markDirty();
     renderLineList();
