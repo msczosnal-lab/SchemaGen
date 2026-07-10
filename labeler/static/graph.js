@@ -879,14 +879,7 @@ function lineDraftPreviewPoints() {
   ];
 }
 
-/** Ile px canvasu = 1 px ekranu (canvas jest CSS-skalowany do widoku). */
-function screenToCanvasFactor() {
-  const m = canvasDisplayMetrics();
-  const f = canvas.width / (m.drawW || canvas.width);
-  return Number.isFinite(f) && f > 0 ? f : 1;
-}
-
-function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
+function drawPolylineImage(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
   if (!points || points.length < 2) return;
   ctx.strokeStyle = color;
   ctx.lineWidth = width;
@@ -894,24 +887,32 @@ function drawPolylineScreen(points, { color = LINE_COLOR, width = LINE_STROKE, d
   ctx.lineJoin = "round";
   ctx.setLineDash(dash);
   ctx.beginPath();
-  const p0 = imageToCanvasPt(points[0][0], points[0][1]);
-  ctx.moveTo(p0.cx, p0.cy);
+  ctx.moveTo(points[0][0], points[0][1]);
   for (let i = 1; i < points.length; i++) {
-    const p = imageToCanvasPt(points[i][0], points[i][1]);
-    ctx.lineTo(p.cx, p.cy);
+    ctx.lineTo(points[i][0], points[i][1]);
   }
   ctx.stroke();
   ctx.setLineDash([]);
 }
 
-/** Linie na wierzchu, grubość stała w px EKRANU (canvas 6617px skalowany do ~1200px). */
-function drawLinesLayerScreen() {
-  const k = screenToCanvasFactor();
+function drawTerminalDot(x, y, { selected = false } = {}) {
+  const r = selected ? TERMINAL_R_SEL : TERMINAL_R;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = selected ? TERMINAL_SEL : TERMINAL_COLOR;
+  ctx.fill();
+  ctx.lineWidth = Math.max(1, r * 0.35);
+  ctx.strokeStyle = "#1a1a1a";
+  ctx.stroke();
+}
+
+/** Linie + terminale w px obrazu (wewnątrz ctx.scale — zoom jak podkład). */
+function drawWiresAndTerminalsImage() {
   graph.lines.forEach((line, i) => {
     const pts = lineDisplayPoints(line);
-    drawPolylineScreen(pts, {
+    drawPolylineImage(pts, {
       color: i === selectedLineIdx ? LINE_COLOR_SEL : LINE_COLOR,
-      width: (i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE) * k,
+      width: i === selectedLineIdx ? LINE_STROKE_SEL : LINE_STROKE,
     });
   });
 
@@ -919,33 +920,27 @@ function drawLinesLayerScreen() {
     const line = graph.lines[selectedLineIdx];
     const a = terminalPosByRef(lineFromRef(line));
     const b = terminalPosByRef(lineToRef(line));
-    if (a) {
-      const p = imageToCanvasPt(a.x, a.y);
-      ctx.fillStyle = "#228be6";
-      ctx.beginPath();
-      ctx.arc(p.cx, p.cy, 10 * k, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    if (b) {
-      const p = imageToCanvasPt(b.x, b.y);
-      ctx.fillStyle = "#fa5252";
-      ctx.beginPath();
-      ctx.arc(p.cx, p.cy, 10 * k, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    if (a) drawTerminalDot(a.x, a.y, { selected: false });
+    if (b) drawTerminalDot(b.x, b.y, { selected: false });
   }
 
-  if (lineDraft) {
-    drawPolylineScreen(lineDraftPreviewPoints(), {
-      color: "#82c91e",
-      width: LINE_STROKE * k,
-      dash: [10 * k, 8 * k],
+  graph.symbols.forEach((sym, i) => {
+    const ts = sym.terminals || [];
+    if (!ts.length) return;
+    const selSym = i === selectedSymIdx;
+    ts.forEach((t, ti) => {
+      const a = terminalAbsPos(sym, t);
+      drawTerminalDot(a.x, a.y, { selected: selSym && ti === selectedTermIdx });
     });
-    const p = imageToCanvasPt(lineDraft.fromPos.x, lineDraft.fromPos.y);
-    ctx.fillStyle = "#228be6";
-    ctx.beginPath();
-    ctx.arc(p.cx, p.cy, 11 * k, 0, Math.PI * 2);
-    ctx.fill();
+  });
+
+  if (lineDraft) {
+    drawPolylineImage(lineDraftPreviewPoints(), {
+      color: "#82c91e",
+      width: LINE_STROKE,
+      dash: [LINE_STROKE * 2, LINE_STROKE * 1.5],
+    });
+    drawTerminalDot(lineDraft.fromPos.x, lineDraft.fromPos.y, { selected: false });
   }
 }
 
