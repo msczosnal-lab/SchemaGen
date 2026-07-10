@@ -142,6 +142,7 @@ function updateTypeTagPlaceholders() {
 function assignTypeToSelected(type) {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym) return;
+  pushUndoSnapshot();
   const t = typeStr(type).trim();
   if (!t) return;
   sym.type = t;
@@ -156,6 +157,7 @@ function assignTypeToSelected(type) {
 function assignBboxTagToSelected(tag) {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym) return;
+  pushUndoSnapshot();
   const t = (tag || "").trim();
   if (!t) return;
   sym.tag = t;
@@ -1040,6 +1042,7 @@ function completeLineDraft(hit) {
   }
   lineCompleting = true;
   try {
+    pushUndoSnapshot();
     const fromHit = resolveTerminalByRef(lineDraft.fromRef);
     const toSym = graph.symbols[hit.symIdx];
     const toTerm = toSym.terminals[hit.termIdx];
@@ -1080,6 +1083,7 @@ function completeLineDraft(hit) {
 
 function addLineMiddlePoint(imgPt, shiftKey) {
   if (!lineDraft) return;
+  pushUndoSnapshot();
   const pt = lineSnapPoint(imgPt, shiftKey);
   const anchor = lineAnchorPoint();
   if (anchor && Math.hypot(pt.x - anchor[0], pt.y - anchor[1]) <= 2 / scale) return;
@@ -1293,6 +1297,7 @@ function restoreGraphState(snap) {
   drawing = false;
   draggingTerminal = null;
   terminalDragMoved = false;
+  terminalDragUndoPushed = false;
   historyPaused = false;
   markDirty();
   renderSymbolList();
@@ -1309,26 +1314,7 @@ function undo() {
     return;
   }
   redoStack.push(cloneGraphState());
-  const snap = undoStack.pop();
-  historyPaused = true;
-  graph.symbols = JSON.parse(JSON.stringify(snap.symbols));
-  graph.lines = JSON.parse(JSON.stringify(snap.lines));
-  symSeq = snap.symSeq ?? 0;
-  selectedSymIdx = -1;
-  selectedTermIdx = -1;
-  selectedLineId = null;
-  selectedLineIdx = -1;
-  cancelLineDraft();
-  drawing = false;
-  draggingTerminal = null;
-  historyPaused = false;
-  markDirty();
-  renderSymbolList();
-  renderSymbolEditor();
-  renderTerminalList();
-  renderLineList();
-  syncLineToolPanel();
-  redraw();
+  restoreGraphState(undoStack.pop());
   saveStatusEl.textContent = `Cofnięto (Ctrl+Y = ponów, ${undoStack.length} w kolejce)`;
 }
 
@@ -1338,26 +1324,7 @@ function redo() {
     return;
   }
   undoStack.push(cloneGraphState());
-  const snap = redoStack.pop();
-  historyPaused = true;
-  graph.symbols = JSON.parse(JSON.stringify(snap.symbols));
-  graph.lines = JSON.parse(JSON.stringify(snap.lines));
-  symSeq = snap.symSeq ?? 0;
-  selectedSymIdx = -1;
-  selectedTermIdx = -1;
-  selectedLineId = null;
-  selectedLineIdx = -1;
-  cancelLineDraft();
-  drawing = false;
-  draggingTerminal = null;
-  historyPaused = false;
-  markDirty();
-  renderSymbolList();
-  renderSymbolEditor();
-  renderTerminalList();
-  renderLineList();
-  syncLineToolPanel();
-  redraw();
+  restoreGraphState(redoStack.pop());
   saveStatusEl.textContent = `Przywrócono (${redoStack.length} do ponowienia)`;
 }
 
