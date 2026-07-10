@@ -667,21 +667,10 @@ function syncLineToolPanel() {
   syncSelectedLineIdx();
   const line = selectedLine();
   const kind = line ? line.kind || "power" : currentLineKind();
-  const showLink = isLinkKind(kind);
 
   if (lineKindSelect) {
     if (line) lineKindSelect.value = kind;
     else if (!lineKindSelect.value) lineKindSelect.value = "power";
-  }
-
-  if (lineRailWrap) lineRailWrap.classList.toggle("hidden", !showLink);
-  if (lineRailInput) {
-    if (line && isLinkKind(line.kind)) {
-      lineRailInput.value = line.rail || "";
-    } else if (showLink && !lineRailInput.value.trim()) {
-      lineRailInput.value = lastUsedRail;
-    }
-    lineRailInput.placeholder = lastUsedRail ? `Ostatni: ${lastUsedRail}` : "-X1";
   }
 
   if (deleteLineBtn) deleteLineBtn.classList.toggle("hidden", !line);
@@ -1107,8 +1096,6 @@ function completeLineDraft(hit) {
     const vertices = finalizeLineVertices(a, b, toTerm, lineDraft.middles);
 
     const kind = currentLineKind();
-    const rail = isLinkKind(kind) ? currentLineRail() : "";
-    if (rail) rememberLastRail(rail);
 
     const line = {
       id: nextLineId(),
@@ -1116,8 +1103,9 @@ function completeLineDraft(hit) {
       to: hit.ref,
       vertices,
       kind,
-      rail,
+      rail: "",
     };
+    if (isLinkKind(kind)) line.rail = listwaFromLineEndpoints(line);
     graph.lines.push(line);
     cancelLineDraft();
     markDirty();
@@ -1306,11 +1294,35 @@ function lineMidpointImage(line) {
   return { x: pts[idx][0], y: pts[idx][1] };
 }
 
+function scheduleAutoSave() {
+  if (!currentPageId || !historyReady) return;
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    autosaveTimer = null;
+    saveGraph({ auto: true });
+  }, AUTOSAVE_MS);
+}
+
+async function flushAutoSave() {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+  if (dirty && currentPageId && historyReady) {
+    await saveGraph({ auto: true });
+  }
+}
+
 function markDirty() {
   dirty = true;
-  saveStatusEl.textContent = "Niezapisane zmiany";
   touchRecentPage(currentPageId);
   renderRecentPages();
+  if (!historyReady) {
+    saveStatusEl.textContent = "Niezapisane zmiany";
+    return;
+  }
+  saveStatusEl.textContent = "Zapisuję…";
+  scheduleAutoSave();
 }
 
 function cloneGraphState() {
@@ -1432,13 +1444,14 @@ function applyGraph(data) {
     const match = String(s.id).match(/^sym_(\d+)$/);
     return match ? Math.max(m, Number(match[1]) + 1) : m;
   }, 0);
-  dirty = orthoFixed;
   selectedLineId = null;
   selectedLineIdx = -1;
   syncLineToolPanel();
-  historyReady = true;
   resetHistoryBaseline();
   refreshListwaDatalist();
+  historyReady = true;
+  dirty = false;
+  if (orthoFixed) markDirty();
 }
 
 function buildPayload() {
