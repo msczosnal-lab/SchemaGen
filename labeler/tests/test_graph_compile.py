@@ -166,6 +166,46 @@ def test_graph_compile_link_bus_potential() -> None:
     assert all(c.potential == "-X1" for c in link_conns)
 
 
+def test_graph_compile_listwa_on_zlaczka_potential() -> None:
+    """listwa na złączce → nazwa potential (bez rail na linii)."""
+    g = SchematicGraph(
+        page_id="bus",
+        image_width=2000,
+        image_height=1500,
+        symbols=[
+            GraphSymbol(
+                id="z1",
+                type="zlaczka",
+                tag="1",
+                listwa="S24VDC",
+                bbox=[100, 100, 150, 180],
+                terminals=[
+                    Terminal(id="L", x=0.0, y=0.5),
+                    Terminal(id="R", x=1.0, y=0.5),
+                ],
+            ),
+            GraphSymbol(
+                id="z2",
+                type="zlaczka",
+                tag="2",
+                listwa="S24VDC",
+                bbox=[200, 100, 250, 180],
+                terminals=[
+                    Terminal(id="L", x=0.0, y=0.5),
+                    Terminal(id="R", x=1.0, y=0.5),
+                ],
+            ),
+        ],
+        lines=[
+            GraphLine.model_validate(
+                {"id": "L1", "from": "z1:R", "to": "z2:L", "kind": "link"}
+            ),
+        ],
+    )
+    schema = graph_to_schema(g)
+    assert schema.potentials == ["S24VDC"]
+
+
 def test_graph_compile_link_rail_name_potential() -> None:
     """rail na linkach → nazwa potential z pola rail (nie tagu złączki)."""
     g = SchematicGraph(
