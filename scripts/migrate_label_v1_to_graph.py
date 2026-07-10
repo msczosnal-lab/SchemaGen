@@ -50,7 +50,7 @@ def _print_report(r: MigrateReport) -> None:
             f"linie={r.lines} ({r.reason}){warn}"
         )
         if r.symbols_without_terminals and len(r.symbols_without_terminals) <= 8:
-            print(f"  → {', '.join(r.symbols_without_terminals)}")
+            print(f"  -> {', '.join(r.symbols_without_terminals)}")
     elif r.status == "skipped":
         print(f"{r.page_id}: POMINIĘTO — {r.reason}")
     else:
