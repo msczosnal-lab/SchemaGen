@@ -773,13 +773,24 @@ function completeLineDraft(hit) {
     const fromSym = graph.symbols[fromHit.symIdx];
     const fromTerm = fromSym.terminals[fromHit.termIdx];
     let vertices = [];
+    const a = terminalAbsPos(fromSym, fromTerm);
+    const b = terminalAbsPos(toSym, toTerm);
 
     if (!lineDraft.middles.length) {
       alignTerminalsStraight(fromHit, hit);
+      const a2 = terminalAbsPos(fromSym, fromTerm);
+      const b2 = terminalAbsPos(toSym, toTerm);
+      const straight =
+        Math.abs(a2.x - b2.x) < 0.5 || Math.abs(a2.y - b2.y) < 0.5;
+      vertices = straight ? [] : orthoRoutePoints(a2, b2);
     } else {
-      const a = terminalAbsPos(fromSym, fromTerm);
-      const b = terminalAbsPos(toSym, toTerm);
-      vertices = buildLineVertices(a, lineDraft.middles, b);
+      const snapped = snapLastMiddleForTerminal(
+        lineDraft.middles,
+        a,
+        b,
+        toTerm
+      );
+      vertices = buildLineVertices(a, snapped, b);
     }
 
     const line = {
