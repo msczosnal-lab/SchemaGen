@@ -81,6 +81,7 @@ let historyReady = false;
 let terminalDragUndoPushed = false;
 let symTypeUndoPushed = false;
 let symTagUndoPushed = false;
+let symListwaUndoPushed = false;
 let lineRailUndoPushed = false;
 
 const canvas = document.getElementById("canvas");
@@ -1449,6 +1450,7 @@ function applyGraph(data) {
   syncLineToolPanel();
   historyReady = true;
   resetHistoryBaseline();
+  refreshListwaDatalist();
 }
 
 function buildPayload() {
@@ -1736,7 +1738,7 @@ function renderSymbolList() {
   graph.symbols.forEach((sym, i) => {
     const li = document.createElement("li");
     const nTerm = (sym.terminals || []).length;
-    li.textContent = `${sym.id}: ${typeStr(sym.type) || "?"} ${sym.tag || ""} (${nTerm} term.)`;
+    li.textContent = `${sym.id}: ${typeStr(sym.type) || "?"} ${sym.listwa ? sym.listwa + " " : ""}${sym.tag || ""} (${nTerm} term.)`;
     if (i === selectedSymIdx) li.classList.add("active");
     const col = colorFromKey(symColorKey(sym));
     li.style.borderLeftColor = col !== UNASSIGNED_COLOR ? col : BBOX_COLOR;
@@ -2262,6 +2264,7 @@ symTypeInput.addEventListener("input", () => {
     }
     sym.type = symTypeInput.value.trim();
     applyInputTypeColor(symTypeInput, sym.type);
+    symListwaLabel?.classList.toggle("hidden", typeStr(sym.type) !== "zlaczka");
     markDirty();
     renderSymbolList();
     redraw();
@@ -2317,6 +2320,26 @@ symTagInput.addEventListener("blur", () => {
   const value = symTagInput.value.trim();
   if (sym && value) rememberLastBboxTag(value);
 });
+
+if (symListwaInput) {
+  symListwaInput.addEventListener("focus", () => {
+    symListwaUndoPushed = false;
+  });
+  symListwaInput.addEventListener("input", () => {
+    const sym = graph.symbols[selectedSymIdx];
+    if (!sym) return;
+    if (!symListwaUndoPushed) {
+      pushUndoSnapshot();
+      symListwaUndoPushed = true;
+    }
+    sym.listwa = symListwaInput.value.trim();
+    markDirty();
+    renderSymbolList();
+    renderLineList();
+    refreshListwaDatalist();
+    redraw();
+  });
+}
 
 function applyLineKindFromUi() {
   const line = selectedLine();
