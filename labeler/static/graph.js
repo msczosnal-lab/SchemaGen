@@ -2129,17 +2129,44 @@ symTagInput.addEventListener("blur", () => {
   if (sym && value) rememberLastBboxTag(value);
 });
 
+function applyLineKindFromUi() {
+  const kind = currentLineKind();
+  syncLineToolPanel();
+  const line = selectedLine();
+  if (!line) return;
+  line.kind = kind;
+  if (!isLinkKind(kind)) line.rail = "";
+  else line.rail = currentLineRail();
+  markDirty();
+  renderLineList();
+}
+
+function applyRailFromUi() {
+  const rail = currentLineRail();
+  const line = selectedLine();
+  if (line && isLinkKind(line.kind)) {
+    line.rail = rail;
+    markDirty();
+    renderLineList();
+  }
+  if (isLinkKind(currentLineKind()) && rail) rememberLastRail(rail);
+}
+
 document.getElementById("save-btn").addEventListener("click", saveGraph);
 
 if (lineKindSelect) {
-  lineKindSelect.addEventListener("change", () => {
-    if (selectedLineIdx < 0 || !graph.lines[selectedLineIdx]) return;
-    graph.lines[selectedLineIdx].kind = currentLineKind();
-    markDirty();
-    renderLineList();
+  lineKindSelect.addEventListener("change", applyLineKindFromUi);
+}
+if (lineRailInput) {
+  lineRailInput.addEventListener("input", applyRailFromUi);
+  lineRailInput.addEventListener("change", applyRailFromUi);
+  lineRailInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    applyRailFromUi();
   });
 }
-document.getElementById("prefill-btn").addEventListener("click", runPrefill);
+document.getElementById("prefill-btn")?.addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));
