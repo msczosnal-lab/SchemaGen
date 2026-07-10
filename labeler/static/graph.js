@@ -1308,7 +1308,7 @@ async function flushAutoSave() {
     clearTimeout(autosaveTimer);
     autosaveTimer = null;
   }
-  if (dirty && currentPageId && historyReady) {
+  if (dirty && currentPageId) {
     await saveGraph({ auto: true });
   }
 }
@@ -1947,10 +1947,10 @@ function pickInitialPageId() {
 async function selectPage(pageId) {
   if (!pageId) return;
   if (currentPageId && pageId !== currentPageId) {
-    historyReady = false;
     await flushAutoSave();
   }
 
+  historyReady = false;
   currentPageId = pageId;
   storeValue(LAST_PAGE_KEY, pageId);
   selectedSymIdx = -1;
