@@ -2425,14 +2425,8 @@ function applyLinkNameFromInput({ flush = false } = {}) {
   if (!line || !isLinkKind(line.kind) || !linkNameInput) return;
   const value = linkNameInput.value.trim();
   const ids = railChainLinkIds(line);
-  let changed = false;
-  for (const l of graph.lines) {
-    if (ids.has(l.id) && (l.rail || "") !== value) {
-      l.rail = value;
-      changed = true;
-    }
-  }
-  if (!changed) {
+  const targets = graph.lines.filter((l) => ids.has(l.id) && (l.rail || "") !== value);
+  if (!targets.length) {
     if (flush) void flushAutoSave();
     return;
   }
@@ -2440,6 +2434,7 @@ function applyLinkNameFromInput({ flush = false } = {}) {
     pushUndoSnapshot();
     linkNameUndoPushed = true;
   }
+  for (const l of targets) l.rail = value;
   markDirty();
   renderLineList();
   refreshListwaDatalist();
