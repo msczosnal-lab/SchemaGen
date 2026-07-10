@@ -558,6 +558,15 @@ function currentLineKind() {
   return lineKindSelect?.value || "power";
 }
 
+function syncLineKindSelect() {
+  if (!lineKindSelect) return;
+  if (selectedLineIdx >= 0 && graph.lines[selectedLineIdx]) {
+    lineKindSelect.value = graph.lines[selectedLineIdx].kind || "power";
+    return;
+  }
+  if (!lineKindSelect.value) lineKindSelect.value = "power";
+}
+
 function lineAnchorPoint() {
   if (!lineDraft) return null;
   if (lineDraft.middles.length) return lineDraft.middles[lineDraft.middles.length - 1];
@@ -833,6 +842,7 @@ function renderLineList() {
     if (i === selectedLineIdx) li.classList.add("active");
     li.onclick = () => {
       selectedLineIdx = i;
+      syncLineKindSelect();
       renderLineList();
       redraw();
     };
