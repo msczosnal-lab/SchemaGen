@@ -111,7 +111,7 @@ def test_migrate_page_saves_without_lines(tmp_path, monkeypatch):
     assert raw is not None
     assert raw["lines"] == []
     assert len(raw["symbols"]) == 1
-        assert raw["symbols"][0]["type"] == "fuse"  # tag bezpiecznik → paleta
+    assert raw["symbols"][0]["type"] == "fuse"  # tag bezpiecznik → paleta
 
 
 def test_migrate_page_skips_existing_graph(tmp_path, monkeypatch):
