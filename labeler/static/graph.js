@@ -998,11 +998,16 @@ function deleteSelectedLine() {
     return;
   }
   const removed = graph.lines[selectedLineIdx];
+  const orphanRefs = [lineFromRef(removed), lineToRef(removed)];
   cancelLineDraft();
   graph.lines.splice(selectedLineIdx, 1);
   selectedLineIdx = -1;
+  purgeOrphanTerminalRefs(orphanRefs);
   markDirty();
   renderLineList();
+  renderSymbolList();
+  renderTerminalList();
+  renderSymbolEditor();
   syncLineKindSelect();
   redraw();
   saveStatusEl.textContent = removed ? `Usunięto ${removed.id}` : "Usunięto linię";
