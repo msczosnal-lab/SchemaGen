@@ -1412,7 +1412,7 @@ function buildPayload() {
       to: lineToRef(l),
       vertices: orthoNormalizeLineVertices(l),
       kind: l.kind || "power",
-      rail: (l.rail || "").trim() || undefined,
+      rail: (l.rail || "").trim(),
     })),
   };
 }
@@ -2265,6 +2265,27 @@ function applyLineKindFromUi() {
   syncLineToolPanel();
 }
 
+function applyRailToAllLinks() {
+  const rail = currentLineRail();
+  if (!rail) {
+    saveStatusEl.textContent = "Wpisz nazwę listwy przed zastosowaniem";
+    return;
+  }
+  const links = graph.lines.filter((l) => isLinkKind(l.kind));
+  if (!links.length) {
+    saveStatusEl.textContent = "Brak linii link do opisania";
+    return;
+  }
+  pushUndoSnapshot();
+  for (const l of links) {
+    l.rail = rail;
+  }
+  rememberLastRail(rail);
+  markDirty();
+  renderLineList();
+  saveStatusEl.textContent = `Ustawiono rail=${rail} na ${links.length} linkach — Zapisz graf`;
+}
+
 function applyRailFromUi() {
   const rail = currentLineRail();
   const line = selectedLine();
@@ -2300,6 +2321,7 @@ if (lineRailInput) {
     applyRailFromUi();
   });
 }
+document.getElementById("apply-rail-all-btn")?.addEventListener("click", applyRailToAllLinks);
 document.getElementById("prefill-btn")?.addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
