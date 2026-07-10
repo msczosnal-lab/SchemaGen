@@ -5,9 +5,7 @@ const BBOX_SEL = "#ffd43b";
 const UNASSIGNED_COLOR = "#6c757d";
 const TERMINAL_COLOR = "#ffd43b";
 const TERMINAL_SEL = "#fa5252";
-const TERMINAL_R = 22;
-const TERMINAL_R_SEL = 28;
-const TERMINAL_HIT_EXTRA = 16;
+const TERMINAL_HIT_EXTRA = 14;
 const TERMINAL_CREATE_PAD = 36;
 const TERMINAL_LABEL_PX = 58;
 const TERMINAL_LABEL_SEL_PX = 74;
@@ -15,15 +13,17 @@ const BBOX_LABEL_PX = 54;
 const BBOX_LABEL_SEL_PX = 68;
 const BBOX_STROKE = 5;
 const BBOX_STROKE_SEL = 7;
-const TERMINAL_STROKE = 3.5;
 const DRAG_THRESHOLD = 4;
 
 const MODE_BBOX = "bbox";
 const MODE_LINE = "line";
 const LINE_COLOR = "#40c057";
 const LINE_COLOR_SEL = "#94d82d";
+/** Grubość linii i rozmiar terminali w px obrazu (skalują się z zoomem jak bbox). */
 const LINE_STROKE = 4.5;
 const LINE_STROKE_SEL = 6;
+const TERMINAL_R = LINE_STROKE;
+const TERMINAL_R_SEL = LINE_STROKE_SEL;
 
 let mode = MODE_BBOX;
 let lineDraft = null;
