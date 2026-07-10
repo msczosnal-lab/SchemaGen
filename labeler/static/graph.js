@@ -971,6 +971,7 @@ function purgeOrphanTerminalRefs(refs) {
 }
 
 function selectLineById(id) {
+  if (mode !== MODE_LINE && lineIdxById(id) >= 0) setMode(MODE_LINE);
   selectLine(lineIdxById(id));
 }
 
