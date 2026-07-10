@@ -1629,7 +1629,7 @@ function redraw() {
       const mid = lineMidpointImage(line);
       if (!mid) return;
       const p = imageToCanvasPt(mid.x, mid.y);
-      const rail = isLinkKind(line.kind) && (line.rail || "").trim();
+      const rail = lineRailDisplay(line);
       const label = rail ? `${line.id} ${rail}` : line.id;
       drawLabelPill(p.cx, p.cy - 14, label, {
         selected: i === selIdx,
