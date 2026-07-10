@@ -81,6 +81,7 @@ let terminalDragUndoPushed = false;
 let symTypeUndoPushed = false;
 let symTagUndoPushed = false;
 let symListwaUndoPushed = false;
+let linkNameUndoPushed = false;
 let autosaveTimer = null;
 let saveInFlight = false;
 let saveQueued = false;
@@ -99,6 +100,9 @@ const listwaDatalist = document.getElementById("listwa-datalist");
 const paletteResults = document.getElementById("palette-results");
 const symbolEditor = document.getElementById("symbol-editor");
 const lineKindSelect = document.getElementById("line-kind");
+const linkNameInput = document.getElementById("link-name-input");
+const linkNameLabel = document.getElementById("link-name-label");
+const linkNameHint = document.getElementById("link-name-hint");
 const deleteLineBtn = document.getElementById("delete-line-btn");
 
 function loadStored(key) {
