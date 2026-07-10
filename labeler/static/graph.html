@@ -85,7 +85,13 @@
             <option value="other">other</option>
           </select>
         </label>
-        <button id="delete-line-btn" type="button" class="delete-btn">Usuń linię</button>
+        <div id="line-rail-wrap" class="hidden">
+          <label>Nazwa listwy
+            <input id="line-rail-input" type="text" placeholder="-X1" />
+          </label>
+          <p class="muted panel-hint">Tę samą nazwę wpisz na każdym linku jednej szyny (np. -X1)</p>
+        </div>
+        <button id="delete-line-btn-panel" type="button" class="delete-btn hidden">Usuń zaznaczoną linię</button>
       </div>
     </aside>
   </main>
