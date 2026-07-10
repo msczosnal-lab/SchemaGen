@@ -602,13 +602,33 @@ function currentLineKind() {
   return lineKindSelect?.value || "power";
 }
 
-function syncLineKindSelect() {
-  if (!lineKindSelect) return;
-  if (selectedLineIdx >= 0 && graph.lines[selectedLineIdx]) {
-    lineKindSelect.value = graph.lines[selectedLineIdx].kind || "power";
-    return;
+function syncLineToolPanel() {
+  syncSelectedLineIdx();
+  const line = selectedLine();
+  const kind = line ? line.kind || "power" : currentLineKind();
+  const showLink = isLinkKind(kind);
+
+  if (lineKindSelect) {
+    if (line) lineKindSelect.value = kind;
+    else if (!lineKindSelect.value) lineKindSelect.value = "power";
   }
-  if (!lineKindSelect.value) lineKindSelect.value = "power";
+
+  if (lineRailWrap) lineRailWrap.classList.toggle("hidden", !showLink);
+  if (lineRailInput) {
+    if (line && isLinkKind(line.kind)) {
+      lineRailInput.value = line.rail || "";
+    } else if (showLink && !lineRailInput.value.trim()) {
+      lineRailInput.value = lastUsedRail;
+    }
+    lineRailInput.placeholder = lastUsedRail ? `Ostatni: ${lastUsedRail}` : "-X1";
+  }
+
+  if (deleteLineBtn) deleteLineBtn.classList.toggle("hidden", !line);
+}
+
+/** @deprecated użyj syncLineToolPanel */
+function syncLineKindSelect() {
+  syncLineToolPanel();
 }
 
 function lineAnchorPoint() {
