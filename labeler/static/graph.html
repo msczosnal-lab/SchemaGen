@@ -47,8 +47,7 @@
     <div class="resize-handle" id="resize-right" title="Szerokość prawego panelu"></div>
     <aside id="annotations-panel">
       <div id="save-bar">
-        <button id="save-btn" type="button">Zapisz graf</button>
-        <p id="save-status" class="muted"></p>
+        <p id="save-status" class="muted">Zapis automatyczny</p>
       </div>
       <div id="lines-block">
         <h2 class="panel-title">Linie (<span id="line-count">0</span>)</h2>
@@ -89,16 +88,9 @@
             <option value="other">other</option>
           </select>
         </label>
-        <div id="line-rail-wrap" class="hidden">
-          <label>Nazwa listwy
-            <input id="line-rail-input" type="text" placeholder="-X1" />
-          </label>
-          <p class="muted panel-hint">Tę samą nazwę wpisz na każdym linku jednej szyny (np. -X1)</p>
-          <button id="apply-rail-all-btn" type="button" class="secondary-btn">Zastosuj nazwę do wszystkich linków</button>
-        </div>
       </div>
     </aside>
   </main>
-  <script src="/static/graph.js?v=45"></script>
+  <script src="/static/graph.js?v=46"></script>
 </body>
 </html>
