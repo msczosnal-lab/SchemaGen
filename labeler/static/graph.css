@@ -139,7 +139,7 @@ body.graph-v2.invert-bg #canvas-panel canvas {
 }
 #symbol-editor #sym-listwa-label { color: #ffd43b; font-weight: 600; }
 
-#bbox-tool-panel .tool-list {
+.tool-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
