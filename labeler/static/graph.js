@@ -815,6 +815,7 @@ function setMode(next) {
     renderLineList();
   }
   updateSidebarForMode();
+  syncLineKindSelect();
   document.getElementById("mode-bbox")?.classList.toggle("active", mode === MODE_BBOX);
   document.getElementById("mode-line")?.classList.toggle("active", mode === MODE_LINE);
   canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
@@ -1007,6 +1008,7 @@ function applyGraph(data) {
     return match ? Math.max(m, Number(match[1]) + 1) : m;
   }, 0);
   dirty = false;
+  syncLineKindSelect();
 }
 
 function buildPayload() {
