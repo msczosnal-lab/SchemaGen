@@ -1416,15 +1416,34 @@ async function searchPalette(q) {
 
 function addTerminalAt(symIdx, imgPt) {
   const sym = graph.symbols[symIdx];
-  if (!sym) return;
+  if (!sym) return null;
   const b = bboxRect(sym);
   sym.terminals = sym.terminals || [];
   const rel = snapTerminalRel(b, imgPt);
-  sym.terminals.push({ id: nextTerminalId(sym), x: rel.x, y: rel.y, name: "" });
+  const term = { id: nextTerminalId(sym), x: rel.x, y: rel.y, name: "" };
+  sym.terminals.push(term);
   markDirty();
   renderTerminalList();
   renderSymbolList();
   redraw();
+  return {
+    symIdx,
+    termIdx: sym.terminals.length - 1,
+    ref: `${sym.id}:${term.id}`,
+  };
+}
+
+/** Tryb linia: istniejący terminal albo nowy na najbliższej krawędzi bboxa. */
+function findOrCreateTerminalAt(imgPt) {
+  const hit = findTerminalAt(imgPt);
+  if (hit) return hit;
+
+  for (let i = graph.symbols.length - 1; i >= 0; i--) {
+    const sym = graph.symbols[i];
+    if (!terminalCreateHit(sym, imgPt)) continue;
+    return addTerminalAt(i, imgPt);
+  }
+  return null;
 }
 
 async function loadPages() {
@@ -1538,12 +1557,15 @@ canvas.addEventListener("mousedown", (e) => {
   const imgPt = imgPointFromEvent(e);
 
   if (mode === MODE_LINE) {
-    const termHit = findTerminalAt(imgPt);
+    const termHit = findOrCreateTerminalAt(imgPt);
     if (termHit) {
       if (!lineDraft) startLineDraft(termHit);
       else completeLineDraft(termHit);
     } else if (lineDraft) {
       addLineMiddlePoint(imgPt, e.shiftKey);
+    } else {
+      saveStatusEl.textContent =
+        "Kliknij krawędź bboxa (żółta kropka = terminal) — linia OD terminal DO terminal";
     }
     redraw();
     return;
