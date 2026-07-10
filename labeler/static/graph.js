@@ -970,30 +970,16 @@ function renderLineList() {
 
 function lineDraftPreviewPoints() {
   if (!lineDraft) return [];
-  const committed = [
+  const waypoints = [
     [lineDraft.fromPos.x, lineDraft.fromPos.y],
     ...lineDraft.middles.map((m) => [m[0], m[1]]),
   ];
-  if (!cursorImgPt) return committed;
-
-  const anchor = lineAnchorPoint();
-  if (!anchor) return committed;
-
-  if (!lineDraft.middles.length) {
-    const corner = orthoCornerPoint(anchor, cursorImgPt);
-    return [
-      [lineDraft.fromPos.x, lineDraft.fromPos.y],
-      [Math.round(corner[0]), Math.round(corner[1])],
-      [cursorImgPt.x, cursorImgPt.y],
-    ];
+  if (cursorImgPt) {
+    const pt = lineSnapPoint(cursorImgPt, false);
+    waypoints.push([pt.x, pt.y]);
   }
-
-  const corner = orthoCornerPoint(anchor, cursorImgPt);
-  return [
-    ...committed,
-    [Math.round(corner[0]), Math.round(corner[1])],
-    [cursorImgPt.x, cursorImgPt.y],
-  ];
+  if (waypoints.length < 2) return waypoints;
+  return chainOrthoPoints(waypoints);
 }
 
 function drawPolylineImage(points, { color = LINE_COLOR, width = LINE_STROKE, dash = [] } = {}) {
