@@ -32,6 +32,7 @@ def graph_to_dump(graph: SchematicGraph) -> str:
             fold_str = ""
         lines_out.append(
             f"line: {ln.id} OD {ln.from_ref} DO {ln.to}{fold_str}; kind={ln.kind}"
+            + (f"; rail={ln.rail}" if (ln.rail or "").strip() else "")
         )
 
     return "\n".join(lines_out)
