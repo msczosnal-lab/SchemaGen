@@ -1480,17 +1480,17 @@ async function saveGraph({ auto = false } = {}) {
     return;
   }
   saveInFlight = true;
+  let ok = false;
+  let statusMsg = "";
   try {
-    syncRailFromZlaczkaListwa();
     const payload = buildPayload();
     const res = await fetchJson(`/api/graph/${currentPageId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    dirty = false;
     const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
-    saveStatusEl.textContent = auto
+    statusMsg = auto
       ? `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${warn}`
       : `Zapisano: ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
     touchRecentPage(currentPageId);
@@ -1501,13 +1501,22 @@ async function saveGraph({ auto = false } = {}) {
     }
     renderRecentPages();
     renderPageList();
+    ok = true;
   } catch (err) {
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
   } finally {
     saveInFlight = false;
-    if (saveQueued) {
-      saveQueued = false;
-      if (dirty) scheduleAutoSave();
+    const needsAnother = saveQueued || dirty;
+    saveQueued = false;
+    if (ok) {
+      if (needsAnother) {
+        void saveGraph({ auto: true });
+      } else {
+        dirty = false;
+        saveStatusEl.textContent = statusMsg;
+      }
+    } else if (needsAnother) {
+      scheduleAutoSave();
     }
   }
 }
@@ -2354,7 +2363,6 @@ function applyLineKindFromUi() {
   const kind = currentLineKind();
   line.kind = kind;
   if (!isLinkKind(kind)) line.rail = "";
-  else line.rail = listwaFromLineEndpoints(line);
   markDirty();
   renderLineList();
   syncLineToolPanel();
