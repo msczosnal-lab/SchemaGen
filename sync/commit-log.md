@@ -187,3 +187,4 @@
 | 2026-07-07 21:32 | Cursor | 4a10a4c3 | [Cursor] labeler: HTML no-cache (reset ladowal stary graph.js -> wczytane linie niewidoczne) + v33 |
 | 2026-07-10 22:31 | Cursor | 4bdd8846 | [Cursor] labeler: auto-zapis + zawsze widoczne pole Potencjał/listwa na zlaczce, usuniete zbedne przyciski i nadpisywanie rail |
 | 2026-07-10 22:41 | Cursor | 0caf59c8 | [Cursor] labeler: przywrocony czysty podzial narzedzi Bbox/Linia, pole Potencjal/listwa w edycji symbolu (tryb Bbox) |
+| 2026-07-10 22:53 | Cursor | 73fa60f3 | [Cursor] labeler: nazwa listwy na zaznaczonym linku (tryb Linia) z propagacja po polaczonej szynie, wybor linku przelacza na tryb Linia |
