@@ -73,6 +73,16 @@ let terminalDragMoved = false;
 let symSeq = 0;
 let paletteTimer = null;
 
+const UNDO_MAX = 60;
+let undoStack = [];
+let redoStack = [];
+let historyPaused = false;
+let historyReady = false;
+let terminalDragUndoPushed = false;
+let symTypeUndoPushed = false;
+let symTagUndoPushed = false;
+let lineRailUndoPushed = false;
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const saveStatusEl = document.getElementById("save-status");
