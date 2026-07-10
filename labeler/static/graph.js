@@ -819,9 +819,14 @@ function purgeLinesUsingRef(ref) {
   const before = graph.lines.length;
   graph.lines = graph.lines.filter((l) => lineFromRef(l) !== ref && lineToRef(l) !== ref);
   if (graph.lines.length === before) return false;
-  if (selectedLineIdx >= graph.lines.length) selectedLineIdx = -1;
+  if (selectedLineId && lineIdxById(selectedLineId) < 0) {
+    selectedLineId = null;
+    selectedLineIdx = -1;
+  } else {
+    syncSelectedLineIdx();
+  }
   renderLineList();
-  syncLineKindSelect();
+  syncLineToolPanel();
   return true;
 }
 
@@ -833,9 +838,14 @@ function purgeLinesForSymbol(symId) {
     return from?.symId !== symId && to?.symId !== symId;
   });
   if (graph.lines.length === before) return false;
-  if (selectedLineIdx >= graph.lines.length) selectedLineIdx = -1;
+  if (selectedLineId && lineIdxById(selectedLineId) < 0) {
+    selectedLineId = null;
+    selectedLineIdx = -1;
+  } else {
+    syncSelectedLineIdx();
+  }
   renderLineList();
-  syncLineKindSelect();
+  syncLineToolPanel();
   return true;
 }
 
