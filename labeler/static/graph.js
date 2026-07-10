@@ -823,7 +823,7 @@ function setMode(next) {
   if (hintEl) {
     hintEl.textContent =
       mode === MODE_LINE
-        ? "Linia: terminal OD → (opcjonalnie punkty orto) → terminal DO · Backspace = cofnij · Esc = anuluj"
+        ? "Linia: klik krawędź bbox (terminal) OD → opcjonalnie załamania → klik krawędź DO · Esc = anuluj"
         : "Bbox: przeciągnij · zaznaczony + klik w środku = terminal · poza = odznacz";
   }
   redraw();
