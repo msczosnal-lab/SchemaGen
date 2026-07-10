@@ -867,26 +867,12 @@ function completeLineDraft(hit) {
 
     const fromSym = graph.symbols[fromHit.symIdx];
     const fromTerm = fromSym.terminals[fromHit.termIdx];
-    let vertices = [];
-    const a = terminalAbsPos(fromSym, fromTerm);
-    const b = terminalAbsPos(toSym, toTerm);
-
     if (!lineDraft.middles.length) {
       alignTerminalsStraight(fromHit, hit);
-      const a2 = terminalAbsPos(fromSym, fromTerm);
-      const b2 = terminalAbsPos(toSym, toTerm);
-      const straight =
-        Math.abs(a2.x - b2.x) < 0.5 || Math.abs(a2.y - b2.y) < 0.5;
-      vertices = straight ? [] : orthoRoutePoints(a2, b2);
-    } else {
-      const snapped = snapLastMiddleForTerminal(
-        lineDraft.middles,
-        a,
-        b,
-        toTerm
-      );
-      vertices = buildLineVertices(a, snapped, b);
     }
+    const a = terminalAbsPos(fromSym, fromTerm);
+    const b = terminalAbsPos(toSym, toTerm);
+    const vertices = finalizeLineVertices(a, b, toTerm, lineDraft.middles);
 
     const line = {
       id: nextLineId(),
@@ -1132,11 +1118,17 @@ function applyGraph(data) {
     })),
     lines: normalizeLines(data.lines),
   };
+  let orthoFixed = false;
+  graph.lines = graph.lines.map((ln) => {
+    const verts = orthoNormalizeLineVertices(ln);
+    if (!verticesEqual(ln.vertices, verts)) orthoFixed = true;
+    return { ...ln, vertices: verts };
+  });
   symSeq = graph.symbols.reduce((m, s) => {
     const match = String(s.id).match(/^sym_(\d+)$/);
     return match ? Math.max(m, Number(match[1]) + 1) : m;
   }, 0);
-  dirty = false;
+  dirty = orthoFixed;
   syncLineKindSelect();
 }
 
@@ -1158,7 +1150,13 @@ function buildPayload() {
         name: t.name || "",
       })),
     })),
-    lines: graph.lines,
+    lines: graph.lines.map((l) => ({
+      id: l.id,
+      from: lineFromRef(l),
+      to: lineToRef(l),
+      vertices: orthoNormalizeLineVertices(l),
+      kind: l.kind || "power",
+    })),
   };
 }
 
