@@ -131,8 +131,15 @@ body.graph-v2.invert-bg #canvas-panel canvas {
   padding-bottom: 8px;
   border-bottom: 1px solid #444;
 }
+#symbol-editor label { display: block; margin: 8px 0; font-size: 0.85rem; color: #bbb; }
+#symbol-editor input { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #eee; }
+#symbol-editor #sym-listwa-input {
+  border-color: #f76707;
+  background: #2d2418;
+}
+#symbol-editor #sym-listwa-label { color: #ffd43b; font-weight: 600; }
 
-.tool-list {
+#bbox-tool-panel .tool-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
