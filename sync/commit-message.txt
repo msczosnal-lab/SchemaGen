@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] labeler: przywrocony czysty podzial narzedzi Bbox/Linia, pole Potencjal/listwa w edycji symbolu (tryb Bbox)
