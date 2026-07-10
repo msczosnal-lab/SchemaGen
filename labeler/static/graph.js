@@ -853,24 +853,27 @@ function renderLineList() {
 
 function lineDraftPreviewPoints() {
   if (!lineDraft) return [];
-  const from = lineDraft.fromPos;
-  if (!cursorImgPt) {
-    return [[from.x, from.y], ...lineDraft.middles];
-  }
+  const committed = [
+    [lineDraft.fromPos.x, lineDraft.fromPos.y],
+    ...lineDraft.middles.map((m) => [m[0], m[1]]),
+  ];
+  if (!cursorImgPt) return committed;
+
+  const anchor = lineAnchorPoint();
+  if (!anchor) return committed;
+
   if (!lineDraft.middles.length) {
+    const corner = orthoCornerPoint(anchor, cursorImgPt);
     return [
-      [from.x, from.y],
+      [lineDraft.fromPos.x, lineDraft.fromPos.y],
+      [Math.round(corner[0]), Math.round(corner[1])],
       [cursorImgPt.x, cursorImgPt.y],
     ];
   }
-  const beforeLast =
-    lineDraft.middles.length >= 1
-      ? lineDraft.middles[lineDraft.middles.length - 1]
-      : [from.x, from.y];
-  const corner = orthoCornerPoint(beforeLast, cursorImgPt);
+
+  const corner = orthoCornerPoint(anchor, cursorImgPt);
   return [
-    [from.x, from.y],
-    ...lineDraft.middles.slice(0, -1),
+    ...committed,
     [Math.round(corner[0]), Math.round(corner[1])],
     [cursorImgPt.x, cursorImgPt.y],
   ];
