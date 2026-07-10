@@ -1079,16 +1079,19 @@ function addLineMiddlePoint(imgPt, shiftKey) {
 }
 
 function deleteSelectedLine() {
-  if (selectedLineIdx < 0 || selectedLineIdx >= graph.lines.length) {
-    selectedLineIdx = -1;
+  const idx = syncSelectedLineIdx();
+  if (idx < 0) {
+    saveStatusEl.textContent = "Zaznacz linię (lista lub klik na linii)";
+    syncLineToolPanel();
     renderLineList();
     redraw();
     return;
   }
-  const removed = graph.lines[selectedLineIdx];
+  const removed = graph.lines[idx];
   const orphanRefs = [lineFromRef(removed), lineToRef(removed)];
   cancelLineDraft();
-  graph.lines.splice(selectedLineIdx, 1);
+  graph.lines.splice(idx, 1);
+  selectedLineId = null;
   selectedLineIdx = -1;
   purgeOrphanTerminalRefs(orphanRefs);
   markDirty();
@@ -1096,7 +1099,7 @@ function deleteSelectedLine() {
   renderSymbolList();
   renderTerminalList();
   renderSymbolEditor();
-  syncLineKindSelect();
+  syncLineToolPanel();
   redraw();
   saveStatusEl.textContent = removed ? `Usunięto ${removed.id}` : "Usunięto linię";
 }
@@ -1117,11 +1120,10 @@ function setMode(next) {
     selectedTermIdx = -1;
     renderSymbolEditor();
   } else {
-    selectedLineIdx = -1;
     renderLineList();
   }
   updateSidebarForMode();
-  syncLineKindSelect();
+  syncLineToolPanel();
   document.getElementById("mode-bbox")?.classList.toggle("active", mode === MODE_BBOX);
   document.getElementById("mode-line")?.classList.toggle("active", mode === MODE_LINE);
   canvas.style.cursor = mode === MODE_LINE ? "crosshair" : "default";
@@ -1146,10 +1148,11 @@ function renderLineList() {
   order.forEach(({ line, i }) => {
     const li = document.createElement("li");
     li.textContent = formatLineLabel(line);
-    if (i === selectedLineIdx) li.classList.add("active");
-    li.onclick = () => selectLine(i);
+    if (line.id === selectedLineId) li.classList.add("active");
+    li.onclick = () => selectLineById(line.id);
     list.appendChild(li);
   });
+  syncLineToolPanel();
 }
 
 function lineDraftPreviewPoints() {
