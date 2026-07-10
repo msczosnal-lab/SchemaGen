@@ -46,15 +46,15 @@ def _print_report(r: MigrateReport) -> None:
             n = len(r.symbols_without_terminals)
             warn = f" | bez terminali: {n}"
         print(
-            f"{r.page_id}: OK — symbole={r.symbols}, terminale={r.terminals}, "
+            f"{r.page_id}: OK - symbole={r.symbols}, terminale={r.terminals}, "
             f"linie={r.lines} ({r.reason}){warn}"
         )
         if r.symbols_without_terminals and len(r.symbols_without_terminals) <= 8:
             print(f"  -> {', '.join(r.symbols_without_terminals)}")
     elif r.status == "skipped":
-        print(f"{r.page_id}: POMINIĘTO — {r.reason}")
+        print(f"{r.page_id}: POMINIETO - {r.reason}")
     else:
-        print(f"{r.page_id}: BŁĄD — {r.reason}", file=sys.stderr)
+        print(f"{r.page_id}: BLAD - {r.reason}", file=sys.stderr)
 
 
 def main() -> int:
@@ -86,7 +86,7 @@ def main() -> int:
         else:
             err += 1
 
-    print(f"\nPodsumowanie: ok={ok}, pominięte={skip}, błędy={err}")
+    print(f"\nPodsumowanie: ok={ok}, pominiete={skip}, bledy={err}")
     return 1 if err else 0
 
 
