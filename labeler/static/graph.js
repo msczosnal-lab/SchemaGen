@@ -2420,6 +2420,42 @@ function applyLineKindFromUi() {
   syncLineToolPanel();
 }
 
+function applyLinkNameFromInput({ flush = false } = {}) {
+  const line = selectedLine();
+  if (!line || !isLinkKind(line.kind) || !linkNameInput) return;
+  const value = linkNameInput.value.trim();
+  const ids = railChainLinkIds(line);
+  let changed = false;
+  for (const l of graph.lines) {
+    if (ids.has(l.id) && (l.rail || "") !== value) {
+      l.rail = value;
+      changed = true;
+    }
+  }
+  if (!changed) {
+    if (flush) void flushAutoSave();
+    return;
+  }
+  if (!linkNameUndoPushed) {
+    pushUndoSnapshot();
+    linkNameUndoPushed = true;
+  }
+  markDirty();
+  renderLineList();
+  refreshListwaDatalist();
+  redraw();
+  if (flush) void flushAutoSave();
+}
+
+if (linkNameInput) {
+  linkNameInput.addEventListener("focus", () => {
+    linkNameUndoPushed = false;
+  });
+  linkNameInput.addEventListener("input", () => applyLinkNameFromInput());
+  linkNameInput.addEventListener("change", () => applyLinkNameFromInput({ flush: true }));
+  linkNameInput.addEventListener("blur", () => applyLinkNameFromInput({ flush: true }));
+}
+
 if (lineKindSelect) {
   lineKindSelect.addEventListener("change", applyLineKindFromUi);
 }
