@@ -887,17 +887,23 @@ function purgeOrphanTerminalRefs(refs) {
   return changed;
 }
 
+function selectLineById(id) {
+  selectLine(lineIdxById(id));
+}
+
 function selectLine(idx) {
   if (idx < 0 || idx >= graph.lines.length) {
+    selectedLineId = null;
     selectedLineIdx = -1;
-    syncLineKindSelect();
+    syncLineToolPanel();
     renderLineList();
     redraw();
     return;
   }
   cancelLineDraft();
   selectedLineIdx = idx;
-  syncLineKindSelect();
+  selectedLineId = graph.lines[idx].id;
+  syncLineToolPanel();
   renderLineList();
   redraw();
 }
@@ -1004,7 +1010,9 @@ function startLineDraft(hit) {
   const sym = graph.symbols[hit.symIdx];
   const pos = terminalAbsPos(sym, sym.terminals[hit.termIdx]);
   lineDraft = { fromRef: hit.ref, fromPos: pos, middles: [] };
+  selectedLineId = null;
   selectedLineIdx = -1;
+  syncLineToolPanel();
   saveStatusEl.textContent = `Linia OD ${formatLineEndpoint(hit.ref)} — klik terminal DO (Esc / Enter)`;
 }
 
@@ -1036,12 +1044,17 @@ function completeLineDraft(hit) {
     const b = terminalAbsPos(toSym, toTerm);
     const vertices = finalizeLineVertices(a, b, toTerm, lineDraft.middles);
 
+    const kind = currentLineKind();
+    const rail = isLinkKind(kind) ? currentLineRail() : "";
+    if (rail) rememberLastRail(rail);
+
     const line = {
       id: nextLineId(),
       from: lineDraft.fromRef,
       to: hit.ref,
       vertices,
-      kind: currentLineKind(),
+      kind,
+      rail,
     };
     graph.lines.push(line);
     cancelLineDraft();
