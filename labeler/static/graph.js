@@ -29,6 +29,7 @@ let mode = MODE_BBOX;
 let lineDraft = null;
 let cursorImgPt = null;
 let selectedLineIdx = -1;
+let selectedLineId = null;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
 const LAST_PAGE_KEY = "graphLastPage";
@@ -41,6 +42,7 @@ const LAYOUT_WIDTHS_KEY = "graphLayoutWidths";
 
 let lastUsedType = "";
 let lastUsedBboxTag = "";
+let lastUsedRail = "";
 
 let invertBg = loadStored(INVERT_BG_KEY) === "1";
 
@@ -82,6 +84,9 @@ const symTagInput = document.getElementById("sym-tag-input");
 const paletteResults = document.getElementById("palette-results");
 const symbolEditor = document.getElementById("symbol-editor");
 const lineKindSelect = document.getElementById("line-kind");
+const lineRailWrap = document.getElementById("line-rail-wrap");
+const lineRailInput = document.getElementById("line-rail-input");
+const deleteLineBtn = document.getElementById("delete-line-btn");
 
 function loadStored(key) {
   try {
@@ -490,7 +495,46 @@ function lineNum(id) {
 }
 
 function formatLineLabel(line) {
-  return `${line.id}: ${formatLineEndpoint(lineFromRef(line))} → ${formatLineEndpoint(lineToRef(line))} [${line.kind || "power"}]`;
+  const kind = line.kind || "power";
+  const rail = (line.rail || "").trim();
+  const railPart = kind === "link" && rail ? ` · ${rail}` : "";
+  return `${line.id}: ${formatLineEndpoint(lineFromRef(line))} → ${formatLineEndpoint(lineToRef(line))} [${kind}${railPart}]`;
+}
+
+function lineIdxById(id) {
+  if (!id) return -1;
+  return graph.lines.findIndex((l) => l.id === id);
+}
+
+function syncSelectedLineIdx() {
+  const idx = lineIdxById(selectedLineId);
+  if (idx < 0) {
+    selectedLineId = null;
+    selectedLineIdx = -1;
+  } else {
+    selectedLineIdx = idx;
+  }
+  return selectedLineIdx;
+}
+
+function selectedLine() {
+  const idx = syncSelectedLineIdx();
+  return idx >= 0 ? graph.lines[idx] : null;
+}
+
+function rememberLastRail(rail) {
+  const t = (rail || "").trim();
+  if (!t) return;
+  lastUsedRail = t;
+  storeValue(LAST_RAIL_KEY, t);
+}
+
+function currentLineRail() {
+  return (lineRailInput?.value || lastUsedRail || "").trim();
+}
+
+function isLinkKind(kind) {
+  return (kind || "power") === "link";
 }
 
 function terminalHitTest(sym, imgPt) {
