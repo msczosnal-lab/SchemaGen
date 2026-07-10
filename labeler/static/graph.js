@@ -786,6 +786,10 @@ function resolveTerminalByRef(ref) {
   return { symIdx, termIdx, ref: `${p.symId}:${p.termId}` };
 }
 
+function terminalUsedRef(ref) {
+  return graph.lines.some((l) => lineFromRef(l) === ref || lineToRef(l) === ref);
+}
+
 function removeTerminalByRef(ref) {
   const hit = resolveTerminalByRef(ref);
   if (!hit) return false;
