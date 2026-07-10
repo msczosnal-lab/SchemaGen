@@ -1964,6 +1964,7 @@ canvas.addEventListener("mousedown", (e) => {
       draggingTerminal = { symIdx: i, termIdx: hit };
       selectedTermIdx = hit;
       terminalDragMoved = false;
+      terminalDragUndoPushed = false;
       renderTerminalList();
       return;
     }
@@ -1987,6 +1988,10 @@ canvas.addEventListener("mousemove", (e) => {
     return;
   }
   if (draggingTerminal) {
+    if (!terminalDragUndoPushed) {
+      pushUndoSnapshot();
+      terminalDragUndoPushed = true;
+    }
     const sym = graph.symbols[draggingTerminal.symIdx];
     const t = sym?.terminals?.[draggingTerminal.termIdx];
     if (!sym || !t) return;
@@ -2054,6 +2059,7 @@ canvas.addEventListener("mouseup", (e) => {
   const h = Math.abs(imgPt.y - startY);
   if (w < DRAG_THRESHOLD || h < DRAG_THRESHOLD) return;
 
+  pushUndoSnapshot();
   const sym = {
     id: nextSymId(),
     type: "",
@@ -2094,6 +2100,16 @@ document.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "s") {
     e.preventDefault();
     saveGraph();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+    e.preventDefault();
+    redo();
     return;
   }
   if (e.key === "b" || e.key === "B") {
@@ -2139,6 +2155,7 @@ document.addEventListener("keydown", (e) => {
     if (mode === MODE_LINE && lineDraft) {
       e.preventDefault();
       if (lineDraft.middles?.length) {
+        pushUndoSnapshot();
         lineDraft.middles.pop();
         markDirty();
       } else {
@@ -2164,11 +2181,18 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+symTypeInput.addEventListener("focus", () => {
+  symTypeUndoPushed = false;
+});
 symTypeInput.addEventListener("input", () => {
   clearTimeout(paletteTimer);
   paletteTimer = setTimeout(() => searchPalette(symTypeInput.value), 200);
   const sym = graph.symbols[selectedSymIdx];
   if (sym) {
+    if (!symTypeUndoPushed) {
+      pushUndoSnapshot();
+      symTypeUndoPushed = true;
+    }
     sym.type = symTypeInput.value.trim();
     applyInputTypeColor(symTypeInput, sym.type);
     markDirty();
@@ -2190,9 +2214,16 @@ symTypeInput.addEventListener("blur", () => {
   if (sym && value) rememberLastType(value);
 });
 
+symTagInput.addEventListener("focus", () => {
+  symTagUndoPushed = false;
+});
 symTagInput.addEventListener("input", () => {
   const sym = graph.symbols[selectedSymIdx];
   if (sym) {
+    if (!symTagUndoPushed) {
+      pushUndoSnapshot();
+      symTagUndoPushed = true;
+    }
     sym.tag = symTagInput.value.trim();
     applyInputTypeColor(symTagInput, sym.tag);
     markDirty();
@@ -2215,10 +2246,13 @@ symTagInput.addEventListener("blur", () => {
 });
 
 function applyLineKindFromUi() {
-  const kind = currentLineKind();
-  syncLineToolPanel();
   const line = selectedLine();
-  if (!line) return;
+  if (!line) {
+    syncLineToolPanel();
+    return;
+  }
+  pushUndoSnapshot();
+  const kind = currentLineKind();
   line.kind = kind;
   if (!isLinkKind(kind)) line.rail = "";
   else line.rail = currentLineRail();
@@ -2230,6 +2264,7 @@ function applyRailFromUi() {
   const rail = currentLineRail();
   const line = selectedLine();
   if (line && isLinkKind(line.kind)) {
+    if (line.rail !== rail) pushUndoSnapshot();
     line.rail = rail;
     markDirty();
     renderLineList();
@@ -2243,7 +2278,17 @@ if (lineKindSelect) {
   lineKindSelect.addEventListener("change", applyLineKindFromUi);
 }
 if (lineRailInput) {
-  lineRailInput.addEventListener("input", applyRailFromUi);
+  lineRailInput.addEventListener("focus", () => {
+    lineRailUndoPushed = false;
+  });
+  lineRailInput.addEventListener("input", () => {
+    const line = selectedLine();
+    if (line && isLinkKind(line.kind) && !lineRailUndoPushed) {
+      pushUndoSnapshot();
+      lineRailUndoPushed = true;
+    }
+    applyRailFromUi();
+  });
   lineRailInput.addEventListener("change", applyRailFromUi);
   lineRailInput.addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
