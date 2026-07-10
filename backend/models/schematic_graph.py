@@ -21,6 +21,7 @@ class GraphLine(BaseModel):
     to: str
     vertices: list[list[float]] = Field(default_factory=list)  # ortho H/V, px absolutne
     kind: ConnectionKind = "power"
+    rail: str = ""  # nazwa listwy (kind=link), np. -X1
 
     model_config = {"populate_by_name": True}
 

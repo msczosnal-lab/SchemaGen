@@ -163,7 +163,7 @@ def _assign_potentials(
         sym_ids = {m.split(":", 1)[0] for m in members}
         if len(sym_ids) < 2:
             continue
-        name = _potential_name(members, graph.symbols, pot_idx)
+        name = _potential_name(members, graph.symbols, graph.lines, pot_idx)
         pot_idx += 1
         potentials.append(name)
         for ref in members:
