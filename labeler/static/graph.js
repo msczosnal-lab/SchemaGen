@@ -142,7 +142,6 @@ function updateTypeTagPlaceholders() {
 function assignTypeToSelected(type) {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym) return;
-  pushUndoSnapshot();
   const t = typeStr(type).trim();
   if (!t) return;
   sym.type = t;
@@ -157,7 +156,6 @@ function assignTypeToSelected(type) {
 function assignBboxTagToSelected(tag) {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym) return;
-  pushUndoSnapshot();
   const t = (tag || "").trim();
   if (!t) return;
   sym.tag = t;
@@ -2205,7 +2203,10 @@ symTypeInput.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();
   const value = symTypeInput.value.trim() || lastUsedType;
-  if (value) assignTypeToSelected(value);
+  if (value) {
+    if (!symTypeUndoPushed) pushUndoSnapshot();
+    assignTypeToSelected(value);
+  }
 });
 
 symTypeInput.addEventListener("blur", () => {
