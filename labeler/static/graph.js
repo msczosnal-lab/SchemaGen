@@ -786,6 +786,25 @@ function resolveTerminalByRef(ref) {
   return { symIdx, termIdx, ref: `${p.symId}:${p.termId}` };
 }
 
+function terminalUsedRef(ref) {
+  return graph.lines.some((l) => lineFromRef(l) === ref || lineToRef(l) === ref);
+}
+
+function selectLine(idx) {
+  if (idx < 0 || idx >= graph.lines.length) {
+    selectedLineIdx = -1;
+    syncLineKindSelect();
+    renderLineList();
+    redraw();
+    return;
+  }
+  cancelLineDraft();
+  selectedLineIdx = idx;
+  syncLineKindSelect();
+  renderLineList();
+  redraw();
+}
+
 function terminalEdge(t) {
   const dL = t.x;
   const dR = 1 - t.x;
@@ -950,12 +969,21 @@ function addLineMiddlePoint(imgPt, shiftKey) {
 }
 
 function deleteSelectedLine() {
-  if (selectedLineIdx < 0) return;
+  if (selectedLineIdx < 0 || selectedLineIdx >= graph.lines.length) {
+    selectedLineIdx = -1;
+    renderLineList();
+    redraw();
+    return;
+  }
+  const removed = graph.lines[selectedLineIdx];
+  cancelLineDraft();
   graph.lines.splice(selectedLineIdx, 1);
   selectedLineIdx = -1;
   markDirty();
   renderLineList();
+  syncLineKindSelect();
   redraw();
+  saveStatusEl.textContent = removed ? `Usunięto ${removed.id}` : "Usunięto linię";
 }
 
 function updateSidebarForMode() {
