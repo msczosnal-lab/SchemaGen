@@ -65,11 +65,19 @@ def legacy_ui() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
+class PageListItem(BaseModel):
+    id: str
+    filename: str
+    status: str
+    graph_updated_at: str | None = None
+    annotation_updated_at: str | None = None
+
+
 @app.get("/api/pages")
-def api_pages() -> list[dict[str, str]]:
+def api_pages() -> list[PageListItem]:
     for png in sorted(RAW.glob("*.png")):
         upsert_page(png.stem, png.name)
-    return list_pages()
+    return [PageListItem.model_validate(row) for row in list_pages()]
 
 
 @app.get("/api/pages/{page_id}/image")
