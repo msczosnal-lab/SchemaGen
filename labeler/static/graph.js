@@ -1280,7 +1280,6 @@ function pushUndoSnapshot() {
 function resetHistoryBaseline() {
   undoStack = [];
   redoStack = [];
-  pushUndoSnapshot();
 }
 
 function restoreGraphState(snap) {
