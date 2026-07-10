@@ -1452,8 +1452,8 @@ function buildPayload() {
     symbols: graph.symbols.map((s) => ({
       id: s.id,
       type: typeStr(s.type) || "unknown",
-      tag: s.tag || undefined,
-      listwa: (s.listwa || "").trim() || undefined,
+      tag: s.tag || "",
+      listwa: (s.listwa || "").trim(),
       bbox: s.bbox,
       terminals: (s.terminals || []).map((t) => ({
         id: t.id,
