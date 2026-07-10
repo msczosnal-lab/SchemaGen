@@ -99,8 +99,6 @@ const listwaDatalist = document.getElementById("listwa-datalist");
 const paletteResults = document.getElementById("palette-results");
 const symbolEditor = document.getElementById("symbol-editor");
 const lineKindSelect = document.getElementById("line-kind");
-const lineRailWrap = document.getElementById("line-rail-wrap");
-const lineRailInput = document.getElementById("line-rail-input");
 const deleteLineBtn = document.getElementById("delete-line-btn");
 
 function loadStored(key) {
@@ -594,17 +592,6 @@ function syncSelectedLineIdx() {
 function selectedLine() {
   const idx = syncSelectedLineIdx();
   return idx >= 0 ? graph.lines[idx] : null;
-}
-
-function rememberLastRail(rail) {
-  const t = (rail || "").trim();
-  if (!t) return;
-  lastUsedRail = t;
-  storeValue(LAST_RAIL_KEY, t);
-}
-
-function currentLineRail() {
-  return (lineRailInput?.value || lastUsedRail || "").trim();
 }
 
 function isLinkKind(kind) {
