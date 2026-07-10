@@ -709,6 +709,31 @@ function buildLineVertices(fromPos, middles, toPos) {
   return out;
 }
 
+/** Po kliknięciu terminala DO: ostatni przegub → kąt 90° (wejście prostopadle do krawędzi). */
+function snapLastMiddleForTerminal(middles, fromPos, toPos, toTerm) {
+  if (!middles.length) return [];
+  const m = middles.map((p) => [p[0], p[1]]);
+  const prev = m.length > 1 ? m[m.length - 2] : [fromPos.x, fromPos.y];
+  const edge = terminalEdge(toTerm);
+  let last;
+  if (terminalSlidesY(edge)) {
+    // terminal L/R — ostatni odcinek poziomy
+    last = [Math.round(prev[0]), Math.round(toPos.y)];
+  } else {
+    // terminal T/B — ostatni odcinek pionowy
+    last = [Math.round(toPos.x), Math.round(prev[1])];
+  }
+  if (Math.hypot(last[0] - toPos.x, last[1] - toPos.y) < 1) {
+    if (terminalSlidesY(edge)) {
+      last[0] = prev[0] === toPos.x ? prev[0] - 24 : prev[0];
+    } else {
+      last[1] = prev[1] === toPos.y ? prev[1] - 24 : prev[1];
+    }
+  }
+  m[m.length - 1] = last;
+  return m;
+}
+
 function cancelLineDraft() {
   lineDraft = null;
   cursorImgPt = null;
