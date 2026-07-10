@@ -501,15 +501,13 @@ function listwaFromLineEndpoints(line) {
   const b = symByTerminalRef(lineToRef(line));
   const la = (a?.listwa || "").trim();
   const lb = (b?.listwa || "").trim();
-  if (la && la === lb) return la;
+  if (la && lb && la !== lb) return `${la}↔${lb}`;
   return la || lb || "";
 }
 
 function lineRailDisplay(line) {
-  const onLine = (line.rail || "").trim();
-  if (onLine) return onLine;
-  if (isLinkKind(line.kind)) return listwaFromLineEndpoints(line);
-  return "";
+  if (!isLinkKind(line.kind)) return "";
+  return listwaFromLineEndpoints(line);
 }
 
 function collectListwaSuggestions() {
@@ -539,15 +537,7 @@ function refreshListwaDatalist() {
   }
 }
 
-function syncRailFromZlaczkaListwa() {
-  for (const line of graph.lines) {
-    if (!isLinkKind(line.kind)) continue;
-    const lw = listwaFromLineEndpoints(line);
-    if (lw) line.rail = lw;
-  }
-}
-
-function formatLineEndpoint(ref) {
+function refreshListwaDatalist() {
   const p = parseTerminalRef(ref);
   if (!p) return ref;
   const sym = graph.symbols.find((s) => s.id === p.symId);
