@@ -1155,11 +1155,8 @@ function setMode(next) {
   drawMoved = false;
   draggingTerminal = null;
   if (mode !== MODE_LINE) cancelLineDraft();
-  if (mode === MODE_LINE) {
-    renderLineList();
-  } else {
-    renderLineList();
-  }
+  renderLineList();
+  renderSymbolEditor();
   updateSidebarForMode();
   syncLineToolPanel();
   document.getElementById("mode-bbox")?.classList.toggle("active", mode === MODE_BBOX);
@@ -1786,8 +1783,6 @@ function renderSymbolEditor() {
   symTypeInput.value = typeStr(sym.type);
   symTagInput.value = sym.tag || "";
   if (symListwaInput) symListwaInput.value = sym.listwa || "";
-  const isZ = typeStr(sym.type) === "zlaczka";
-  symListwaLabel?.classList.toggle("hidden", !isZ);
   refreshListwaDatalist();
   applyInputTypeColor(symTypeInput, typeStr(sym.type));
   applyInputTypeColor(symTagInput, sym.tag);
@@ -2273,7 +2268,6 @@ symTypeInput.addEventListener("input", () => {
     }
     sym.type = symTypeInput.value.trim();
     applyInputTypeColor(symTypeInput, sym.type);
-    symListwaLabel?.classList.toggle("hidden", typeStr(sym.type) !== "zlaczka");
     markDirty();
     renderSymbolList();
     redraw();
