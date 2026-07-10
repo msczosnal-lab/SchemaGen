@@ -490,26 +490,80 @@ function symbolListNr(sym) {
   return idx >= 0 ? idx + 1 : "?";
 }
 
+function symByTerminalRef(ref) {
+  const p = parseTerminalRef(ref);
+  if (!p) return null;
+  return graph.symbols.find((s) => s.id === p.symId) || null;
+}
+
+function listwaFromLineEndpoints(line) {
+  const a = symByTerminalRef(lineFromRef(line));
+  const b = symByTerminalRef(lineToRef(line));
+  const la = (a?.listwa || "").trim();
+  const lb = (b?.listwa || "").trim();
+  if (la && la === lb) return la;
+  return la || lb || "";
+}
+
+function lineRailDisplay(line) {
+  const onLine = (line.rail || "").trim();
+  if (onLine) return onLine;
+  if (isLinkKind(line.kind)) return listwaFromLineEndpoints(line);
+  return "";
+}
+
+function collectListwaSuggestions() {
+  const names = new Set();
+  for (const s of graph.symbols) {
+    const lw = (s.listwa || "").trim();
+    if (lw) names.add(lw);
+    const tag = (s.tag || "").trim();
+    if (tag && /strzalka_potencjalu/i.test(typeStr(s.type))) {
+      names.add(tag.split("_")[0] || tag);
+    }
+  }
+  for (const l of graph.lines) {
+    const r = lineRailDisplay(l);
+    if (r) names.add(r);
+  }
+  return [...names].sort();
+}
+
+function refreshListwaDatalist() {
+  if (!listwaDatalist) return;
+  listwaDatalist.innerHTML = "";
+  for (const name of collectListwaSuggestions()) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    listwaDatalist.appendChild(opt);
+  }
+}
+
+function syncRailFromZlaczkaListwa() {
+  for (const line of graph.lines) {
+    if (!isLinkKind(line.kind)) continue;
+    const lw = listwaFromLineEndpoints(line);
+    if (lw) line.rail = lw;
+  }
+}
+
 function formatLineEndpoint(ref) {
   const p = parseTerminalRef(ref);
   if (!p) return ref;
   const sym = graph.symbols.find((s) => s.id === p.symId);
   if (!sym) return ref;
   const nr = symbolListNr(sym);
+  const listwa = (sym.listwa || "").trim();
   const tag = (sym.tag || "").trim();
   const type = typeStr(sym.type);
-  const name = tag || type || sym.id;
+  let name = listwa || tag || type || sym.id;
+  if (listwa && tag) name = `${listwa} · ${tag}`;
   return `#${nr} ${name} · T${p.termId}`;
-}
-
-function lineNum(id) {
-  const m = String(id).match(/^L(\d+)$/);
-  return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER;
 }
 
 function formatLineLabel(line) {
   const kind = line.kind || "power";
-  const rail = (line.rail || "").trim();
+  const rail = lineRailDisplay(line);
   const railPart = kind === "link" && rail ? ` · ${rail}` : "";
   return `${line.id}: ${formatLineEndpoint(lineFromRef(line))} → ${formatLineEndpoint(lineToRef(line))} [${kind}${railPart}]`;
 }
