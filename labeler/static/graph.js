@@ -604,22 +604,117 @@ function orthoRoutePoints(from, to) {
   ];
 }
 
-function lineDisplayPoints(line) {
+function ptEq(a, b, tol = 0.5) {
+  return Math.hypot(a[0] - b[0], a[1] - b[1]) <= tol;
+}
+
+function orthoLinkPoints(from, to) {
+  const fx = from[0];
+  const fy = from[1];
+  const tx = to[0];
+  const ty = to[1];
+  if (ptEq(from, to)) return [from];
+  if (Math.abs(fx - tx) < 0.5 || Math.abs(fy - ty) < 0.5) {
+    return [from, to];
+  }
+  const corner = orthoCornerPoint({ x: fx, y: fy }, { x: tx, y: ty });
+  return [from, [Math.round(corner[0]), Math.round(corner[1])], to];
+}
+
+function simplifyOrthoCollinear(pts) {
+  if (pts.length < 3) return pts;
+  const out = [pts[0]];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const a = out[out.length - 1];
+    const b = pts[i];
+    const c = pts[i + 1];
+    const collinearH = Math.abs(a[1] - b[1]) < 0.5 && Math.abs(b[1] - c[1]) < 0.5;
+    const collinearV = Math.abs(a[0] - b[0]) < 0.5 && Math.abs(b[0] - c[0]) < 0.5;
+    if (!collinearH && !collinearV) out.push(b);
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+
+/** Łańcuch waypointów → polyline H/V (tylko kąty 90°). */
+function chainOrthoPoints(waypoints) {
+  if (!waypoints || waypoints.length < 2) return waypoints ? waypoints.map((p) => [...p]) : [];
+  let chain = [];
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const seg = orthoLinkPoints(waypoints[i], waypoints[i + 1]);
+    if (!chain.length) chain.push([...seg[0]]);
+    for (let j = 1; j < seg.length; j++) {
+      const p = [...seg[j]];
+      const last = chain[chain.length - 1];
+      if (!ptEq(last, p)) chain.push(p);
+    }
+  }
+  return simplifyOrthoCollinear(chain);
+}
+
+function extractInteriorVertices(line, fromPos, toPos) {
   const v = (line.vertices || []).map((p) => [Number(p[0]), Number(p[1])]);
+  if (v.length <= 2) return [];
+  const start = [fromPos.x, fromPos.y];
+  const end = [toPos.x, toPos.y];
+  if (ptEq(v[0], start) && ptEq(v[v.length - 1], end)) {
+    return v.slice(1, -1);
+  }
+  return v;
+}
+
+function verticesForOrthoChain(chain) {
+  const pts = (chain || []).map((p) => [Math.round(p[0]), Math.round(p[1])]);
+  if (pts.length < 2) return [];
+  const straight =
+    pts.length === 2 &&
+    (Math.abs(pts[0][0] - pts[1][0]) < 0.5 || Math.abs(pts[0][1] - pts[1][1]) < 0.5);
+  return straight ? [] : pts;
+}
+
+function finalizeLineVertices(fromPos, toPos, toTerm, userMiddles) {
+  let mids = (userMiddles || []).map((p) => [p[0], p[1]]);
+  if (mids.length && toTerm) {
+    mids = snapLastMiddleForTerminal(mids, fromPos, toPos, toTerm);
+  }
+  const chain = chainOrthoPoints([
+    [fromPos.x, fromPos.y],
+    ...mids,
+    [toPos.x, toPos.y],
+  ]);
+  return verticesForOrthoChain(chain);
+}
+
+function orthoNormalizeLineVertices(line) {
   const a = terminalPosByRef(lineFromRef(line));
   const b = terminalPosByRef(lineToRef(line));
-  if (a && b) {
-    const start = [Math.round(a.x), Math.round(a.y)];
-    const end = [Math.round(b.x), Math.round(b.y)];
-    if (!v.length) return [start, end];
-    const mids =
-      v.length >= 2
-        ? v.slice(1, -1).map((p) => [Math.round(p[0]), Math.round(p[1])])
-        : v.map((p) => [Math.round(p[0]), Math.round(p[1])]);
-    return mids.length ? [start, ...mids, end] : [start, end];
+  if (!a || !b) return (line.vertices || []).map((v) => [...v]);
+  const toHit = resolveTerminalByRef(lineToRef(line));
+  const toTerm =
+    toHit != null ? graph.symbols[toHit.symIdx]?.terminals?.[toHit.termIdx] : null;
+  const interior = extractInteriorVertices(line, a, b);
+  return finalizeLineVertices(a, b, toTerm, interior);
+}
+
+function verticesEqual(a, b) {
+  const va = a || [];
+  const vb = b || [];
+  if (va.length !== vb.length) return false;
+  for (let i = 0; i < va.length; i++) {
+    if (Math.abs(va[i][0] - vb[i][0]) > 0.5 || Math.abs(va[i][1] - vb[i][1]) > 0.5) {
+      return false;
+    }
   }
-  if (v.length >= 2) return v.map((p) => [Math.round(p[0]), Math.round(p[1])]);
-  return [];
+  return true;
+}
+
+function lineDisplayPoints(line) {
+  const v = orthoNormalizeLineVertices(line);
+  const a = terminalPosByRef(lineFromRef(line));
+  const b = terminalPosByRef(lineToRef(line));
+  if (!a || !b) return v.length ? v : [];
+  if (v.length) return v;
+  return [[Math.round(a.x), Math.round(a.y)], [Math.round(b.x), Math.round(b.y)]];
 }
 
 function terminalUsedRef(ref) {
