@@ -1259,6 +1259,108 @@ function markDirty() {
   renderRecentPages();
 }
 
+function cloneGraphState() {
+  return {
+    symbols: JSON.parse(JSON.stringify(graph.symbols)),
+    lines: JSON.parse(JSON.stringify(graph.lines)),
+    symSeq,
+  };
+}
+
+function pushUndoSnapshot() {
+  if (historyPaused || !historyReady) return;
+  undoStack.push(cloneGraphState());
+  if (undoStack.length > UNDO_MAX) undoStack.shift();
+  redoStack.length = 0;
+}
+
+function resetHistoryBaseline() {
+  undoStack = [];
+  redoStack = [];
+  pushUndoSnapshot();
+}
+
+function restoreGraphState(snap) {
+  historyPaused = true;
+  graph.symbols = JSON.parse(JSON.stringify(snap.symbols));
+  graph.lines = JSON.parse(JSON.stringify(snap.lines));
+  symSeq = snap.symSeq ?? 0;
+  selectedSymIdx = -1;
+  selectedTermIdx = -1;
+  selectedLineId = null;
+  selectedLineIdx = -1;
+  cancelLineDraft();
+  drawing = false;
+  draggingTerminal = null;
+  terminalDragMoved = false;
+  historyPaused = false;
+  markDirty();
+  renderSymbolList();
+  renderSymbolEditor();
+  renderTerminalList();
+  renderLineList();
+  syncLineToolPanel();
+  redraw();
+}
+
+function undo() {
+  if (!undoStack.length) {
+    saveStatusEl.textContent = "Cofnij: brak historii";
+    return;
+  }
+  redoStack.push(cloneGraphState());
+  const snap = undoStack.pop();
+  historyPaused = true;
+  graph.symbols = JSON.parse(JSON.stringify(snap.symbols));
+  graph.lines = JSON.parse(JSON.stringify(snap.lines));
+  symSeq = snap.symSeq ?? 0;
+  selectedSymIdx = -1;
+  selectedTermIdx = -1;
+  selectedLineId = null;
+  selectedLineIdx = -1;
+  cancelLineDraft();
+  drawing = false;
+  draggingTerminal = null;
+  historyPaused = false;
+  markDirty();
+  renderSymbolList();
+  renderSymbolEditor();
+  renderTerminalList();
+  renderLineList();
+  syncLineToolPanel();
+  redraw();
+  saveStatusEl.textContent = `Cofnięto (Ctrl+Y = ponów, ${undoStack.length} w kolejce)`;
+}
+
+function redo() {
+  if (!redoStack.length) {
+    saveStatusEl.textContent = "Ponów: nic do przywrócenia";
+    return;
+  }
+  undoStack.push(cloneGraphState());
+  const snap = redoStack.pop();
+  historyPaused = true;
+  graph.symbols = JSON.parse(JSON.stringify(snap.symbols));
+  graph.lines = JSON.parse(JSON.stringify(snap.lines));
+  symSeq = snap.symSeq ?? 0;
+  selectedSymIdx = -1;
+  selectedTermIdx = -1;
+  selectedLineId = null;
+  selectedLineIdx = -1;
+  cancelLineDraft();
+  drawing = false;
+  draggingTerminal = null;
+  historyPaused = false;
+  markDirty();
+  renderSymbolList();
+  renderSymbolEditor();
+  renderTerminalList();
+  renderLineList();
+  syncLineToolPanel();
+  redraw();
+  saveStatusEl.textContent = `Przywrócono (${redoStack.length} do ponowienia)`;
+}
+
 function normalizeLines(raw) {
   const seenId = new Set();
   const seenPair = new Set();
