@@ -2331,26 +2331,37 @@ symTagInput.addEventListener("blur", () => {
   const sym = graph.symbols[selectedSymIdx];
   const value = symTagInput.value.trim();
   if (sym && value) rememberLastBboxTag(value);
+  void flushAutoSave();
 });
+
+function applySymListwaFromInput({ flush = false } = {}) {
+  const sym = graph.symbols[selectedSymIdx];
+  if (!sym || !symListwaInput) return;
+  const value = symListwaInput.value.trim();
+  if (value === (sym.listwa || "")) {
+    if (flush) void flushAutoSave();
+    return;
+  }
+  if (!symListwaUndoPushed) {
+    pushUndoSnapshot();
+    symListwaUndoPushed = true;
+  }
+  sym.listwa = value;
+  markDirty();
+  renderSymbolList();
+  renderLineList();
+  refreshListwaDatalist();
+  redraw();
+  if (flush) void flushAutoSave();
+}
 
 if (symListwaInput) {
   symListwaInput.addEventListener("focus", () => {
     symListwaUndoPushed = false;
   });
-  symListwaInput.addEventListener("input", () => {
-    const sym = graph.symbols[selectedSymIdx];
-    if (!sym) return;
-    if (!symListwaUndoPushed) {
-      pushUndoSnapshot();
-      symListwaUndoPushed = true;
-    }
-    sym.listwa = symListwaInput.value.trim();
-    markDirty();
-    renderSymbolList();
-    renderLineList();
-    refreshListwaDatalist();
-    redraw();
-  });
+  symListwaInput.addEventListener("input", () => applySymListwaFromInput());
+  symListwaInput.addEventListener("change", () => applySymListwaFromInput({ flush: true }));
+  symListwaInput.addEventListener("blur", () => applySymListwaFromInput({ flush: true }));
 }
 
 function applyLineKindFromUi() {
