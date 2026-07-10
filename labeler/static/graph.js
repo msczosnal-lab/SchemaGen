@@ -1103,6 +1103,7 @@ function deleteSelectedLine() {
   }
   const removed = graph.lines[idx];
   const orphanRefs = [lineFromRef(removed), lineToRef(removed)];
+  pushUndoSnapshot();
   cancelLineDraft();
   graph.lines.splice(idx, 1);
   selectedLineId = null;
@@ -1145,8 +1146,8 @@ function setMode(next) {
   if (hintEl) {
     hintEl.textContent =
       mode === MODE_LINE
-        ? "Linia: klik krawędź bbox (terminal) OD → opcjonalnie załamania → klik krawędź DO · Esc = anuluj"
-        : "Bbox: przeciągnij · zaznaczony + klik w środku = terminal · poza = odznacz";
+        ? "Linia: klik krawędź bbox (terminal) OD → załamania → DO · Esc = anuluj · Ctrl+Z = cofnij"
+        : "Bbox: przeciągnij · zaznaczony + klik w środku = terminal · Ctrl+Z = cofnij";
   }
   redraw();
 }
@@ -1386,6 +1387,8 @@ function applyGraph(data) {
   selectedLineId = null;
   selectedLineIdx = -1;
   syncLineToolPanel();
+  historyReady = true;
+  resetHistoryBaseline();
 }
 
 function buildPayload() {
@@ -1725,6 +1728,7 @@ function selectSymbol(idx) {
 
 function deleteSelectedSymbol() {
   if (selectedSymIdx < 0) return;
+  pushUndoSnapshot();
   const sym = graph.symbols[selectedSymIdx];
   const symId = sym?.id;
   graph.symbols.splice(selectedSymIdx, 1);
@@ -1741,6 +1745,7 @@ function deleteSelectedSymbol() {
 function deleteSelectedTerminal() {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym || selectedTermIdx < 0) return;
+  pushUndoSnapshot();
   const term = sym.terminals[selectedTermIdx];
   const ref = term ? `${sym.id}:${term.id}` : "";
   sym.terminals.splice(selectedTermIdx, 1);
@@ -1788,6 +1793,7 @@ async function searchPalette(q) {
 function addTerminalAt(symIdx, imgPt) {
   const sym = graph.symbols[symIdx];
   if (!sym) return null;
+  pushUndoSnapshot();
   const b = bboxRect(sym);
   sym.terminals = sym.terminals || [];
   const rel = snapTerminalRel(b, imgPt);
