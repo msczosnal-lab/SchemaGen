@@ -1484,8 +1484,13 @@ function buildPayload() {
   };
 }
 
-async function saveGraph() {
+async function saveGraph({ auto = false } = {}) {
   if (!currentPageId) return;
+  if (saveInFlight) {
+    saveQueued = true;
+    return;
+  }
+  saveInFlight = true;
   try {
     syncRailFromZlaczkaListwa();
     const payload = buildPayload();
@@ -1496,7 +1501,9 @@ async function saveGraph() {
     });
     dirty = false;
     const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
-    saveStatusEl.textContent = `Zapisano: ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
+    saveStatusEl.textContent = auto
+      ? `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${warn}`
+      : `Zapisano: ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
     touchRecentPage(currentPageId);
     const meta = pageMeta(currentPageId);
     if (meta) {
@@ -1507,6 +1514,12 @@ async function saveGraph() {
     renderPageList();
   } catch (err) {
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
+  } finally {
+    saveInFlight = false;
+    if (saveQueued) {
+      saveQueued = false;
+      if (dirty) scheduleAutoSave();
+    }
   }
 }
 
@@ -1933,9 +1946,9 @@ function pickInitialPageId() {
 
 async function selectPage(pageId) {
   if (!pageId) return;
-  if (currentPageId && dirty) {
-    const ok = window.confirm(`Zapisać zmiany na ${currentPageId} przed przejściem?`);
-    if (ok) await saveGraph();
+  if (currentPageId && pageId !== currentPageId) {
+    historyReady = false;
+    await flushAutoSave();
   }
 
   currentPageId = pageId;
@@ -2352,69 +2365,15 @@ function applyLineKindFromUi() {
   const kind = currentLineKind();
   line.kind = kind;
   if (!isLinkKind(kind)) line.rail = "";
-  else line.rail = currentLineRail();
+  else line.rail = listwaFromLineEndpoints(line);
   markDirty();
   renderLineList();
   syncLineToolPanel();
 }
 
-function applyRailToAllLinks() {
-  const rail = currentLineRail();
-  if (!rail) {
-    saveStatusEl.textContent = "Wpisz nazwę listwy przed zastosowaniem";
-    return;
-  }
-  const links = graph.lines.filter((l) => isLinkKind(l.kind));
-  if (!links.length) {
-    saveStatusEl.textContent = "Brak linii link do opisania";
-    return;
-  }
-  pushUndoSnapshot();
-  for (const l of links) {
-    l.rail = rail;
-  }
-  rememberLastRail(rail);
-  markDirty();
-  renderLineList();
-  saveStatusEl.textContent = `Ustawiono rail=${rail} na ${links.length} linkach — Zapisz graf`;
-}
-
-function applyRailFromUi() {
-  const rail = currentLineRail();
-  const line = selectedLine();
-  if (line && isLinkKind(line.kind)) {
-    line.rail = rail;
-    markDirty();
-    renderLineList();
-  }
-  if (isLinkKind(currentLineKind()) && rail) rememberLastRail(rail);
-}
-
-document.getElementById("save-btn").addEventListener("click", saveGraph);
-
 if (lineKindSelect) {
   lineKindSelect.addEventListener("change", applyLineKindFromUi);
 }
-if (lineRailInput) {
-  lineRailInput.addEventListener("focus", () => {
-    lineRailUndoPushed = false;
-  });
-  lineRailInput.addEventListener("input", () => {
-    const line = selectedLine();
-    if (line && isLinkKind(line.kind) && !lineRailUndoPushed) {
-      pushUndoSnapshot();
-      lineRailUndoPushed = true;
-    }
-    applyRailFromUi();
-  });
-  lineRailInput.addEventListener("change", applyRailFromUi);
-  lineRailInput.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    applyRailFromUi();
-  });
-}
-document.getElementById("apply-rail-all-btn")?.addEventListener("click", applyRailToAllLinks);
 document.getElementById("prefill-btn")?.addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
@@ -2504,8 +2463,6 @@ function initPanelResize() {
 
 (async function init() {
   lastUsedType = loadStored(LAST_TYPE_KEY);
-  lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
-  lastUsedRail = loadStored(LAST_RAIL_KEY);
   lastUsedBboxTag = loadStored(LAST_BBOX_TAG_KEY);
   updateTypeTagPlaceholders();
   updateInvertBgButton();
