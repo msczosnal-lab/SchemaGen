@@ -1032,12 +1032,7 @@ function renderLineList() {
     const li = document.createElement("li");
     li.textContent = formatLineLabel(line);
     if (i === selectedLineIdx) li.classList.add("active");
-    li.onclick = () => {
-      selectedLineIdx = i;
-      syncLineKindSelect();
-      renderLineList();
-      redraw();
-    };
+    li.onclick = () => selectLine(i);
     list.appendChild(li);
   });
 }
@@ -1305,6 +1300,10 @@ function drawBgImage() {
 }
 
 function redraw() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.filter = "none";
+  ctx.setLineDash([]);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(originX, originY);
