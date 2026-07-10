@@ -786,8 +786,26 @@ function resolveTerminalByRef(ref) {
   return { symIdx, termIdx, ref: `${p.symId}:${p.termId}` };
 }
 
-function terminalUsedRef(ref) {
-  return graph.lines.some((l) => lineFromRef(l) === ref || lineToRef(l) === ref);
+function removeTerminalByRef(ref) {
+  const hit = resolveTerminalByRef(ref);
+  if (!hit) return false;
+  graph.symbols[hit.symIdx].terminals.splice(hit.termIdx, 1);
+  if (selectedSymIdx === hit.symIdx && selectedTermIdx === hit.termIdx) {
+    selectedTermIdx = -1;
+  } else if (selectedSymIdx === hit.symIdx && selectedTermIdx > hit.termIdx) {
+    selectedTermIdx -= 1;
+  }
+  return true;
+}
+
+/** Usuń terminale niepodpięte do żadnej linii (np. po skasowaniu jedynej linii). */
+function purgeOrphanTerminalRefs(refs) {
+  let changed = false;
+  for (const ref of refs) {
+    if (!ref || terminalUsedRef(ref)) continue;
+    if (removeTerminalByRef(ref)) changed = true;
+  }
+  return changed;
 }
 
 function selectLine(idx) {
