@@ -568,6 +568,11 @@ function formatLineLabel(line) {
   return `${line.id}: ${formatLineEndpoint(lineFromRef(line))} → ${formatLineEndpoint(lineToRef(line))} [${kind}${railPart}]`;
 }
 
+function lineNum(id) {
+  const m = String(id).match(/^L(\d+)$/);
+  return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER;
+}
+
 function lineIdxById(id) {
   if (!id) return -1;
   return graph.lines.findIndex((l) => l.id === id);
@@ -1417,6 +1422,7 @@ function applyGraph(data) {
       id: s.id,
       type: typeStr(s.type),
       tag: s.tag || "",
+      listwa: s.listwa || "",
       bbox: [...s.bbox],
       terminals: (s.terminals || []).map((t) => ({
         id: String(t.id),
@@ -1455,6 +1461,7 @@ function buildPayload() {
       id: s.id,
       type: typeStr(s.type) || "unknown",
       tag: s.tag || undefined,
+      listwa: (s.listwa || "").trim() || undefined,
       bbox: s.bbox,
       terminals: (s.terminals || []).map((t) => ({
         id: t.id,
@@ -1477,6 +1484,7 @@ function buildPayload() {
 async function saveGraph() {
   if (!currentPageId) return;
   try {
+    syncRailFromZlaczkaListwa();
     const payload = buildPayload();
     const res = await fetchJson(`/api/graph/${currentPageId}`, {
       method: "POST",
@@ -1766,6 +1774,10 @@ function renderSymbolEditor() {
   symbolEditor.classList.remove("hidden");
   symTypeInput.value = typeStr(sym.type);
   symTagInput.value = sym.tag || "";
+  if (symListwaInput) symListwaInput.value = sym.listwa || "";
+  const isZ = typeStr(sym.type) === "zlaczka";
+  symListwaLabel?.classList.toggle("hidden", !isZ);
+  refreshListwaDatalist();
   applyInputTypeColor(symTypeInput, typeStr(sym.type));
   applyInputTypeColor(symTagInput, sym.tag);
   updateTypeTagPlaceholders();
