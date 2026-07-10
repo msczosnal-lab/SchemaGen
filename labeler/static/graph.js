@@ -2238,4 +2238,6 @@ function initPanelResize() {
     await loadPages();
     if (pageIds.length) await selectPage(pickInitialPageId());
   } catch (err) {
-    saveStatusEl.textContent = `Init: ${er
+    saveStatusEl.textContent = `Init: ${err.message}`;
+  }
+})();
