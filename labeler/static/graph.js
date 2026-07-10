@@ -716,8 +716,62 @@ function lineDisplayPoints(line) {
   return [[Math.round(a.x), Math.round(a.y)], [Math.round(b.x), Math.round(b.y)]];
 }
 
-function terminalUsedRef(ref) {
-  return graph.lines.some((l) => lineFromRef(l) === ref || lineToRef(l) === ref);
+function distPointSeg(px, py, ax, ay, bx, by) {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  if (len2 < 1e-6) return Math.hypot(px - ax, py - ay);
+  let t = ((px - ax) * dx + (py - ay) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+function pickLineAt(imgPt) {
+  const tol = Math.max(10, (LINE_STROKE_SEL + 8) / (scale || 1));
+  let best = -1;
+  let bestD = tol;
+  graph.lines.forEach((line, i) => {
+    const pts = lineDisplayPoints(line);
+    for (let j = 0; j < pts.length - 1; j++) {
+      const d = distPointSeg(
+        imgPt.x,
+        imgPt.y,
+        pts[j][0],
+        pts[j][1],
+        pts[j + 1][0],
+        pts[j + 1][1]
+      );
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    }
+  });
+  return best;
+}
+
+function purgeLinesUsingRef(ref) {
+  const before = graph.lines.length;
+  graph.lines = graph.lines.filter((l) => lineFromRef(l) !== ref && lineToRef(l) !== ref);
+  if (graph.lines.length === before) return false;
+  if (selectedLineIdx >= graph.lines.length) selectedLineIdx = -1;
+  renderLineList();
+  syncLineKindSelect();
+  return true;
+}
+
+function purgeLinesForSymbol(symId) {
+  const before = graph.lines.length;
+  graph.lines = graph.lines.filter((l) => {
+    const from = parseTerminalRef(lineFromRef(l));
+    const to = parseTerminalRef(lineToRef(l));
+    return from?.symId !== symId && to?.symId !== symId;
+  });
+  if (graph.lines.length === before) return false;
+  if (selectedLineIdx >= graph.lines.length) selectedLineIdx = -1;
+  renderLineList();
+  syncLineKindSelect();
+  return true;
 }
 
 function resolveTerminalByRef(ref) {
