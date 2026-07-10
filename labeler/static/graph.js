@@ -37,8 +37,8 @@ const INVERT_BG_KEY = "graphInvertBg";
 const RECENT_PAGES_MAX = 3;
 const LAST_TYPE_KEY = "schemagen:last-tag";
 const LAST_BBOX_TAG_KEY = "schemagen:last-graph-tag";
-const LAST_RAIL_KEY = "schemagen:last-rail";
 const LAYOUT_WIDTHS_KEY = "graphLayoutWidths";
+const AUTOSAVE_MS = 500;
 
 let lastUsedType = "";
 let lastUsedBboxTag = "";
