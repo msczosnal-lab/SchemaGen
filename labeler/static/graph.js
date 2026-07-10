@@ -1799,6 +1799,15 @@ symTagInput.addEventListener("blur", () => {
 });
 
 document.getElementById("save-btn").addEventListener("click", saveGraph);
+
+if (lineKindSelect) {
+  lineKindSelect.addEventListener("change", () => {
+    if (selectedLineIdx < 0 || !graph.lines[selectedLineIdx]) return;
+    graph.lines[selectedLineIdx].kind = currentLineKind();
+    markDirty();
+    renderLineList();
+  });
+}
 document.getElementById("prefill-btn").addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
