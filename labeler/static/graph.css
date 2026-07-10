@@ -155,13 +155,7 @@ body.graph-v2.invert-bg #canvas-panel canvas {
 }
 #lines-block #delete-line-btn.hidden { display: none; }
 
-#line-tool-panel #line-rail-wrap label {
-  display: block;
-  margin: 8px 0;
-  font-size: 0.85rem;
-  color: #bbb;
-}
-#line-tool-panel #line-rail-input {
+#line-tool-panel input {
   width: 100%;
   padding: 8px;
   margin-top: 4px;
@@ -170,7 +164,11 @@ body.graph-v2.invert-bg #canvas-panel canvas {
   background: #2a2a2a;
   color: #eee;
 }
-#line-tool-panel #line-rail-wrap.hidden { display: none; }
+#line-tool-panel #link-name-label { color: #ffd43b; font-weight: 600; }
+#line-tool-panel #link-name-input {
+  border-color: #f76707;
+  background: #2d2418;
+}
 
 #line-tool-panel .panel-hint,
 #line-tool-panel label {
