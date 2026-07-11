@@ -2405,7 +2405,24 @@ function applySymListwaFromInput({ flush = false } = {}) {
   const sym = graph.symbols[selectedSymIdx];
   if (!sym || !symListwaInput) return;
   const value = symListwaInput.value.trim();
-  if (value === (sym.listwa || "")) {
+  const zlaczkaIds = railChainZlaczkaIds(sym);
+  const symTargets = graph.symbols.filter((s) => zlaczkaIds.has(s.id) && (s.listwa || "") !== value);
+  const linkTargets = [];
+  if (isZlaczka(sym)) {
+    const touching = graph.lines.filter((l) => {
+      if (!isLinkKind(l.kind)) return false;
+      const a = parseTerminalRef(lineFromRef(l));
+      const b = parseTerminalRef(lineToRef(l));
+      return a?.symId === sym.id || b?.symId === sym.id;
+    });
+    if (touching.length) {
+      const connectedLinkIds = railChainLinkIds(touching[0]);
+      for (const l of graph.lines) {
+        if (connectedLinkIds.has(l.id) && (l.rail || "") !== value) linkTargets.push(l);
+      }
+    }
+  }
+  if (!symTargets.length && !linkTargets.length) {
     if (flush) void flushAutoSave();
     return;
   }
@@ -2413,7 +2430,8 @@ function applySymListwaFromInput({ flush = false } = {}) {
     pushUndoSnapshot();
     symListwaUndoPushed = true;
   }
-  sym.listwa = value;
+  for (const s of symTargets) s.listwa = value;
+  for (const l of linkTargets) l.rail = value;
   markDirty();
   renderSymbolList();
   renderLineList();
