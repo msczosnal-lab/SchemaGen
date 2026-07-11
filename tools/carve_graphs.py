@@ -43,7 +43,9 @@ def _serial_len(st):
     return 0
 
 
-def carve(src_path):
+def iter_json_texts(src_path):
+    """Yielduje wszystkie wartosci kolumn TEXT bedace JSON-em (dict) — z surowych
+    leaf/overflow pages, omijajac zniszczony b-tree. Zwraca (dict, raw_str)."""
     data = Path(src_path).read_bytes()
     if len(data) < 100 or data[:16] != b"SQLite format 3\x00":
         return {}
@@ -106,17 +108,26 @@ def carve(src_path):
                     ln = _serial_len(st)
                     val = body[dpos: dpos + ln]
                     dpos += ln
-                    if st >= 13 and st % 2 == 1 and val[:11] == b'{"version":':
+                    if st >= 13 and st % 2 == 1 and val[:1] == b'{':
                         try:
-                            g = json.loads(val.decode("utf-8", "strict"))
+                            txt = val.decode("utf-8", "strict")
+                            obj = json.loads(txt)
                         except Exception:
                             continue
-                        pid = g.get("page_id")
-                        nsym = len(g.get("symbols", []))
-                        if pid and (pid not in found or nsym > found[pid][1]):
-                            found[pid] = (val.decode("utf-8"), nsym, len(g.get("lines", [])))
+                        if isinstance(obj, dict):
+                            yield obj, txt
             except Exception:
                 continue
+
+
+def carve(src_path):
+    found = {}
+    for obj, txt in iter_json_texts(src_path):
+        if obj.get("version") == 2 and "symbols" in obj:
+            pid = obj.get("page_id")
+            nsym = len(obj.get("symbols", []))
+            if pid and (pid not in found or nsym > found[pid][1]):
+                found[pid] = (txt, nsym, len(obj.get("lines", [])))
     return found
 
 
