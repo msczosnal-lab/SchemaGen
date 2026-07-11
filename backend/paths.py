@@ -4,9 +4,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
+GT = ROOT / "gt"
 RAW = DATA / "raw"
 LABELED = DATA / "labeled"
 MODELS = DATA / "models"
+BACKUPS_DIR = DATA / "backups"
 DB_PATH = DATA / "schemagen.db"
 REGISTRY_PATH = MODELS / "registry.json"
 MANIFEST_PATH = DATA / "dataset-manifest.json"
@@ -51,5 +53,5 @@ def raw_image_path(page_arg: str) -> Path | None:
 
 
 def ensure_data_dirs() -> None:
-    for path in (RAW, LABELED, MODELS, LABELED / "labels", LABELED / "images"):
+    for path in (RAW, LABELED, MODELS, BACKUPS_DIR, GT, LABELED / "labels", LABELED / "images"):
         path.mkdir(parents=True, exist_ok=True)
