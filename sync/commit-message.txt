@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: propagacja listwa z zlaczki na cala polaczona szyne (linki + zlaczki w lancuchu)
