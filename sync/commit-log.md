@@ -218,3 +218,4 @@
 | 2026-07-11 18:27 | Claude | dbd806af | [Claude] OCHRONA: pusty graf nie nadpisze niepustego (skipped_empty_overwrite, allow_empty by wymusic) — koniec utraty GT; + carve_all/carve_graphs guard |
 | 2026-07-11 18:26 | Claude | ae298c83 | [Claude] OCHRONA: pusty graf nie nadpisze niepustego (skipped_empty_overwrite, allow_empty by wymusic) — koniec utraty GT; + carve_all/carve_graphs guard |
 | 2026-07-11 18:37 | Claude | 7fde8b66 | [Claude] tools/recover_from_v1.py — odzysk bboxow z adnotacji v1 (raw carve tabeli annotations) + migracja do v2 + scalanie --into (symbol-count-wins). Backup 3-lip ma p028=37, p029=65, ~180 stron |
+| 2026-07-11 18:32 | Claude | ed7a31b6 | [Claude] tools/recover_from_v1.py — odzysk bboxow z adnotacji v1 (raw carve tabeli annotations) + migracja do v2 + scalanie --into (symbol-count-wins). Backup 3-lip ma p028=37, p029=65, ~180 stron |
