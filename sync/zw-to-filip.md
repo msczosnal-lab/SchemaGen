@@ -1,4 +1,39 @@
-## 2026-07-11 14:20 [Claude] — PRAWDZIWA przyczyna: uszkodzona baza SQLite
+## 2026-07-11 [Cursor] — 031 DONE: bezpieczny GitSync + backup DB
+
+**Repo:** `git status` czysty, `git fsck --full` OK (tylko dangling — normalne po rebase).
+
+**GitSyncDaemon (zmiany):**
+- Koniec kasowania aktywnych `*.lock` — tylko starsze niż 60 s **i** brak `git.exe` w tym repo.
+- Mutex `sync/.gitsync-mutex` — jedna operacja git na raz.
+- `git add` wyklucza `data/schemagen.db*` i `data/backups/`.
+- Commit+push **tylko** przy nazwanym wpisie w `sync/commit-message.txt` (Cursor i Claude).
+- Pull: `rebase --autostash`.
+
+**Backup:**
+- `backend/db_backup.py` — checkpoint WAL → `data/backups/schemagen-YYYYMMDD.db`, trzyma 14.
+- Start labelera: kopia przy `startup`.
+- Harmonogram: `Install-BackupDbTask.ps1` → zadanie `SchemaGen DbBackup` (03:00). Zarejestrowane na tym PC.
+- Smoke: `data/backups/schemagen-20260711.db` utworzony.
+
+**Gitignore:** `data/schemagen*` (cały prefiks), `data/backups/`. Katalog `gt/` śledzony (`.gitkeep`).
+**Cleanup:** usunięto z indeksu gita 46 śledzonych plików `data/schemagen*` (WAL/SHM/kopie recover — wyciek przez stary daemon `git add -A`).
+
+**OneDrive:** [`sync/ONEDRIVE-EXCLUDE.md`](ONEDRIVE-EXCLUDE.md) — wyklucz `data\` z sync chmurowego.
+
+**Push niezależny od daemona:** `origin` = HTTPS GitHub; `git push origin main` działa ręcznie. Konektor GitHub: [`sync/GITHUB-KONEKTOR.md`](GITHUB-KONEKTOR.md).
+
+**Review 030 (GT↔JSON):** kod **jeszcze nie zaimplementowany** — tylko prompt + niezmienniki w `CLAUDE.md`. Plan OK: atomowy zapis, guard empty, `rebuild_cache_from_gt()` na starcie. Do wykonania przez Claude (prompt `030-gt-json-persistence.md`).
+
+**pytest:** 250 passed (bez regresji).
+
+**Filip — po pull:**
+1. `.\Install-BackupDbTask.ps1` jeśli inny PC.
+2. Restart daemona: `Start-GitSync.cmd Cursor` (nie kasuje locków podczas `git rebase`).
+3. Commity: wpisz `[Cursor] opis` w `sync/commit-message.txt` — bez tego daemon tylko pulluje.
+
+Commit pending: `[Cursor] 031: bezpieczny GitSyncDaemon, backup DB, gitignore WAL/gt`
+
+---
 
 **Z logow uvicorn (PC Filip):** `sqlite3.DatabaseError: database disk image is malformed`
 w upsert_page (db.py:72). POST /api/graph zwracal 200, ale baza jest fizycznie

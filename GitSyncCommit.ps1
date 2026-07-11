@@ -82,6 +82,7 @@ function Add-GitSyncPaths {
         ":(exclude)data/schemagen.db-wal"
         ":(exclude)data/schemagen.db-shm"
         ":(exclude)data/schemagen.db-journal"
+        ":(exclude)data/schemagen*"
         ":(exclude)data/backups"
         ":(exclude)data/backups/**"
     )

@@ -42,10 +42,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/labeled/*
 !data/labeled/.gitkeep
-data/schemagen.db
-data/schemagen.db-wal
-data/schemagen.db-shm
-data/schemagen.db-journal
+data/schemagen*
 data/backups/
 data/.annotation_dpi
 data/archive/

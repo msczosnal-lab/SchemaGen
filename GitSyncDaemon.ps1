@@ -30,8 +30,12 @@ param(
     [Parameter(Mandatory=$true)][string]$MachineTag,
     [switch]$Toast,
     [switch]$Once,
-    [switch]$PushOnNamedOnly = $true
+    [switch]$AllowAutoCommit
 )
+
+# Domyslnie: commit+push tylko przy nazwanym sync/commit-message.txt.
+# Przekaz -AllowAutoCommit aby przywrocic auto-commity (niezalecane).
+$PushOnNamedOnly = -not $AllowAutoCommit
 
 $ErrorActionPreference = "Continue"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -128,7 +132,7 @@ if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
 }
 New-Item -ItemType Directory -Force -Path (Join-Path $RepoPath "sync") | Out-Null
 
-Log "Start daemona [$MachineTag], branch=$Branch, interval=${IntervalSec}s, namedOnly=$($PushOnNamedOnly.IsPresent)"
+Log "Start daemona [$MachineTag], branch=$Branch, interval=${IntervalSec}s, namedOnly=$PushOnNamedOnly"
 Log "Repo: $RepoPath"
 
 $lastRemote = ""

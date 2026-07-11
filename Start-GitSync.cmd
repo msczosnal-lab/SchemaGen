@@ -10,8 +10,8 @@ set "TAG=%~1"
 if "%TAG%"=="" set /p "TAG=Podaj tag komputera (Claude / Cursor): "
 set "REPO=%~dp0"
 if "%REPO:~-1%"=="\" set "REPO=%REPO:~0,-1%"
-rem Claude i Cursor: commit/push tylko przy nazwanym commicie w sync/commit-message.txt.
-set "EXTRA=-PushOnNamedOnly"
+rem Domyslnie daemon commituje tylko przy nazwanym sync/commit-message.txt.
+set "EXTRA="
 title SchemaGen GitSync - %TAG%
 powershell -NoProfile -ExecutionPolicy Bypass -NoExit -File "%~dp0GitSyncDaemon.ps1" -MachineTag %TAG% -RepoPath "%REPO%" -Toast %EXTRA%
 endlocal

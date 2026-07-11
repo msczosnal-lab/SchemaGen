@@ -21,9 +21,8 @@ param(
 $daemon = Join-Path $RepoPath "GitSyncDaemon.ps1"
 if (-not (Test-Path $daemon)) { throw "Nie znaleziono $daemon" }
 
-# Claude (PC ZW): pull-only - commit/push tylko przy nazwanym commicie ([Claude] ...).
+# Domyslnie: commit/push tylko przy nazwanym commicie ([Cursor]/[Claude] w sync/commit-message.txt).
 $extra = ""
-if ($MachineTag -ieq "Claude") { $extra = " -PushOnNamedOnly" }
 
 # cmd /c start ... -> nowe, WIDOCZNE okno konsoli przy logowaniu (nie ukryte)
 $inner  = "powershell -NoProfile -ExecutionPolicy Bypass -NoExit -File `"$daemon`" -MachineTag $MachineTag -RepoPath `"$RepoPath`" -IntervalSec $IntervalSec -Toast$extra"
