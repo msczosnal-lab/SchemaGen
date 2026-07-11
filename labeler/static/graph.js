@@ -1651,6 +1651,7 @@ function buildPayload() {
 
 async function saveGraph({ auto = false } = {}) {
   if (!currentPageId) return false;
+  commitPendingEdits();
   if (saveInFlight) {
     saveQueued = true;
     return false;
@@ -1979,8 +1980,10 @@ function renderSymbolEditor() {
 }
 
 function selectSymbol(idx) {
+  commitPendingEdits();
   selectedSymIdx = idx;
   selectedTermIdx = -1;
+  pendingListwaSymId = null;
   renderSymbolList();
   renderSymbolEditor();
   redraw();
@@ -2305,6 +2308,7 @@ canvas.addEventListener("mouseup", (e) => {
     if (clickSelectCandidate >= 0) {
       selectSymbol(clickSelectCandidate);
     } else {
+      commitPendingEdits();
       selectedSymIdx = -1;
       selectedTermIdx = -1;
       renderSymbolList();
