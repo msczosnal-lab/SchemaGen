@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: fix utraty listwy przy zmianie strony — force save, bbox pokazuje listwa, pendingListwaSymId przy wyborze symbolu
