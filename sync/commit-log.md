@@ -215,3 +215,4 @@
 | 2026-07-11 18:20 | Claude | aaf309bd | [Claude] tools/carve_graphs.py — czysto-pythonowe .recover grafow z surowych stron SQLite (overflow OK); przetestowane na malformed |
 | 2026-07-11 18:19 | Claude | 3c5de682 | [Claude] tools/carve_graphs.py — czysto-pythonowe .recover grafow z surowych stron SQLite (overflow OK); przetestowane na malformed |
 | 2026-07-11 18:24 | Claude | 5befb35c | [Claude] tools/carve_all.py — skan wszystkich kopii bazy (+ -wal) po najbogatszy p028; tools/__init__.py |
+| 2026-07-11 18:27 | Claude | dbd806af | [Claude] OCHRONA: pusty graf nie nadpisze niepustego (skipped_empty_overwrite, allow_empty by wymusic) — koniec utraty GT; + carve_all/carve_graphs guard |
