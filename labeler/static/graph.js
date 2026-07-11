@@ -546,6 +546,37 @@ function railChainLinkIds(start) {
   return result;
 }
 
+function isZlaczka(sym) {
+  return typeStr(sym?.type) === "zlaczka";
+}
+
+/** Wszystkie złączki w tej samej połączonej szynie (przez linki). */
+function railChainZlaczkaIds(startSym) {
+  if (!startSym) return new Set();
+  const result = new Set();
+  if (isZlaczka(startSym)) result.add(startSym.id);
+
+  const touching = graph.lines.filter((l) => {
+    if (!isLinkKind(l.kind)) return false;
+    const a = parseTerminalRef(lineFromRef(l));
+    const b = parseTerminalRef(lineToRef(l));
+    return a?.symId === startSym.id || b?.symId === startSym.id;
+  });
+  if (!touching.length) return result;
+
+  const connectedLinkIds = railChainLinkIds(touching[0]);
+  for (const l of graph.lines) {
+    if (!connectedLinkIds.has(l.id)) continue;
+    for (const ref of [lineFromRef(l), lineToRef(l)]) {
+      const p = parseTerminalRef(ref);
+      if (!p) continue;
+      const s = graph.symbols.find((x) => x.id === p.symId);
+      if (s && isZlaczka(s)) result.add(s.id);
+    }
+  }
+  return result;
+}
+
 function collectListwaSuggestions() {
   const names = new Set();
   for (const s of graph.symbols) {
