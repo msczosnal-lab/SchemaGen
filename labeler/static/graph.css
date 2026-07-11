@@ -85,6 +85,14 @@ body.graph-v2.invert-bg #canvas-panel canvas {
   border-left: none;
 }
 
+#annotations-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
 #save-bar {
   flex-shrink: 0;
   background: #1e1e1e;
