@@ -4,4 +4,3 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
-[Cursor] labeler: scroll prawego panelu (edycja symbolu/linku) + listy linii i symboli
