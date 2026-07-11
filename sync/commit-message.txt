@@ -1,1 +1,1 @@
-[Claude] labeler: zapis GT nigdy nie przepada (allow_invalid) — fix gubienia nazw zlaczek/listew
+[Claude] labeler: fix beforeunload zapisywal bez allow_invalid (gubil nazwe listwy przy reload) + cache v59

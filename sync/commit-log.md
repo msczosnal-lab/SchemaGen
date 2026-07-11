@@ -197,3 +197,4 @@
 | 2026-07-11 13:41 | Cursor | 72aab981 | [Cursor] labeler: fix utraty listwy przy zmianie strony — force save, bbox pokazuje listwa, pendingListwaSymId przy wyborze symbolu |
 | 2026-07-11 13:44 | Claude | 6116de64 | [Claude] autocommit |
 | 2026-07-05 23:12 | Claude | 27ca8b0a | [Claude] sync: prompt 022 labeler graf v2 (review planu Cursora, remap ID w diff, decyzja szyna=link) + KOLEJNE-ZADANIE |
+| 2026-07-11 13:57 | Claude | cbe5dc55 | [Claude] labeler: zapis GT nigdy nie przepada (allow_invalid) — fix gubienia nazw zlaczek/listew |

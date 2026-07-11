@@ -2729,7 +2729,7 @@ window.addEventListener("beforeunload", () => {
   if (!dirty && !saveInFlight) return;
   try {
     const payload = JSON.stringify(buildPayload());
-    fetch(`/api/graph/${currentPageId}`, {
+    fetch(`/api/graph/${currentPageId}?allow_invalid=true`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: payload,

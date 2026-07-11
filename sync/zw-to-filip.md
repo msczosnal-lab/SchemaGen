@@ -1,5 +1,47 @@
 # Skrzynka: ZW → Filip
 
+> Pisze **tylko ZW/Claude**. Filip czyta na starcie.
+
+---
+
+## 2026-07-11 13:57 [Claude] — labeler: fix "nazwy zlaczek sie nie zapisuja" (root cause)
+
+**Objaw:** nazwy zlaczek/listew (tag, listwa, rail) gubily sie mimo edycji; 1-10 vs 11-13 "nie OK".
+
+**Root cause (nie JS timing, jak lecil Cursor):** POST /api/graph/{page} robil
+`if not result.valid: raise 422` — JEDEN blad walidacji (terminal poza obrysem,
+segment nie-ortho, **terminal wspoldzielony przez 2 linie = mostek na szynie**)
+odrzucal CALY zapis. Autosave retry'owal ten sam odrzucany payload → nazwy nigdy
+nie trafialy do SQLite. Cursor latal commit-timing w JS, ale backend-gate zostal.
+
+**Fix:**
+- `app.py post_graph(..., allow_invalid=False)`: z `allow_invalid=true` zapis
+  ZAWSZE trafia do bazy; bledy walidacji wracaja jako `warnings` + `saved_invalid`.
+  Domyslka bez flagi nadal 422 (kontrakt/test zachowany).
+- `graph.js`: autosave leci z `?allow_invalid=true`; status "Zapisano (z uwagami)"
+  + tooltip z lista uwag (hover na save-status, klasa .has-warnings=bursztyn).
+- Test regresyjny: `test_graph_save_allow_invalid_persists` (tag+listwa przetrwaly mimo bledu geo).
+
+**Dlaczego 1-10 / 11-13 osobno:** lewa szyna p028 ma przerwe linkow 10-11-12-13
+(z findings p028). Nazwa listwy propaguje sie tylko po polaczonym lancuchu linkow
+(`railChainZlaczkaIds`), wiec przerwany tor = 2 potencjaly. To luka W ETYKIETOWANIU
+(brak 2-3 linkow), nie bug kodu — teraz przynajmniej zapis nie przepada i widac to.
+Domkniecie: dorysuj linki 10->11, 11->12, 12->13 na lewej sekcji.
+
+**Testy:** labeler/tests/test_graph_api.py 9/9 pass. Graph suite 52 pass.
+(2 fail w test_palette_api = `sqlite disk I/O error` sandboxa, nie kod.)
+
+**UWAGA srodowisko:** w tej sesji file-tool zapisy ladowaly na dysk **uciete**
+(bug lockow .git/index.lock: Operation not permitted). Pliki odbudowane z HEAD przez
+bash i zweryfikowane (py ast / node --check). Warto sprawdzic locki na PC ZW.
+
+**Pliki:** labeler/app.py, labeler/static/graph.js (v58), labeler/static/graph.html,
+labeler/static/graph.css, labeler/tests/test_graph_api.py
+
+---
+
+# Skrzynka: ZW → Filip
+
 > Pisze **tylko ZW** (Cowork/Claude). Filip czyta na starcie sesji i nie edytuje tego pliku.
 > Najnowsze wpisy na górze.
 
