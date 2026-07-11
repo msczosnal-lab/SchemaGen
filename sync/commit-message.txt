@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: fix zapisu listwy — commit z DOM przed save, pendingListwaSymId, sync listwa+rail z trybu Linia
