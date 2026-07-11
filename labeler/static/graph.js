@@ -2469,16 +2469,23 @@ function applySymListwaFromInput({ flush = false } = {}) {
   renderLineList();
   refreshListwaDatalist();
   redraw();
-  if (flush) void flushAutoSave();
+  if (flush) return saveNow();
+  return Promise.resolve();
 }
 
 if (symListwaInput) {
   symListwaInput.addEventListener("focus", () => {
     symListwaUndoPushed = false;
   });
-  symListwaInput.addEventListener("input", () => applySymListwaFromInput());
-  symListwaInput.addEventListener("change", () => applySymListwaFromInput({ flush: true }));
-  symListwaInput.addEventListener("blur", () => applySymListwaFromInput({ flush: true }));
+  symListwaInput.addEventListener("input", () => {
+    void applySymListwaFromInput();
+  });
+  symListwaInput.addEventListener("change", () => {
+    void applySymListwaFromInput({ flush: true });
+  });
+  symListwaInput.addEventListener("blur", () => {
+    void applySymListwaFromInput({ flush: true });
+  });
 }
 
 function applyLineKindFromUi() {
@@ -2498,13 +2505,13 @@ function applyLineKindFromUi() {
 
 function applyLinkNameFromInput({ flush = false } = {}) {
   const line = selectedLine();
-  if (!line || !isLinkKind(line.kind) || !linkNameInput) return;
+  if (!line || !isLinkKind(line.kind) || !linkNameInput) return Promise.resolve();
   const value = linkNameInput.value.trim();
   const ids = railChainLinkIds(line);
   const targets = graph.lines.filter((l) => ids.has(l.id) && (l.rail || "") !== value);
   if (!targets.length) {
-    if (flush) void flushAutoSave();
-    return;
+    if (flush) return saveNow();
+    return Promise.resolve();
   }
   if (!linkNameUndoPushed) {
     pushUndoSnapshot();
