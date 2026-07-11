@@ -1,3 +1,31 @@
+## 2026-07-11 14:20 [Claude] — PRAWDZIWA przyczyna: uszkodzona baza SQLite
+
+**Z logow uvicorn (PC Filip):** `sqlite3.DatabaseError: database disk image is malformed`
+w upsert_page (db.py:72). POST /api/graph zwracal 200, ale baza jest fizycznie
+uszkodzona -> zapisy nie przezywaja reloadu, GET /api/pages sie wywala (500).
+To dlatego "nazwy sie nie zapisuja" mimo poprawek — zapis szedl do zepsutej bazy.
+
+Baza jest gitignorowana (nie git). Typowa przyczyna: folder Desktop synchronizowany
+(OneDrive/backup) dotyka zywego .db w trakcie zapisu, lub wspolbiezny zapis na DELETE-journal.
+
+**Filip (PC z labelerem), KOLEJNOSC:**
+1. Zatrzymaj uvicorn.
+2. `python tools/recover_db.py` (venv, katalog repo) -> kopia + .recover/salvage + podmiana, integrity "ok".
+3. Uruchom uvicorn, Ctrl+F5 (v60).
+4. Jesli repo w OneDrive: przenies poza OneDrive lub wyklucz data/schemagen.db z sync.
+
+**Hartowanie backend/db.py:** WAL + synchronous=NORMAL + busy_timeout=30000 + timeout=30s.
+
+**Przy okazji (v60):** rail pisany wprost na obiekt linii (koniec zerowania); pole nazwy w panelu Linie;
+auto-nazwa nowych linkow przy kind=link; beforeunload z allow_invalid.
+
+**Testy:** WAL round-trip OK; recover_db odzyskuje graf z rail "-X1"; graph API 9/9.
+
+**Pliki:** backend/db.py, tools/recover_db.py, labeler/app.py, labeler/static/graph.js(v60),
+labeler/static/graph.html, labeler/static/graph.css, labeler/tests/test_graph_api.py
+
+---
+
 # Skrzynka: ZW → Filip
 
 > Pisze **tylko ZW/Claude**. Filip czyta na starcie.
