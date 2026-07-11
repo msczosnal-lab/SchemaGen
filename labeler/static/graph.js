@@ -2518,28 +2518,15 @@ symTagInput.addEventListener("blur", () => {
 });
 
 function applySymListwaFromInput({ flush = false } = {}) {
-  const sym = graph.symbols[selectedSymIdx];
+  const sym = symById(pendingListwaSymId) || graph.symbols[selectedSymIdx];
   if (!sym || !symListwaInput) return Promise.resolve();
   const value = symListwaInput.value.trim();
-  const zlaczkaIds = railChainZlaczkaIds(sym);
-  const symTargets = graph.symbols.filter((s) => zlaczkaIds.has(s.id) && (s.listwa || "") !== value);
-  const linkTargets = [];
-  if (isZlaczka(sym)) {
-    const connectedLinkIds = connectedLinkIdsForSym(sym.id);
-    for (const l of graph.lines) {
-      if (connectedLinkIds.has(l.id) && (l.rail || "") !== value) linkTargets.push(l);
-    }
-  }
-  if (!symTargets.length && !linkTargets.length) {
+  const changed = commitListwaForSym(sym, value, { recordUndo: true });
+  if (!changed) {
     if (flush) return saveNow();
     return Promise.resolve();
   }
-  if (!symListwaUndoPushed) {
-    pushUndoSnapshot();
-    symListwaUndoPushed = true;
-  }
-  for (const s of symTargets) s.listwa = value;
-  for (const l of linkTargets) l.rail = value;
+  const zlaczkaIds = railChainZlaczkaIds(sym);
   const tagRange = formatZlaczkaTagRange(zlaczkaIds);
   if (tagRange && value) {
     saveStatusEl.textContent = `Listwa ${value} → złączki ${tagRange}`;
@@ -2557,6 +2544,8 @@ function applySymListwaFromInput({ flush = false } = {}) {
 
 if (symListwaInput) {
   symListwaInput.addEventListener("focus", () => {
+    const sym = graph.symbols[selectedSymIdx];
+    pendingListwaSymId = sym?.id || pendingListwaSymId;
     symListwaUndoPushed = false;
   });
   symListwaInput.addEventListener("input", () => {
@@ -2586,22 +2575,19 @@ function applyLineKindFromUi() {
 }
 
 function applyLinkNameFromInput({ flush = false } = {}) {
-  const line = selectedLine();
+  const line = pendingLinkLineId
+    ? graph.lines.find((l) => l.id === pendingLinkLineId)
+    : selectedLine();
   if (!line || !isLinkKind(line.kind) || !linkNameInput) return Promise.resolve();
   const value = linkNameInput.value.trim();
-  const ids = railChainLinkIds(line);
-  const targets = graph.lines.filter((l) => ids.has(l.id) && (l.rail || "") !== value);
-  if (!targets.length) {
+  const changed = commitLinkNameForLine(line, value, { recordUndo: true });
+  if (!changed) {
     if (flush) return saveNow();
     return Promise.resolve();
   }
-  if (!linkNameUndoPushed) {
-    pushUndoSnapshot();
-    linkNameUndoPushed = true;
-  }
-  for (const l of targets) l.rail = value;
   markDirty();
   renderLineList();
+  renderSymbolList();
   refreshListwaDatalist();
   redraw();
   if (flush) return saveNow();
@@ -2610,6 +2596,8 @@ function applyLinkNameFromInput({ flush = false } = {}) {
 
 if (linkNameInput) {
   linkNameInput.addEventListener("focus", () => {
+    const line = selectedLine();
+    pendingLinkLineId = line?.id || pendingLinkLineId;
     linkNameUndoPushed = false;
   });
   linkNameInput.addEventListener("input", () => {
@@ -2717,7 +2705,9 @@ function initPanelResize() {
 }
 
 window.addEventListener("beforeunload", () => {
-  if ((!dirty && !saveInFlight) || !currentPageId || !historyReady) return;
+  if (!currentPageId || !historyReady) return;
+  commitPendingEdits();
+  if (!dirty && !saveInFlight) return;
   try {
     const payload = JSON.stringify(buildPayload());
     fetch(`/api/graph/${currentPageId}`, {
