@@ -556,15 +556,9 @@ function railChainZlaczkaIds(startSym) {
   const result = new Set();
   if (isZlaczka(startSym)) result.add(startSym.id);
 
-  const touching = graph.lines.filter((l) => {
-    if (!isLinkKind(l.kind)) return false;
-    const a = parseTerminalRef(lineFromRef(l));
-    const b = parseTerminalRef(lineToRef(l));
-    return a?.symId === startSym.id || b?.symId === startSym.id;
-  });
-  if (!touching.length) return result;
+  const connectedLinkIds = connectedLinkIdsForSym(startSym.id);
+  if (!connectedLinkIds.size) return result;
 
-  const connectedLinkIds = railChainLinkIds(touching[0]);
   for (const l of graph.lines) {
     if (!connectedLinkIds.has(l.id)) continue;
     for (const ref of [lineFromRef(l), lineToRef(l)]) {
@@ -575,6 +569,33 @@ function railChainZlaczkaIds(startSym) {
     }
   }
   return result;
+}
+
+function connectedLinkIdsForSym(symId) {
+  const touching = graph.lines.filter((l) => {
+    if (!isLinkKind(l.kind)) return false;
+    const a = parseTerminalRef(lineFromRef(l));
+    const b = parseTerminalRef(lineToRef(l));
+    return a?.symId === symId || b?.symId === symId;
+  });
+  if (!touching.length) return new Set();
+  return railChainLinkIds(touching[0]);
+}
+
+function formatZlaczkaTagRange(ids) {
+  const tags = graph.symbols
+    .filter((s) => ids.has(s.id) && isZlaczka(s))
+    .map((s) => (s.tag || "").trim())
+    .filter(Boolean)
+    .sort((a, b) => {
+      const na = Number(a);
+      const nb = Number(b);
+      if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+      return a.localeCompare(b, "pl");
+    });
+  if (!tags.length) return "";
+  if (tags.length === 1) return tags[0];
+  return `${tags[0]}–${tags[tags.length - 1]}`;
 }
 
 function collectListwaSuggestions() {
