@@ -2522,16 +2522,23 @@ function applyLinkNameFromInput({ flush = false } = {}) {
   renderLineList();
   refreshListwaDatalist();
   redraw();
-  if (flush) void flushAutoSave();
+  if (flush) return saveNow();
+  return Promise.resolve();
 }
 
 if (linkNameInput) {
   linkNameInput.addEventListener("focus", () => {
     linkNameUndoPushed = false;
   });
-  linkNameInput.addEventListener("input", () => applyLinkNameFromInput());
-  linkNameInput.addEventListener("change", () => applyLinkNameFromInput({ flush: true }));
-  linkNameInput.addEventListener("blur", () => applyLinkNameFromInput({ flush: true }));
+  linkNameInput.addEventListener("input", () => {
+    void applyLinkNameFromInput();
+  });
+  linkNameInput.addEventListener("change", () => {
+    void applyLinkNameFromInput({ flush: true });
+  });
+  linkNameInput.addEventListener("blur", () => {
+    void applyLinkNameFromInput({ flush: true });
+  });
 }
 
 if (lineKindSelect) {
