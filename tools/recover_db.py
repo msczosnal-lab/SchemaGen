@@ -173,7 +173,11 @@ def main():
                 print("    Sprobuj backup: python tools/recover_db.py --from-bak  (z %s)" % bak.name)
             print("    Albo sqlite3 CLI: sqlite3 <zrodlo> \".recover\" | sqlite3 data/schemagen.new.db")
 
-    chk = sqlite3.connect(rebuilt).execute("PRAGMA integrity_check").fetchone()[0]
+    _c = sqlite3.connect(rebuilt)
+    try:
+        chk = _c.execute("PRAGMA integrity_check").fetchone()[0]
+    finally:
+        _c.close()  # WAZNE: zamknij, inaczej os.replace nie ruszy pliku (WinError 32)
     print("[3] integrity_check odbudowanej: %s" % chk)
     if chk != "ok":
         print("[!] Odbudowana baza ma problemy — NIE podmieniam. Plik: %s" % rebuilt.name)
