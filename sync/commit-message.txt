@@ -1,1 +1,6 @@
-[Claude] tools/recover_from_v1.py — odzysk bboxow z adnotacji v1 (raw carve tabeli annotations) + migracja do v2 + scalanie --into (symbol-count-wins). Backup 3-lip ma p028=37, p029=65, ~180 stron
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
