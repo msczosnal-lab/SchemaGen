@@ -101,6 +101,7 @@ body.graph-v2.invert-bg #canvas-panel canvas {
   padding: 12px 12px 10px;
   border-bottom: 1px solid #444;
 }
+#save-bar #save-now-btn { width: 100%; margin: 0 0 6px; }
 #save-bar #save-btn { width: 100%; margin: 0; }
 #save-bar #save-status { margin: 8px 0 0; min-height: 1.2em; }
 

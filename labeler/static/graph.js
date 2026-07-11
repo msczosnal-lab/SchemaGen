@@ -1393,9 +1393,12 @@ async function flushAutoSave() {
     clearTimeout(autosaveTimer);
     autosaveTimer = null;
   }
-  if (dirty && currentPageId) {
-    await saveGraph({ auto: true });
-  }
+  dirty = true;
+  await saveGraph({ auto: true });
+}
+
+async function saveNow() {
+  return flushAutoSave();
 }
 
 function markDirty() {
