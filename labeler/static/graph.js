@@ -86,6 +86,8 @@ let autosaveTimer = null;
 let saveInFlight = false;
 let saveQueued = false;
 let dirtyGeneration = 0;
+let pendingListwaSymId = null;
+let pendingLinkLineId = null;
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
