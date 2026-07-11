@@ -2432,7 +2432,7 @@ symTagInput.addEventListener("blur", () => {
   const sym = graph.symbols[selectedSymIdx];
   const value = symTagInput.value.trim();
   if (sym && value) rememberLastBboxTag(value);
-  void flushAutoSave();
+  void saveNow();
 });
 
 function applySymListwaFromInput({ flush = false } = {}) {
