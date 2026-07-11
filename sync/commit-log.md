@@ -201,3 +201,4 @@
 | 2026-07-11 14:06 | Claude | 1a4be028 | [Claude] labeler: fix beforeunload zapisywal bez allow_invalid (gubil nazwe listwy przy reload) + cache v59 |
 | 2026-07-11 14:16 | Claude | 96c001d0 | [Claude] labeler: nazwa linku (rail) pisana WPROST na obiekt jak tag; koniec zerowania przez commitPendingEdits; pole nazwy w panelu Linie + auto-nazwa nowych linkow; cache v60 |
 | 2026-07-11 14:15 | Claude | 09bb3b09 | [Claude] labeler: nazwa linku (rail) pisana WPROST na obiekt jak tag; koniec zerowania przez commitPendingEdits; pole nazwy w panelu Linie + auto-nazwa nowych linkow; cache v60 |
+| 2026-07-11 14:22 | Claude | 5a774eed | [Claude] FIX korupcji bazy: WAL+busy_timeout w db.py + tools/recover_db.py; link rail zapis wprost na obiekt; pole nazwy w panelu Linie; cache v60 |

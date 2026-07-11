@@ -1,1 +1,6 @@
-[Claude] FIX korupcji bazy: WAL+busy_timeout w db.py + tools/recover_db.py; link rail zapis wprost na obiekt; pole nazwy w panelu Linie; cache v60
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
