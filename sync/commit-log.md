@@ -194,3 +194,4 @@
 | 2026-07-11 13:26 | Cursor | 7cbe455a | [Cursor] labeler: potwierdzenie propagacji listwa tylko w lancuchu linkow (1-4 vs 5-8) + komunikat zakresu tagow |
 | 2026-07-11 13:32 | Cursor | 1106b938 | [Cursor] labeler: fix zapisu — dirtyGeneration, await save na blur listwy, przycisk Zapisz teraz, fetch keepalive przy F5 |
 | 2026-07-11 13:37 | Cursor | 4f75b021 | [Cursor] labeler: fix zapisu listwy — commit z DOM przed save, pendingListwaSymId, sync listwa+rail z trybu Linia |
+| 2026-07-11 13:41 | Cursor | 72aab981 | [Cursor] labeler: fix utraty listwy przy zmianie strony — force save, bbox pokazuje listwa, pendingListwaSymId przy wyborze symbolu |
