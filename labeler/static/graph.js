@@ -1573,17 +1573,15 @@ function buildPayload() {
 }
 
 async function saveGraph({ auto = false } = {}) {
-  if (!currentPageId) return;
+  if (!currentPageId) return false;
   if (saveInFlight) {
     saveQueued = true;
-    return;
+    return false;
   }
   saveInFlight = true;
   saveQueued = false;
-  // Payload odzwierciedla biezacy stan — od teraz uznajemy go za zapisany.
-  // Kazda edycja w trakcie awaita ponownie ustawi dirty=true (markDirty).
-  dirty = false;
   let ok = false;
+  let statusMsg = "";
   try {
     const payload = buildPayload();
     const res = await fetchJson(`/api/graph/${currentPageId}`, {
@@ -1592,7 +1590,10 @@ async function saveGraph({ auto = false } = {}) {
       body: JSON.stringify(payload),
     });
     const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
-    saveStatusEl.textContent = `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${warn}`;
+    const nLw = payload.symbols.filter((s) => (s.listwa || "").trim()).length;
+    const nRail = payload.lines.filter((l) => l.kind === "link" && (l.rail || "").trim()).length;
+    const extra = nLw || nRail ? ` · listwa:${nLw} rail:${nRail}` : "";
+    statusMsg = `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${extra}${warn}`;
     touchRecentPage(currentPageId);
     const meta = pageMeta(currentPageId);
     if (meta) {
@@ -1603,16 +1604,25 @@ async function saveGraph({ auto = false } = {}) {
     renderPageList();
     ok = true;
   } catch (err) {
-    dirty = true;
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
   } finally {
     saveInFlight = false;
-    if (ok && (saveQueued || dirty)) {
+    const pending = saveQueued || dirty;
+    saveQueued = false;
+    if (ok) {
+      if (pending) {
+        void saveGraph({ auto: true });
+      } else {
+        dirty = false;
+        saveStatusEl.textContent = statusMsg;
+      }
+    } else if (pending) {
       void saveGraph({ auto: true });
-    } else if (!ok) {
+    } else {
       scheduleAutoSave();
     }
   }
+  return ok;
 }
 
 async function runPrefill() {
@@ -2427,7 +2437,7 @@ symTagInput.addEventListener("blur", () => {
 
 function applySymListwaFromInput({ flush = false } = {}) {
   const sym = graph.symbols[selectedSymIdx];
-  if (!sym || !symListwaInput) return;
+  if (!sym || !symListwaInput) return Promise.resolve();
   const value = symListwaInput.value.trim();
   const zlaczkaIds = railChainZlaczkaIds(sym);
   const symTargets = graph.symbols.filter((s) => zlaczkaIds.has(s.id) && (s.listwa || "") !== value);
