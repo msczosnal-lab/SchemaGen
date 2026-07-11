@@ -2449,8 +2449,8 @@ function applySymListwaFromInput({ flush = false } = {}) {
     }
   }
   if (!symTargets.length && !linkTargets.length) {
-    if (flush) void flushAutoSave();
-    return;
+    if (flush) return saveNow();
+    return Promise.resolve();
   }
   if (!symListwaUndoPushed) {
     pushUndoSnapshot();
