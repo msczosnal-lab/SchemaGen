@@ -13,8 +13,18 @@ from backend.paths import DB_PATH, ensure_data_dirs
 
 def _connect() -> sqlite3.Connection:
     ensure_data_dirs()
-    conn = sqlite3.connect(DB_PATH)
+    # timeout: czeka na blokade zamiast rzucac "database is locked"
+    # (autosave co 500 ms + zapytania GET z watkow threadpool)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.row_factory = sqlite3.Row
+    # WAL + NORMAL: znacznie mniejsze ryzyko korupcji przy wspolbieznym
+    # zapisie i lepsza rownoleglosc czytanie/pisanie.
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+    except sqlite3.DatabaseError:
+        pass
     return conn
 
 

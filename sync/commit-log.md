@@ -200,3 +200,4 @@
 | 2026-07-11 13:57 | Claude | cbe5dc55 | [Claude] labeler: zapis GT nigdy nie przepada (allow_invalid) — fix gubienia nazw zlaczek/listew |
 | 2026-07-11 14:06 | Claude | 1a4be028 | [Claude] labeler: fix beforeunload zapisywal bez allow_invalid (gubil nazwe listwy przy reload) + cache v59 |
 | 2026-07-11 14:16 | Claude | 96c001d0 | [Claude] labeler: nazwa linku (rail) pisana WPROST na obiekt jak tag; koniec zerowania przez commitPendingEdits; pole nazwy w panelu Linie + auto-nazwa nowych linkow; cache v60 |
+| 2026-07-11 14:15 | Claude | 09bb3b09 | [Claude] labeler: nazwa linku (rail) pisana WPROST na obiekt jak tag; koniec zerowania przez commitPendingEdits; pole nazwy w panelu Linie + auto-nazwa nowych linkow; cache v60 |
