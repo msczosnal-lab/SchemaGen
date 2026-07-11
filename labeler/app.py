@@ -21,6 +21,7 @@ from backend.db import (
     save_schematic_graph,
     upsert_page,
 )
+from backend.db_backup import backup_schemagen_db
 from backend.geometry.bbox_layout import enrich_label_record
 from backend.class_map import component_type_from_bbox
 from backend.paths import RAW, SYMBOL_CLASSES, ensure_data_dirs
@@ -48,6 +49,7 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 def startup() -> None:
     ensure_data_dirs()
     init_db()
+    backup_schemagen_db()
     for png in sorted(RAW.glob("*.png")):
         upsert_page(png.stem, png.name)
 

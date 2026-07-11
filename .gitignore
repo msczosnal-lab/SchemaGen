@@ -43,6 +43,10 @@ data/raw/*
 data/labeled/*
 !data/labeled/.gitkeep
 data/schemagen.db
+data/schemagen.db-wal
+data/schemagen.db-shm
+data/schemagen.db-journal
+data/backups/
 data/.annotation_dpi
 data/archive/
 data/output/
@@ -61,6 +65,7 @@ output/
 # GitSync daemon
 sync/.daemon-*.log
 sync/.status-*.json
+sync/.gitsync-mutex
 
 # SchemaGen exports
 *.pdf

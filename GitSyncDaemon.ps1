@@ -5,17 +5,16 @@
   Cykl co -IntervalSec:
     1. fetch origin
     2. jesli jestesmy behind -> rebase --autostash na origin/<branch>
-    3. jesli sa niezacommitowane zmiany -> add + commit (sync/commit-message.txt lub auto[<TAG>])
-    4. push (jesli ahead)
+    3. jesli sa niezacommitowane zmiany -> commit TYLKO przy nazwanym sync/commit-message.txt
+    4. push (jesli ahead i byl nazwany commit)
     5. log TYLKO przy zdarzeniach (NOWE/PULL/COMMIT/PUSH/KONFLIKT/BLAD)
     6. zapis statusu do sync/.status-<TAG>.json (cicho)
 
-  Tryb -PushOnNamedOnly (dla PC ZW / Claude):
+  Tryb -PushOnNamedOnly (domyslny na obu maszynach):
     Cyklicznie tylko POBIERA (fetch + rebase --autostash) i trzyma repo w zgodzie
     z origin, ale NIE commituje ani nie pushuje automatycznych zmian WIP.
     Commit + push nastepuje WYLACZNIE gdy w sync/commit-message.txt jest nazwany
-    commit ([Claude] ... / [Cursor] ...). Bez tego praca lokalna zostaje w drzewie
-    roboczej (dirty) az do finalnego ustawienia nazwy commita.
+    commit ([Claude] ... / [Cursor] ...).
 
   Tagi maszyn: Cursor (PC Filip), Claude (PC ZW)
 
@@ -31,7 +30,7 @@ param(
     [Parameter(Mandatory=$true)][string]$MachineTag,
     [switch]$Toast,
     [switch]$Once,
-    [switch]$PushOnNamedOnly
+    [switch]$PushOnNamedOnly = $true
 )
 
 $ErrorActionPreference = "Continue"
@@ -39,6 +38,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $scriptDir "GitSyncCommit.ps1")
 
 $logFile = Join-Path $RepoPath "sync\.daemon-$MachineTag.log"
+$mutexFile = Join-Path $RepoPath "sync\.gitsync-mutex"
 
 function Log([string]$msg) {
     $line = "{0}  {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg
@@ -71,28 +71,76 @@ function script:Show-ToastIfAvailable {
     Show-Toast -title $Title -text $Text
 }
 
+function Test-ActiveGitInRepo {
+    param([string]$RepoPath)
+    try {
+        $procs = Get-CimInstance Win32_Process -Filter "Name='git.exe'" -ErrorAction SilentlyContinue
+        foreach ($p in $procs) {
+            if ($p.CommandLine -and $p.CommandLine -like "*$RepoPath*") { return $true }
+        }
+    } catch {}
+    return $false
+}
+
+function Remove-StaleGitLocks {
+    param([string]$RepoPath)
+    if (Test-ActiveGitInRepo -RepoPath $RepoPath) { return }
+    $lockCutoff = (Get-Date).AddSeconds(-60)
+    Get-ChildItem -Path (Join-Path $RepoPath ".git") -Recurse -Filter "*.lock" -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTime -lt $lockCutoff } | ForEach-Object {
+            Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
+        }
+}
+
+function Enter-GitSyncMutex {
+    param([string]$MutexPath)
+    if (Test-Path $MutexPath) {
+        try {
+            $ownerPid = [int]((Get-Content $MutexPath -Raw).Trim())
+            if ($ownerPid -gt 0 -and (Get-Process -Id $ownerPid -ErrorAction SilentlyContinue)) {
+                return $false
+            }
+        } catch {}
+        Remove-Item $MutexPath -Force -ErrorAction SilentlyContinue
+    }
+    try {
+        Set-Content -Path $MutexPath -Value $PID -NoNewline -Encoding ASCII
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+function Exit-GitSyncMutex {
+    param([string]$MutexPath)
+    if (-not (Test-Path $MutexPath)) { return }
+    try {
+        $ownerPid = [int]((Get-Content $MutexPath -Raw).Trim())
+        if ($ownerPid -eq $PID) {
+            Remove-Item $MutexPath -Force -ErrorAction SilentlyContinue
+        }
+    } catch {}
+}
+
 if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
     Write-Host "[BLAD] $RepoPath nie jest repozytorium git. Stop." -ForegroundColor Red
     exit 1
 }
 New-Item -ItemType Directory -Force -Path (Join-Path $RepoPath "sync") | Out-Null
 
-Log "Start daemona [$MachineTag], branch=$Branch, interval=${IntervalSec}s"
+Log "Start daemona [$MachineTag], branch=$Branch, interval=${IntervalSec}s, namedOnly=$($PushOnNamedOnly.IsPresent)"
 Log "Repo: $RepoPath"
 
 $lastRemote = ""
 $pullOnlyNoted = $false
 
 do {
+    if (-not (Enter-GitSyncMutex -MutexPath $mutexFile)) {
+        if (-not $Once) { Start-Sleep -Seconds $IntervalSec }
+        continue
+    }
     try {
-        # UWAGA: NIE kasować aktywnych *.lock - to niszczy ochrone git przed
-        # rownoleglym zapisem i korumpuje .git/packed-refs. Usuwamy TYLKO locki
-        # starsze niz 60 s (pozostale po zawieszonym/ubitym procesie git).
-        $lockCutoff = (Get-Date).AddSeconds(-60)
-        Get-ChildItem -Path (Join-Path $RepoPath ".git") -Recurse -Filter "*.lock" -ErrorAction SilentlyContinue |
-            Where-Object { $_.LastWriteTime -lt $lockCutoff } | ForEach-Object {
-                Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
-            }
+        Remove-StaleGitLocks -RepoPath $RepoPath
 
         & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
 
@@ -117,17 +165,18 @@ do {
                 & git -C $RepoPath rebase --abort 2>&1 | Out-Null
                 Log "[KONFLIKT] rebase przerwany - wymagane reczne scalenie. Push wstrzymany, praca lokalna zachowana."
                 Show-Toast "SchemaGen: KONFLIKT" "Rozbiezne zmiany na tym samym pliku - scal recznie."
-                if ($Once) { break } else { Start-Sleep -Seconds $IntervalSec; continue }
+                if ($Once) { break } else { continue }
             }
             Log "[PULL] zintegrowano $behind commit(ow) z origin."
         }
 
         $dirty = (& git -C $RepoPath status --porcelain 2>$null)
+        $pending = Get-PendingCommitMessage -RepoPath $RepoPath
+        $committedThisCycle = $false
         if ($dirty) {
-            $pending = Get-PendingCommitMessage -RepoPath $RepoPath
             if ($PushOnNamedOnly -and -not $pending) {
                 if (-not $pullOnlyNoted) {
-                    Log "[PULL-ONLY] zmiany lokalne - czekam na nazwany commit (sync/commit-message.txt: [Claude] opis)."
+                    Log "[PULL-ONLY] zmiany lokalne - czekam na nazwany commit (sync/commit-message.txt: [Cursor]/[Claude] opis)."
                     $pullOnlyNoted = $true
                 }
             } else {
@@ -135,6 +184,7 @@ do {
                 if ($result.Ok) {
                     Log "[COMMIT] $($result.Message)"
                     $pullOnlyNoted = $false
+                    $committedThisCycle = $result.Named
                 }
             }
         } else {
@@ -142,7 +192,7 @@ do {
         }
 
         $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
-        if ($ahead -gt 0) {
+        if ($ahead -gt 0 -and (-not $PushOnNamedOnly -or $committedThisCycle)) {
             & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
             $behindNow = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
             if ($behindNow -gt 0) {
@@ -150,7 +200,7 @@ do {
                 if ($LASTEXITCODE -ne 0) {
                     & git -C $RepoPath rebase --abort 2>&1 | Out-Null
                     Log "[KONFLIKT] rebase przed push przerwany - scal recznie."
-                    if ($Once) { break } else { Start-Sleep -Seconds $IntervalSec; continue }
+                    if ($Once) { break } else { continue }
                 }
                 Log "[PULL] zintegrowano $behindNow commit(ow) przed push."
             }
@@ -183,6 +233,9 @@ do {
     }
     catch {
         Log ("[BLAD] " + $_.Exception.Message)
+    }
+    finally {
+        Exit-GitSyncMutex -MutexPath $mutexFile
     }
 
     if (-not $Once) { Start-Sleep -Seconds $IntervalSec }
