@@ -190,3 +190,4 @@
 | 2026-07-10 22:53 | Cursor | 73fa60f3 | [Cursor] labeler: nazwa listwy na zaznaczonym linku (tryb Linia) z propagacja po polaczonej szynie, wybor linku przelacza na tryb Linia |
 | 2026-07-10 23:00 | Cursor | c13bbd5a | [Cursor] labeler: fix nieskonczonej petli auto-zapisu (dirty nigdy nie czyszczone) + sendBeacon gdy zapis trwa przy F5 |
 | 2026-07-11 11:36 | Cursor | 935555ce | [Cursor] labeler: scroll prawego panelu (edycja symbolu/linku) + listy linii i symboli |
+| 2026-07-11 13:25 | Cursor | da84a40e | [Cursor] labeler: propagacja listwa z zlaczki na cala polaczona szyne (linki + zlaczki w lancuchu) |
