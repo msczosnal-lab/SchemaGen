@@ -2544,6 +2544,9 @@ if (linkNameInput) {
 if (lineKindSelect) {
   lineKindSelect.addEventListener("change", applyLineKindFromUi);
 }
+document.getElementById("save-now-btn")?.addEventListener("click", () => {
+  void saveNow();
+});
 document.getElementById("prefill-btn")?.addEventListener("click", runPrefill);
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
@@ -2634,9 +2637,13 @@ function initPanelResize() {
 window.addEventListener("beforeunload", () => {
   if ((!dirty && !saveInFlight) || !currentPageId || !historyReady) return;
   try {
-    const payload = buildPayload();
-    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-    navigator.sendBeacon(`/api/graph/${currentPageId}`, blob);
+    const payload = JSON.stringify(buildPayload());
+    fetch(`/api/graph/${currentPageId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    });
   } catch {
     /* ignore */
   }
