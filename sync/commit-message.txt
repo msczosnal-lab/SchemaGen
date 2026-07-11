@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: fix zapisu — dirtyGeneration, await save na blur listwy, przycisk Zapisz teraz, fetch keepalive przy F5
