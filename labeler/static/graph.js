@@ -652,6 +652,8 @@ function commitPendingEdits() {
   }
   return changed;
 }
+
+function formatZlaczkaTagRange(ids) {
   const tags = graph.symbols
     .filter((s) => ids.has(s.id) && isZlaczka(s))
     .map((s) => (s.tag || "").trim())
