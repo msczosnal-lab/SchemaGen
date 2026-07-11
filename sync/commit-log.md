@@ -207,3 +207,4 @@
 | 2026-07-11 14:26 | Claude | cb2265e9 | [Claude] recover_db v2: skan po rowid (odzyskuje grafy), bezpieczna atomowa podmiana z retry, --from-bak, obsluga braku schemagen.db; + WAL w db.py |
 | 2026-07-11 18:00 | Claude | 6800e38a | [Claude] tools/count_graphs.py — licznik grafow per plik bazy; recover_db v2 (skan rowid + retry) |
 | 2026-07-11 18:00 | Claude | ffd5c09d | [Claude] tools/count_graphs.py — licznik grafow per plik bazy; recover_db v2 (skan rowid + retry) |
+| 2026-07-11 18:03 | Claude | d1b876cf | [Claude] recover_db: FIX WinError32 — nieзamkniete polaczenie do rebuilt blokowalo os.replace; zamykam przed podmiana |
