@@ -211,3 +211,4 @@
 | 2026-07-11 18:02 | Claude | 6091761c | [Claude] recover_db: FIX WinError32 — nieзamkniete polaczenie do rebuilt blokowalo os.replace; zamykam przed podmiana |
 | 2026-07-11 18:10 | Claude | 44424538 | [Claude] tools/inspect_graph.py — podglad liczby symboli/linii per graf w bazie |
 | 2026-07-11 18:15 | Claude | 3d5c71d9 | [Claude] inspect_graph: arg sciezki; instrukcja .recover dla p028 (puste zaslepki w aktywnej bazie) |
+| 2026-07-11 18:14 | Claude | 39c264a6 | [Claude] inspect_graph: arg sciezki; instrukcja .recover dla p028 (puste zaslepki w aktywnej bazie) |
