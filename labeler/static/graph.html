@@ -55,6 +55,10 @@
         <h2 class="panel-title">Linie (<span id="line-count">0</span>)</h2>
         <ul id="line-list" class="tool-list lines-list"></ul>
         <button id="delete-line-btn" type="button" class="delete-btn hidden">Usuń zaznaczoną linię</button>
+        <label id="link-name-label" class="hidden">Nazwa listwy / szyny (kind = link)
+          <input id="link-name-input" type="text" list="listwa-datalist" placeholder="np. S24VDC, -X1" />
+        </label>
+        <p id="link-name-hint" class="muted panel-hint hidden">Wpisz przed rysowaniem = nada nazwę nowym linkom. Zaznacz link = edytuj nazwę. Rozchodzi się po całej połączonej szynie.</p>
       </div>
       <div id="bbox-tool-panel" class="tool-panel">
         <h2 class="panel-title">Symbole (bbox)</h2>
@@ -91,14 +95,10 @@
             <option value="other">other</option>
           </select>
         </label>
-        <label id="link-name-label" class="hidden">Nazwa listwy (potencjał)
-          <input id="link-name-input" type="text" list="listwa-datalist" placeholder="np. S24VDC" />
-        </label>
-        <p id="link-name-hint" class="muted panel-hint hidden">Nazwa rozejdzie się po całej połączonej szynie — inne szyny zostają osobne</p>
       </div>
       </div>
     </aside>
   </main>
-  <script src="/static/graph.js?v=59"></script>
+  <script src="/static/graph.js?v=60"></script>
 </body>
 </html>

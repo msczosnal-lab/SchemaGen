@@ -89,6 +89,7 @@ let saveQueued = false;
 let dirtyGeneration = 0;
 let pendingListwaSymId = null;
 let pendingLinkLineId = null;
+let nextLinkRail = "";  // nazwa dla NASTEPNEGO rysowanego linku (kind=link)
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -646,10 +647,6 @@ function commitPendingEdits() {
     const sym = symById(pendingListwaSymId);
     if (sym && commitListwaForSym(sym, symListwaInput.value.trim())) changed = true;
   }
-  if (linkNameInput && pendingLinkLineId) {
-    const line = graph.lines.find((l) => l.id === pendingLinkLineId);
-    if (line && commitLinkNameForLine(line, linkNameInput.value.trim())) changed = true;
-  }
   if (changed) {
     dirty = true;
     dirtyGeneration += 1;
@@ -830,7 +827,9 @@ function syncLineToolPanel() {
   linkNameLabel?.classList.toggle("hidden", !showName);
   linkNameHint?.classList.toggle("hidden", !showName);
   if (linkNameInput && document.activeElement !== linkNameInput) {
-    linkNameInput.value = line ? (line.rail || "").trim() || listwaFromLineEndpoints(line) : "";
+    linkNameInput.value = line
+      ? (line.rail || "").trim() || listwaFromLineEndpoints(line)
+      : (isLinkKind(currentLineKind()) ? nextLinkRail : "");
   }
 
   if (deleteLineBtn) deleteLineBtn.classList.toggle("hidden", !line);
@@ -1266,9 +1265,14 @@ function completeLineDraft(hit) {
       to: hit.ref,
       vertices,
       kind,
-      rail: "",
+      rail: kind === "link" ? (nextLinkRail || "").trim() : "",
     };
     graph.lines.push(line);
+    if (kind === "link" && line.rail) {
+      // rozejdz nazwe po calej polaczonej szynie (nowy link mogl domknac tor)
+      commitLinkNameForLine(line, line.rail);
+      refreshListwaDatalist();
+    }
     cancelLineDraft();
     markDirty();
     renderSymbolList();
@@ -2594,29 +2598,29 @@ function applyLineKindFromUi() {
 }
 
 function applyLinkNameFromInput({ flush = false } = {}) {
-  const line = pendingLinkLineId
-    ? graph.lines.find((l) => l.id === pendingLinkLineId)
-    : selectedLine();
-  if (!line || !isLinkKind(line.kind) || !linkNameInput) return Promise.resolve();
+  if (!linkNameInput) return Promise.resolve();
   const value = linkNameInput.value.trim();
-  const changed = commitLinkNameForLine(line, value, { recordUndo: true });
-  if (!changed) {
+  const line = selectedLine();
+  // Zaznaczony link -> pisz nazwe WPROST na obiekt linii (zrodlo prawdy).
+  if (line && isLinkKind(line.kind)) {
+    const changed = commitLinkNameForLine(line, value, { recordUndo: true });
+    if (changed) {
+      markDirty();
+      renderLineList();
+      renderSymbolList();
+      refreshListwaDatalist();
+      redraw();
+    }
     if (flush) return saveNow();
     return Promise.resolve();
   }
-  markDirty();
-  renderLineList();
-  renderSymbolList();
-  refreshListwaDatalist();
-  redraw();
-  if (flush) return saveNow();
+  // Brak zaznaczonego linku -> zapamietaj nazwe dla NASTEPNEGO rysowanego linku.
+  nextLinkRail = value;
   return Promise.resolve();
 }
 
 if (linkNameInput) {
   linkNameInput.addEventListener("focus", () => {
-    const line = selectedLine();
-    pendingLinkLineId = line?.id || pendingLinkLineId;
     linkNameUndoPushed = false;
   });
   linkNameInput.addEventListener("input", () => {
