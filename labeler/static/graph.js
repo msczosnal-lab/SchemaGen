@@ -1099,9 +1099,11 @@ function selectLineById(id) {
 }
 
 function selectLine(idx) {
+  commitPendingEdits();
   if (idx < 0 || idx >= graph.lines.length) {
     selectedLineId = null;
     selectedLineIdx = -1;
+    pendingLinkLineId = null;
     syncLineToolPanel();
     renderLineList();
     redraw();
