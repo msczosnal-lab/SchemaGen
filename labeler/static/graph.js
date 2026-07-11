@@ -30,6 +30,7 @@ let lineDraft = null;
 let cursorImgPt = null;
 let selectedLineIdx = -1;
 let selectedLineId = null;
+let lastSaveWarnings = [];
 
 const RECENT_PAGES_KEY = "graphRecentPages";
 const LAST_PAGE_KEY = "graphLastPage";
@@ -1672,16 +1673,20 @@ async function saveGraph({ auto = false } = {}) {
   let statusMsg = "";
   try {
     const payload = buildPayload();
-    const res = await fetchJson(`/api/graph/${currentPageId}`, {
+    const res = await fetchJson(`/api/graph/${currentPageId}?allow_invalid=true`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const warn = res.warnings?.length ? ` (${res.warnings.length} ostrz.)` : "";
+    const warnList = res.warnings || [];
+    const warn = warnList.length ? ` (${warnList.length} ostrz.)` : "";
     const nLw = payload.symbols.filter((s) => (s.listwa || "").trim()).length;
     const nRail = payload.lines.filter((l) => l.kind === "link" && (l.rail || "").trim()).length;
     const extra = nLw || nRail ? ` · listwa:${nLw} rail:${nRail}` : "";
-    statusMsg = `Zapisano · ${res.symbol_count} sym., ${res.line_count} linii${extra}${warn}`;
+    const prefix = res.saved_invalid ? "Zapisano (z uwagami)" : "Zapisano";
+    statusMsg = `${prefix} · ${res.symbol_count} sym., ${res.line_count} linii${extra}${warn}`;
+    lastSaveWarnings = warnList;
+    if (res.saved_invalid) console.warn("Zapis z uwagami walidacji:", warnList);
     touchRecentPage(currentPageId);
     const meta = pageMeta(currentPageId);
     if (meta) {
@@ -1703,6 +1708,10 @@ async function saveGraph({ auto = false } = {}) {
       } else {
         dirty = false;
         saveStatusEl.textContent = statusMsg;
+        saveStatusEl.title = lastSaveWarnings.length
+          ? lastSaveWarnings.join("\n")
+          : "";
+        saveStatusEl.classList.toggle("has-warnings", lastSaveWarnings.length > 0);
       }
     } else if (needRetry || dirty) {
       void saveGraph({ auto: true });

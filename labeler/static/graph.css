@@ -211,3 +211,9 @@ body.graph-v2.invert-bg #canvas-panel canvas {
 #line-list li.active { outline: 2px solid #ffd43b; background: #3a3a3a; }
 .secondary-btn { margin: 8px 0; padding: 8px 12px; background: #555; border: none; color: #fff; border-radius: 4px; cursor: pointer; width: 100%; }
 .secondary-btn:hover { background: #666; }
+
+#save-status.has-warnings {
+  color: #e8a33d;
+  cursor: help;
+  font-weight: 600;
+}

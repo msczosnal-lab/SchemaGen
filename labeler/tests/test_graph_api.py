@@ -88,6 +88,25 @@ def test_graph_save_rejects_invalid(tmp_db):
     assert res.status_code == 422
 
 
+def test_graph_save_allow_invalid_persists(tmp_db):
+    """allow_invalid=true: zapis nie przepada mimo bledu walidacji.
+
+    Regresja: nazwy zlaczek/listew gubily sie, bo 422 odrzucal CALY zapis."""
+    bad = _valid_graph_payload()
+    bad["symbols"][0]["terminals"] = [{"id": "1", "x": 0.5, "y": 0.5}]
+    bad["symbols"][0]["tag"] = "12"
+    bad["symbols"][0]["listwa"] = "-X1"
+    res = client.post(f"/api/graph/{PAGE}?allow_invalid=true", json=bad)
+    assert res.status_code == 200
+    body = res.json()
+    assert body["saved_invalid"] is True
+    assert body["warnings"]
+    get = client.get(f"/api/graph/{PAGE}")
+    saved = get.json()["symbols"][0]
+    assert saved["tag"] == "12"
+    assert saved["listwa"] == "-X1"
+
+
 def test_graph_validate_endpoint(tmp_db):
     res = client.post("/api/graph/validate", json=_valid_graph_payload())
     assert res.status_code == 200

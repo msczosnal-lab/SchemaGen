@@ -445,12 +445,20 @@ def get_graph(page_id: str) -> dict:
 
 
 @app.post("/api/graph/{page_id}")
-def post_graph(page_id: str, body: SchematicGraph) -> dict:
+def post_graph(
+    page_id: str, body: SchematicGraph, allow_invalid: bool = False
+) -> dict:
+    """Zapis grafu GT.
+
+    Domyslnie (allow_invalid=False) bledy walidacji -> 422 (bez zapisu).
+    Z allow_invalid=True zapis NIGDY nie przepada: bledy walidacji wracaja
+    jako `warnings` (labeler = praca w toku, nie wolno gubic np. nazw zlaczek).
+    """
     if body.page_id and body.page_id != page_id:
         raise HTTPException(400, "page_id w body nie zgadza sie z URL")
     graph = body.model_copy(update={"page_id": page_id})
     result = validate_graph(graph)
-    if not result.valid:
+    if not result.valid and not allow_invalid:
         raise HTTPException(422, detail={"errors": result.errors})
     save_schematic_graph(page_id, graph.model_dump(mode="json", by_alias=True))
     upsert_page(page_id, f"{page_id}.png", status="labeled")
@@ -460,8 +468,12 @@ def post_graph(page_id: str, body: SchematicGraph) -> dict:
         "symbol_count": len(graph.symbols),
         "line_count": len(graph.lines),
     }
-    if result.warnings:
-        out["warnings"] = result.warnings
+    warnings = list(result.warnings)
+    if not result.valid:
+        out["saved_invalid"] = True
+        warnings = [f"[walidacja] {e}" for e in result.errors] + warnings
+    if warnings:
+        out["warnings"] = warnings
     return out
 
 

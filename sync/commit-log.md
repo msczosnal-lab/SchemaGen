@@ -196,3 +196,4 @@
 | 2026-07-11 13:37 | Cursor | 4f75b021 | [Cursor] labeler: fix zapisu listwy — commit z DOM przed save, pendingListwaSymId, sync listwa+rail z trybu Linia |
 | 2026-07-11 13:41 | Cursor | 72aab981 | [Cursor] labeler: fix utraty listwy przy zmianie strony — force save, bbox pokazuje listwa, pendingListwaSymId przy wyborze symbolu |
 | 2026-07-11 13:44 | Claude | 6116de64 | [Claude] autocommit |
+| 2026-07-05 23:12 | Claude | 27ca8b0a | [Claude] sync: prompt 022 labeler graf v2 (review planu Cursora, remap ID w diff, decyzja szyna=link) + KOLEJNE-ZADANIE |
