@@ -45,9 +45,13 @@ def _serial_len(st):
 
 def carve(src_path):
     data = Path(src_path).read_bytes()
+    if len(data) < 100 or data[:16] != b"SQLite format 3\x00":
+        return {}
     ps = int.from_bytes(data[16:18], "big")
     if ps == 1:
         ps = 65536
+    if ps < 512:
+        return {}
     reserved = data[20]
     U = ps - reserved
     npages = len(data) // ps

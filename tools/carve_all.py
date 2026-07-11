@@ -48,7 +48,7 @@ def main():
     best = {}
     files = sorted(glob.glob(str(ROOT / "data" / "schemagen*")))
     for f in files:
-        if f.endswith((".sql", ".tmp", ".best.db")):
+        if f.endswith((".sql", ".tmp", ".best.db", "-shm", "-journal")):
             continue
         try:
             found = _carve_wal(f) if f.endswith("-wal") else cg.carve(f)

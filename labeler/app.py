@@ -446,7 +446,8 @@ def get_graph(page_id: str) -> dict:
 
 @app.post("/api/graph/{page_id}")
 def post_graph(
-    page_id: str, body: SchematicGraph, allow_invalid: bool = False
+    page_id: str, body: SchematicGraph, allow_invalid: bool = False,
+    allow_empty: bool = False,
 ) -> dict:
     """Zapis grafu GT.
 
@@ -457,6 +458,24 @@ def post_graph(
     if body.page_id and body.page_id != page_id:
         raise HTTPException(400, "page_id w body nie zgadza sie z URL")
     graph = body.model_copy(update={"page_id": page_id})
+    # OCHRONA: pusty graf nie moze nadpisac istniejacego niepustego
+    # (zapobiega utracie GT gdy labeler wczyta pusto i autosave nadpisze).
+    if not graph.symbols and not graph.lines and not allow_empty:
+        existing = load_schematic_graph(page_id)
+        if existing:
+            ex = SchematicGraph.model_validate(existing)
+            if ex.symbols or ex.lines:
+                return {
+                    "status": "skipped_empty_overwrite",
+                    "page_id": page_id,
+                    "symbol_count": len(ex.symbols),
+                    "line_count": len(ex.lines),
+                    "warnings": [
+                        "Zignorowano zapis PUSTEGO grafu na istniejacym "
+                        "(%d sym., %d linii). Uzyj allow_empty=true by wymusic."
+                        % (len(ex.symbols), len(ex.lines))
+                    ],
+                }
     result = validate_graph(graph)
     if not result.valid and not allow_invalid:
         raise HTTPException(422, detail={"errors": result.errors})

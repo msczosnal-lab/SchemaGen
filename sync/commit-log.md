@@ -214,3 +214,4 @@
 | 2026-07-11 18:14 | Claude | 39c264a6 | [Claude] inspect_graph: arg sciezki; instrukcja .recover dla p028 (puste zaslepki w aktywnej bazie) |
 | 2026-07-11 18:20 | Claude | aaf309bd | [Claude] tools/carve_graphs.py — czysto-pythonowe .recover grafow z surowych stron SQLite (overflow OK); przetestowane na malformed |
 | 2026-07-11 18:19 | Claude | 3c5de682 | [Claude] tools/carve_graphs.py — czysto-pythonowe .recover grafow z surowych stron SQLite (overflow OK); przetestowane na malformed |
+| 2026-07-11 18:24 | Claude | 5befb35c | [Claude] tools/carve_all.py — skan wszystkich kopii bazy (+ -wal) po najbogatszy p028; tools/__init__.py |

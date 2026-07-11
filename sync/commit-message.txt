@@ -1,1 +1,1 @@
-[Claude] tools/carve_all.py — skan wszystkich kopii bazy (+ -wal) po najbogatszy p028; tools/__init__.py
+[Claude] OCHRONA: pusty graf nie nadpisze niepustego (skipped_empty_overwrite, allow_empty by wymusic) — koniec utraty GT; + carve_all/carve_graphs guard
