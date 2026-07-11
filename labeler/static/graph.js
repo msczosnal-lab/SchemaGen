@@ -101,6 +101,10 @@ const symTypeInput = document.getElementById("sym-type-input");
 const symTagInput = document.getElementById("sym-tag-input");
 const symListwaInput = document.getElementById("sym-listwa-input");
 const symListwaLabel = document.getElementById("sym-listwa-label");
+const symListwaHint = document.getElementById("sym-listwa-hint");
+const termNameInput = document.getElementById("term-name-input");
+const termNameLabel = document.getElementById("term-name-label");
+let termNameUndoPushed = false;
 const listwaDatalist = document.getElementById("listwa-datalist");
 const paletteResults = document.getElementById("palette-results");
 const symbolEditor = document.getElementById("symbol-editor");
@@ -1973,7 +1977,7 @@ function renderTerminalList() {
   if (!sym) return;
   (sym.terminals || []).forEach((t, i) => {
     const li = document.createElement("li");
-    li.textContent = `${t.id} @ (${t.x}, ${t.y})`;
+    li.textContent = `${t.id} @ (${t.x}, ${t.y})` + (t.name ? `  [${t.name}]` : "");
     if (i === selectedTermIdx) li.style.color = TERMINAL_SEL;
     li.onclick = () => {
       selectedTermIdx = i;
@@ -1982,6 +1986,16 @@ function renderTerminalList() {
     };
     list.appendChild(li);
   });
+  syncTermNameField();
+}
+
+function syncTermNameField() {
+  const sym = graph.symbols[selectedSymIdx];
+  const term = sym && selectedTermIdx >= 0 ? (sym.terminals || [])[selectedTermIdx] : null;
+  termNameLabel?.classList.toggle("hidden", !term);
+  if (termNameInput && document.activeElement !== termNameInput) {
+    termNameInput.value = term ? (term.name || "") : "";
+  }
 }
 
 function renderSymbolEditor() {
@@ -1999,6 +2013,9 @@ function renderSymbolEditor() {
   applyInputTypeColor(symTypeInput, typeStr(sym.type));
   applyInputTypeColor(symTagInput, sym.tag);
   updateTypeTagPlaceholders();
+  const showListwa = isZlaczka(sym);
+  symListwaLabel?.classList.toggle("hidden", !showListwa);
+  symListwaHint?.classList.toggle("hidden", !showListwa);
   renderTerminalList();
 }
 
@@ -2579,6 +2596,28 @@ if (symListwaInput) {
   });
   symListwaInput.addEventListener("blur", () => {
     void applySymListwaFromInput({ flush: true });
+  });
+}
+
+if (termNameInput) {
+  termNameInput.addEventListener("focus", () => {
+    termNameUndoPushed = false;
+  });
+  termNameInput.addEventListener("input", () => {
+    const sym = graph.symbols[selectedSymIdx];
+    if (!sym || selectedTermIdx < 0) return;
+    const t = (sym.terminals || [])[selectedTermIdx];
+    if (!t) return;
+    if (!termNameUndoPushed) {
+      pushUndoSnapshot();
+      termNameUndoPushed = true;
+    }
+    t.name = termNameInput.value;
+    markDirty();
+    renderTerminalList();
+  });
+  termNameInput.addEventListener("blur", () => {
+    void saveNow();
   });
 }
 
