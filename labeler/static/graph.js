@@ -585,7 +585,73 @@ function connectedLinkIdsForSym(symId) {
   return railChainLinkIds(touching[0]);
 }
 
-function formatZlaczkaTagRange(ids) {
+function symById(id) {
+  if (!id) return null;
+  return graph.symbols.find((s) => s.id === id) || null;
+}
+
+function commitListwaForSym(sym, value, { recordUndo = false } = {}) {
+  if (!sym) return false;
+  const zlaczkaIds = railChainZlaczkaIds(sym);
+  const symTargets = graph.symbols.filter((s) => zlaczkaIds.has(s.id) && (s.listwa || "") !== value);
+  const linkTargets = [];
+  if (isZlaczka(sym)) {
+    const connectedLinkIds = connectedLinkIdsForSym(sym.id);
+    for (const l of graph.lines) {
+      if (connectedLinkIds.has(l.id) && (l.rail || "") !== value) linkTargets.push(l);
+    }
+  }
+  if (!symTargets.length && !linkTargets.length) return false;
+  if (recordUndo && !symListwaUndoPushed) {
+    pushUndoSnapshot();
+    symListwaUndoPushed = true;
+  }
+  for (const s of symTargets) s.listwa = value;
+  for (const l of linkTargets) l.rail = value;
+  return true;
+}
+
+function commitLinkNameForLine(line, value, { recordUndo = false } = {}) {
+  if (!line || !isLinkKind(line.kind)) return false;
+  const ids = railChainLinkIds(line);
+  const linkTargets = graph.lines.filter((l) => ids.has(l.id) && (l.rail || "") !== value);
+  const zlaczkaIds = new Set();
+  for (const l of graph.lines) {
+    if (!ids.has(l.id)) continue;
+    for (const ref of [lineFromRef(l), lineToRef(l)]) {
+      const p = parseTerminalRef(ref);
+      if (!p) continue;
+      const s = symById(p.symId);
+      if (s && isZlaczka(s)) zlaczkaIds.add(s.id);
+    }
+  }
+  const symTargets = graph.symbols.filter((s) => zlaczkaIds.has(s.id) && (s.listwa || "") !== value);
+  if (!linkTargets.length && !symTargets.length) return false;
+  if (recordUndo && !linkNameUndoPushed) {
+    pushUndoSnapshot();
+    linkNameUndoPushed = true;
+  }
+  for (const l of linkTargets) l.rail = value;
+  for (const s of symTargets) s.listwa = value;
+  return true;
+}
+
+function commitPendingEdits() {
+  let changed = false;
+  if (symListwaInput && pendingListwaSymId) {
+    const sym = symById(pendingListwaSymId);
+    if (sym && commitListwaForSym(sym, symListwaInput.value.trim())) changed = true;
+  }
+  if (linkNameInput && pendingLinkLineId) {
+    const line = graph.lines.find((l) => l.id === pendingLinkLineId);
+    if (line && commitLinkNameForLine(line, linkNameInput.value.trim())) changed = true;
+  }
+  if (changed) {
+    dirty = true;
+    dirtyGeneration += 1;
+  }
+  return changed;
+}
   const tags = graph.symbols
     .filter((s) => ids.has(s.id) && isZlaczka(s))
     .map((s) => (s.tag || "").trim())
