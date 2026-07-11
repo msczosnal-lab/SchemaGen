@@ -352,7 +352,10 @@ function applyInputTypeColor(input, key) {
 }
 
 function bboxTagLabel(sym) {
+  const listwa = (sym.listwa || "").trim();
   const tag = (sym.tag || "").trim();
+  if (listwa && tag) return `${listwa} · ${tag}`;
+  if (listwa) return listwa;
   if (tag) return tag;
   const t = typeStr(sym.type);
   if (t) return t;
@@ -556,8 +559,8 @@ function isZlaczka(sym) {
 /** Wszystkie złączki w tej samej połączonej szynie (przez linki). */
 function railChainZlaczkaIds(startSym) {
   if (!startSym) return new Set();
-  const result = new Set();
-  if (isZlaczka(startSym)) result.add(startSym.id);
+  const result = new Set([startSym.id]);
+  if (!isZlaczka(startSym)) return result;
 
   const connectedLinkIds = connectedLinkIdsForSym(startSym.id);
   if (!connectedLinkIds.size) return result;
@@ -1461,12 +1464,15 @@ function scheduleAutoSave() {
   }, AUTOSAVE_MS);
 }
 
-async function flushAutoSave() {
+async function flushAutoSave({ force = false } = {}) {
   if (autosaveTimer) {
     clearTimeout(autosaveTimer);
     autosaveTimer = null;
   }
-  if (!currentPageId || (!dirty && !saveInFlight)) return true;
+  if (!currentPageId) return true;
+  if (!force && !dirty && !saveInFlight) return true;
+  commitPendingEdits();
+  dirty = true;
   return saveGraph({ auto: true });
 }
 
@@ -1475,6 +1481,7 @@ async function saveNow() {
     clearTimeout(autosaveTimer);
     autosaveTimer = null;
   }
+  commitPendingEdits();
   dirty = true;
   return saveGraph();
 }
@@ -2130,7 +2137,7 @@ function pickInitialPageId() {
 async function selectPage(pageId) {
   if (!pageId) return;
   if (currentPageId && pageId !== currentPageId) {
-    await flushAutoSave();
+    await flushAutoSave({ force: true });
   }
 
   historyReady = false;
