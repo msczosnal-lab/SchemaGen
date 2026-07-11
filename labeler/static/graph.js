@@ -1981,6 +1981,7 @@ function renderSymbolEditor() {
   symTypeInput.value = typeStr(sym.type);
   symTagInput.value = sym.tag || "";
   if (symListwaInput) symListwaInput.value = sym.listwa || "";
+  pendingListwaSymId = sym.id;
   refreshListwaDatalist();
   applyInputTypeColor(symTypeInput, typeStr(sym.type));
   applyInputTypeColor(symTagInput, sym.tag);
