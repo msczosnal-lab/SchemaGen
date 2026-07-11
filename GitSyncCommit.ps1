@@ -74,13 +74,27 @@ function Append-CommitLog {
     Add-Content -Path $logPath -Value $line -Encoding UTF8
 }
 
+function Add-GitSyncPaths {
+    param([string]$RepoPath)
+    # Nigdy nie stage'uj zywej bazy SQLite ani jej artefaktow WAL.
+    $excludes = @(
+        ":(exclude)data/schemagen.db"
+        ":(exclude)data/schemagen.db-wal"
+        ":(exclude)data/schemagen.db-shm"
+        ":(exclude)data/schemagen.db-journal"
+        ":(exclude)data/backups"
+        ":(exclude)data/backups/**"
+    )
+    & git -C $RepoPath add -A -- . @excludes 2>&1 | Out-Null
+}
+
 function Invoke-GitSyncCommit {
     param(
         [string]$RepoPath,
         [string]$MachineTag,
         [switch]$Manual
     )
-    & git -C $RepoPath add -A 2>&1 | Out-Null
+    Add-GitSyncPaths -RepoPath $RepoPath
     $pending = Get-PendingCommitMessage -RepoPath $RepoPath
     $named = $false
     if ($pending) {
