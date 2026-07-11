@@ -770,7 +770,10 @@ function terminalHitTest(sym, imgPt) {
 }
 
 function symbolHitTest(imgPt) {
-  for (let i = graph.symbols.length - 1; i >= 0; i--) {
+  // Zagniezdzone bboxy: wybierz NAJMNIEJSZY (najglebszy) zawierajacy punkt.
+  let best = -1;
+  let bestArea = Infinity;
+  for (let i = 0; i < graph.symbols.length; i++) {
     const r = bboxRect(graph.symbols[i]);
     if (
       imgPt.x >= r.x &&
@@ -778,10 +781,14 @@ function symbolHitTest(imgPt) {
       imgPt.y >= r.y &&
       imgPt.y <= r.y + r.height
     ) {
-      return i;
+      const area = (r.width || 1) * (r.height || 1);
+      if (area < bestArea) {
+        bestArea = area;
+        best = i;
+      }
     }
   }
-  return -1;
+  return best;
 }
 
 function findTerminalAt(imgPt) {
@@ -2119,12 +2126,19 @@ function findOrCreateTerminalAt(imgPt) {
   const hit = findTerminalAt(imgPt);
   if (hit) return hit;
 
-  for (let i = graph.symbols.length - 1; i >= 0; i--) {
-    const sym = graph.symbols[i];
-    if (!terminalCreateHit(sym, imgPt)) continue;
-    return addTerminalAt(i, imgPt);
+  let bestI = -1;
+  let bestArea = Infinity;
+  for (let i = 0; i < graph.symbols.length; i++) {
+    if (!terminalCreateHit(graph.symbols[i], imgPt)) continue;
+    const r = bboxRect(graph.symbols[i]);
+    const area = (r.width || 1) * (r.height || 1);
+    if (area < bestArea) {
+      bestArea = area;
+      bestI = i;
+    }
   }
-  return null;
+  if (bestI < 0) return null;
+  return addTerminalAt(bestI, imgPt);
 }
 
 async function loadPages() {

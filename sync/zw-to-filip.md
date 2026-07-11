@@ -34,6 +34,35 @@
 Commit pending: `[Cursor] 031: bezpieczny GitSyncDaemon, backup DB, gitignore WAL/gt`
 
 ---
+## 2026-07-11 [Claude] — 030 GT jako JSON + cache SQLite + migracja DONE
+
+**Cel:** GT trwałe i przyjazne gitowi. Każda strona = `gt/<page_id>.json` (źródło prawdy).
+Tabela `schematic_graph` = tylko cache odbudowywalny. Wyzerowanie/uszkodzenie bazy = nie-zdarzenie.
+
+**Pliki:**
+- `backend/gt_store.py` (NOWY) — sanityzacja page_id (`[A-Za-z0-9._-]`, reszta→`_`), atomowy zapis (`tempfile.mkstemp` w tym samym katalogu + `fsync` + `os.replace`), read/list/iter, JSON `indent=2`, `ensure_ascii=False`, LF. Guard empty jako helper `_is_empty_payload`.
+- `backend/db.py` — `save_schematic_graph(page_id, payload, allow_empty=False)`: zapis pliku JSON (atomowo) + upsert cache; guard empty-overwrite egzekwowany na PLIKU JSON (nie tylko bazie); zwraca `{status: saved|skipped_empty_overwrite}`. `load_schematic_graph`: cache → fallback `gt/*.json` (+odbudowa cache). `rebuild_cache_from_gt()`: skan `gt/*.json` → cache. `has_schematic_graph` też sprawdza plik.
+- `labeler/app.py` — startup woła `rebuild_cache_from_gt()` (świeża/uszkodzona baza sama się odbudowuje); POST /api/graph przekazuje `allow_empty` do save; prefill zapisuje z `allow_empty=True`.
+- `tools/export_gt_to_json.py` (NOWY) — migracja jednorazowa: wiersze cache → `gt/*.json` (idempotentna, `--dry-run`).
+- `conftest.py` (NOWY, root) — autouse izolacja: każdy test dostaje własny `gt/` w tmp (repo bez śmieci).
+- `backend/tests/test_gt_store.py` (NOWY, 8 testów) — round-trip, fallback, rebuild, guard empty, allow_empty, atomowość (brak połowicznych/tmp przy wyjątku), sanitize, list.
+
+**Kontrakty NIENARUSZONE:** SchemaModel, `SchematicGraph.model_dump(by_alias=True)`, guard `skipped_empty_overwrite`. `.gitignore` bez zmian (db + wal/shm/journal już ignorowane; `gt/` śledzony).
+
+**pytest:** **258 passed** (backend/tests + labeler/tests; 250 poprzednich + 8 nowych). Uruchomione w izolowanej kopii /tmp — patrz uwaga niżej.
+
+**[RYZYKO] Środowisko Cowork:** mount bash trzymał stary snapshot plików edytowanych w tej sesji (db.py, app.py) — testy puściłem na spójnej kopii /tmp (db.py wpisany ręcznie, app.py = `git show HEAD` + 3 patche sedem, potwierdzone identyczne z wersją zapisaną). Pliki na dysku (Windows-side) są POPRAWNE i kompletne. Po `git pull` na PC zweryfikuj `pytest` u siebie.
+
+**[DO ZROBIENIA Filip] Migracja danych:** w tym checkoutcie `data/schemagen.db` nie ma tabeli `schematic_graph` ani `gt/*.json` (pusto poza `.gitkeep`) — nie było czego eksportować tutaj. Na PC z zapełnioną bazą uruchom:
+```
+python -m tools.export_gt_to_json          # (--dry-run by podejrzeć)
+git add gt/ && commit
+```
+Potem restart labelera odbuduje cache z `gt/` automatycznie.
+
+---
+
+## 2026-07-11 14:20 [Claude] — PRAWDZIWA przyczyna: uszkodzona baza SQLite
 
 **Z logow uvicorn (PC Filip):** `sqlite3.DatabaseError: database disk image is malformed`
 w upsert_page (db.py:72). POST /api/graph zwracal 200, ale baza jest fizycznie
