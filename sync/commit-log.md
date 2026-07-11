@@ -220,3 +220,4 @@
 | 2026-07-11 18:37 | Claude | 7fde8b66 | [Claude] tools/recover_from_v1.py — odzysk bboxow z adnotacji v1 (raw carve tabeli annotations) + migracja do v2 + scalanie --into (symbol-count-wins). Backup 3-lip ma p028=37, p029=65, ~180 stron |
 | 2026-07-11 18:32 | Claude | ed7a31b6 | [Claude] tools/recover_from_v1.py — odzysk bboxow z adnotacji v1 (raw carve tabeli annotations) + migracja do v2 + scalanie --into (symbol-count-wins). Backup 3-lip ma p028=37, p029=65, ~180 stron |
 | 2026-07-11 19:13 | Claude | 930ea8c4 | [Claude] reorg: prompty 030 (GT->JSON+cache) i 031 (repo/daemon/backup+GitHub), niezmienniki w CLAUDE.md, instrukcja konektora GitHub |
+| 2026-07-11 19:07 | Claude | f753be61 | [Claude] reorg: prompty 030 (GT->JSON+cache) i 031 (repo/daemon/backup+GitHub), niezmienniki w CLAUDE.md, instrukcja konektora GitHub |

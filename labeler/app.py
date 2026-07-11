@@ -17,6 +17,7 @@ from backend.db import (
     list_pages,
     load_annotation,
     load_schematic_graph,
+    rebuild_cache_from_gt,
     save_annotation,
     save_schematic_graph,
     upsert_page,
@@ -49,6 +50,8 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 def startup() -> None:
     ensure_data_dirs()
     init_db()
+    # GT (gt/*.json) = źródło prawdy; odbuduj cache SQLite (świeża/uszkodzona baza).
+    rebuild_cache_from_gt()
     backup_schemagen_db()
     for png in sorted(RAW.glob("*.png")):
         upsert_page(png.stem, png.name)
@@ -481,7 +484,9 @@ def post_graph(
     result = validate_graph(graph)
     if not result.valid and not allow_invalid:
         raise HTTPException(422, detail={"errors": result.errors})
-    save_schematic_graph(page_id, graph.model_dump(mode="json", by_alias=True))
+    save_schematic_graph(
+        page_id, graph.model_dump(mode="json", by_alias=True), allow_empty=allow_empty
+    )
     upsert_page(page_id, f"{page_id}.png", status="labeled")
     out = {
         "status": "saved",
@@ -516,7 +521,7 @@ def post_graph_prefill(page_id: str, force: bool = False) -> dict:
     except FileNotFoundError as exc:
         raise HTTPException(404, str(exc)) from exc
     save_schematic_graph(
-        page_id, graph.model_dump(mode="json", by_alias=True)
+        page_id, graph.model_dump(mode="json", by_alias=True), allow_empty=True
     )
     upsert_page(page_id, f"{page_id}.png", status="draft")
     return {
