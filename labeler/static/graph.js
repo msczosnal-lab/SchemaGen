@@ -1587,6 +1587,7 @@ async function saveGraph({ auto = false } = {}) {
   }
   saveInFlight = true;
   saveQueued = false;
+  const genAtStart = dirtyGeneration;
   let ok = false;
   let statusMsg = "";
   try {
@@ -1614,16 +1615,16 @@ async function saveGraph({ auto = false } = {}) {
     saveStatusEl.textContent = `Błąd zapisu: ${err.message}`;
   } finally {
     saveInFlight = false;
-    const pending = saveQueued || dirty;
+    const needRetry = saveQueued || dirtyGeneration > genAtStart;
     saveQueued = false;
     if (ok) {
-      if (pending) {
+      if (needRetry) {
         void saveGraph({ auto: true });
       } else {
         dirty = false;
         saveStatusEl.textContent = statusMsg;
       }
-    } else if (pending) {
+    } else if (needRetry || dirty) {
       void saveGraph({ auto: true });
     } else {
       scheduleAutoSave();
