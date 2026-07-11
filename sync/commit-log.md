@@ -205,3 +205,4 @@
 | 2026-07-11 14:19 | Claude | af16a91a | [Claude] FIX korupcji bazy: WAL+busy_timeout w db.py + tools/recover_db.py; link rail zapis wprost na obiekt; pole nazwy w panelu Linie; cache v60 |
 | 2026-07-11 16:19 | Claude | 76c4d824 | [Claude] recover_db v2: skan po rowid (odzyskuje grafy), bezpieczna atomowa podmiana z retry, --from-bak, obsluga braku schemagen.db; + WAL w db.py |
 | 2026-07-11 14:26 | Claude | cb2265e9 | [Claude] recover_db v2: skan po rowid (odzyskuje grafy), bezpieczna atomowa podmiana z retry, --from-bak, obsluga braku schemagen.db; + WAL w db.py |
+| 2026-07-11 18:00 | Claude | 6800e38a | [Claude] tools/count_graphs.py — licznik grafow per plik bazy; recover_db v2 (skan rowid + retry) |
