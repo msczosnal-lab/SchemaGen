@@ -203,3 +203,4 @@
 | 2026-07-11 14:15 | Claude | 09bb3b09 | [Claude] labeler: nazwa linku (rail) pisana WPROST na obiekt jak tag; koniec zerowania przez commitPendingEdits; pole nazwy w panelu Linie + auto-nazwa nowych linkow; cache v60 |
 | 2026-07-11 14:22 | Claude | 5a774eed | [Claude] FIX korupcji bazy: WAL+busy_timeout w db.py + tools/recover_db.py; link rail zapis wprost na obiekt; pole nazwy w panelu Linie; cache v60 |
 | 2026-07-11 14:19 | Claude | af16a91a | [Claude] FIX korupcji bazy: WAL+busy_timeout w db.py + tools/recover_db.py; link rail zapis wprost na obiekt; pole nazwy w panelu Linie; cache v60 |
+| 2026-07-11 16:19 | Claude | 76c4d824 | [Claude] recover_db v2: skan po rowid (odzyskuje grafy), bezpieczna atomowa podmiana z retry, --from-bak, obsluga braku schemagen.db; + WAL w db.py |
