@@ -85,6 +85,7 @@ let linkNameUndoPushed = false;
 let autosaveTimer = null;
 let saveInFlight = false;
 let saveQueued = false;
+let dirtyGeneration = 0;
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -1393,16 +1394,22 @@ async function flushAutoSave() {
     clearTimeout(autosaveTimer);
     autosaveTimer = null;
   }
-  dirty = true;
-  await saveGraph({ auto: true });
+  if (!currentPageId || (!dirty && !saveInFlight)) return true;
+  return saveGraph({ auto: true });
 }
 
 async function saveNow() {
-  return flushAutoSave();
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+  dirty = true;
+  return saveGraph();
 }
 
 function markDirty() {
   dirty = true;
+  dirtyGeneration += 1;
   touchRecentPage(currentPageId);
   renderRecentPages();
   if (!historyReady) {
