@@ -209,3 +209,4 @@
 | 2026-07-11 18:00 | Claude | ffd5c09d | [Claude] tools/count_graphs.py — licznik grafow per plik bazy; recover_db v2 (skan rowid + retry) |
 | 2026-07-11 18:03 | Claude | d1b876cf | [Claude] recover_db: FIX WinError32 — nieзamkniete polaczenie do rebuilt blokowalo os.replace; zamykam przed podmiana |
 | 2026-07-11 18:02 | Claude | 6091761c | [Claude] recover_db: FIX WinError32 — nieзamkniete polaczenie do rebuilt blokowalo os.replace; zamykam przed podmiana |
+| 2026-07-11 18:10 | Claude | 44424538 | [Claude] tools/inspect_graph.py — podglad liczby symboli/linii per graf w bazie |

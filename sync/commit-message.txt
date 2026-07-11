@@ -1,1 +1,1 @@
-[Claude] tools/inspect_graph.py — podglad liczby symboli/linii per graf w bazie
+[Claude] inspect_graph: arg sciezki; instrukcja .recover dla p028 (puste zaslepki w aktywnej bazie)
