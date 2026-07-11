@@ -4,3 +4,4 @@
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
 
+[Cursor] labeler: potwierdzenie propagacji listwa tylko w lancuchu linkow (1-4 vs 5-8) + komunikat zakresu tagow
