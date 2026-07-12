@@ -138,7 +138,38 @@ def test_diff_graph_lines_id_remap_f1_perfect() -> None:
     assert d["f1"] == 1.0, d
 
 
-def test_diff_graph_detects_missing_symbol() -> None:
+def test_schema_to_graph_listwa_from_connection_potential() -> None:
+    schema = SchemaModel(
+        meta=SchemaMeta(source="t"),
+        components=[
+            Component(
+                id="z1",
+                type="zlaczka",
+                bbox=[0, 0, 10, 10],
+                terminals=[Terminal(id="1", x=0, y=0.5)],
+            ),
+            Component(
+                id="r1",
+                type="relay",
+                bbox=[50, 0, 60, 10],
+                terminals=[Terminal(id="1", x=0, y=0.5)],
+            ),
+        ],
+        connections=[
+            Connection.model_validate(
+                {
+                    "from": "z1:1",
+                    "to": "r1:1",
+                    "kind": "power",
+                    "potential": "S24VDC",
+                }
+            )
+        ],
+    )
+    graph = schema_to_graph(schema, "t", 100, 100)
+    z1 = next(s for s in graph.symbols if s.id == "z1")
+    assert z1.listwa == "S24VDC"
+
     schema = _sample_schema()
     gt = schema_to_graph(schema, "t", 1000, 800)
     draft = schema_to_graph(schema, "t", 1000, 800)

@@ -6,8 +6,10 @@ import math
 
 from backend.models.schema import Component, Connection, ConnectionKind, GraphicLine, SchemaModel
 from backend.models.schematic_graph import GraphLine, GraphSymbol, SchematicGraph
+from labeler.rail_extractor import expand_rail_connections
 
 _VALID_KINDS = frozenset({"power", "signal", "pe", "control", "link", "other"})
+_RAIL_TYPES = frozenset({"zlaczka", "mostek", "zwarta_listwa_zlaczek", "listwa_zlaczek", "zacisk"})
 
 
 def schema_to_graph(
@@ -21,9 +23,12 @@ def schema_to_graph(
     symbols = [_component_to_symbol(c) for c in schema.components]
     sym_by_id = {s.id: s for s in symbols}
 
+    connections = expand_rail_connections(schema)
+    _apply_listwa_from_connections(symbols, connections, comp_by_id)
+
     lines: list[GraphLine] = []
     seen: set[tuple[str, str, str]] = set()
-    for idx, conn in enumerate(schema.connections):
+    for idx, conn in enumerate(connections):
         line = _connection_to_line(conn, idx, comp_by_id, sym_by_id, schema.graphic_lines)
         if line is None:
             continue
@@ -43,14 +48,52 @@ def schema_to_graph(
 
 
 def _component_to_symbol(comp: Component) -> GraphSymbol:
+    listwa = ""
+    tag = comp.tag or ""
+    if _looks_like_potential(tag):
+        listwa = tag.strip()
     return GraphSymbol(
         id=comp.id,
         type=comp.type or "element",
-        tag=comp.tag or "",
-        listwa="",
+        tag=tag,
+        listwa=listwa,
         bbox=list(comp.bbox),
         terminals=list(comp.terminals),
     )
+
+
+def _looks_like_potential(text: str) -> bool:
+    t = (text or "").strip().upper()
+    if not t or len(t) > 32:
+        return False
+    if t.startswith("NET_"):
+        return False
+    markers = ("VDC", "VAC", "24V", "230V", "400V", "PE", "0V", "AS1", "S24", "-X")
+    return any(m in t for m in markers)
+
+
+def _apply_listwa_from_connections(
+    symbols: list[GraphSymbol],
+    connections: list[Connection],
+    comp_by_id: dict[str, Component],
+) -> None:
+    sym_by_id = {s.id: s for s in symbols}
+    for conn in connections:
+        pot = (getattr(conn, "potential", "") or "").strip()
+        label = pot if pot and not pot.startswith("net_") else ""
+        for ref in (str(conn.from_ref), str(conn.to)):
+            sym_id, _ = _parse_ref(ref)
+            sym = sym_by_id.get(sym_id)
+            comp = comp_by_id.get(sym_id)
+            if sym is None or comp is None:
+                continue
+            typ = (comp.type or "").lower()
+            if typ not in _RAIL_TYPES and "zlacz" not in typ and typ != "mostek":
+                continue
+            if label and not sym.listwa:
+                sym.listwa = label
+            if comp.tag and _looks_like_potential(comp.tag) and not sym.listwa:
+                sym.listwa = comp.tag.strip()
 
 
 def _parse_ref(ref: str) -> tuple[str, str | None]:

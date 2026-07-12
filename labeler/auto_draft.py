@@ -10,6 +10,7 @@ from backend.models.schematic_graph import SchematicGraph
 from backend.paths import RAW, resolve_page_id
 from backend.recognize.pipeline import recognize_file
 from backend.validate.diff_metrics import diff_graph
+from backend.validate.line_failure_analysis import analyze_line_failures
 from labeler.gt_loader import load_gt_schema
 from labeler.runtime_draft import image_size_for_page
 from labeler.schema_to_graph import schema_to_graph
@@ -55,6 +56,7 @@ def build_auto_draft(
     if gt_raw:
         gt_graph = SchematicGraph.model_validate(gt_raw)
         report["diff"] = diff_graph(gt_graph, graph)
+        report["line_failures"] = analyze_line_failures(gt_graph, graph)
         report["gt"] = {
             "symbols": len(gt_graph.symbols),
             "lines": len(gt_graph.lines),
@@ -64,6 +66,7 @@ def build_auto_draft(
         if gt_schema and gt_schema.components:
             compiled = schema_to_graph(gt_schema, pid, w, h)
             report["diff"] = diff_graph(compiled, graph)
+            report["line_failures"] = analyze_line_failures(compiled, graph)
             report["gt"] = {
                 "symbols": len(compiled.symbols),
                 "lines": len(compiled.lines),
