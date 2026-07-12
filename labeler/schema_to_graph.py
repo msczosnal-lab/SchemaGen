@@ -7,9 +7,7 @@ import math
 from backend.models.schema import Component, Connection, ConnectionKind, GraphicLine, SchemaModel
 from backend.models.schematic_graph import GraphLine, GraphSymbol, SchematicGraph
 
-_PE_GROUPS = frozenset({"pe", "pe_wire", "ground", "earth"})
-_SIGNAL_GROUPS = frozenset({"signal", "control_signal", "analog"})
-_CONTROL_GROUPS = frozenset({"control", "control_circuit"})
+_VALID_KINDS = frozenset({"power", "signal", "pe", "control", "link", "other"})
 
 
 def schema_to_graph(
