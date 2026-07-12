@@ -183,6 +183,66 @@ def load_labeled_records() -> list[LabelRecord]:
     return records
 
 
+def load_graph_v2_records() -> list[LabelRecord]:
+    """Rekordy bbox z gt/*.json (SchematicGraph v2)."""
+    from backend import gt_store
+    from backend.models.label import BboxAnnotation
+    from backend.models.schematic_graph import SchematicGraph
+
+    records: list[LabelRecord] = []
+    for page_id in gt_store.list_gt_page_ids():
+        raw = gt_store.read_gt_json(page_id)
+        if not raw:
+            continue
+        graph = SchematicGraph.model_validate(raw)
+        if not graph.symbols:
+            continue
+        bboxes: list[BboxAnnotation] = []
+        for s in graph.symbols:
+            if len(s.bbox) < 4:
+                continue
+            x1, y1, x2, y2 = s.bbox[:4]
+            bboxes.append(
+                BboxAnnotation(
+                    id=s.id,
+                    class_name=s.type,
+                    x=x1,
+                    y=y1,
+                    width=x2 - x1,
+                    height=y2 - y1,
+                    tag=s.tag or s.type,
+                    terminals=[
+                        {"id": t.id, "x": t.x, "y": t.y, "name": t.name or ""}
+                        for t in s.terminals
+                    ],
+                )
+            )
+        if not bboxes:
+            continue
+        records.append(
+            LabelRecord(
+                page_id=page_id,
+                image_path=f"{page_id}.png",
+                image_width=graph.image_width,
+                image_height=graph.image_height,
+                bboxes=bboxes,
+            )
+        )
+    return records
+
+
+def load_all_training_records() -> list[LabelRecord]:
+    """SQLite v1 + gt/*.json v2 — v2 wygrywa gdy ma wiecej bbox na stronie."""
+    by_page: dict[str, LabelRecord] = {
+        r.page_id: r for r in load_labeled_records()
+    }
+    for rec in load_graph_v2_records():
+        prev = by_page.get(rec.page_id)
+        if prev is None or len(rec.bboxes) >= len(prev.bboxes):
+            by_page[rec.page_id] = rec
+    return sorted(by_page.values(), key=lambda r: r.page_id)
+
+
 def load_val_page_ids() -> frozenset[str]:
     """page_id ze stalym zestawem val (config/val-pages.yaml)."""
     if not VAL_PAGES.exists():
@@ -281,7 +341,7 @@ def export_dataset(
     """
     out = output_dir or LABELED
     raw = raw_dir or RAW
-    recs = records if records is not None else load_labeled_records()
+    recs = records if records is not None else load_all_training_records()
     # Filar SYMBOLE: tag `mostek` -> orientacja (8 klas) PRZED budowa class_map.
     orient_log = maybe_expand_orientations(recs, raw)
     palette_map = load_palette_map()
@@ -332,6 +392,7 @@ def export_dataset(
         "val_pages": [r.page_id for r in val],
         "train_count": n_train,
         "val_count": n_val,
+        "v2_pages": len(load_graph_v2_records()),
         "total_bboxes": sum(len(r.bboxes) for r in recs),
         "yolo_bboxes": sum(distribution.values()),
         "contextual_excluded": contextual_excluded,

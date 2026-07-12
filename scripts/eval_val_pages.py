@@ -88,10 +88,17 @@ def eval_page(pid: str) -> dict | None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--page", help="Skrot p040 lub pelny page_id")
+    ap.add_argument(
+        "--pages",
+        nargs="+",
+        help="Wiele stron (p028 p029) — nadpisuje val-pages.yaml",
+    )
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    if args.page:
+    if args.pages:
+        pages = [resolve_page_id(p) for p in args.pages]
+    elif args.page:
         pages = [resolve_page_id(args.page)]
     else:
         pages = _load_val_pages()

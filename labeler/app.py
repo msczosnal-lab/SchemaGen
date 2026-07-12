@@ -33,6 +33,8 @@ from labeler.runtime_draft import image_size_for_page, schema_to_label_record
 from labeler.graph_validate import graph_rules, validate_graph
 from labeler.graph_serialize import graph_to_dump
 from labeler.graph_prefill import prefill_graph
+from labeler.auto_draft import build_auto_draft, save_auto_draft
+from backend.validate.diff_metrics import diff_graph
 from backend.models.label import LabelRecord
 from backend.models.schema import Component, GraphicLine
 from backend.models.schematic_graph import SchematicGraph
@@ -530,6 +532,42 @@ def post_graph_prefill(page_id: str, force: bool = False) -> dict:
         "symbol_count": len(graph.symbols),
         "line_count": len(graph.lines),
         "terminal_count": sum(len(s.terminals) for s in graph.symbols),
+    }
+
+
+@app.post("/api/graph/{page_id}/auto-draft")
+def post_graph_auto_draft(page_id: str, force: bool = False) -> dict:
+    """Pełny runtime → draft GT v2 + raport diff (nie nadpisuje niepustego GT bez force)."""
+    try:
+        out = save_auto_draft(page_id, force=force)
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    if out.get("status") == "skipped_existing":
+        raise HTTPException(409, detail=out)
+    upsert_page(page_id, f"{page_id}.png", status="draft")
+    return out
+
+
+@app.get("/api/graph/{page_id}/diff")
+def get_graph_diff(page_id: str) -> dict:
+    """Porównanie świeżego auto-draft vs zapisane GT (bez zapisu draftu)."""
+    gt_raw = load_schematic_graph(page_id)
+    if not gt_raw:
+        raise HTTPException(404, f"Brak GT v2: {page_id}")
+    gt_graph = SchematicGraph.model_validate(gt_raw)
+    try:
+        draft, report = build_auto_draft(page_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    diff = report.get("diff") or diff_graph(gt_graph, draft)
+    return {
+        "page_id": page_id,
+        "gt": {
+            "symbols": len(gt_graph.symbols),
+            "lines": len(gt_graph.lines),
+        },
+        "draft": report.get("draft", {}),
+        "diff": diff,
     }
 
 

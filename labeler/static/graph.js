@@ -31,6 +31,8 @@ let cursorImgPt = null;
 let selectedLineIdx = -1;
 let selectedLineId = null;
 let lastSaveWarnings = [];
+/** Overlay diff vs GT: { fnBboxes: number[][], fpBboxes: number[][] } */
+let diffOverlay = null;
 
 const RECENT_PAGES_KEY = "graphRecentPages";
 const LAST_PAGE_KEY = "graphLastPage";
@@ -1742,6 +1744,7 @@ async function runPrefill() {
   if (graph.symbols.length && !window.confirm("Nadpisać bieżący graf draftem YOLO?")) return;
   try {
     saveStatusEl.textContent = "Import draft…";
+    diffOverlay = null;
     const res = await fetchJson(`/api/graph/${currentPageId}/prefill`, { method: "POST" });
     const data = await fetchJson(`/api/graph/${currentPageId}`);
     applyGraph(data);
@@ -1764,6 +1767,102 @@ async function runPrefill() {
     renderPageList();
   } catch (err) {
     saveStatusEl.textContent = `Prefill: ${err.message}`;
+  }
+}
+
+function applyDiffOverlay(diff) {
+  if (!diff) {
+    diffOverlay = null;
+    return;
+  }
+  diffOverlay = {
+    fnBboxes: diff.fn_bboxes || [],
+    fpBboxes: diff.fp_bboxes || [],
+  };
+}
+
+function drawDiffOverlay() {
+  if (!diffOverlay) return;
+  ctx.save();
+  ctx.setLineDash([10, 6]);
+  ctx.lineWidth = BBOX_STROKE + 1;
+  for (const bb of diffOverlay.fnBboxes || []) {
+    if (!bb || bb.length < 4) continue;
+    ctx.strokeStyle = "#fa5252";
+    ctx.strokeRect(bb[0], bb[1], bb[2] - bb[0], bb[3] - bb[1]);
+  }
+  for (const bb of diffOverlay.fpBboxes || []) {
+    if (!bb || bb.length < 4) continue;
+    ctx.strokeStyle = "#fab005";
+    ctx.strokeRect(bb[0], bb[1], bb[2] - bb[0], bb[3] - bb[1]);
+  }
+  ctx.restore();
+}
+
+function formatDiffStatus(diff) {
+  if (!diff) return "";
+  const sym = diff.symbols || {};
+  const ln = diff.lines || {};
+  return (
+    `sym ${sym.match ?? "?"}/${sym.gt_count ?? "?"} (F1 ${((sym.f1 || 0) * 100).toFixed(0)}%) · ` +
+    `lin ${ln.match ?? "?"}/${ln.gt_count ?? "?"} (F1 ${((ln.f1 || 0) * 100).toFixed(0)}%)`
+  );
+}
+
+async function runAutoDraft() {
+  if (!currentPageId) return;
+  const hasContent = graph.symbols.length || graph.lines.length;
+  const force = hasContent && window.confirm(
+    "Auto-draft nadpisze bieżący graf (pełny pipeline runtime). Kontynuować?"
+  );
+  if (hasContent && !force) return;
+  try {
+    saveStatusEl.textContent = "Auto-draft (runtime)…";
+    const url = `/api/graph/${currentPageId}/auto-draft${force ? "?force=true" : ""}`;
+    const res = await fetchJson(url, { method: "POST" });
+    const data = await fetchJson(`/api/graph/${currentPageId}`);
+    applyGraph(data);
+    selectedSymIdx = -1;
+    selectedTermIdx = -1;
+    selectedLineId = null;
+    selectedLineIdx = -1;
+    cancelLineDraft();
+    renderSymbolList();
+    renderSymbolEditor();
+    renderLineList();
+    const diff = res.report?.diff;
+    applyDiffOverlay(diff);
+    redraw();
+    dirty = false;
+    const diffTxt = formatDiffStatus(diff);
+    saveStatusEl.textContent =
+      `Auto-draft: ${res.symbol_count} sym., ${res.line_count} linii` +
+      (diffTxt ? ` · ${diffTxt}` : "");
+    touchRecentPage(currentPageId);
+    const meta = pageMeta(currentPageId);
+    if (meta) {
+      meta.graph_updated_at = new Date().toISOString();
+      meta.status = "draft";
+    }
+    renderRecentPages();
+    renderPageList();
+  } catch (err) {
+    saveStatusEl.textContent = `Auto-draft: ${err.message}`;
+  }
+}
+
+async function runDiffVsGt() {
+  if (!currentPageId) return;
+  try {
+    saveStatusEl.textContent = "Diff vs GT…";
+    const res = await fetchJson(`/api/graph/${currentPageId}/diff`);
+    applyDiffOverlay(res.diff);
+    redraw();
+    saveStatusEl.textContent = `Diff vs GT · ${formatDiffStatus(res.diff)}`;
+  } catch (err) {
+    diffOverlay = null;
+    redraw();
+    saveStatusEl.textContent = `Diff: ${err.message}`;
   }
 }
 
@@ -1807,6 +1906,7 @@ function redraw() {
   ctx.translate(originX, originY);
   ctx.scale(scale, scale);
   drawBgImage();
+  drawDiffOverlay();
 
   graph.symbols.forEach((sym, i) => {
     const r = bboxRect(sym);
@@ -2194,6 +2294,7 @@ async function selectPage(pageId) {
   selectedLineIdx = -1;
   cancelLineDraft();
 
+  diffOverlay = null;
   bgImage = await new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -2694,6 +2795,12 @@ document.getElementById("save-now-btn")?.addEventListener("click", () => {
   void saveNow();
 });
 document.getElementById("prefill-btn")?.addEventListener("click", runPrefill);
+document.getElementById("auto-draft-btn")?.addEventListener("click", () => {
+  void runAutoDraft();
+});
+document.getElementById("diff-btn")?.addEventListener("click", () => {
+  void runDiffVsGt();
+});
 document.getElementById("delete-symbol-btn").addEventListener("click", deleteSelectedSymbol);
 document.getElementById("delete-line-btn")?.addEventListener("click", deleteSelectedLine);
 document.getElementById("mode-bbox")?.addEventListener("click", () => setMode(MODE_BBOX));

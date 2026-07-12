@@ -223,3 +223,77 @@ def test_gt_loader_prefers_graph(tmp_db):
     assert schema is not None
     assert len(schema.connections) == 1
     assert schema.connections[0].from_ref == "a:1"
+
+
+def test_auto_draft_endpoint(tmp_db, monkeypatch):
+    from backend.models.schematic_graph import SchematicGraph
+    import labeler.app as app_mod
+
+    payload = _valid_graph_payload()
+    client.post(f"/api/graph/{PAGE}", json=payload)
+
+    fake_graph = SchematicGraph.model_validate(payload)
+
+    def fake_save(page_id, *, force=False, allow_empty=True):
+        return {
+            "status": "draft",
+            "page_id": page_id,
+            "symbol_count": len(fake_graph.symbols),
+            "line_count": len(fake_graph.lines),
+            "report": {"draft": {"symbols": 2, "lines": 1}},
+        }
+
+    monkeypatch.setattr(app_mod, "save_auto_draft", fake_save)
+    res = client.post(f"/api/graph/{PAGE}/auto-draft?force=true")
+    assert res.status_code == 200
+    assert res.json()["status"] == "draft"
+
+
+def test_auto_draft_409_when_gt_exists(tmp_db, monkeypatch):
+    import labeler.app as app_mod
+
+    payload = _valid_graph_payload()
+    client.post(f"/api/graph/{PAGE}", json=payload)
+
+    monkeypatch.setattr(
+        app_mod,
+        "save_auto_draft",
+        lambda page_id, **kw: {
+            "status": "skipped_existing",
+            "page_id": page_id,
+            "message": "GT istnieje",
+        },
+    )
+    res = client.post(f"/api/graph/{PAGE}/auto-draft")
+    assert res.status_code == 409
+
+
+def test_graph_diff_endpoint(tmp_db, monkeypatch):
+    import labeler.app as app_mod
+    from backend.models.schematic_graph import SchematicGraph
+
+    payload = _valid_graph_payload()
+    client.post(f"/api/graph/{PAGE}", json=payload)
+
+    fake_graph = SchematicGraph.model_validate(payload)
+
+    monkeypatch.setattr(
+        app_mod,
+        "build_auto_draft",
+        lambda page_id: (
+            fake_graph,
+            {
+                "draft": {"symbols": 2, "lines": 1},
+                "diff": {
+                    "symbols": {"match": 2, "gt_count": 2, "f1": 1.0},
+                    "lines": {"match": 1, "gt_count": 1, "f1": 1.0},
+                    "fn_bboxes": [],
+                    "fp_bboxes": [],
+                },
+            },
+        ),
+    )
+    res = client.get(f"/api/graph/{PAGE}/diff")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["diff"]["symbols"]["match"] == 2

@@ -428,3 +428,78 @@ def aggregate_score(report: dict, weights: dict) -> dict:
             "contribution": round(contribution, 2),
         }
     return {"score": round(score, 2), "per_layer": per_layer}
+
+
+def _norm_graph_line_key(from_ref: str, to: str, kind: str) -> tuple[str, str, str]:
+    a, b = sorted([from_ref, to])
+    return (a, b, kind or "power")
+
+
+def diff_graph_lines(gt_graph, draft_graph) -> dict:
+    """Porównanie linii GT v2 OD-DO (niedirected, kind)."""
+    gt_keys = {
+        _norm_graph_line_key(ln.from_ref, ln.to, ln.kind) for ln in gt_graph.lines
+    }
+    draft_keys = {
+        _norm_graph_line_key(ln.from_ref, ln.to, ln.kind) for ln in draft_graph.lines
+    }
+    both = gt_keys & draft_keys
+    out = {
+        "gt_count": len(gt_keys),
+        "draft_count": len(draft_keys),
+        "match": len(both),
+        "only_gt": sorted(gt_keys - draft_keys),
+        "only_draft": sorted(draft_keys - gt_keys),
+    }
+    out.update(_prf(len(both), len(gt_keys), len(draft_keys)))
+    return out
+
+
+def diff_graph_symbols(gt_graph, draft_graph, iou_threshold: float = 0.5) -> dict:
+    """Porównanie bbox symboli GT v2 vs draft (IoU + typ)."""
+    from backend.models.schema import Component
+
+    gt_comps = [
+        Component(id=s.id, type=s.type, bbox=list(s.bbox), terminals=list(s.terminals))
+        for s in gt_graph.symbols
+    ]
+    draft_comps = [
+        Component(id=s.id, type=s.type, bbox=list(s.bbox), terminals=list(s.terminals))
+        for s in draft_graph.symbols
+    ]
+
+    class _Mini:
+        components = gt_comps
+
+    class _MiniRt:
+        components = draft_comps
+
+    out = diff_components(_Mini(), _MiniRt(), iou_threshold=iou_threshold)
+    return out
+
+
+def diff_graph(gt_graph, draft_graph, iou_threshold: float = 0.5) -> dict:
+    """Pełny diff SchematicGraph v2: symbole + linie OD-DO."""
+    sym = diff_graph_symbols(gt_graph, draft_graph, iou_threshold=iou_threshold)
+    lines = diff_graph_lines(gt_graph, draft_graph)
+    gt_by_id = {s.id: s for s in gt_graph.symbols}
+    draft_by_id = {s.id: s for s in draft_graph.symbols}
+    fn_bboxes = [
+        list(gt_by_id[sid].bbox)
+        for sid in sym.get("only_gt", [])
+        if sid in gt_by_id and len(gt_by_id[sid].bbox) >= 4
+    ]
+    fp_bboxes = [
+        list(draft_by_id[sid].bbox)
+        for sid in sym.get("only_runtime", [])
+        if sid in draft_by_id and len(draft_by_id[sid].bbox) >= 4
+    ]
+    return {
+        "symbols": sym,
+        "lines": lines,
+        "only_gt_symbols": sym.get("only_gt", []),
+        "only_draft_symbols": sym.get("only_runtime", []),
+        "fn_bboxes": fn_bboxes,
+        "fp_bboxes": fp_bboxes,
+    }
+
