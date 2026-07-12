@@ -170,6 +170,8 @@ def test_schema_to_graph_listwa_from_connection_potential() -> None:
     z1 = next(s for s in graph.symbols if s.id == "z1")
     assert z1.listwa == "S24VDC"
 
+
+def test_diff_graph_detects_missing_symbol() -> None:
     schema = _sample_schema()
     gt = schema_to_graph(schema, "t", 1000, 800)
     draft = schema_to_graph(schema, "t", 1000, 800)

@@ -253,8 +253,10 @@ _ARROW_SUPPLEMENT_DEFAULTS = {
     "max_templates_per_class": 12,
     "roi_top_frac": 0.93,
     "nms_iou": 0.4,
-    # Prog conf YOLO, ponizej ktorego detekcja klasy NIE blokuje supplementu.
     "min_yolo_conf_gate": 0.5,
+    "refine_enabled": True,
+    "refine_min_score": 0.65,
+    "refine_roi_margin": 0.25,
 }
 
 

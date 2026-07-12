@@ -75,10 +75,15 @@ arrow_supplement:
   min_score: 0.88
   coarse_min_score: 0.55
   downscale: 0.5
+  scales: [1.0]
   max_templates_per_class: 12
   roi_top_frac: 0.93
   # Detekcja YOLO ponizej tego conf nie blokuje supplementu klasy (findings 019 H9b).
   min_yolo_conf_gate: 0.5
+  # Zacieśnianie bbox YOLO (szerokie tiled) -> IoU vs GT (findings 032).
+  refine_enabled: true
+  refine_min_score: 0.65
+  refine_roi_margin: 0.25
 
 # Warstwa relacji (prompt 015 — RelationResolver)
 relations:

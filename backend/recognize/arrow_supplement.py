@@ -164,6 +164,88 @@ def supplement_arrow_detections(
     return list(yolo_detections) + extra
 
 
+def refine_arrow_bboxes(
+    image_bgr: np.ndarray,
+    detections: list[SymbolDetection],
+) -> list[SymbolDetection]:
+    """Zacieśnia bbox strzalek YOLO przez matchTemplate w ROI (findings 032).
+
+    YOLO tiled zwraca szerokie bboxy (~2.5x GT); refine lokalizuje waski szablon
+  wewnątrz ROI i poprawia IoU bez zmiany progu conf.
+    """
+    cfg = arrow_supplement_settings()
+    if not cfg.get("refine_enabled", True):
+        return detections
+
+    gallery = _template_gallery()
+    if not any(gallery.get(c) for c in _ARROW_CLASSES):
+        return detections
+
+    min_score = float(cfg.get("refine_min_score", 0.65))
+    margin = float(cfg.get("refine_roi_margin", 0.25))
+    scales = cfg.get("scales") or [0.8, 1.0, 1.2]
+    gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
+    h_img, w_img = gray.shape[:2]
+
+    out: list[SymbolDetection] = []
+    for d in detections:
+        if d.class_name not in _ARROW_CLASSES:
+            out.append(d)
+            continue
+        # YOLO tiled zwraca tez wysokie bboxy (rotacja strzalki) — refine psuje IoU (p029).
+        if d.height > d.width * 1.1:
+            out.append(d)
+            continue
+        tmpls = gallery.get(d.class_name) or []
+        if not tmpls:
+            out.append(d)
+            continue
+
+        mx = max(8, int(d.width * margin))
+        my = max(8, int(d.height * margin))
+        rx1 = max(0, int(d.x) - mx)
+        ry1 = max(0, int(d.y) - my)
+        rx2 = min(w_img, int(d.x + d.width) + mx)
+        ry2 = min(h_img, int(d.y + d.height) + my)
+        roi = gray[ry1:ry2, rx1:rx2]
+        if roi.size < 50:
+            out.append(d)
+            continue
+
+        best_score = -1.0
+        best_xywh: tuple[float, float, float, float] | None = None
+        for tmpl in tmpls:
+            for sc in scales:
+                t = cv2.resize(tmpl, None, fx=sc, fy=sc, interpolation=cv2.INTER_LINEAR)
+                th, tw = t.shape[:2]
+                if th > roi.shape[0] or tw > roi.shape[1]:
+                    continue
+                res = cv2.matchTemplate(roi, t, cv2.TM_CCOEFF_NORMED)
+                _min, max_val, _min_loc, max_loc = cv2.minMaxLoc(res)
+                if max_val > best_score:
+                    bx = float(rx1 + max_loc[0])
+                    by = float(ry1 + max_loc[1])
+                    best_score = float(max_val)
+                    best_xywh = (bx, by, float(tw), float(th))
+
+        if best_xywh is not None and best_score >= min_score:
+            bx, by, bw, bh = best_xywh
+            out.append(
+                SymbolDetection(
+                    class_id=d.class_id,
+                    class_name=d.class_name,
+                    confidence=max(d.confidence, best_score),
+                    x=bx,
+                    y=by,
+                    width=bw,
+                    height=bh,
+                )
+            )
+        else:
+            out.append(d)
+    return out
+
+
 def _refine_match_score(
     gray: np.ndarray,
     templates: list[np.ndarray],

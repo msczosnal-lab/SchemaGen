@@ -85,3 +85,36 @@ def test_arrow_supplement_skips_when_yolo_found() -> None:
     ]
     out = supplement_arrow_detections(img, yolo)
     assert len(out) == 1
+
+
+def test_refine_arrow_bboxes_tightens_wide_yolo_box(monkeypatch) -> None:
+    from backend.recognize import arrow_supplement as mod
+
+    tmpl = np.full((10, 30), 200, dtype=np.uint8)
+    tmpl[:, 10:20] = 30
+    monkeypatch.setattr(mod, "_template_gallery", lambda: {"strzalka_potencjalu_wejsciowa": [tmpl]})
+    monkeypatch.setattr(
+        mod,
+        "arrow_supplement_settings",
+        lambda: {
+            "refine_enabled": True,
+            "refine_min_score": 0.5,
+            "refine_roi_margin": 0.5,
+            "scales": [1.0],
+        },
+    )
+
+    img = np.full((80, 120, 3), 255, dtype=np.uint8)
+    img[25:35, 40:70] = 30
+    wide = SymbolDetection(
+        class_id=7,
+        class_name="strzalka_potencjalu_wejsciowa",
+        confidence=0.9,
+        x=20,
+        y=15,
+        width=80,
+        height=40,
+    )
+    [refined] = mod.refine_arrow_bboxes(img, [wide])
+    assert refined.width < wide.width
+    assert refined.height <= wide.height

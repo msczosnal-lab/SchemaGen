@@ -1,7 +1,1 @@
-﻿[Cursor] Sprint /loop: line_failure_analysis, RailExtractor v0, sprint_loop, OCR listwa w auto-draft
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
+﻿[Cursor] loop 032: refine bbox strzalek YOLO (landscape-only) — śr. GT 19.65→20.86

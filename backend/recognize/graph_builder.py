@@ -39,7 +39,7 @@ from backend.runtime_config import (
 from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import apply_sieve, apply_terminal_gate, recover_terminal_bridges
 from backend.recognize.line_tracer import LineTracer
-from backend.recognize.arrow_supplement import supplement_arrow_detections
+from backend.recognize.arrow_supplement import refine_arrow_bboxes, supplement_arrow_detections
 from backend.recognize.mostek_terminals import load_bgr
 from backend.recognize.net_builder import build_connections as build_net_connections
 from backend.recognize.terminal_resolver import resolve as resolve_terminals
@@ -85,6 +85,7 @@ class GraphBuilder:
         image_bgr = load_bgr(image_path)
         if image_bgr is not None:
             detections = supplement_arrow_detections(image_bgr, detections)
+            detections = refine_arrow_bboxes(image_bgr, detections)
         components = [
             Component(
                 id=f"sym_{i}",
