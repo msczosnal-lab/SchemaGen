@@ -226,3 +226,4 @@
 | 2026-07-12 10:29 | Claude | 8eead9ed | [Claude] schema_to_graph: usuniety martwy fallback kind + test round-trip na realnym GT (p028-p034) + backup gt/ |
 | 2026-07-12 10:52 | Claude | 6b5e9629 | [Claude] auto-draft/auto-loop: progres etapowy (6 krokow) + licznik stron [i/N] + czasy; schema_to_graph cleanup + test round-trip GT |
 | 2026-07-12 12:20 | Claude | 1b3a7351 | [Claude] diff_graph_lines: remap id symboli+terminali (IoU) - naprawa metryki linii F1=0 (byl artefakt id sym_N vs GT); test remapu |
+| 2026-07-12 11:08 | Claude | 14416dec | [Claude] diff_graph_lines: remap id symboli+terminali (IoU) - naprawa metryki linii F1=0 (byl artefakt id sym_N vs GT); test remapu |
