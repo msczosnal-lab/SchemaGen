@@ -1,6 +1,7 @@
-[Claude] schema_to_graph: usuniety martwy fallback kind + test round-trip na realnym GT (p028-p034) + backup gt/
+﻿[Claude] auto-draft/auto-loop: progres etapowy (6 krokow) + licznik stron [i/N] + czasy; schema_to_graph cleanup + test round-trip GT
 # Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
 # [Cursor] opis etapu - agent Cursor (PC Filip)
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
 #
 # Po udanym commicie plik jest czyszczony automatycznie.
+

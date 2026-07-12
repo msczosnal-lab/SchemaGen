@@ -11,9 +11,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 
 from backend.paths import resolve_page_id
 from labeler.auto_draft import build_auto_draft, save_auto_draft
+from tools.progress_cli import make_progress
 
 
 def _print_report(report: dict) -> None:
@@ -57,20 +59,29 @@ def main() -> int:
     ap.add_argument("--save", action="store_true", help="zapisz draft do gt/")
     ap.add_argument("--force", action="store_true", help="nadpisz istniejacy GT")
     ap.add_argument("--json", action="store_true", help="JSON na stdout")
+    ap.add_argument("--quiet", action="store_true", help="bez progresu etapowego")
     args = ap.parse_args()
 
+    total_pages = len(args.pages)
     results: list[dict] = []
-    for raw in args.pages:
+    for i, raw in enumerate(args.pages, 1):
         pid = resolve_page_id(raw)
+        label = raw if len(raw) <= 8 else pid[-4:]
+        prog = None if args.json else make_progress(label, args.quiet)
+        if not args.json:
+            short = pid.split("_")[-1]
+            print(f"[{i}/{total_pages}] {short} — rozpoznawanie...", flush=True)
+        t0 = time.monotonic()
         try:
             if args.save:
-                out = save_auto_draft(pid, force=args.force)
+                out = save_auto_draft(pid, force=args.force, progress=prog)
                 report = out.get("report", {})
                 results.append(out)
             else:
-                _graph, report = build_auto_draft(pid)
+                _graph, report = build_auto_draft(pid, progress=prog)
                 results.append({"status": "preview", "page_id": pid, "report": report})
             if not args.json:
+                print(f"  ukonczono w {time.monotonic() - t0:.1f}s", flush=True)
                 _print_report(report if args.save else results[-1]["report"])
         except Exception as exc:
             err = {"page_id": pid, "error": str(exc)}

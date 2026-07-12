@@ -29,13 +29,15 @@ class OfflineRecognizer:
         self._model_path = model_path or _default_model_path()
         self._builder = GraphBuilder()
 
-    def recognize(self, input_path: str) -> SchemaModel:
+    def recognize(self, input_path: str, progress=None) -> SchemaModel:
         from backend.ingest import normalize_image_path
 
         image = normalize_image_path(input_path)
         if self._model_path:
             try:
-                return self._builder.build(str(image), source=str(input_path))
+                return self._builder.build(
+                    str(image), source=str(input_path), progress=progress
+                )
             except NotImplementedError:
                 pass
         return SchemaModel(
@@ -45,9 +47,11 @@ class OfflineRecognizer:
         )
 
 
-def recognize_file(input_path: str, output_path: str | None = None) -> SchemaModel:
+def recognize_file(
+    input_path: str, output_path: str | None = None, progress=None
+) -> SchemaModel:
     recognizer = OfflineRecognizer()
-    model = recognizer.recognize(input_path)
+    model = recognizer.recognize(input_path, progress=progress)
     if output_path:
         Path(output_path).write_text(
             model.model_dump_json(by_alias=True, indent=2),

@@ -72,10 +72,15 @@ class GraphBuilder:
         return ContextResolver().resolve(bboxes)
 
     # ------------------------------------------------------------------ build
-    def build(self, image_path: str, source: str = "") -> SchemaModel:
+    def build(self, image_path: str, source: str = "", progress=None) -> SchemaModel:
+        def _p(step: int, name: str) -> None:
+            if progress is not None:
+                progress(step, 6, name)
+
         size = _image_size(image_path)
 
         # 1) Detekcja symboli -> components (+ uzupelnienie strzalek potencjalu)
+        _p(1, "detekcja symboli (YOLO)")
         detections = self._detect(image_path)
         image_bgr = load_bgr(image_path)
         if image_bgr is not None:
@@ -92,9 +97,11 @@ class GraphBuilder:
         ]
 
         # 2) OCR — tekst surowy; tagi i annotations dopina RelationResolver (krok 6)
+        _p(2, "OCR tekstu (PaddleOCR)")
         texts = self._ocr_engine().extract_text(image_path)
 
         # 3) Trace + classify -> graphic_lines
+        _p(3, "trasowanie i klasyfikacja linii")
         segments = self._trace(image_path)
         graphic_lines = self._classify(segments, size)
 
@@ -110,6 +117,7 @@ class GraphBuilder:
         graphic_lines = _apply_roi(graphic_lines, size, roi_bottom_cut_frac())
 
         # 4) Terminale: wzorzec klasy (TerminalResolver) lub fallback auto-zaciski
+        _p(4, "rozpoznanie terminali")
         contact_tol = _contact_tol(size)
         join_tol = _join_tol(size)
         pattern_tol = _pattern_tol(size)
@@ -137,6 +145,7 @@ class GraphBuilder:
         )
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
+        _p(5, "budowa sieci / connections")
         connections, potentials = build_net_connections(
             graphic_lines,
             components,
@@ -146,6 +155,7 @@ class GraphBuilder:
         )
 
         # 6) Relacje: tagi, potencjaly, context runtime (prompt 015)
+        _p(6, "relacje: tagi / potencjaly")
         components, connections, potentials, context_assignments, annotations = (
             RelationResolver().resolve(
                 components,

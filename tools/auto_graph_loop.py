@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,6 +19,7 @@ import yaml
 
 from backend.paths import CONFIG, ROOT, resolve_page_id
 from labeler.auto_draft import save_auto_draft
+from tools.progress_cli import make_progress
 
 OUT_DIR = ROOT / "data" / "output" / "auto_graph_loop"
 
@@ -37,6 +39,7 @@ def main() -> int:
     ap.add_argument("--save", action="store_true", help="zapisz drafty do gt/")
     ap.add_argument("--force", action="store_true", help="nadpisz istniejacy GT")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--quiet", action="store_true", help="bez progresu etapowego")
     args = ap.parse_args()
 
     pages = [resolve_page_id(p) for p in args.pages]
@@ -46,19 +49,29 @@ def main() -> int:
         print("[BLAD] Brak stron — podaj page_id lub --from-val", file=sys.stderr)
         return 1
 
+    total_pages = len(pages)
     results: list[dict] = []
-    for pid in pages:
+    for i, pid in enumerate(pages, 1):
+        short = pid.split("_")[-1]
+        prog = None if args.json else make_progress(short, args.quiet)
+        if not args.json:
+            print(f"[{i}/{total_pages}] {short} — rozpoznawanie...", flush=True)
+        t0 = time.monotonic()
         try:
             if args.save:
-                out = save_auto_draft(pid, force=args.force)
+                out = save_auto_draft(pid, force=args.force, progress=prog)
             else:
                 from labeler.auto_draft import build_auto_draft
 
-                _g, report = build_auto_draft(pid)
+                _g, report = build_auto_draft(pid, progress=prog)
                 out = {"status": "preview", "page_id": pid, "report": report}
             results.append(out)
+            if not args.json:
+                print(f"  ukonczono w {time.monotonic() - t0:.1f}s", flush=True)
         except Exception as exc:
             results.append({"page_id": pid, "status": "error", "error": str(exc)})
+            if not args.json:
+                print(f"  [BLAD] {short}: {exc}", file=sys.stderr, flush=True)
 
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),

@@ -15,7 +15,9 @@ from labeler.runtime_draft import image_size_for_page
 from labeler.schema_to_graph import schema_to_graph
 
 
-def build_auto_draft(page_id: str) -> tuple[SchematicGraph, dict[str, Any]]:
+def build_auto_draft(
+    page_id: str, progress=None
+) -> tuple[SchematicGraph, dict[str, Any]]:
     """Pełny pipeline rozpoznawania → draft SchematicGraph v2."""
     pid = resolve_page_id(page_id)
     img = RAW / f"{pid}.png"
@@ -32,7 +34,7 @@ def build_auto_draft(page_id: str) -> tuple[SchematicGraph, dict[str, Any]]:
     if w <= 0 or h <= 0:
         raise FileNotFoundError(f"Brak rozmiaru obrazu dla {pid}")
 
-    schema = recognize_file(str(img))
+    schema = recognize_file(str(img), progress=progress)
     graph = schema_to_graph(schema, pid, w, h)
 
     report: dict[str, Any] = {
@@ -76,6 +78,7 @@ def save_auto_draft(
     *,
     force: bool = False,
     allow_empty: bool = True,
+    progress=None,
 ) -> dict[str, Any]:
     """Zbuduj draft, zapisz do gt/ + cache, zwróć raport."""
     pid = resolve_page_id(page_id)
@@ -92,7 +95,7 @@ def save_auto_draft(
                     "message": "GT niepusty — użyj force=true",
                 }
 
-    graph, report = build_auto_draft(pid)
+    graph, report = build_auto_draft(pid, progress=progress)
     save_schematic_graph(
         pid,
         graph.model_dump(mode="json", by_alias=True),

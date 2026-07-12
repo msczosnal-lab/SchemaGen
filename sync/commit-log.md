@@ -223,3 +223,4 @@
 | 2026-07-11 19:07 | Claude | f753be61 | [Claude] reorg: prompty 030 (GT->JSON+cache) i 031 (repo/daemon/backup+GitHub), niezmienniki w CLAUDE.md, instrukcja konektora GitHub |
 | 2026-07-11 19:51 | Claude | bca14666 | [Claude] 030 GT jako JSON + cache + migracja |
 | 2026-07-12 10:23 | Cursor | 7e4abdc7 | [Cursor] Auto-draft GT v2: schema_to_graph, CLI, labeler diff, export v2, baseline eval p028-p033 |
+| 2026-07-12 10:29 | Claude | 8eead9ed | [Claude] schema_to_graph: usuniety martwy fallback kind + test round-trip na realnym GT (p028-p034) + backup gt/ |
