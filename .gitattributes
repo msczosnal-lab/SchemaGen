@@ -15,6 +15,9 @@
 *.ico  binary
 
 # Logi append-only synchronizacji: auto-scalanie obu stron (koniec konfliktow rebase).
+# commit-message.txt MUSI tu byc — konflikt w tym pliku wpisywal markery '<<<<<<<'
+# do commita i wywolywal petle commit/push miedzy maszynami (naprawione 2026-07-12).
+sync/commit-message.txt merge=union
 sync/commit-log.md   merge=union
 sync/zw-to-filip.md  merge=union
 sync/filip-to-zw.md  merge=union

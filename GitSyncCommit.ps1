@@ -22,7 +22,20 @@ function Get-PendingCommitMessage {
         $_ -match '\S' -and $_ -notmatch '^\s*#'
     } | Select-Object -First 1
     if (-not $line) { return $null }
-    return $line.Trim()
+    $line = $line.Trim()
+    # Odrzuc markery konfliktu git (chronia przed petla commit/push, gdy git
+    # wpisal '<<<<<<<'/'======='/'>>>>>>>'/'|||||||' do commit-message.txt).
+    if ($line -match '^(<{7}|={7}|>{7}|\|{7})') { return $null }
+    # Nazwany commit MUSI miec prefiks [Cursor] lub [Claude]; inaczej ignoruj.
+    if ($line -notmatch '^\[(Cursor|Claude)\]') { return $null }
+    return $line
+}
+
+function Test-WorkingTreeConflictMarkers {
+    param([string]$RepoPath)
+    # TRUE gdy jakikolwiek zastagowany plik zawiera marker konfliktu.
+    $hits = & git -C $RepoPath grep -lE '^(<{7}|={7}|>{7}|\|{7})' --cached 2>$null
+    return [bool]$hits
 }
 
 function Get-AuthorFromCommitMessage {
@@ -96,6 +109,9 @@ function Invoke-GitSyncCommit {
         [switch]$Manual
     )
     Add-GitSyncPaths -RepoPath $RepoPath
+    if (Test-WorkingTreeConflictMarkers -RepoPath $RepoPath) {
+        return @{ Ok = $false; Message = "KONFLIKT: markery w drzewie - commit wstrzymany, scal recznie."; Named = $false; Conflict = $true }
+    }
     $pending = Get-PendingCommitMessage -RepoPath $RepoPath
     $named = $false
     if ($pending) {
