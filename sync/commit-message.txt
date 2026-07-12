@@ -1,4 +1,4 @@
-﻿[Claude] auto-draft/auto-loop: progres etapowy (6 krokow) + licznik stron [i/N] + czasy; schema_to_graph cleanup + test round-trip GT
+﻿[Claude] diff_graph_lines: remap id symboli+terminali (IoU) - naprawa metryki linii F1=0 (byl artefakt id sym_N vs GT); test remapu
 # Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
 # [Cursor] opis etapu - agent Cursor (PC Filip)
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)

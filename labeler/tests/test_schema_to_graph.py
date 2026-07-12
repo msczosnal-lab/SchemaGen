@@ -106,6 +106,38 @@ def test_real_gt_roundtrip_symbols_preserved(gt_path: Path) -> None:
     assert d["match"] == d["gt_count"], f"{gt_path.name}: linie zgubione {d['match']}/{d['gt_count']} only_gt={d['only_gt'][:3]}"
 
 
+def test_diff_graph_lines_id_remap_f1_perfect() -> None:
+    """Ta sama topologia przy roznych id symboli/terminali -> F1=1.0 (remap IoU)."""
+    from backend.models.schematic_graph import GraphLine, GraphSymbol, SchematicGraph
+    from backend.models.schema import Terminal
+
+    def _graph(sid_a, sid_b, ta, tb) -> SchematicGraph:
+        return SchematicGraph(
+            page_id="t",
+            image_width=1000,
+            image_height=800,
+            symbols=[
+                GraphSymbol(
+                    id=sid_a, type="relay", bbox=[100, 100, 200, 200],
+                    terminals=[Terminal(id=ta, x=1.0, y=0.5)],
+                ),
+                GraphSymbol(
+                    id=sid_b, type="fuse", bbox=[400, 100, 500, 200],
+                    terminals=[Terminal(id=tb, x=0.0, y=0.5)],
+                ),
+            ],
+            lines=[GraphLine.model_validate(
+                {"id": "L0", "from": f"{sid_a}:{ta}", "to": f"{sid_b}:{tb}", "kind": "power"}
+            )],
+        )
+
+    gt = _graph("k1", "f1", "1", "2")
+    draft = _graph("sym_0", "sym_1", "A", "B")  # inne id symboli i terminali
+    d = diff_graph_lines(gt, draft)
+    assert d["match"] == 1, d
+    assert d["f1"] == 1.0, d
+
+
 def test_diff_graph_detects_missing_symbol() -> None:
     schema = _sample_schema()
     gt = schema_to_graph(schema, "t", 1000, 800)

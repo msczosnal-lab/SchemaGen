@@ -224,3 +224,4 @@
 | 2026-07-11 19:51 | Claude | bca14666 | [Claude] 030 GT jako JSON + cache + migracja |
 | 2026-07-12 10:23 | Cursor | 7e4abdc7 | [Cursor] Auto-draft GT v2: schema_to_graph, CLI, labeler diff, export v2, baseline eval p028-p033 |
 | 2026-07-12 10:29 | Claude | 8eead9ed | [Claude] schema_to_graph: usuniety martwy fallback kind + test round-trip na realnym GT (p028-p034) + backup gt/ |
+| 2026-07-12 10:52 | Claude | 6b5e9629 | [Claude] auto-draft/auto-loop: progres etapowy (6 krokow) + licznik stron [i/N] + czasy; schema_to_graph cleanup + test round-trip GT |

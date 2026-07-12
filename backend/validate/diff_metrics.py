@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from types import SimpleNamespace
 
 from backend.paths import resolve_page_id as page_id
 
@@ -435,14 +436,37 @@ def _norm_graph_line_key(from_ref: str, to: str, kind: str) -> tuple[str, str, s
     return (a, b, kind or "power")
 
 
-def diff_graph_lines(gt_graph, draft_graph) -> dict:
-    """Porównanie linii GT v2 OD-DO (niedirected, kind)."""
+def diff_graph_lines(gt_graph, draft_graph, iou_threshold: float = 0.5) -> dict:
+    """Porównanie linii GT v2 OD-DO (undirected, kind) z remapem id symboli/terminali.
+
+    Draft (runtime) uzywa id 'sym_N'; GT ma wlasne id. Bez remapu klucze linii
+    nigdy sie nie zejda (F1=0). Remap: IoU bbox (symbole) + pozycja (terminale) —
+    ta sama maszyneria co diff_connections.
+    """
+    gt_adapt = SimpleNamespace(components=list(gt_graph.symbols))
+    draft_adapt = SimpleNamespace(components=list(draft_graph.symbols))
+    pairing = pair_components(gt_adapt, draft_adapt, iou_threshold=iou_threshold)
+    rt_to_gt = pairing["rt_to_gt"]
+    gt_by_id = {s.id: s for s in gt_graph.symbols}
+    draft_by_id = {s.id: s for s in draft_graph.symbols}
+
+    tol = _terminal_match_tol(_infer_page_size(gt_adapt, draft_adapt))
+    terminal_remaps: dict[str, dict[str, str]] = {
+        rt_id: _build_terminal_remap(gt_by_id[gt_id], draft_by_id[rt_id], tol)
+        for rt_id, gt_id in rt_to_gt.items()
+    }
+
     gt_keys = {
         _norm_graph_line_key(ln.from_ref, ln.to, ln.kind) for ln in gt_graph.lines
     }
-    draft_keys = {
-        _norm_graph_line_key(ln.from_ref, ln.to, ln.kind) for ln in draft_graph.lines
-    }
+    draft_keys: set[tuple[str, str, str]] = set()
+    for ln in draft_graph.lines:
+        f = _remap_conn_ref(ln.from_ref, rt_to_gt, terminal_remaps, gt_by_id)
+        t = _remap_conn_ref(ln.to, rt_to_gt, terminal_remaps, gt_by_id)
+        if f is None or t is None:
+            continue
+        draft_keys.add(_norm_graph_line_key(f, t, ln.kind))
+
     both = gt_keys & draft_keys
     out = {
         "gt_count": len(gt_keys),
@@ -502,4 +526,3 @@ def diff_graph(gt_graph, draft_graph, iou_threshold: float = 0.5) -> dict:
         "fn_bboxes": fn_bboxes,
         "fp_bboxes": fp_bboxes,
     }
-
