@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p031",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "sym_3",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "0VDC_AS1\\",
+      "listwa": "",
+      "bbox": [
+        485.0,
+        4111.0,
+        635.0,
+        4181.0
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 1.0,
+          "y": 0.5489,
+          "name": ""
+        }
+      ]
+    }
+  ],
+  "lines": []
+}

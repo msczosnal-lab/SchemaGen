@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pytest
+
 from backend.models.schema import (
     Component,
     Connection,
@@ -10,9 +15,16 @@ from backend.models.schema import (
     SchemaModel,
     Terminal,
 )
+from backend.models.schematic_graph import SchematicGraph
 from backend.validate.diff_metrics import diff_graph, diff_graph_lines
 from labeler.graph_compile import graph_to_schema
 from labeler.schema_to_graph import schema_to_graph
+
+_GT_DIR = Path(__file__).resolve().parents[2] / "gt"
+
+
+def _gt_files() -> list[Path]:
+    return sorted(_GT_DIR.glob("*.json")) if _GT_DIR.is_dir() else []
 
 
 def _sample_schema() -> SchemaModel:
@@ -76,6 +88,22 @@ def test_diff_graph_lines_match() -> None:
     d = diff_graph_lines(gt, draft)
     assert d["match"] == 1
     assert d["f1"] == 1.0
+
+
+@pytest.mark.parametrize("gt_path", _gt_files(), ids=lambda p: p.stem)
+def test_real_gt_roundtrip_symbols_preserved(gt_path: Path) -> None:
+    """GT v2 (realny plik) -> SchemaModel -> schema_to_graph: symbole 1:1, linie OD-DO nie znikaja."""
+    import json as _json
+    raw = _json.loads(gt_path.read_text(encoding="utf-8"))
+    gt = SchematicGraph.model_validate(raw)
+    if not gt.symbols:
+        pytest.skip(f"{gt_path.name}: pusty GT")
+    schema = graph_to_schema(gt)
+    back = schema_to_graph(schema, gt.page_id, gt.image_width, gt.image_height)
+    assert len(back.symbols) == len(gt.symbols), "utrata symboli"
+    assert {s.id for s in back.symbols} == {s.id for s in gt.symbols}
+    d = diff_graph_lines(gt, back)
+    assert d["match"] == d["gt_count"], f"{gt_path.name}: linie zgubione {d['match']}/{d['gt_count']} only_gt={d['only_gt'][:3]}"
 
 
 def test_diff_graph_detects_missing_symbol() -> None:

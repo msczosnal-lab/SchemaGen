@@ -1,0 +1,416 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p030",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "element_1782551023600",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1280.4043263319613,
+        3862.344781380817,
+        1376.7951768401201,
+        3928.023058270884
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.4392,
+          "y": 0.0,
+          "name": ""
+        },
+        {
+          "id": "2",
+          "x": 1.0,
+          "y": 0.6404,
+          "name": ""
+        },
+        {
+          "id": "3",
+          "x": 0.0,
+          "y": 0.666,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1782551018848",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1043.80860235739,
+        3860.155505484481,
+        1120.4831425343343,
+        3932.401610063556
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.0,
+          "y": 0.6545,
+          "name": ""
+        },
+        {
+          "id": "2",
+          "x": 0.3638,
+          "y": 0.0,
+          "name": ""
+        },
+        {
+          "id": "3",
+          "x": 1.0,
+          "y": 0.6357,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1781557860085",
+      "type": "zlacze",
+      "tag": "złącze",
+      "listwa": "",
+      "bbox": [
+        2093.45,
+        2980.0,
+        2149.1099999999997,
+        3108.54
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.5598,
+          "y": 1.0,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1781557859196",
+      "type": "zlacze",
+      "tag": "złącze",
+      "listwa": "",
+      "bbox": [
+        1968.53,
+        2991.13,
+        2025.42,
+        3106.08
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.6032,
+          "y": 1.0,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1781557857437",
+      "type": "zlacze",
+      "tag": "złącze",
+      "listwa": "",
+      "bbox": [
+        1415.32,
+        3173.5,
+        1473.79,
+        3298.22
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.5754,
+          "y": 1.0,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1781557856577",
+      "type": "zlacze",
+      "tag": "złącze",
+      "listwa": "",
+      "bbox": [
+        1290.51,
+        3170.13,
+        1348.98,
+        3299.35
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.5513,
+          "y": 1.0,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1781557855678",
+      "type": "zlacze",
+      "tag": "złącze",
+      "listwa": "",
+      "bbox": [
+        1171.33,
+        3178.0,
+        1234.29,
+        3301.6
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.3969,
+          "y": 1.0,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "element_1781557848300",
+      "type": "zlacze",
+      "tag": "złącze",
+      "listwa": "",
+      "bbox": [
+        1043.21,
+        3169.64,
+        1116.91,
+        3310.97
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 0.3866,
+          "y": 1.0,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "sym_0",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "24VDC_AS0",
+      "listwa": "",
+      "bbox": [
+        491.0,
+        3864.0,
+        603.0,
+        3944.0
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 1.0,
+          "y": 0.543,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "sym_1",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "0VDC_AS0",
+      "listwa": "",
+      "bbox": [
+        487.0,
+        3955.0,
+        605.0,
+        4014.0
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 1.0,
+          "y": 0.5292,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "sym_2",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "24VDC_AS1",
+      "listwa": "",
+      "bbox": [
+        481.0,
+        4033.0,
+        619.0,
+        4094.0
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 1.0,
+          "y": 0.4979,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "sym_3",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "0VDC_AS1\\",
+      "listwa": "",
+      "bbox": [
+        485.0,
+        4111.0,
+        635.0,
+        4181.0
+      ],
+      "terminals": [
+        {
+          "id": "1",
+          "x": 1.0,
+          "y": 0.5489,
+          "name": ""
+        }
+      ]
+    },
+    {
+      "id": "sym_4",
+      "type": "custom_urzadzenie",
+      "tag": "AS0",
+      "listwa": "",
+      "bbox": [
+        977.0,
+        1574.0,
+        1708.0,
+        3276.0
+      ],
+      "terminals": []
+    },
+    {
+      "id": "sym_5",
+      "type": "custom_urzadzenie",
+      "tag": "AS1",
+      "listwa": "",
+      "bbox": [
+        1874.0,
+        1571.0,
+        2254.0,
+        3102.0
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": [
+    {
+      "id": "L1",
+      "from": "sym_0:1",
+      "to": "element_1782551018848:1",
+      "vertices": [],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L2",
+      "from": "element_1781557848300:1",
+      "to": "element_1782551018848:2",
+      "vertices": [],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L3",
+      "from": "element_1782551023600:1",
+      "to": "element_1781557856577:1",
+      "vertices": [],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L4",
+      "from": "element_1781557855678:1",
+      "to": "sym_1:1",
+      "vertices": [
+        [
+          1196.0,
+          3302.0
+        ],
+        [
+          1196.0,
+          3986.0
+        ],
+        [
+          605.0,
+          3986.0
+        ]
+      ],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L5",
+      "from": "sym_2:1",
+      "to": "element_1781557859196:1",
+      "vertices": [
+        [
+          619.0,
+          4063.0
+        ],
+        [
+          2003.0,
+          4063.0
+        ],
+        [
+          2003.0,
+          3106.0
+        ]
+      ],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L6",
+      "from": "element_1781557860085:1",
+      "to": "sym_3:1",
+      "vertices": [
+        [
+          2125.0,
+          3109.0
+        ],
+        [
+          2125.0,
+          4149.0
+        ],
+        [
+          635.0,
+          4149.0
+        ]
+      ],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L7",
+      "from": "element_1781557857437:1",
+      "to": "element_1782551023600:2",
+      "vertices": [
+        [
+          1449.0,
+          3298.0
+        ],
+        [
+          1449.0,
+          3904.0
+        ],
+        [
+          1377.0,
+          3904.0
+        ]
+      ],
+      "kind": "power",
+      "rail": ""
+    },
+    {
+      "id": "L8",
+      "from": "element_1782551023600:3",
+      "to": "element_1782551018848:3",
+      "vertices": [],
+      "kind": "power",
+      "rail": ""
+    }
+  ]
+}

@@ -1,1 +1,6 @@
-[Cursor] Auto-draft GT v2: schema_to_graph, CLI, labeler diff, export v2, baseline eval p028-p033
+[Claude] schema_to_graph: usuniety martwy fallback kind + test round-trip na realnym GT (p028-p034) + backup gt/
+# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.

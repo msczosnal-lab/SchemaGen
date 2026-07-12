@@ -157,18 +157,10 @@ def _point_near_bbox(x: float, y: float, bbox: list[float], margin: float) -> bo
 
 
 def _kind_for_connection(conn: Connection, graphic_lines: list[GraphicLine]) -> ConnectionKind:
+    # kind Connection jest walidowanym Literalem (Pydantic) — pochodzi z line_classifier
+    # w GraphBuilder. Nie zgadujemy z niepowiazanych graphic_lines (bylby losowy kind).
     kind = getattr(conn, "kind", "power") or "power"
-    if kind in ("power", "signal", "pe", "control", "link", "other"):
-        return kind  # type: ignore[return-value]
-    for gl in graphic_lines:
-        grp = (gl.semantic_group or "").lower()
-        if grp in _PE_GROUPS:
-            return "pe"
-        if grp in _SIGNAL_GROUPS:
-            return "signal"
-        if grp in _CONTROL_GROUPS:
-            return "control"
-    return "power"
+    return kind if kind in _VALID_KINDS else "power"  # type: ignore[return-value]
 
 
 def _vertices_for_endpoints(
