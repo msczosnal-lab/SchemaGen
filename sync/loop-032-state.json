@@ -1,26 +1,33 @@
-{
-  "started": "2026-07-12T12:40:00+02:00",
-  "iteration": 5,
-  "baseline_avg": 19.49,
-  "current_avg": 19.65,
-  "scores_baseline": {"p028": 32.84, "p029": 36.77, "p030": 11.01, "p031": 0.00, "p033": 30.17, "p034": 6.18},
-  "scores_current": {"p028": 32.91, "p029": 37.20, "p030": 10.80, "p031": 0.00, "p033": 30.83, "p034": 6.18},
-  "accepted_changes": [
-    {"it": 2, "change": "hough_bus_gap_frac 0.004->0.0045 (runtime.yaml:57)", "delta_avg": 0.16}
-  ],
-  "reverted": [
-    {"it": 1, "change": "hough_merge_collinear_gap_mult 2.5->3.0", "reason": "p033 -1.81"},
-    {"it": 3, "change": "terminal_tol contact/join_frac 0.013, min_len_frac 0.019", "reason": "brak delty na p033/p028"},
-    {"it": 4, "change": "L2 snap_wire_endpoints + terminal_gate_probe + T-odczep", "reason": "sr 19.65->17.60"},
-    {"it": 4, "change": "L2 L-corner net_builder", "reason": "sr 19.65->19.50"},
-    {"it": 4, "change": "probe yolo_conf 0.17->0.15", "reason": "brak delty"}
-  ],
-  "plateau_streak": 2,
-  "next_bucket": "p034 GT bbox x~5558 vs RT x~442 (zlaczka IoU=0) — eskalacja GT?; p028 conn topologia",
-  "bucket_diagnoses": {
-    "p034_zlaczka": "GT i RT zlaczka na roznych regionach strony — nie da sie poprawic IoU w recognize",
-    "p028_conn": "68 remapped rt conns, tylko 1 match GT — zla topologia netow (180 potential)"
-  },
-  "loop_armed": true
-}
-
+{
+  "started": "2026-07-12T12:40:00+02:00",
+  "iteration": 9,
+  "baseline_avg": 19.49,
+  "current_avg": 20.96,
+  "scores_baseline": {"p028": 32.84, "p029": 36.77, "p030": 11.01, "p031": 0.00, "p033": 30.17, "p034": 6.18},
+  "scores_current": {"p028": 34.17, "p029": 36.80, "p030": 19.30, "p031": 0.00, "p033": 30.21, "p034": 5.29},
+  "accepted_changes": [
+    {"it": 2, "change": "hough_bus_gap_frac 0.004->0.0045 (runtime.yaml:57)", "delta_avg": 0.16},
+    {"it": 6, "change": "L2 refine_arrow_bboxes landscape-only (arrow_supplement.py + graph_builder)", "delta_avg": 1.21},
+    {"it": 9, "change": "L2 arrow_supplement _template_scale przy downscale (arrow_supplement.py)", "delta_avg": 0.10}
+  ],
+  "reverted": [
+    {"it": 1, "change": "hough_merge_collinear_gap_mult 2.5->3.0", "reason": "p033 -1.81"},
+    {"it": 3, "change": "terminal_tol contact/join_frac 0.013", "reason": "brak delty"},
+    {"it": 4, "change": "L2 snap+probe_tol+T-odczep", "reason": "sr 17.60"},
+    {"it": 4, "change": "L2 L-corner net_builder", "reason": "sr 19.50"},
+    {"it": 4, "change": "probe yolo_conf 0.15", "reason": "brak delty"},
+    {"it": 6, "change": "arrow min_score 0.72 + coarse 0.50", "reason": "p029 -3.68"},
+    {"it": 7, "change": "portrait refine + discover coarse 0.40", "reason": "p029 -2.01 sr 20.65"},
+    {"it": 8, "change": "discover tylko gdy YOLO=0 strzalek", "reason": "sr 19.93 p030 -4.28 p028 -1.26"}
+  ],
+  "plateau_streak": 0,
+  "next_bucket": "p028 conn 1/42; p034 components 6/108; p031 MODEL",
+  "bucket_diagnoses": {
+    "p028_arrows": "FIX it9: downscale bez skali szablonu -> 0 coarse hits; po fix +8 matched",
+    "p028_conn": "terminal remap / element_* vs sym_* — L3 topology",
+    "p034": "GT lines/conn=0; 102 only_gt components — MODEL/recall",
+    "p031": "(d) MODEL strzalka"
+  },
+  "loop_armed": true,
+  "val_eval_pending": true
+}

@@ -24,6 +24,11 @@ _ARROW_CLASSES = (
 _CLASS_TO_YOLO_ID = {7: _ARROW_CLASSES[0], 8: _ARROW_CLASSES[1]}
 
 
+def _template_scale(sc: float, downscale: float) -> float:
+    """Skala szablonu dopasowana do downscale obrazu w coarse matchTemplate."""
+    return sc * downscale if downscale != 1.0 else sc
+
+
 @lru_cache(maxsize=1)
 def _template_gallery() -> dict[str, list[np.ndarray]]:
     """Szablony per klasa z data/labeled_tiled (train+val)."""
@@ -113,7 +118,8 @@ def supplement_arrow_detections(
     for class_name in need:
         for tmpl in gallery[class_name]:
             for sc in scales:
-                t = cv2.resize(tmpl, None, fx=sc, fy=sc, interpolation=cv2.INTER_LINEAR)
+                tmpl_scale = _template_scale(sc, downscale)
+                t = cv2.resize(tmpl, None, fx=tmpl_scale, fy=tmpl_scale, interpolation=cv2.INTER_LINEAR)
                 th, tw = t.shape[:2]
                 if th > gray.shape[0] or tw > gray.shape[1]:
                     continue
@@ -171,7 +177,7 @@ def refine_arrow_bboxes(
     """Zacieśnia bbox strzalek YOLO przez matchTemplate w ROI (findings 032).
 
     YOLO tiled zwraca szerokie bboxy (~2.5x GT); refine lokalizuje waski szablon
-  wewnątrz ROI i poprawia IoU bez zmiany progu conf.
+    wewnątrz ROI i poprawia IoU bez zmiany progu conf.
     """
     cfg = arrow_supplement_settings()
     if not cfg.get("refine_enabled", True):

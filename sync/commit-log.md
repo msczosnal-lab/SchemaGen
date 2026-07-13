@@ -229,3 +229,4 @@
 | 2026-07-12 11:08 | Claude | 14416dec | [Claude] diff_graph_lines: remap id symboli+terminali (IoU) - naprawa metryki linii F1=0 (byl artefakt id sym_N vs GT); test remapu |
 | 2026-07-12 12:21 | Cursor | 923a5f0d | [Cursor] Sprint /loop: line_failure_analysis, RailExtractor v0, sprint_loop, OCR listwa w auto-draft |
 | 2026-07-12 12:21 | Cursor | 9a9aae6b | [Cursor] Sprint /loop: line_failure_analysis, RailExtractor v0, sprint_loop, OCR listwa w auto-draft |
+| 2026-07-12 22:26 | Cursor | 312525c0 | [Cursor] loop 032: refine bbox strzalek YOLO (landscape-only) — śr. GT 19.65→20.86 |

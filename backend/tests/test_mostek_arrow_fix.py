@@ -118,3 +118,12 @@ def test_refine_arrow_bboxes_tightens_wide_yolo_box(monkeypatch) -> None:
     [refined] = mod.refine_arrow_bboxes(img, [wide])
     assert refined.width < wide.width
     assert refined.height <= wide.height
+
+
+def test_arrow_supplement_template_scale_matches_downscale() -> None:
+    """Skala szablonu przy downscale < 1 musi sledzic skale obrazu."""
+    from backend.recognize.arrow_supplement import _template_scale
+
+    assert _template_scale(1.0, 0.5) == 0.5
+    assert _template_scale(1.0, 1.0) == 1.0
+    assert _template_scale(0.8, 0.5) == 0.4

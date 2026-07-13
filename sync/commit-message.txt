@@ -1,1 +1,1 @@
-﻿[Cursor] loop 032: refine bbox strzalek YOLO (landscape-only) — śr. GT 19.65→20.86
+﻿[Cursor] loop 032: arrow supplement skala szablonu przy downscale (sr GT 20.86→20.96)
