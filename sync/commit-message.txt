@@ -1,1 +1,1 @@
-﻿[Cursor] loop 032: arrow supplement peak NMS coarse (sr GT 20.96→21.05)
+﻿[Cursor] loop 032: portrait refine dla supplement strzalek (sr GT 21.05→21.24)

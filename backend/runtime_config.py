@@ -257,6 +257,7 @@ _ARROW_SUPPLEMENT_DEFAULTS = {
     "refine_enabled": True,
     "refine_min_score": 0.65,
     "refine_roi_margin": 0.25,
+    "refine_supplement_margin": 0.5,
     "coarse_max_peaks_per_template": 16,
 }
 

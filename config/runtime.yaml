@@ -84,6 +84,7 @@ arrow_supplement:
   refine_enabled: true
   refine_min_score: 0.65
   refine_roi_margin: 0.25
+  refine_supplement_margin: 0.5
   # NMS szczytow coarse zamiast np.where (findings 032 it10 — FP wyjsciowa p028).
   coarse_max_peaks_per_template: 16
 

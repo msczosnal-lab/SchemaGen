@@ -36,3 +36,5 @@ it9: L2 _template_scale przy downscale coarse (arrow_supplement.py) | sr 20.86->
 
 it10: L2 coarse peak NMS zamiast np.where (arrow_supplement.py) | sr 20.96->21.05 | p028 +0.50 p029 0 OK | diag: wyjsciowa 16 FP RT / 9 GT
 
+it11: L2 portrait refine supplement class_id=-1 (arrow_supplement.py) | sr 21.05->21.24 | p028 +1.16 p029 0 OK | diag: wyjsciowa bbox 40x72 bez refine, GT 61-85px
+

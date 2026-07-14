@@ -120,7 +120,7 @@ def test_refine_arrow_bboxes_tightens_wide_yolo_box(monkeypatch) -> None:
     assert refined.height <= wide.height
 
 
-def test_coarse_peak_hits_limits_duplicates(monkeypatch) -> None:
+def test_coarse_peak_hits_limits_duplicates() -> None:
     """Peak NMS zwraca jedno trafienie na lokalne maksimum, nie setke z np.where."""
     from backend.recognize import arrow_supplement as mod
 
@@ -132,7 +132,7 @@ def test_coarse_peak_hits_limits_duplicates(monkeypatch) -> None:
         gray,
         {"strzalka_potencjalu_wejsciowa": [tmpl], "strzalka_potencjalu_wyjsciowa": []},
         ["strzalka_potencjalu_wejsciowa"],
-        coarse_score=0.5,
+        coarse_score=0.3,
         roi_frac=1.0,
         scales=[1.0],
         downscale=1.0,
@@ -140,6 +140,51 @@ def test_coarse_peak_hits_limits_duplicates(monkeypatch) -> None:
     )
     assert 1 <= len(hits) <= 4
 
+
+def test_refine_skips_portrait_yolo_but_not_supplement(monkeypatch) -> None:
+    from backend.recognize import arrow_supplement as mod
+
+    tmpl = np.full((40, 20), 200, dtype=np.uint8)
+    tmpl[:, 8:12] = 30
+    monkeypatch.setattr(mod, "_template_gallery", lambda: {"strzalka_potencjalu_wyjsciowa": [tmpl]})
+    monkeypatch.setattr(
+        mod,
+        "arrow_supplement_settings",
+        lambda: {
+            "refine_enabled": True,
+            "refine_min_score": 0.5,
+            "refine_roi_margin": 0.25,
+            "refine_supplement_margin": 0.5,
+            "scales": [1.0],
+        },
+    )
+
+    img = np.full((120, 120, 3), 255, dtype=np.uint8)
+    img[30:70, 50:70] = 30
+    yolo_portrait = SymbolDetection(
+        class_id=8,
+        class_name="strzalka_potencjalu_wyjsciowa",
+        confidence=0.9,
+        x=40,
+        y=20,
+        width=50,
+        height=60,
+    )
+    sup_portrait = SymbolDetection(
+        class_id=-1,
+        class_name="strzalka_potencjalu_wyjsciowa",
+        confidence=0.95,
+        x=45,
+        y=25,
+        width=20,
+        height=40,
+    )
+    [yolo_out] = mod.refine_arrow_bboxes(img, [yolo_portrait])
+    assert yolo_out.width == yolo_portrait.width
+    assert yolo_out.height == yolo_portrait.height
+
+
+def test_arrow_supplement_template_scale_matches_downscale() -> None:
     """Skala szablonu przy downscale < 1 musi sledzic skale obrazu."""
     from backend.recognize.arrow_supplement import _template_scale
 

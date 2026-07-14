@@ -231,3 +231,4 @@
 | 2026-07-12 12:21 | Cursor | 9a9aae6b | [Cursor] Sprint /loop: line_failure_analysis, RailExtractor v0, sprint_loop, OCR listwa w auto-draft |
 | 2026-07-12 22:26 | Cursor | 312525c0 | [Cursor] loop 032: refine bbox strzalek YOLO (landscape-only) — śr. GT 19.65→20.86 |
 | 2026-07-13 16:39 | Cursor | f5c5b2d3 | [Cursor] loop 032: arrow supplement skala szablonu przy downscale (sr GT 20.86→20.96) |
+| 2026-07-14 20:01 | Cursor | 541b9935 | [Cursor] loop 032: arrow supplement peak NMS coarse (sr GT 20.96→21.05) |

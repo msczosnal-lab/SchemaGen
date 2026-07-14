@@ -231,8 +231,9 @@ def refine_arrow_bboxes(
         if d.class_name not in _ARROW_CLASSES:
             out.append(d)
             continue
-        # YOLO tiled zwraca tez wysokie bboxy (rotacja strzalki) — refine psuje IoU (p029).
-        if d.height > d.width * 1.1:
+        # YOLO tiled zwraca tez wysokie bboxy — refine psuje IoU (p029 it7).
+        # Supplement (class_id=-1) ma bbox z coarse — portrait refine poprawia IoU (p028).
+        if d.height > d.width * 1.1 and d.class_id != -1:
             out.append(d)
             continue
         tmpls = gallery.get(d.class_name) or []
@@ -240,6 +241,9 @@ def refine_arrow_bboxes(
             out.append(d)
             continue
 
+        margin = float(cfg.get("refine_roi_margin", 0.25))
+        if d.class_id == -1:
+            margin = max(margin, float(cfg.get("refine_supplement_margin", 0.5)))
         mx = max(8, int(d.width * margin))
         my = max(8, int(d.height * margin))
         rx1 = max(0, int(d.x) - mx)
