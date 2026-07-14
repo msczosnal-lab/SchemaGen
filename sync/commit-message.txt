@@ -1,1 +1,1 @@
-﻿[Cursor] loop 032: arrow supplement skala szablonu przy downscale (sr GT 20.86→20.96)
+﻿[Cursor] loop 032: arrow supplement peak NMS coarse (sr GT 20.96→21.05)

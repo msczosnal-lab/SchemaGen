@@ -1,14 +1,15 @@
 {
   "started": "2026-07-12T12:40:00+02:00",
-  "iteration": 9,
+  "iteration": 10,
   "baseline_avg": 19.49,
-  "current_avg": 20.96,
+  "current_avg": 21.05,
   "scores_baseline": {"p028": 32.84, "p029": 36.77, "p030": 11.01, "p031": 0.00, "p033": 30.17, "p034": 6.18},
-  "scores_current": {"p028": 34.17, "p029": 36.80, "p030": 19.30, "p031": 0.00, "p033": 30.21, "p034": 5.29},
+  "scores_current": {"p028": 34.67, "p029": 36.80, "p030": 19.30, "p031": 0.00, "p033": 30.21, "p034": 5.29},
   "accepted_changes": [
     {"it": 2, "change": "hough_bus_gap_frac 0.004->0.0045 (runtime.yaml:57)", "delta_avg": 0.16},
     {"it": 6, "change": "L2 refine_arrow_bboxes landscape-only (arrow_supplement.py + graph_builder)", "delta_avg": 1.21},
-    {"it": 9, "change": "L2 arrow_supplement _template_scale przy downscale (arrow_supplement.py)", "delta_avg": 0.10}
+    {"it": 9, "change": "L2 arrow_supplement _template_scale przy downscale (arrow_supplement.py)", "delta_avg": 0.10},
+    {"it": 10, "change": "L2 coarse peak NMS zamiast np.where (arrow_supplement.py)", "delta_avg": 0.09}
   ],
   "reverted": [
     {"it": 1, "change": "hough_merge_collinear_gap_mult 2.5->3.0", "reason": "p033 -1.81"},
@@ -21,13 +22,14 @@
     {"it": 8, "change": "discover tylko gdy YOLO=0 strzalek", "reason": "sr 19.93 p030 -4.28 p028 -1.26"}
   ],
   "plateau_streak": 0,
-  "next_bucket": "p028 conn 1/42; p034 components 6/108; p031 MODEL",
+  "next_bucket": "p028 conn 2/42; p034/p031 MODEL; p030 lines f1=0.20",
   "bucket_diagnoses": {
-    "p028_arrows": "FIX it9: downscale bez skali szablonu -> 0 coarse hits; po fix +8 matched",
-    "p028_conn": "terminal remap / element_* vs sym_* — L3 topology",
-    "p034": "GT lines/conn=0; 102 only_gt components — MODEL/recall",
-    "p031": "(d) MODEL strzalka"
+    "p028_arrows": "wyjsciowa FP 16->12 po peak NMS; wejsciowa 4/4",
+    "p028_conn": "terminal remap element_* — L3 topology",
+    "p034": "102 only_gt components — MODEL",
+    "p031": "(d) MODEL"
   },
   "loop_armed": true,
-  "val_eval_pending": true
+  "val_eval_mean": 30.77,
+  "val_eval_ts": "2026-07-13"
 }

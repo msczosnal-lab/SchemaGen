@@ -120,7 +120,26 @@ def test_refine_arrow_bboxes_tightens_wide_yolo_box(monkeypatch) -> None:
     assert refined.height <= wide.height
 
 
-def test_arrow_supplement_template_scale_matches_downscale() -> None:
+def test_coarse_peak_hits_limits_duplicates(monkeypatch) -> None:
+    """Peak NMS zwraca jedno trafienie na lokalne maksimum, nie setke z np.where."""
+    from backend.recognize import arrow_supplement as mod
+
+    tmpl = np.full((10, 30), 200, dtype=np.uint8)
+    tmpl[:, 12:18] = 30
+    gray = np.full((60, 80), 220, dtype=np.uint8)
+    gray[20:30, 25:55] = 30
+    hits = mod._coarse_peak_hits(
+        gray,
+        {"strzalka_potencjalu_wejsciowa": [tmpl], "strzalka_potencjalu_wyjsciowa": []},
+        ["strzalka_potencjalu_wejsciowa"],
+        coarse_score=0.5,
+        roi_frac=1.0,
+        scales=[1.0],
+        downscale=1.0,
+        max_peaks_per_template=8,
+    )
+    assert 1 <= len(hits) <= 4
+
     """Skala szablonu przy downscale < 1 musi sledzic skale obrazu."""
     from backend.recognize.arrow_supplement import _template_scale
 

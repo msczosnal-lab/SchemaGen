@@ -29,6 +29,45 @@ def _template_scale(sc: float, downscale: float) -> float:
     return sc * downscale if downscale != 1.0 else sc
 
 
+def _coarse_peak_hits(
+    gray: np.ndarray,
+    gallery: dict[str, list[np.ndarray]],
+    class_names: list[str],
+    *,
+    coarse_score: float,
+    roi_frac: float,
+    scales: list[float],
+    downscale: float,
+    max_peaks_per_template: int,
+) -> list[tuple[str, int, int, int, int, float]]:
+    """Lokalne maksima NCC zamiast np.where — mniej FP przy wielu szablonach (p028)."""
+    cutoff = int(roi_frac * gray.shape[0])
+    hits: list[tuple[str, int, int, int, int, float]] = []
+    for class_name in class_names:
+        for tmpl in gallery.get(class_name, []):
+            for sc in scales:
+                tmpl_scale = _template_scale(sc, downscale)
+                t = cv2.resize(
+                    tmpl, None, fx=tmpl_scale, fy=tmpl_scale, interpolation=cv2.INTER_LINEAR
+                )
+                th, tw = t.shape[:2]
+                if th > gray.shape[0] or tw > gray.shape[1]:
+                    continue
+                res = cv2.matchTemplate(gray, t, cv2.TM_CCOEFF_NORMED)
+                work = res.copy()
+                for _ in range(max_peaks_per_template):
+                    _min, max_val, _min_loc, max_loc = cv2.minMaxLoc(work)
+                    if max_val < coarse_score:
+                        break
+                    x, y = int(max_loc[0]), int(max_loc[1])
+                    if y <= cutoff:
+                        hits.append((class_name, x, y, tw, th, float(max_val)))
+                    cx, cy = int(max_loc[0]), int(max_loc[1])
+                    r = max(tw, th) // 2 + 1
+                    cv2.circle(work, (cx, cy), r, 0.0, -1)
+    return hits
+
+
 @lru_cache(maxsize=1)
 def _template_gallery() -> dict[str, list[np.ndarray]]:
     """Szablony per klasa z data/labeled_tiled (train+val)."""
@@ -110,27 +149,21 @@ def supplement_arrow_detections(
         gray = cv2.resize(
             gray, None, fx=downscale, fy=downscale, interpolation=cv2.INTER_AREA
         )
-    cutoff = int(roi_frac * gray.shape[0])
 
     coarse_hits: list[tuple[str, int, int, int, int, float]] = []
     inv = 1.0 / downscale if downscale else 1.0
+    max_peaks = int(cfg.get("coarse_max_peaks_per_template", 16))
 
-    for class_name in need:
-        for tmpl in gallery[class_name]:
-            for sc in scales:
-                tmpl_scale = _template_scale(sc, downscale)
-                t = cv2.resize(tmpl, None, fx=tmpl_scale, fy=tmpl_scale, interpolation=cv2.INTER_LINEAR)
-                th, tw = t.shape[:2]
-                if th > gray.shape[0] or tw > gray.shape[1]:
-                    continue
-                res = cv2.matchTemplate(gray, t, cv2.TM_CCOEFF_NORMED)
-                ys, xs = np.where(res >= coarse_score)
-                for y, x in zip(ys, xs):
-                    if y > cutoff:
-                        continue
-                    coarse_hits.append(
-                        (class_name, int(x), int(y), tw, th, float(res[y, x]))
-                    )
+    coarse_hits = _coarse_peak_hits(
+        gray,
+        gallery,
+        need,
+        coarse_score=coarse_score,
+        roi_frac=roi_frac,
+        scales=list(scales),
+        downscale=downscale,
+        max_peaks_per_template=max_peaks,
+    )
 
     if not coarse_hits:
         return yolo_detections

@@ -34,3 +34,5 @@ it8: L2 discover gdy YOLO=0 strzalek | COFNIETE sr 20.86->19.93 p030 -4.28 p028 
 
 it9: L2 _template_scale przy downscale coarse (arrow_supplement.py) | sr 20.86->20.96 | p028 +1.33 p029 +0.02 p030 -0.71 OK | diag: szablon full-res na obrazie 0.5x -> 0 trafien
 
+it10: L2 coarse peak NMS zamiast np.where (arrow_supplement.py) | sr 20.96->21.05 | p028 +0.50 p029 0 OK | diag: wyjsciowa 16 FP RT / 9 GT
+
