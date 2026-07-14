@@ -22,7 +22,7 @@
     {"it": 7, "change": "portrait refine + discover coarse 0.40", "reason": "p029 -2.01 sr 20.65"},
     {"it": 8, "change": "discover tylko gdy YOLO=0 strzalek", "reason": "sr 19.93 p030 -4.28 p028 -1.26"}
   ],
-  "plateau_streak": 0,
+  "plateau_streak": 3,
   "next_bucket": "p028 conn; p034/p031 MODEL; p030 lines",
   "bucket_diagnoses": {
     "p028_arrows": "portrait supplement refine -> wieksze bbox IoU wyjsciowa",

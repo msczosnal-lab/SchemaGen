@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-07-14 [Cursor] — loop 032 STOP (plateau)
+
+**Średnia GT (6 stron):** 19.49 → **21.24** (+1.75) | **5 decyzji** zaakceptowanych | val-pages mean **30.77**
+
+| Strona | Start | Koniec | Δ |
+|--------|-------|--------|---|
+| p028 | 32.84 | **35.83** | +2.99 |
+| p029 | 36.77 | 36.80 | +0.03 |
+| p030 | 11.01 | **19.30** | +8.29 |
+| p031 | 0.00 | 0.00 | 0 |
+| p033 | 30.17 | 30.21 | +0.04 |
+| p034 | 6.18 | 5.29 | −0.89 |
+
+**Zaakceptowane decyzje:**
+
+| it | poziom | zmiana | diagnoza | Δśr |
+|----|--------|--------|----------|-----|
+| 2 | L1 | `hough_bus_gap_frac` 0.004→0.0045 | (a) szyna gap za mały | +0.16 |
+| 6 | L2 | `refine_arrow_bboxes` landscape-only | (c) YOLO bbox 2.5× GT | +1.21 |
+| 9 | L2 | `_template_scale` przy downscale coarse | (c) szablon full-res na obrazie 0.5× | +0.10 |
+| 10 | L2 | coarse peak NMS zamiast `np.where` | (c) FP wyjściowa z lawiny trafień | +0.09 |
+| 11 | L2 | portrait refine supplement `class_id=-1` | (c) bbox wyjściowa za mały bez refine | +0.19 |
+
+**STOP:** plateau — 3 kolejne akceptacje Δ<1.0 (it9/it10/it11). **pytest:** 281 passed.
+
+**Kubły [MODEL] — retrain YOLO** (dataset z GT, `yolo_conf ≥ 0.18`):
+`strzalka_potencjalu_wejsciowa`, `contactor`, `zlacze`, `zlaczka`, `listwa_zlaczek`, `urzadzenie`, `terminale_urzadzenia`, `styki_przekaznika`, `oznaczenie_kabla`, `oznaczenie_przewodu`, `custom_urzadzenie`
+
+**Kubły kodowe (L3, poza loop):**
+- **p028 conn** 2/42 — topologia `element_*` vs `sym_*`, terminal remap
+- **p031** score=0 — 1× strzałka, NCC=0 w GT bbox
+- **p034** components 6/108 — GT bez linii/conn (nie ruszać line_tracer)
+
+Log: `sync/loop-032-log.md`. Stan: `sync/loop-032-state.json` (`loop_armed: false`).
+
+Commit pending: `[Cursor] loop 032: śr. GT 19.49→21.24 (5 decyzji)`
+
+---
+
 ## 2026-07-05 [Cursor] — terminale: geometria + labeler wzorzec klasy
 
 **Reguły terminali (Filip):**

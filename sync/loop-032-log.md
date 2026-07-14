@@ -38,3 +38,5 @@ it10: L2 coarse peak NMS zamiast np.where (arrow_supplement.py) | sr 20.96->21.0
 
 it11: L2 portrait refine supplement class_id=-1 (arrow_supplement.py) | sr 21.05->21.24 | p028 +1.16 p029 0 OK | diag: wyjsciowa bbox 40x72 bez refine, GT 61-85px
 
+STOP: plateau it9/it10/it11 (Δ<1.0×3) | sr 19.49->21.24 | 5 decyzji | pytest 281 | val 30.77
+
