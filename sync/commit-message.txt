@@ -1,1 +1,1 @@
-﻿[Cursor] loop 032: śr. GT 19.49→21.24 (5 decyzji)
+﻿[Cursor] loop 032 STOP: loop_armed false (plateau)
