@@ -1,1 +1,1 @@
-﻿[Cursor] loop 032 STOP: loop_armed false (plateau)
+﻿[Cursor] 023: conn path emission p028 10/42 + tiled GT sync

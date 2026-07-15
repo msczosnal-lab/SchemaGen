@@ -18,7 +18,7 @@ from backend.models.label import LabelRecord
 from backend.paths import DATA, RAW
 from labeler.export import find_raw_image
 from train.dataset_export import (
-    load_labeled_records,
+    load_all_training_records,
     load_val_page_ids,
     persist_class_map,
 )
@@ -114,7 +114,7 @@ def export_tiled(
 
     out = out_dir or TILED
     raw = raw_dir or RAW
-    recs = records if records is not None else load_labeled_records()
+    recs = records if records is not None else load_all_training_records()
     palette = load_palette_map()
     class_map, _dist = build_class_map(recs, min_count=min_count, bucket_rare=False)
     if not class_map:

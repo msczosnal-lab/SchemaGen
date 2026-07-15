@@ -18,8 +18,8 @@
 | **019-fable5-terminals-lines** | ✅ DONE — analiza; findings zaakceptowane |
 | **018-lines-quality** | ✅ DONE — drugi przebieg Hough, paleta, diag_lines (**226 pytest**) |
 | **018-terminals-strategy** | ⏸ WSTRZYMANE — reguły terminali (wzorce klas) wchłania 022/023 |
-| **022-labeler-graph-v2** | 🔵 **AKTYWNE** (Claude) — GT jako graf OD-DO + remap ID w diff |
-| **023-runtime-graph-alignment** | ⏳ KOLEJKA — GraphBuilder emituje ten sam graf |
+| **022-labeler-graph-v2** | ✅ DONE — GT v2, remap diff, labeler canvas |
+| **023-runtime-graph-alignment** | 🔵 **AKTYWNE** (Cursor) — emisja connections OD–DO |
 | **016-e2e-metrics** | ⏳ KOLEJKA |
 | **Harness walidacji** | ✅ `preview_schema.py`, `diff_gt_runtime.py`, `eval_val_pages.py` |
 
@@ -29,12 +29,22 @@
 
 ---
 
-## Aktywne zadanie — Claude (022-labeler-graph-v2)
+## Aktywne zadanie — Cursor (023-runtime-graph-alignment)
+
+| Pole | Wartość |
+|------|---------|
+| **Prompt** | [`sync/prompts/023-runtime-graph-alignment.md`](prompts/023-runtime-graph-alignment.md) |
+| **Cel** | net_builder: łańcuch rail + pary segmentów zamiast gwiazdy; baseline p028 w `sync/analysis/023-p028-conn-baseline.md` |
+| **Równolegle** | Retrain YOLO `symbols_tiled_v1-3` (Filip GPU) — `tiled_export` zsynchronizowany z GT v2 |
+
+---
+
+## ~~Aktywne zadanie — Claude (022-labeler-graph-v2)~~ DONE
 
 | Pole | Wartość |
 |------|---------|
 | **Prompt** | [`sync/prompts/022-labeler-graph-v2.md`](prompts/022-labeler-graph-v2.md) |
-| **Cel** | Krok 0: remap ID w diff_metrics; SchematicGraph (bbox + terminale na obrysie + linie OD-DO); kompilacja → SchemaModel; labeler 2 tryby + prefill; migrator v1 |
+| **Cel** | Krok 0: remap ID w diff_metrics; SchematicGraph; kompilacja → SchemaModel; labeler 2 tryby + prefill; migrator v1 |
 | **Decyzja domenowa** | Bez junction — złączka do 4 terminali (left/right zwarte `link`, top/bottom odczepy); linia zawsze terminal→terminal |
 | **Zależność** | 018-lines-quality ✅; wzorce terminali z 018-terminals (koncepcja) |
 

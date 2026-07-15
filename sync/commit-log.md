@@ -234,3 +234,4 @@
 | 2026-07-14 20:01 | Cursor | 541b9935 | [Cursor] loop 032: arrow supplement peak NMS coarse (sr GT 20.96→21.05) |
 | 2026-07-14 21:02 | Cursor | d9713fe3 | [Cursor] loop 032: portrait refine dla supplement strzalek (sr GT 21.05→21.24) |
 | 2026-07-14 21:26 | Cursor | d1672780 | [Cursor] loop 032: śr. GT 19.49→21.24 (5 decyzji) |
+| 2026-07-14 21:39 | Cursor | 020894e0 | [Cursor] loop 032 STOP: loop_armed false (plateau) |

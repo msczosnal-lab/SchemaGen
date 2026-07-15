@@ -4,6 +4,47 @@
 
 ---
 
+## 2026-07-15 [Cursor] — 023 L3 conn + retrain handoff
+
+**L3 net_builder (emisja OD–DO):** średnia GT 6 stron **21.24 → 21.50** (+0.26) | **pytest:** 329 passed
+
+| Strona | loop032 | po 023 | Δ | Conn |
+|--------|---------|--------|---|------|
+| p028 | 35.83 | **37.02** | +1.19 | **10/42** (było 2–4) |
+| p029 | 36.80 | 37.28 | +0.48 | 10/76 |
+| p030 | 19.30 | 19.30 | 0 | 0/8 |
+| p031 | 0.00 | 0.00 | 0 | — |
+| p033 | 30.21 | 30.11 | −0.10 | 3/117 |
+| p034 | 5.29 | 5.29 | 0 | — |
+
+**Kod:** `connection_path.py`, `_emit_multi_node` w `net_builder.py` (rail chain `link` + segment pairs + fallback gwiazda), `tiled_export` → `load_all_training_records()` (GT v2).
+
+**Baseline:** `sync/analysis/023-p028-conn-baseline.md` | **Prompt:** `sync/prompts/023-runtime-graph-alignment.md`
+
+### Retrain YOLO — Filip (RTX 2080)
+
+`tiled_export` czyta teraz GT v2 jak `dataset_export`. Kontekstowe klasy (`zlacze`, `listwa_zlaczek`, `oznaczenie_*`, `terminale_urzadzenia`) **poza YOLO**.
+
+```powershell
+cd C:\Users\Filip\Desktop\Cursor\SchemaGen
+.venv311\Scripts\Activate.ps1
+python scripts/class_report.py --min-count 5
+python -m train.tiled_export --win 1536 --overlap 0.2 --min-visible 0.35 --min-count 5
+python -m train.train_symbols --data data/labeled_tiled/data.yaml --name symbols_tiled_v1-3 --cache disk
+python -m train.export_onnx --version symbols_tiled_v1-3
+python scripts/preview_batch.py --version symbols_tiled_v1-3 --conf 0.18 --limit 30
+```
+
+**Uwagi:**
+- `contactor` tylko p028 (val) — doznaczyć na train lub przesunąć split
+- `custom_urzadzenie` tylko p030 (val) — j.w.
+- `urzadzenie` nadal w `yolo_runtime_exclude_classes` do osobnej decyzji
+- Po ONNX: `diff_gt_runtime` na 6 stronach + `eval_val_pages` (conf ≥ 0.18)
+
+Commit pending: `[Cursor] 023: conn path emission p028 10/42 + tiled GT sync`
+
+---
+
 ## 2026-07-14 [Cursor] — loop 032 STOP (plateau)
 
 **Średnia GT (6 stron):** 19.49 → **21.24** (+1.75) | **5 decyzji** zaakceptowanych | val-pages mean **30.77**

@@ -6,7 +6,7 @@ Pomysl: pofragmentowane segmenty przewodu to jeden wezel elektryczny (net).
 2. Do netu przypnij symbole, ktorych bbox jest blisko konca linii netu (terminal).
 3. Emisja:
    - net z 2 symbolami -> 1 Connection,
-   - net z >2 symbolami (szyna/odczepy) -> wspolny potential (net_k), gwiazda do kotwicy.
+   - net z >2: lancuch rail (link), pary koncow segmentow, fallback gwiazda net_k.
 
 Bez GPU/OCR. Wejscie: graphic_lines PO sicie/ROI (tylko wire/bus sa kandydatami).
 """
@@ -16,6 +16,13 @@ from __future__ import annotations
 import math
 
 from backend.models.schema import Component, Connection, GraphicLine, Terminal
+from backend.recognize.connection_path import (
+    chain_adjacent_pairs,
+    is_rail_node,
+    parse_ref,
+    segment_endpoint_pairs,
+    sort_nodes_collinear,
+)
 from backend.recognize.line_classifier import LineClassifier
 
 # semantic_group -> ConnectionKind (PE wykrywany po nazwie grupy)
@@ -73,11 +80,69 @@ def build_connections(
             net_id = f"net_{net_idx}"
             net_idx += 1
             potentials.append(net_id)
-            anchor = node_ids[0]
-            for nid in node_ids[1:]:
-                kind = "link" if nodes[nid] == nodes[anchor] else base_kind
-                _add(connections, seen, nid, anchor, kind, net_id)
+            _emit_multi_node(
+                net,
+                node_ids,
+                nodes,
+                components,
+                base_kind,
+                net_id,
+                terminal_tol=terminal_tol,
+                require_terminal=require_terminal,
+                connections=connections,
+                seen=seen,
+            )
     return connections, potentials
+
+
+def _emit_multi_node(
+    net: list[GraphicLine],
+    node_ids: list[str],
+    nodes: dict[str, str],
+    components: list[Component],
+    base_kind: str,
+    net_id: str,
+    *,
+    terminal_tol: float,
+    require_terminal: bool,
+    connections: list[Connection],
+    seen: set[tuple[str, str, str]],
+) -> None:
+    """Emisja netu >=3 wezlow: rail chain + pary segmentow + fallback gwiazda."""
+    comp_by_id = {c.id: c for c in components}
+    covered: set[str] = set()
+    node_set = set(node_ids)
+
+    rail_refs = [n for n in node_ids if is_rail_node(n, comp_by_id)]
+    if len(rail_refs) >= 3:
+        ordered = sort_nodes_collinear(rail_refs, comp_by_id)
+        for a, b in chain_adjacent_pairs(ordered):
+            if parse_ref(a)[0] == parse_ref(b)[0]:
+                continue
+            _add(connections, seen, a, b, "link", net_id)
+            covered.update((a, b))
+
+    for a, b in segment_endpoint_pairs(
+        net,
+        components,
+        terminal_tol,
+        require_terminal,
+        resolve_node=_resolve_node,
+    ):
+        if a not in node_set or b not in node_set:
+            continue
+        kind = "link" if nodes[a] == nodes[b] else base_kind
+        _add(connections, seen, a, b, kind, net_id)
+        covered.update((a, b))
+
+    uncovered = node_set - covered
+    if not uncovered:
+        return
+
+    anchor = node_ids[0]
+    for nid in node_ids[1:]:
+        kind = "link" if nodes[nid] == nodes[anchor] else base_kind
+        _add(connections, seen, nid, anchor, kind, net_id)
 
 
 # ----------------------------------------------------------------- union-find
@@ -373,6 +438,8 @@ def _add(
     kind: str,
     potential: str,
 ) -> None:
+    if a == b:
+        return
     key = tuple(sorted((a, b))) + (kind,)
     if key in seen:
         return
