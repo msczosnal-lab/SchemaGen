@@ -243,3 +243,4 @@
 | 2026-07-19 13:38 | Claude | b1386868 | [Claude] 027 gt-cleanup + scalenie klas EN/PL; element_review/apply_reassign do migracji na GT v2 |
 | 2026-07-19 13:42 | Claude | 3d03e373 | [Claude] 027 gt-cleanup + scalenie klas EN/PL; element_review/apply_reassign do migracji na GT v2 |
 | 2026-07-19 13:42 | Claude | bb1aad2c | [Claude] 027 gt-cleanup + scalenie klas EN/PL; element_review/apply_reassign do migracji na GT v2 |
+| 2026-07-19 13:49 | Claude | 69252082 | [Claude] GitSync watchdog: ponawianie zadania co 5 min, alarm przy zablokowanym mutexie, PID+StartTime |
