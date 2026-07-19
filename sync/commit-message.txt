@@ -1,1 +1,7 @@
 [Claude] 026 odmrozone (480->3639 bbox): urzadzenie -> contextual (poza YOLO); blokada 027 nieaktualna
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
