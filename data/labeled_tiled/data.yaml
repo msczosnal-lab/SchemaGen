@@ -1,29 +1,24 @@
 names:
-  0: relay
-  1: led
-  2: push_button
-  3: emergency_stop
-  4: terminal_block
-  5: zlaczka
-  6: mostek
-  7: strzalka_potencjalu_wejsciowa
-  8: strzalka_potencjalu_wyjsciowa
-  9: ground
-  10: cewka_zaworow
-  11: ekranowanie_kabla
-  12: gniazdo_rj_45
-  13: polaczenie_przewodow
-  14: przekaznik_polaryzowany
-  15: styk_nc
-  16: styk_stycznika
-  17: styki
-  18: styki_nc
-  19: styki_przekaznika
-  20: terminal_plc
-  21: terminal_przylaczeniowy
-  22: terminal_sterownika_safety
-  23: urzadzenie
-  24: wylacznik_nadpradowy
+  0: zlaczka
+  1: mostek
+  2: strzalka_potencjalu_wyjsciowa
+  3: '1'
+  4: '10'
+  5: '11'
+  6: '12'
+  7: '2'
+  8: '3'
+  9: '4'
+  10: '5'
+  11: '6'
+  12: '7'
+  13: '8'
+  14: '9'
+  15: bn
+  16: bu
+  17: saf1
+  18: saf2
+  19: ye
 path: C:\Users\Filip\Desktop\Cursor\SchemaGen\data\labeled_tiled
 train: images/train
 val: images/val
