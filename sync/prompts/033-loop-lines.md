@@ -1,8 +1,8 @@
 # Zadanie 033: LOOP — jakość linii (tylko `lines`)
 
-**Status:** AKTYWNE (Cursor, tryb `/loop`)
+**Status:** WSTRZYMANE 2026-07-19 — patrz 034-vector-ingest.md (linie sa w PDF wprost, Hough zbedny dla stron wektorowych)
 **Model:** Opus 4.8
-**loop_armed: true**
+**loop_armed: false** (wstrzymane — nie uruchamiać przed 034)
 **Zakres: WYŁĄCZNIE komponent `lines` metryki SCORE.**
 
 ## Stan wyjściowy (p028, model `symbols_tiled_v1-4`, 2026-07-19)
