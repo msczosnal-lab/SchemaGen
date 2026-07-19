@@ -1,1 +1,2 @@
 [Claude] sync: wypchniecie build_val_split.py (54645d79 zalegal niewypchniety)
+[Filip] 028: przeglad GT - 163 zmiany (139 usuniec, 24 retagi), symetria 17 klas, bramka przegladu 19 klas

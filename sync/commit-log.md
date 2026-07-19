@@ -311,3 +311,4 @@
 | 2026-07-19 19:10 | Claude | 557c02ad | [Claude] element_review: leniwe wczytywanie stron (bylo ~6GB RAM przy 199 stronach) - obraz otwierany dopiero gdy potrzebny crop |
 | 2026-07-19 19:10 | Claude | d6096b99 | [Claude] element_review: leniwe wczytywanie stron (bylo ~6GB RAM przy 199 stronach) - obraz otwierany dopiero gdy potrzebny crop |
 | 2026-07-19 19:48 | Claude | bfd4a0f1 | [Claude] apply_reviewed odsiewa klasy widmo z localStorage; element_review czysci nieaktualne przejrzane + zaznacz/odznacz wszystkie; _pick_input liczy wpisy reviewed.json |
+| 2026-07-19 19:48 | Claude | 3de6e37b | [Claude] apply_reviewed odsiewa klasy widmo z localStorage; element_review czysci nieaktualne przejrzane + zaznacz/odznacz wszystkie; _pick_input liczy wpisy reviewed.json |
