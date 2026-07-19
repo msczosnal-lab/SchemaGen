@@ -70,6 +70,110 @@
       "terminals": []
     },
     {
+      "id": "element_1781547246314",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        4393.91,
+        1519.77,
+        4606.86,
+        1711.9
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547242298",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        3645.2,
+        1524.72,
+        3871.06,
+        1710.13
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547238466",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        1440.19,
+        2107.46,
+        1647.23,
+        2290.19
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547235874",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        2176.92,
+        2104.77,
+        2383.96,
+        2290.18
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547233099",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        2916.35,
+        1510.91,
+        3112.63,
+        1709.76
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547226947",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        2163.48,
+        1508.23,
+        2400.09,
+        1707.08
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547223419",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        1426.75,
+        1513.6,
+        1663.3600000000001,
+        1720.51
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547212658",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        690.02,
+        1518.97,
+        907.81,
+        1701.7
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781547204531",
       "type": "terminal_plc",
       "tag": "terminal PLC",

@@ -5,6 +5,19 @@
   "image_height": 4678,
   "symbols": [
     {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p197_0",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        5473.63330078125,
+        1527.119384765625,
+        5578.225540161133,
+        1693.5
+      ],
+      "terminals": []
+    },
+    {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p197_1",
       "type": "urzadzenie",
       "tag": "urzadzenie",

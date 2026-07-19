@@ -261,7 +261,7 @@
     {
       "id": "sym_0",
       "type": "terminal_plc",
-      "tag": "terminal_plc",
+      "tag": "KS2_10",
       "listwa": "",
       "bbox": [
         686.6190185546875,
@@ -281,7 +281,7 @@
     {
       "id": "sym_1",
       "type": "terminal_plc",
-      "tag": "terminal_plc",
+      "tag": "KS2_11",
       "listwa": "",
       "bbox": [
         1333.77392578125,
@@ -321,7 +321,7 @@
     {
       "id": "sym_3",
       "type": "relay",
-      "tag": "relay",
+      "tag": "KS2_10",
       "listwa": "",
       "bbox": [
         935.3820190429688,
@@ -347,7 +347,7 @@
     {
       "id": "sym_4",
       "type": "relay",
-      "tag": "relay",
+      "tag": "KS2_11",
       "listwa": "",
       "bbox": [
         1582.9285888671875,
@@ -399,7 +399,7 @@
     {
       "id": "sym_6",
       "type": "relay",
-      "tag": "relay",
+      "tag": "KS2_16",
       "listwa": "",
       "bbox": [
         3186.566650390625,
@@ -425,7 +425,7 @@
     {
       "id": "sym_7",
       "type": "relay",
-      "tag": "relay",
+      "tag": "KS2_17",
       "listwa": "",
       "bbox": [
         3841.900390625,
@@ -451,7 +451,7 @@
     {
       "id": "sym_8",
       "type": "relay",
-      "tag": "relay",
+      "tag": "KS2_18",
       "listwa": "",
       "bbox": [
         4491.21337890625,

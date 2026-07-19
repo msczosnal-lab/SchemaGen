@@ -16,6 +16,45 @@
         4052.3304443359375
       ],
       "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p195_1",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
+      "listwa": "",
+      "bbox": [
+        3912.11181640625,
+        220.82913208007812,
+        3975.3168869018555,
+        345.62879180908203
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p195_2",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
+      "listwa": "",
+      "bbox": [
+        2542.710693359375,
+        1739.6195068359375,
+        2588.9061737060547,
+        1865.0996398925781
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p195_3",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
+      "listwa": "",
+      "bbox": [
+        2425.994873046875,
+        2846.083740234375,
+        2478.1821365356445,
+        2975.643325805664
+      ],
+      "terminals": []
     }
   ],
   "lines": []

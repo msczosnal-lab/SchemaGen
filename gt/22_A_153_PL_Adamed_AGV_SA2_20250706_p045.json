@@ -5,6 +5,71 @@
   "image_height": 4678,
   "symbols": [
     {
+      "id": "element_1781805876874",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        4444.923247632724,
+        2798.457106849276,
+        5127.790535088521,
+        2876.4483091113575
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805873994",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        5054.393915076265,
+        2804.9563737044496,
+        5114.783539136983,
+        2868.0921088689915
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805863243",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        4855.572691245598,
+        2804.9563737044496,
+        4909.458817330546,
+        2860.664375320222
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805862130",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        4652.106111717952,
+        2806.813307091642,
+        4700.417810966526,
+        2862.5213087074144
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805854786",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        4449.5686033297025,
+        2809.5987071724303,
+        4501.5965871358585,
+        2861.5928420138184
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781805851618",
       "type": "zlacze",
       "tag": "złącze",

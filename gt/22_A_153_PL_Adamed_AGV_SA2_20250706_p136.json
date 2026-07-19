@@ -58,8 +58,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_4",
-      "type": "zlacze",
-      "tag": "zlacze",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
       "listwa": "",
       "bbox": [
         5814.06787109375,

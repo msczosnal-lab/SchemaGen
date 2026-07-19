@@ -356,9 +356,61 @@
       "terminals": []
     },
     {
+      "id": "element_1781555051424",
+      "type": "blok_rozdzielczy",
+      "tag": "blok rozdzielczy",
+      "listwa": "",
+      "bbox": [
+        5298.16,
+        2174.86,
+        6001.93,
+        2533.7400000000002
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555048456",
+      "type": "blok_rozdzielczy",
+      "tag": "blok rozdzielczy",
+      "listwa": "",
+      "bbox": [
+        4132.74,
+        2178.79,
+        4833.88,
+        2523.16
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555045384",
+      "type": "blok_rozdzielczy",
+      "tag": "blok rozdzielczy",
+      "listwa": "",
+      "bbox": [
+        2967.15,
+        2181.73,
+        3671.71,
+        2514.04
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555036304",
+      "type": "blok_rozdzielczy",
+      "tag": "blok rozdzielczy",
+      "listwa": "",
+      "bbox": [
+        1801.97,
+        2183.98,
+        2502.34,
+        2518.98
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781555004400",
-      "type": "motor_breaker",
-      "tag": "motor_breaker",
+      "type": "trojfazowy_wylacznik_nadpradowy",
+      "tag": "trójfazowy wyłącznik nadprądowy",
       "listwa": "",
       "bbox": [
         381.45,
@@ -487,8 +539,8 @@
     },
     {
       "id": "element_1781554921208",
-      "type": "motor_breaker",
-      "tag": "motor_breaker",
+      "type": "trojfazowy_wylacznik_nadpradowy",
+      "tag": "trójfazowy wyłącznik nadprądowy",
       "listwa": "",
       "bbox": [
         367.1,

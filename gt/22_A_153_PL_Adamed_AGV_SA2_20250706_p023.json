@@ -278,6 +278,32 @@
       "terminals": []
     },
     {
+      "id": "element_1781555261520",
+      "type": "terminal_block",
+      "tag": "terminal_block",
+      "listwa": "",
+      "bbox": [
+        4263.57,
+        2448.43,
+        4836.46,
+        2571.99
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555256344",
+      "type": "terminal_block",
+      "tag": "terminal_block",
+      "listwa": "",
+      "bbox": [
+        4265.1,
+        2284.96,
+        4835.6900000000005,
+        2411.59
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781555253152",
       "type": "terminal_przylaczeniowy",
       "tag": "terminal przyłączeniowy",
@@ -677,6 +703,32 @@
         3420.06,
         2208.8700000000003,
         3541.19
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555165504",
+      "type": "terminal_block",
+      "tag": "terminal_block",
+      "listwa": "",
+      "bbox": [
+        2230.14,
+        2444.08,
+        2805.33,
+        2579.66
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555160168",
+      "type": "terminal_block",
+      "tag": "terminal_block",
+      "listwa": "",
+      "bbox": [
+        2227.35,
+        2273.22,
+        2809.04,
+        2406.0099999999998
       ],
       "terminals": []
     },

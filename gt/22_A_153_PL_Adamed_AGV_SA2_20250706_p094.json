@@ -603,6 +603,19 @@
       "terminals": []
     },
     {
+      "id": "element_1781934939635",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        4579.638744710619,
+        2543.2038158370806,
+        4650.155244190748,
+        2594.269483984872
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781934938900",
       "type": "mostek",
       "tag": "mostek",

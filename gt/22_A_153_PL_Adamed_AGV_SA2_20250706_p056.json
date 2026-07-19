@@ -577,6 +577,19 @@
       "terminals": []
     },
     {
+      "id": "element_1781806630313",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        659.6749367907619,
+        3160.5302812821164,
+        1053.3609793295614,
+        3230.9849289554577
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781806628922",
       "type": "oznaczenie_kabla",
       "tag": "Oznaczenie kabla",

@@ -18,6 +18,19 @@
       "terminals": []
     },
     {
+      "id": "element_1782563204023",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "Strzałka potencjału (wejściowa)",
+      "listwa": "",
+      "bbox": [
+        412.3766342788186,
+        698.1555769354338,
+        548.4019397977339,
+        751.1709322931076
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1782563196935",
       "type": "strzalka_potencjalu_wejsciowa",
       "tag": "Strzałka potencjału (wejściowa)",
@@ -148,6 +161,19 @@
       "terminals": []
     },
     {
+      "id": "element_1781556968606",
+      "type": "terminal_block",
+      "tag": "terminal_block",
+      "listwa": "",
+      "bbox": [
+        4404.65,
+        2894.19,
+        4749.24,
+        3019.6
+      ],
+      "terminals": []
+    },
+    {
       "id": "element_1781556966054",
       "type": "terminal_przylaczeniowy",
       "tag": "terminal przyłączeniowy",
@@ -209,6 +235,19 @@
         1674.9,
         4197.86,
         2376.31
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781556928478",
+      "type": "terminal_block",
+      "tag": "terminal_block",
+      "listwa": "",
+      "bbox": [
+        3364.3,
+        2231.24,
+        3723.4700000000003,
+        2365.8399999999997
       ],
       "terminals": []
     },
@@ -391,6 +430,32 @@
         3470.55,
         2103.35,
         3572.7000000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555401824",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        2090.62,
+        3290.2,
+        2185.08,
+        3398.41
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781555393577",
+      "type": "gniazdo_rj_45",
+      "tag": "gniazdo RJ-45",
+      "listwa": "",
+      "bbox": [
+        2086.43,
+        3091.04,
+        2190.52,
+        3205.84
       ],
       "terminals": []
     },

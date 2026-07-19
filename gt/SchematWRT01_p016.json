@@ -159,6 +159,32 @@
         422.46
       ],
       "terminals": []
+    },
+    {
+      "id": "element_1781547104379",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        954.36,
+        282.73,
+        1061.91,
+        371.41
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547098604",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1368.43,
+        758.35,
+        1435.65,
+        828.22
+      ],
+      "terminals": []
     }
   ],
   "lines": []
