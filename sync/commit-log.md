@@ -254,3 +254,4 @@
 | 2026-07-19 14:24 | Claude | 97d0b87b | [Claude] 027 Krok1: eksport klasy po `type` (GT v2) zamiast `tag`, bbox_class + testy regresji, pytest 288 |
 | 2026-07-19 14:35 | Claude | c887fad9 | [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py |
 | 2026-07-19 14:35 | Claude | 9247c469 | [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py |
+| 2026-07-19 14:35 | Claude | 935ca82a | [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py |
