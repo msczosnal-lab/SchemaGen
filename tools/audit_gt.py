@@ -63,10 +63,17 @@ def _png_size(page_id: str) -> tuple[int, int] | None:
 def _load_cache() -> dict[str, dict[str, Any]] | None:
     if not DB_PATH.exists():
         return None
+    # Kolejność ma znaczenie. `immutable=1` każe SQLite zignorować dziennik i WAL,
+    # więc pokazuje stan sprzed niezacheckpointowanych zmian — audyt kłamałby.
+    # Używamy go WYŁĄCZNIE jako ostatniej deski ratunku i głośno o tym mówimy.
+    stale = False
     try:
-        # immutable=1: czytamy nawet gdy leży hot journal (nie próbujemy rollbacku,
-        # bo audyt jest read-only i nie wolno mu ruszyć bazy).
-        conn = sqlite3.connect(f"file:{DB_PATH}?immutable=1", uri=True, timeout=5.0)
+        try:
+            conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=5.0)
+            conn.execute("SELECT 1 FROM sqlite_master LIMIT 1").fetchone()
+        except sqlite3.DatabaseError:
+            conn = sqlite3.connect(f"file:{DB_PATH}?immutable=1", uri=True, timeout=5.0)
+            stale = True
         conn.row_factory = sqlite3.Row
         names = {
             r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -88,6 +95,8 @@ def _load_cache() -> dict[str, dict[str, Any]] | None:
             payload = {"__unparsable__": True}
         payload["__updated_at__"] = r["updated_at"]
         out[r["page_id"]] = payload
+    if stale:
+        out["__stale__"] = {}
     return out
 
 
@@ -342,6 +351,16 @@ def audit() -> dict[str, Any]:
             f"{cache['__no_table__']['tables']}) — init_db + rebuild odtworzy ze źródła",
         )
     else:
+        if cache.pop("__stale__", None) is not None:
+            _add(
+                findings,
+                "WARN",
+                "db_read_stale",
+                "-",
+                "Bazy nie dało się otworzyć w trybie ro — odczyt przez immutable=1 "
+                "IGNORUJE dziennik/WAL. Liczby cache poniżej mogą być nieaktualne. "
+                "Zamknij labelera i powtórz audyt.",
+            )
         for pid, cpayload in cache.items():
             if pid not in pages:
                 cs, cl = _counts(cpayload)
