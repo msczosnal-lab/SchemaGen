@@ -1,0 +1,191 @@
+{
+  "version": 2,
+  "page_id": "SchematWRT01_p016",
+  "image_width": 6712,
+  "image_height": 4822,
+  "symbols": [
+    {
+      "id": "element_1781547145402",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "Strzałka potencjału (wejściowa)",
+      "listwa": "",
+      "bbox": [
+        759.11,
+        398.35,
+        889.64,
+        466.61
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547143074",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "Strzałka potencjału (wejściowa)",
+      "listwa": "",
+      "bbox": [
+        768.21,
+        343.74,
+        889.63,
+        401.38
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547139699",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "Strzałka potencjału (wejściowa)",
+      "listwa": "",
+      "bbox": [
+        762.14,
+        273.97,
+        872.9399999999999,
+        334.64000000000004
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547134963",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        2753.17,
+        838.97,
+        3419.9900000000002,
+        1322.66
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547131579",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        2121.3,
+        817.47,
+        2798.88,
+        1317.28
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547128530",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        1492.12,
+        825.53,
+        2169.7,
+        1322.65
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547124923",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        852.18,
+        828.22,
+        1524.38,
+        1319.97
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547116867",
+      "type": "strzalka_potencjalu_wejsciowa",
+      "tag": "Strzałka potencjału (wejściowa)",
+      "listwa": "",
+      "bbox": [
+        1363.06,
+        672.37,
+        1414.1499999999999,
+        766.42
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547113907",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1161.39,
+        400.96,
+        1244.74,
+        500.38
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547111667",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1787.89,
+        398.28,
+        1882.0,
+        500.39
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547109603",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        2409.0,
+        409.02,
+        2513.86,
+        497.7
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547107075",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1591.6,
+        344.53,
+        1704.53,
+        422.46
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547104379",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        954.36,
+        282.73,
+        1061.91,
+        371.41
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547098604",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        1368.43,
+        758.35,
+        1435.65,
+        828.22
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

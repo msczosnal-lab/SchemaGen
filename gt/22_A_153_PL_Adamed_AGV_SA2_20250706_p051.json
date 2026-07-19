@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p051",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p051_0",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        51.058349609375,
+        459.5213317871094,
+        702.4913330078125,
+        940.8596496582031
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p051_1",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        684.3644409179688,
+        454.17059326171875,
+        1333.727783203125,
+        925.0679931640625
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p051_2",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        1372.96240234375,
+        459.5147705078125,
+        2009.700439453125,
+        935.5254821777344
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p051_3",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        1987.3787841796875,
+        460.08612060546875,
+        2637.925048828125,
+        938.2255554199219
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p051_4",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        2672.395263671875,
+        457.7078552246094,
+        3315.5455322265625,
+        946.3411865234375
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p051_5",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        3317.297607421875,
+        454.9859619140625,
+        3961.2114868164062,
+        939.3943176269531
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

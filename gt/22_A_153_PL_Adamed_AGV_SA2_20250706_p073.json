@@ -1,0 +1,217 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p073",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_0",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        382.7921447753906,
+        298.135986328125,
+        2360.556427001953,
+        2229.1728515625
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_1",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        1803.2796630859375,
+        502.4508972167969,
+        2371.649658203125,
+        2225.4356384277344
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_2",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        2416.185302734375,
+        288.7899169921875,
+        4317.016357421875,
+        2191.638916015625
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_3",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        1386.210693359375,
+        2196.286376953125,
+        2031.8068237304688,
+        2901.523193359375
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_4",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        2669.755859375,
+        2155.325439453125,
+        3319.3346557617188,
+        3007.2008666992188
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_5",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        375.8726806640625,
+        2800.57861328125,
+        2320.8621826171875,
+        4394.233642578125
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_6",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        2337.255615234375,
+        2794.774658203125,
+        4276.4327392578125,
+        4415.62548828125
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_7",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        4272.1015625,
+        2757.7744140625,
+        6214.9879150390625,
+        4398.864990234375
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_8",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        425.155029296875,
+        588.4367065429688,
+        1073.1286010742188,
+        1057.8006591796875
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_9",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        1067.911376953125,
+        591.8577880859375,
+        1699.3358154296875,
+        1051.7444763183594
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_10",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        1700.0797119140625,
+        604.2601928710938,
+        2355.9171752929688,
+        1107.7554626464844
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_11",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        2994.221923828125,
+        587.6936645507812,
+        3640.4632568359375,
+        1053.7289733886719
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_12",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        4954.990234375,
+        601.35107421875,
+        5586.7396240234375,
+        1054.9924926757812
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_13",
+      "type": "terminal_plc",
+      "tag": "terminal_plc",
+      "listwa": "",
+      "bbox": [
+        5578.70068359375,
+        641.8666381835938,
+        6218.4901123046875,
+        1072.2362670898438
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_14",
+      "type": "led",
+      "tag": "led",
+      "listwa": "",
+      "bbox": [
+        3889.796630859375,
+        3021.64990234375,
+        4049.947769165039,
+        3123.251251220703
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_15",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        1429.569091796875,
+        4144.55029296875,
+        1501.0114212036133,
+        4268.849060058594
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

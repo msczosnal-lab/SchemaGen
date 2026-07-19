@@ -1,0 +1,308 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p083",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "element_1782063700869",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        2623.8345505261336,
+        668.8765041887765,
+        3204.390554480866,
+        1223.6346201238205
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063697757",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        2038.7897114892778,
+        670.3718090834802,
+        2617.8494370833014,
+        1223.6346201238205
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063694461",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        1458.0700236595542,
+        673.5879826256435,
+        2038.6260276142864,
+        1223.8601838765767
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063688629",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        877.5140197048223,
+        672.0926777309397,
+        1455.0774669381383,
+        1220.8695740871694
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063680069",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        925.927987369542,
+        1412.5939167720562,
+        5276.096854267247,
+        1510.7183424156165
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063673069",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        950.1664459510395,
+        1420.532054185497,
+        999.2012528436569,
+        1474.7235023590838
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063672096",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        1123.8073503590147,
+        1424.5675875601257,
+        1171.6883970894528,
+        1474.1469975912796
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063669336",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        1708.7420461497807,
+        1420.7815444930545,
+        1756.2077392218346,
+        1475.192064478407
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063667504",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        2289.1710141939816,
+        1424.3373139678577,
+        2334.4728300818683,
+        1468.8423290327999
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063665640",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        2870.363966440628,
+        1424.583611627177,
+        2919.35135379058,
+        1471.8510069375293
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063663520",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        3453.344246564915,
+        1423.017166263912,
+        3501.3772244716693,
+        1474.0828344117035
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063660888",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        3631.0651631273495,
+        1423.4549583648231,
+        3676.032206274099,
+        1470.6396357333826
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063659288",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        4039.141079684098,
+        1422.3315136655717,
+        4084.1081228308467,
+        1471.7630804326338
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063656536",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        4623.35449664208,
+        1420.104290054185,
+        4666.635275670827,
+        1478.1863810054826
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063651272",
+      "type": "oznaczenie_przewodu",
+      "tag": "Oznaczenie przewodu",
+      "listwa": "",
+      "bbox": [
+        5198.370560881135,
+        1423.8116575617146,
+        5256.490464148308,
+        1480.657959343836
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063645704",
+      "type": "led",
+      "tag": "lampka",
+      "listwa": "",
+      "bbox": [
+        5190.589219402386,
+        2181.7857688017143,
+        5269.281544909197,
+        2261.5503424485646
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063643703",
+      "type": "led",
+      "tag": "lampka",
+      "listwa": "",
+      "bbox": [
+        4604.365299527175,
+        2184.854165902097,
+        4688.67850542733,
+        2261.248405451193
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063641536",
+      "type": "led",
+      "tag": "lampka",
+      "listwa": "",
+      "bbox": [
+        4019.7963039892466,
+        2179.4061455354367,
+        4107.594455733274,
+        2263.4398090394425
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063635064",
+      "type": "led",
+      "tag": "lampka",
+      "listwa": "",
+      "bbox": [
+        3432.512887843306,
+        2180.082751227663,
+        3519.2970327643748,
+        2266.810435120473
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063632176",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        2583.416734632818,
+        2142.1208582109966,
+        2734.5408490643335,
+        2294.641957470767
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063629439",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        2000.4955485105281,
+        2147.049786876261,
+        2154.61221966346,
+        2296.580276346624
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063626648",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        1415.9126255664028,
+        2146.6823306514366,
+        1575.2363454145989,
+        2289.6185255361565
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1782063617984",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        816.6381793192103,
+        2161.1568820321677,
+        988.635376882604,
+        2285.9998876909735
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

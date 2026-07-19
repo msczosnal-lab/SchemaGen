@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p159",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p159_0",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        684.3710327148438,
+        2109.860595703125,
+        2509.9061889648438,
+        3629.5941162109375
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p159_1",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        1567.8916015625,
+        2768.5556640625,
+        2520.7908325195312,
+        3582.2509155273438
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

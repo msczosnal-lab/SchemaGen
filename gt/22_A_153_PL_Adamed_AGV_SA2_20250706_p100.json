@@ -1,0 +1,74 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p100",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p100_0",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        994.6167602539062,
+        2052.908203125,
+        2516.4627075195312,
+        3632.7142333984375
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p100_1",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        2045.0928955078125,
+        2201.221435546875,
+        5984.2740478515625,
+        3158.4150390625
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p100_2",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        1568.5439453125,
+        2888.1962890625,
+        2513.1534423828125,
+        3589.4627685546875
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p100_3",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        814.6964111328125,
+        888.8864135742188,
+        893.8696517944336,
+        1080.592758178711
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p100_4",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
+      "listwa": "",
+      "bbox": [
+        4941.5595703125,
+        2618.52587890625,
+        5000.243721008301,
+        2775.1410522460938
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "page_id": "SchematWRT01_p026",
+  "image_width": 6712,
+  "image_height": 4822,
+  "symbols": [
+    {
+      "id": "element_1781548580233",
+      "type": "listwa_zlaczek",
+      "tag": "Listwa złączek",
+      "listwa": "",
+      "bbox": [
+        2406.9,
+        2295.66,
+        4056.8500000000004,
+        2459.33
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548577201",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3966.41,
+        2327.42,
+        4044.6299999999997,
+        2444.6800000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548575329",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3690.2,
+        2317.65,
+        3775.75,
+        2434.9100000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548573642",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3333.32,
+        2312.76,
+        3394.4300000000003,
+        2459.3300000000004
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548571745",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3054.66,
+        2320.09,
+        3157.3199999999997,
+        2447.1200000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548569553",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        2685.56,
+        2320.09,
+        2773.56,
+        2447.1200000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548567361",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        2455.79,
+        2337.19,
+        2516.9,
+        2430.02
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548560801",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        2448.46,
+        2664.54,
+        4247.52,
+        2723.17
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548553457",
+      "type": "ekranowanie_kabla",
+      "tag": "ekranowanie kabla",
+      "listwa": "",
+      "bbox": [
+        2390.88,
+        2723.35,
+        4224.16,
+        2860.15
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

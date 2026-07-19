@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "page_id": "SchematWRT01_p035",
+  "image_width": 6712,
+  "image_height": 4822,
+  "symbols": [
+    {
+      "id": "element_1781548874816",
+      "type": "symbol_brak_ex",
+      "tag": "symbol brak EX",
+      "listwa": "",
+      "bbox": [
+        415.87,
+        2838.08,
+        662.98,
+        3051.19
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548866472",
+      "type": "symbol_ex",
+      "tag": "symbol EX",
+      "listwa": "",
+      "bbox": [
+        445.93,
+        4067.97,
+        627.24,
+        4217.26
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548854312",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3729.57,
+        662.4,
+        4477.06,
+        1224.02
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548850536",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3140.72,
+        702.7,
+        3829.0499999999997,
+        1224.01
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548840112",
+      "type": "czujnik_optyczny",
+      "tag": "czujnik optyczny",
+      "listwa": "",
+      "bbox": [
+        3031.01,
+        3398.92,
+        3366.59,
+        3604.15
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548834760",
+      "type": "czujnik_optyczny",
+      "tag": "czujnik optyczny",
+      "listwa": "",
+      "bbox": [
+        3657.09,
+        3395.58,
+        3994.34,
+        3605.81
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

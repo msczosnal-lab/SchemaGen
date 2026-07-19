@@ -1,0 +1,204 @@
+{
+  "version": 2,
+  "page_id": "SchematWRT01_p034",
+  "image_width": 6712,
+  "image_height": 4822,
+  "symbols": [
+    {
+      "id": "element_1781548806089",
+      "type": "czujnik_optyczny",
+      "tag": "czujnik optyczny",
+      "listwa": "",
+      "bbox": [
+        3655.55,
+        3399.09,
+        3999.4700000000003,
+        3612.6600000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548799489",
+      "type": "czujnik_optyczny",
+      "tag": "czujnik optyczny",
+      "listwa": "",
+      "bbox": [
+        3026.14,
+        3389.08,
+        3360.0499999999997,
+        3610.99
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548750128",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3763.92,
+        640.23,
+        4441.68,
+        1213.19
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548746057",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3103.94,
+        651.33,
+        3810.58,
+        1202.0900000000001
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548729304",
+      "type": "listwa_zlaczek",
+      "tag": "Listwa złączek",
+      "listwa": "",
+      "bbox": [
+        3115.84,
+        2322.13,
+        3971.3,
+        2458.77
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548727185",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3894.79,
+        2354.73,
+        3957.5099999999998,
+        2441.23
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548725617",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3760.58,
+        2340.94,
+        3825.81,
+        2438.7200000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548723616",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3256.33,
+        2348.46,
+        3309.0099999999998,
+        2429.94
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548721008",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3144.69,
+        2343.44,
+        3188.59,
+        2433.7000000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548711296",
+      "type": "oznaczenie_kabla",
+      "tag": "Oznaczenie kabla",
+      "listwa": "",
+      "bbox": [
+        3029.87,
+        2886.5,
+        4023.7799999999997,
+        2949.09
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548695521",
+      "type": "listwa_zlaczek",
+      "tag": "Listwa złączek",
+      "listwa": "",
+      "bbox": [
+        3126.26,
+        3239.72,
+        3959.36,
+        3334.83
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548691321",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3891.96,
+        3245.75,
+        3942.25,
+        3323.08
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548689169",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3770.58,
+        3240.92,
+        3817.97,
+        3325.02
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548685817",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3257.53,
+        3244.93,
+        3316.28,
+        3323.62
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781548683328",
+      "type": "zlaczka",
+      "tag": "złączka",
+      "listwa": "",
+      "bbox": [
+        3136.83,
+        3240.14,
+        3186.79,
+        3322.8199999999997
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}
