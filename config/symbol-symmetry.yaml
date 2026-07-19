@@ -1,0 +1,59 @@
+# Dozwolone transformacje geometryczne dla augmentacji treningowej.
+# Klucz = kanoniczna klasa symbolu (`type`, ta sama przestrzen nazw co
+# config/symbol-classes.yaml i backend.class_map.bbox_class).
+#
+# BRAK WPISU = BRAK ZGODY na jakakolwiek transformacje. Orientacja symbolu
+# niesie znaczenie, wiec brak wiedzy nie jest zgoda (fail-safe). Klasy
+# niewymienione ponizej czekaja na przeglad wzrokowy w
+# scripts/element_review.py -> symmetry.json -> scripts/apply_symmetry.py.
+#
+# rotations: wylacznie 90 / 180 / 270. Dowolny kat wymagalby przeliczania
+# bboxa do obrysu prostokatnego — bbox rosnie, symbol w nim nie, etykieta
+# sie rozmywa.
+#
+# Pola: mirror_h (lustro w poziomie), mirror_v (lustro w pionie),
+#       rotations (lista stopni), note (uzasadnienie — pisz je, to jedyna
+#       dokumentacja tej wiedzy domenowej w repo).
+
+symmetry:
+  # --- ZWERYFIKOWANE: orientacja jest znaczaca, augmentacja zabroniona ---
+
+  strzalka_potencjalu_wejsciowa:
+    mirror_h: false # lustro zamienia w strzalka_potencjalu_wyjsciowa
+    mirror_v: false
+    rotations: []
+    note: "kierunek = znaczenie; para wejsciowa/wyjsciowa rozni sie WYLACZNIE zwrotem (012-mostek-orientacja)"
+
+  strzalka_potencjalu_wyjsciowa:
+    mirror_h: false # lustro zamienia w strzalka_potencjalu_wejsciowa
+    mirror_v: false
+    rotations: []
+    note: "j.w. — lustrzane odbicie uczy siec bledu"
+
+  mostek:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: "orientacja jest osobna klasa (mostek_rXX, 8 wariantow D4) — transformacja zmienia klase, nie augmentuje jej"
+
+  # --- SEED do weryfikacji wzrokowej w element_review (Filip potwierdza/koryguje) ---
+
+  zlaczka:
+    mirror_h: true
+    mirror_v: true
+    rotations: [90, 180, 270]
+    note: "okragla zlaczka — pelna symetria; DO POTWIERDZENIA w podgladzie UI"
+
+  styk_nc:
+    mirror_h: true
+    mirror_v: false
+    rotations: [180]
+    note: "styk rozwierny — symetria pozioma; pion zmienia odczyt styku. DO POTWIERDZENIA w podgladzie UI"
+
+  # Pozostale 20 klas (>=5 instancji) celowo bez wpisu = bez zgody:
+  #   terminal_przylaczeniowy, terminal_plc, styki, przekaznik,
+  #   custom_oznaczenie_przewodu, przycisk, styk_stycznika, gniazdo_rj_45,
+  #   styki_przekaznika, lampka, cewka_zaworow, custom_urzadzenie,
+  #   terminal_sterownika_safety, custom_terminale_urzadzenia,
+  #   wylacznik_nadpradowy, uziemienie, przycisk_awaryjny,
+  #   polaczenie_przewodow, styki_nc, ekranowanie_kabla

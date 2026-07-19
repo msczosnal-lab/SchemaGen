@@ -1,8 +1,1 @@
-[Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa
-[Claude] Plan 027 + trening: etapy, komendy, kryteria STOP (sync/PLAN-027-TRENING.md)
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
+[Claude] 028: element_review v2 - bbox_class + jawny raport brakow, symbol-symmetry.yaml + UI, projekt augmentacji

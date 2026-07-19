@@ -287,3 +287,4 @@
 | 2026-07-19 16:48 | Claude | f88d297f | [Claude] 026 odmrozone (480->3639 bbox): urzadzenie -> contextual (poza YOLO); blokada 027 nieaktualna |
 | 2026-07-19 17:16 | Claude | fc28f4f5 | [Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa |
 | 2026-07-19 17:20 | Claude | a073a563 | [Claude] Plan 027 + trening: etapy, komendy, kryteria STOP (sync/PLAN-027-TRENING.md) |
+| 2026-07-19 17:21 | Claude | 6fbef3eb | [Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa |

@@ -1,3 +1,119 @@
+## 2026-07-19 [Claude] — 028 DONE: rozbieżność 163/160 znaleziona, symetria symboli, projekt augmentacji
+
+### Część A — [BŁĄD] potwierdzony, przyczyna dokładnie ta z hipotezy
+
+`element_review.py` klasyfikował przez `tag_to_class(tag)`, `class_report.py` przez
+`bbox_class(class_name, tag)`. Trzy brakujące bboxy to **p029**:
+
+| bbox_id | `type` | `tag` | element_review (było) | class_report |
+|---|---|---|---|---|
+| element_1781557738693 | styki | SAF1 | `saf1` | `styki` |
+| element_1781557736792 | styki | SAF2 | `saf2` | `styki` |
+| element_1781557732589 | styki | SAF3 | `saf3` | `styki` |
+
+Skala problemu była **dużo większa niż 3 elementy** — dotyczyła całej przeglądarki:
+
+| | element_review (było) | class_report |
+|---|---|---|
+| liczba „klas" | **183** | 67 |
+| zlaczka | 439 | **536** (−97) |
+| custom_oznaczenie_przewodu | 0 | **63** |
+| strzalka_potencjalu_wyjsciowa | 155 | **184** |
+
+Przeglądałeś dane rozsypane na 183 kubełki, w tym pseudoklasy `saf1`, `bn`, `ye`, `6`, `24vdc_as1`
+— to oznaczenia z rysunku, nie klasy symboli.
+
+**Poprawione:** `element_review.py` używa `bbox_class`, tak jak eksport treningowy.
+
+### Część A — jawne raportowanie braków
+
+Narzędzie wypisuje teraz każdy element, którego nie dało się wyrenderować, z powodem:
+brak PNG strony / bbox poza kadrem / wyjątek przy cropie / bbox bez type i tagu.
+W konsoli i w nagłówku HTML (czerwony panel z tabelą per klasa). Przy zgodności — zielony ptaszek.
+
+[UWAGA] Na PC ZW `data/raw/` ma **tylko IEC60617.pdf**, zero PNG stron. Przed poprawką narzędzie
+renderowało wtedy 0 cropów i nic nie mówiło. Teraz mówi. Testowałem ścieżkę renderowania na stubach.
+
+### Część B — `config/symbol-symmetry.yaml` + UI
+
+- `backend/symmetry.py` — loader z walidacją. **Brak wpisu = brak zgody** (test jednostkowy).
+  Rotacje tylko 90/180/270; 45° → ostrzeżenie, nie wyjątek. Zepsuty YAML nie wywraca narzędzia.
+- `config/symbol-symmetry.yaml` — zaseedowany: strzałki potencjału i `mostek` **jawnie zabronione**
+  z uzasadnieniem, `zlaczka` + `styk_nc` z prompta **do potwierdzenia wzrokowego**.
+  Pozostałe 20 klas celowo bez wpisu.
+- UI: panel symetrii **przy klasie** (pokazuje się po kliknięciu filtra klasy), checkboxy
+  ↔ ↕ ⟳90 ⟳180 ⟳270, obok cropa wzorcowego miniatury po zaznaczonych transformacjach.
+  Stan w localStorage, `Pobierz symmetry.json`. Retag/usuwanie/„przejrzana" bez zmian.
+- `scripts/apply_symmetry.py` — dry-run domyślnie, zapis atomowy, **scala** zamiast nadpisywać
+  (przegląd jednej klasy nie kasuje wiedzy o reszcie); `--replace` gdy chcesz inaczej.
+  `note` z YAML nie ginie, gdy UI go nie odeśle.
+
+### Część C — [RYZYKO] rekomendacja prompta wymaga korekty
+
+Liczba, o którą prosiłeś (`scripts/augment_feasibility.py`): **1053 kafle**, z tego kwalifikuje się
+
+| | kafli | % |
+|---|---|---|
+| stan obecny (2/25 klas ma zgodę) | 72 | 6,8 % |
+| **sufit** (zgoda wszystkim poza jawnie zabronionymi) | **808** | **76,7 %** |
+
+**6,8 % to nie werdykt o wariancie 1** — to miara tego, jak pusty jest jeszcze plik symetrii.
+Rozstrzyga 76,7 %, więc próg „poniżej 10 % → wariant 1 bezwartościowy" jest przekroczony z zapasem.
+
+Założenie „schematy są gęste i mieszane" **nie potwierdziło się**: **70,7 % kafli jest
+jednoklasowych** (744/1053). Przy oknie 1536 px symbole tej samej klasy grupują się przestrzennie.
+
+Ale znalazłem ryzyko, którego prompt nie nazwał, a jest poważniejsze:
+**tylko 15,1 % kafli zawiera klasę z zakresu 5–30 instancji.** Wariant 1 w czystej postaci
+zduplikowałby 680 kafli klas licznych (`zlaczka` 536, `terminal_przylaczeniowy` 534)
+i **pogłębił niezbalansowanie** — odwrotnie niż zamierzasz.
+
+**Rekomendacja: wariant 1 z celowaniem** — dodatkowy warunek „kafel zawiera ≥1 klasę 5–30".
+128 kafli dokładnie tam, gdzie brakuje danych; `styk_nc` +45 instancji na transformację,
+`cewka_zaworow` +41, przy balaście +80 dla `zlaczka` (baza 1028, +7,8 %).
+
+**Nie zgadzam się z C1a (transformacja in-place) jako startem.** Obrót symbolu w jego bboxie
+rozjeżdża linie dochodzące do terminali — powstaje obraz fizycznie niemożliwy. Wariant 1T
+obraca cały kafel, więc symbol, linie i sąsiedztwo zostają spójne. C1a miałby sens, gdyby
+warunek „wszystkie klasy w kaflu" był trudny — przy 70,7 % kafli jednoklasowych nie jest.
+
+Pełny projekt z tabelami: [`sync/analysis/028-augmentacja-projekt.md`](analysis/028-augmentacja-projekt.md)
+
+**Warunek blokujący wdrożenie:** 11 z 12 klas zakresu 5–30 nie ma jeszcze wpisu symetrii.
+Bez przeglądu w `element_review.py` wariant 1T wygeneruje 2 kafle zamiast 128.
+
+### [RYZYKO] `data/labeled_tiled/` jest nieaktualny
+
+`data.yaml` ma 20 klas typu `saf1`, `1`, `10`, `bn` i **12 kafli w train** — ślad po starej
+ścieżce tagowej z 026. Po 027/028 wymaga ponownego eksportu, inaczej trening znów pójdzie na śmieciach.
+
+### Pliki
+
+| Plik | Zmiana |
+|---|---|
+| `backend/symmetry.py` | nowy — loader + walidacja symetrii |
+| `config/symbol-symmetry.yaml` | nowy — wiedza domenowa o symetrii |
+| `scripts/element_review.py` | `bbox_class` + raport braków + panel symetrii |
+| `scripts/apply_symmetry.py` | nowy — symmetry.json → YAML, dry-run, atomowo |
+| `scripts/augment_feasibility.py` | nowy — pomiar kwalifikacji kafli |
+| `backend/tests/test_symmetry.py` | nowy — 21 testów |
+| `backend/tests/test_apply_symmetry.py` | nowy — 10 testów |
+| `backend/tests/test_element_review_counts.py` | nowy — 6 testów regresji 163/160 |
+| `sync/analysis/028-augmentacja-projekt.md` | nowy — projekt Części C |
+
+**pytest: 523 passed** (484 + 39 nowych). Bez zmian w `gt/*.json` — 028 tylko czyta GT.
+
+### Do zrobienia po Twojej stronie
+
+1. `python scripts/element_review.py --class styki --thumb 140` — sprawdź, czy licznik pokazuje 163.
+2. Przejrzyj symetrię 12 klas zakresu 5–30 (panel pojawia się po kliknięciu filtra klasy),
+   potwierdź lub skoryguj seed dla `zlaczka` i `styk_nc` → `symmetry.json`.
+3. `python scripts/apply_symmetry.py --dry-run`, potem `--apply`.
+4. `python scripts/augment_feasibility.py` — po wypełnieniu pliku liczba wzrośnie z 6,8 %.
+5. Decyzja: wariant 1T tak/nie (sekcja 7 dokumentu projektowego).
+
+---
+
 ## 2026-07-19 [Claude] — 026 ODMROŻONE. `urzadzenie` poza YOLO. Blokada 027 nieaktualna
 
 ### Tor modelu odblokowany
