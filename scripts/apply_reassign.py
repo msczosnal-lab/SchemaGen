@@ -18,9 +18,19 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-from collections import defaultdict
+import sys
+from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+try:
+    from scripts._pick_input import pick_input
+except ModuleNotFoundError:  # uruchomienie z katalogu scripts/
+    from _pick_input import pick_input
 
 from backend import gt_store
 from backend.db import load_annotation, load_schematic_graph, rebuild_cache_from_gt, save_schematic_graph
@@ -95,18 +105,24 @@ def main() -> int:
         Path.home() / "Downloads" / "reassignments.json",
         Path.cwd() / "reassignments.json",
     ]
-    path = next((c for c in candidates if c and c.exists()), None)
+    path = pick_input(candidates, "reassignments.json")
     if path is None:
-        print("[BŁĄD] Nie znaleziono reassignments.json. Sprawdzone:")
-        for c in candidates:
-            print(f"  - {c}")
-        print("Wskaz: --file <sciezka>")
         return 1
-    print(f"Plik zmian: {path}")
     changes = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(changes, list) or not changes:
         print("Pusta lista zmian.")
         return 1
+
+    # Podsumowanie ZANIM cokolwiek ruszy — zeby bylo widac, czy to ten zestaw zmian.
+    summary = Counter((c.get("old", "?"), c.get("new_tag", "?")) for c in changes)
+    n_del = sum(n for (_o, new), n in summary.items() if new == DELETE)
+    print(f"\nZestaw zmian: {len(changes)} pozycji ({n_del} usuniec, "
+          f"{len(changes) - n_del} retagow) na {len({c['page_id'] for c in changes})} stronach")
+    for (old, new), n in summary.most_common(12):
+        print(f"  {n:>4}  {old:<32} -> {new}")
+    if len(summary) > 12:
+        print(f"  ... i {len(summary) - 12} innych par")
+    print()
 
     by_page: dict[str, dict[str, str]] = defaultdict(dict)
     for c in changes:

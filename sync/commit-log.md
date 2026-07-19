@@ -296,3 +296,4 @@
 | 2026-07-19 17:33 | Claude | e685c92a | [Claude] 028: element_review v2 - bbox_class + jawny raport brakow, symbol-symmetry.yaml + UI, projekt augmentacji |
 | 2026-07-19 18:02 | Claude | 3e0ad34c | [Claude] 028: scalenie custom_X do klas bazowych + class_coverage.py, [BLAD] 10 klas bez instancji w val |
 | 2026-07-19 18:02 | Claude | f8d1af53 | [Claude] 028: scalenie custom_X do klas bazowych + class_coverage.py, [BLAD] 10 klas bez instancji w val |
+| 2026-07-19 18:16 | Claude | f86b8aca | [Claude] 028: symetria zastosowana (--force), naprawa UI podgladu + guard w apply_symmetry, mostek bez zmian |

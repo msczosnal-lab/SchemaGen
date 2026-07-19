@@ -29,6 +29,11 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+try:
+    from scripts._pick_input import pick_input
+except ModuleNotFoundError:  # uruchomienie z katalogu scripts/
+    from _pick_input import pick_input
+
 from backend.class_map import class_distribution, load_palette_map
 from backend.paths import ROOT
 from backend.symmetry import (
@@ -43,6 +48,7 @@ DEFAULT_OUT = ROOT / "config" / "symbol-symmetry.yaml"
 
 
 def _find_input(explicit: Path | None) -> Path | None:
+    """Najnowszy symmetry.json — patrz scripts/_pick_input.py (BŁĄD 2026-07-19)."""
     candidates = [explicit] if explicit else [
         ROOT / "data" / "symmetry.json",
         ROOT / "data" / "output" / "symmetry.json",
@@ -50,14 +56,7 @@ def _find_input(explicit: Path | None) -> Path | None:
         Path.home() / "Downloads" / "symmetry.json",
         Path.cwd() / "symmetry.json",
     ]
-    for c in candidates:
-        if c and c.exists():
-            return c
-    print("[BŁĄD] Nie znaleziono symmetry.json. Sprawdzone:")
-    for c in candidates:
-        print(f"  - {c}")
-    print("Wskaz: --file <sciezka>")
-    return None
+    return pick_input(candidates, "symmetry.json")
 
 
 def parse_incoming(data: dict, known: set[str]) -> tuple[dict[str, SymmetrySpec], list[str]]:

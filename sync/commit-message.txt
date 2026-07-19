@@ -5,4 +5,4 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] 028: symetria zastosowana (--force), naprawa UI podgladu + guard w apply_symmetry, mostek bez zmian
+[Claude] fix: apply_* wybieraja NAJNOWSZY plik wejsciowy + podsumowanie zmian przed zapisem (staly plik z 16.06 przeslanial swiezy eksport)
