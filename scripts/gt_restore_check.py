@@ -21,6 +21,7 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -51,13 +52,80 @@ def _latest_backup() -> Path | None:
     return max(dirs, key=lambda d: d.stat().st_mtime)
 
 
+def _git_counts(rev: str, rel: str) -> tuple[int, int] | None:
+    """(symbole, linie) pliku GT w rewizji gita; None gdy plik tam nie istnieje."""
+    out = subprocess.run(
+        ["git", "show", f"{rev}:{rel}"],
+        cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+    )
+    if out.returncode != 0:
+        return None
+    try:
+        data = json.loads(out.stdout)
+    except json.JSONDecodeError:
+        return None
+    return (len(data.get("symbols") or []), len(data.get("lines") or []))
+
+
+def _run_git(args) -> int:
+    """Porownanie gt/ z rewizja gita. Git jest wiarygodniejszy niz backup —
+    backup powstaje tuz przed zapisem, wiec zawiera juz wczesniejsze uszkodzenia."""
+    rev = args.git_rev
+    print(f"Porownanie z rewizja: {rev}")
+    losses = []
+    checked = 0
+    for cur in sorted(GT.glob("*.json")):
+        rel = f"gt/{cur.name}"
+        ref = _git_counts(rev, rel)
+        if ref is None:
+            continue
+        checked += 1
+        c_sym, c_lin = _counts(cur)
+        if ref[0] - c_sym >= args.min_loss:
+            losses.append((cur.name, ref[0], c_sym, ref[1], c_lin))
+
+    print(f"Plikow porownanych: {checked} | ZE STRATA: {len(losses)}")
+    if not losses:
+        print(f"\nOK — zadna strona nie stracila symboli wzgledem {rev}.")
+        return 0
+
+    print(f"\n{'strona':<52}{rev[:8]:>8}{'teraz':>8}{'strata':>8}  linie")
+    print("-" * 88)
+    for name, b_sym, c_sym, b_lin, c_lin in sorted(losses, key=lambda t: t[2] - t[1]):
+        pct = f"{100 * (b_sym - c_sym) / b_sym:.0f}%" if b_sym else "-"
+        print(f"{name[-50:]:<52}{b_sym:>8}{c_sym:>8}{b_sym - c_sym:>8} ({pct})"
+              f"   {b_lin}->{c_lin}")
+    print(f"\nLacznie utracone symbole: {sum(b - c for _n, b, c, _x, _y in losses)}")
+
+    if not args.restore:
+        print(f"\nDRY-RUN — nic nie przywrocono. Dodaj --restore, aby zrobic "
+              f"`git checkout {rev} -- gt/<plik>` dla tych stron.")
+        return 0
+
+    for name, _b, _c, _bl, _cl in losses:
+        subprocess.run(["git", "checkout", rev, "--", f"gt/{name}"], cwd=ROOT, check=True)
+        print(f"  przywrocono {name}")
+
+    from backend.db import rebuild_cache_from_gt
+
+    n = rebuild_cache_from_gt()
+    print(f"\nPRZYWROCONO {len(losses)} stron z {rev}. Cache odbudowany ({n} stron).")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--backup", type=Path, default=None, help="katalog backupu gt/")
+    ap.add_argument("--git-rev", default=None,
+                    help="porownaj z rewizja gita zamiast z backupem, np. HEAD~5 "
+                         "(backup tez bywa uszkodzony — git jest pewniejszy)")
     ap.add_argument("--restore", action="store_true", help="przywroc pliki ze strata")
     ap.add_argument("--min-loss", type=int, default=1,
                     help="minimalna strata symboli, by uznac za regresje")
     args = ap.parse_args()
+
+    if args.git_rev:
+        return _run_git(args)
 
     bak = args.backup or _latest_backup()
     if bak is None or not bak.exists():
