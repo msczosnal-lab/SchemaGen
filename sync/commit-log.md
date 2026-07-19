@@ -305,3 +305,4 @@
 | 2026-07-19 18:30 | Claude | 30063c0a | [Claude] gt_restore_check.py: audyt i przywracanie stron GT ze strata symboli po nadpisaniu przez cache |
 | 2026-07-19 18:31 | Claude | b73e3aba | [Claude] gt_restore_check.py: audyt i przywracanie stron GT ze strata symboli po nadpisaniu przez cache |
 | 2026-07-19 18:40 | Claude | a7bb033c | [Claude] gt_restore_check --git-rev: audyt gt/ wzgledem rewizji gita (backup bywa juz uszkodzony) |
+| 2026-07-19 18:40 | Claude | 47089440 | [Claude] gt_restore_check --git-rev: audyt gt/ wzgledem rewizji gita (backup bywa juz uszkodzony) |
