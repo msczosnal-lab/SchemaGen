@@ -272,3 +272,4 @@
 | 2026-07-19 15:30 | Claude | 590bac44 | [Claude] 025: sprostowanie - promote nie rusza baseline (ewaluatory biora strony z list, nie z gt/); gt-eval.yaml nie istnieje |
 | 2026-07-19 15:30 | Claude | 285f6441 | [Claude] 025: sprostowanie - promote nie rusza baseline (ewaluatory biora strony z list, nie z gt/); gt-eval.yaml nie istnieje |
 | 2026-07-19 15:30 | Claude | b46b8757 | [Claude] 025: sprostowanie - promote nie rusza baseline (ewaluatory biora strony z list, nie z gt/); gt-eval.yaml nie istnieje |
+| 2026-07-19 15:34 | Claude | 284eec8d | [Claude] 025: GT odzyskane - 199 stron w gt/ (bylo 6); 4 kopie F1 odsiane; nowe: 1 bbox poza kadrem na 8 stronach |
