@@ -5,4 +5,4 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] gt_restore_check --git-rev: audyt gt/ wzgledem rewizji gita (backup bywa juz uszkodzony)
+[Claude] [BLAD] element_review czytal merge v1+v2 - id element_* nie istnialy w gt/; teraz czyta GT v2 (to samo zrodlo co apply_reassign) + ostrzezenie o bboxach tylko w v1

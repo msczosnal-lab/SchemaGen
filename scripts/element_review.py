@@ -45,7 +45,11 @@ from backend.paths import RAW, ROOT
 from backend.class_map import bbox_class, load_palette_map, palette_order
 from backend.symmetry import TRANSFORM_KEYS, load_symmetry_file
 from train.mostek_orient import CLASS_NAMES as MOSTEK_CLASSES
-from train.dataset_export import load_all_training_records, _load_page_images
+from train.dataset_export import (
+    _load_page_images,
+    load_all_training_records,
+    load_graph_v2_records,
+)
 from train.mostek_tiles import crop_bbox
 
 try:
@@ -125,16 +129,55 @@ _TRANSFORM_LABEL = {
 }
 
 
+def _warn_v1_only_pages(v2_recs) -> None:
+    """Ostrzez o stronach, gdzie SQLite v1 ma wiecej bboxow niz gt/*.json.
+
+    Te bboxy NIE sa pokazywane (bo nie da sie ich zapisac przez apply_reassign),
+    ale uzytkownik musi wiedziec, ze istnieja — inaczej mamy znowu cicha
+    rozbieznosc, tyle ze w druga strone.
+    """
+    try:
+        from train.dataset_export import load_labeled_records
+
+        v1 = {r.page_id: len(r.bboxes) for r in load_labeled_records()}
+    except Exception as exc:  # noqa: BLE001 — brak/uszkodzona baza nie blokuje przegladu
+        print(f"[UWAGA] nie udalo sie porownac z SQLite v1 ({exc}) — pomijam kontrole")
+        return
+    v2 = {r.page_id: len(r.bboxes) for r in v2_recs}
+    worse = [(p, n, v2.get(p, 0)) for p, n in v1.items() if n > v2.get(p, 0)]
+    if not worse:
+        return
+    lost = sum(n - m for _p, n, m in worse)
+    print(f"[UWAGA] {len(worse)} stron ma w SQLite v1 wiecej bboxow niz gt/*.json "
+          f"({lost} bbox nie jest pokazywanych — nie da sie ich zapisac do GT v2):")
+    for p, n, m in sorted(worse, key=lambda t: t[2] - t[1])[:10]:
+        print(f"   {p[-5:]}: v1={n} gt={m}")
+    print("   Migracja: labeler/migrate_label_v1.py. Podglad v1: --legacy-v1 "
+          "(UWAGA: wtedy eksport zmian NIE zapisze sie przez apply_reassign).")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--class", dest="cls", default="", help="filtr: tylko ta klasa/tag")
+    ap.add_argument("--legacy-v1", action="store_true",
+                    help="czytaj stary merge v1+v2 (id moga nie istniec w gt/ — "
+                         "apply_reassign ich nie zapisze)")
     ap.add_argument("--limit", type=int, default=0, help="max cropow (0=wszystko)")
     ap.add_argument("--thumb", type=int, default=96, help="wysokosc miniatury px")
     ap.add_argument("--thicken", type=int, default=1, help="ile razy pogrubic linie")
     args = ap.parse_args()
 
-    recs = load_all_training_records()
+    # [BŁĄD] 2026-07-19: narzedzie czytalo `load_all_training_records()` — merge
+    # SQLite v1 + gt/*.json, gdzie v1 wygrywa, gdy ma wiecej bboxow na stronie.
+    # Wtedy przegladarka pokazywala bboxy z id `element_*` (v1), a `apply_reassign`
+    # pisze do `gt/*.json` (v2) i tych id tam nie ma — 183 z 241 zmian przepadalo
+    # jako "bbox_id nieznalezionych". Przegladarka MUSI czytac to samo zrodlo,
+    # do ktorego zapisuje narzedzie stosujace zmiany.
+    recs = load_graph_v2_records() if not args.legacy_v1 else load_all_training_records()
     imgs = _load_page_images(recs, RAW)
+
+    if not args.legacy_v1:
+        _warn_v1_only_pages(recs)
 
     items, dist_all, skipped = collect_items(recs, imgs, args.cls)
 
