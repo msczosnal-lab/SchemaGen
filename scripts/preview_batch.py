@@ -20,7 +20,12 @@ from pathlib import Path
 import cv2
 
 from backend.paths import MODELS, RAW, REGISTRY_PATH
-from backend.runtime_config import yolo_conf_threshold
+from backend.runtime_config import (
+    yolo_conf_threshold,
+    yolo_tile_overlap,
+    yolo_tile_win,
+    yolo_tiled,
+)
 from backend.db import load_annotation
 from backend.geometry.row_layout import ContextResolver, group_into_rows
 from backend.models.label import LabelRecord
@@ -92,7 +97,19 @@ def main() -> int:
         img = cv2.imread(str(page))
         if img is None:
             continue
-        dets = det.detect(str(page), conf_threshold=conf)
+        # Modele tiled (train/tiled_export) uczone sa na oknach 1536 z ORYGINALNEJ
+        # rozdzielczosci. `detect()` skaluje cala strone 6617x4678 do 1536 — symbol
+        # ~60 px schodzi do ~14 px i model go nie widzi (objaw: 2 detekcje/30 stron
+        # przy mAP50 0.577 na walidacji). Ta sama sciezka co runtime: yolo_tiled.
+        if yolo_tiled():
+            dets = det.detect_tiled(
+                str(page),
+                win=yolo_tile_win(),
+                overlap=yolo_tile_overlap(),
+                conf_threshold=conf,
+            )
+        else:
+            dets = det.detect(str(page), conf_threshold=conf)
         counts: Counter = Counter()
         for d in dets:
             counts[d.class_name] += 1
