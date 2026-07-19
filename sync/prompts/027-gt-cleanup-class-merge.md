@@ -1,94 +1,120 @@
-# Zadanie 027: GT cleanup — przegląd bboxów + scalenie klas
+# Zadanie 027 (v2): eksport po `type`, nie po `tag`
 
-**Status:** AKTYWNE — blokuje następny trening
-**Model:** Sonnet 5 (migracja narzędzia), decyzje taksonomiczne — Filip
-**Zależność:** 026 zamknięte (tor modelu zamrożony na `symbols_tiled_v1-2`)
+**Status:** AKTYWNE — blokuje trening i 024
+**Model:** Sonnet 5
+**Uwaga:** wersja v1 tego pliku kazała scalać klasy EN/PL aliasami. To było leczenie objawu — patrz ustalenie niżej. `config/class-aliases.yaml` (commit `c6e587a0`) zostaje, ale traci znaczenie po tej poprawce.
 
-## Zasada przyjęta przez Filipa
+## Ustalenie 2026-07-19 (pomiar na `gt/*.json`)
 
-> Lepiej mniej **prawdziwych** bboxów niż dużo mieszających się. Kilka wzorców na klasę, nie dziesiątki osobnych ramek generujących szum.
+GT v2 ma **dwa pola** na symbolu: `type` (kanoniczny typ elementu) i `tag` (co inżynier wpisał na rysunku — oznaczenie).
 
-Zgodne z tym, jak uczy się detektor: spójność wewnątrz klasy waży więcej niż liczność. Klasa z 30 spójnymi przykładami uczy się lepiej niż z 80, z których 30 to inny element.
-
-**Ale:** czyszczenie **nie zastępuje** doznaczania. Dziś jest 480 bbox, po czyszczeniu będzie mniej. Kolejność jest jednak właśnie taka — najpierw kanon, potem masa. Doznaczanie 1 500 bboxów w niespójnej taksonomii to 1 500 bboxów do późniejszego przeglądu.
-
-## Narzędzie — już istnieje
-
-| Skrypt | Rola |
-|---|---|
-| `scripts/element_review.py` | przeglądarka **wszystkich** oznaczonych elementów: klik = usuń, `<select>` = retag, filtr per klasa, „przejrzane" w localStorage |
-| `scripts/visualize_class_crops.py` | wycinki pogrupowane per klasa — ocena spójności |
-| `scripts/apply_reassign.py` | stosuje `reassignments.json` (`new_tag="__DELETE__"` = usuń) |
-| `scripts/apply_delete.py` | PRZESTARZAŁE — wchłonięte przez `apply_reassign` |
-
-Nie budować nowego. Trzeba je **naprawić**.
-
-## [BŁĄD] Narzędzie pisze do złego źródła prawdy
+Rozkład `type` w GT (421 symboli, 21 typów, wszystkie polskie):
 
 ```
-element_review.py  → train.dataset_export.load_labeled_records()   # label v1 (SQLite)
-apply_reassign.py  → backend.db.load_annotation / save_annotation  # label v1 (SQLite)
+zlaczka 136 · custom_oznaczenie_przewodu 63 · mostek 40 · strzalka_potencjalu_wyjsciowa 39
+zlacze 38 · strzalka_potencjalu_wejsciowa 20 · custom_terminale_urządzenia 16
+oznaczenie_przewodu 16 · custom_urządzenie 15 · terminal_plc 6 · styk_nc 6
+styki_przekaznika 4 · listwa_zlaczek 4 · styki 3 · emergency_stop 3 · contactor 2
+wylacznik_nadpradowy 2 · custom_urzadzenie 2 · terminale_urzadzenia 2 · oznaczenie_kabla 2 · urzadzenie 2
 ```
 
-Oba **omijają `gt/*.json`** — źródło prawdy od 030. Skutki, oba poważne:
+Rozkład `tag` w tym samym GT (126 różnych wartości, 138 czysto numerycznych):
 
-1. **Przeglądasz co innego, niż trenujesz.** `tiled_export` po 023 czyta GT v2 (`load_all_training_records()`), a `element_review` pokazuje v1. Ocena spójności dotyczy zbioru, który nie jest tym, na czym uczy się model.
-2. **Praca ginie.** `apply_reassign` zapisuje do cache SQLite. Labeler przy starcie woła `rebuild_cache_from_gt()` → nadpisuje cache z `gt/*.json`. Godziny czyszczenia znikają bez komunikatu.
+```
+złączka 45 · mostek 39 · złącze 36 · "6" 22 · Oznaczenie przewodu 16
+"2" 11 · "5" 10 · "4" 10 · "3" 10 · "1" 10 · BN 6 · BU 6 · SAF2 5 ...
+```
 
-**Nie uruchamiać `apply_reassign --apply` przed migracją.** Dry-run bezpieczny.
+**W 382 z 421 symboli `type` ≠ `tag`.**
 
-Prawdopodobnie ten sam korzeń, co zgłoszenie „labeler pokazuje bboxy nie dla tych stron" (025): dwie współistniejące przestrzenie danych, v1 i v2, i różne miejsca sięgają do różnych.
+## [BŁĄD] Przyczyna
 
-## Krok 1 — migracja narzędzia na GT v2
+`backend/class_map.py:188` — `tag_to_class(tag)` klasyfikuje po polu `tag`:
 
-1. `element_review.py` czyta przez `labeler/gt_loader.py` (graph_v2 priorytet) albo `load_all_training_records()` — **ta sama ścieżka, co `tiled_export`**. Jedno źródło, wspólna funkcja.
-2. `apply_reassign.py` zapisuje przez `backend.db.save_schematic_graph` / `gt_store` — atomowo, z guardem `skipped_empty_overwrite`. Nigdy bezpośrednio do cache.
-3. Zachować `--apply` / dry-run i backup przed zapisem (już jest — nie usuwać).
-4. Test: retag + delete na stronie testowej → `gt/<page>.json` zmieniony, cache zgodny po `rebuild_cache_from_gt()`.
+```python
+cls = pmap[norm] if norm in pmap else slugify(tag)
+```
 
-**Przed pierwszym `--apply`: `git tag gt-pre-027` + kopia `gt/` poza repo.**
+Dwa skutki:
 
-## Krok 2 — kanon klas (Filip, decyzja domenowa)
+1. `tag="6"` (numer złączki na listwie) → klasa `6` → odcięta przez `--min-count 5` → **bbox wypada z treningu**. Stąd `zlaczka` miała 10 przykładów zamiast 136.
+2. `tag="przekaźnik"` → paleta mapuje na `id: relay` → **stąd angielskie nazwy klas**. Nie pochodzą od AI ani od ręcznego oznaczania: `config/symbol-palette.yaml` ma `id` angielskie i `label_pl` polskie, a eksport zapisuje `id`.
 
-Wejście: `python scripts/visualize_class_crops.py --per-class 80`
+## Cel
 
-Do rozstrzygnięcia — potwierdzone duplikaty EN/PL:
+`type` jest klasą. `tag` jest oznaczeniem z rysunku i **nie trafia do YOLO**.
 
-| Podejrzana para/grupa | Liczności |
-|---|---|
-| `zlaczka` ↔ `terminal_block` | 10 + 10 |
-| `relay` ↔ `przekaznik_polaryzowany` | 114 + 9 |
-| `styki` / `styki_nc` / `styk_nc` / `styki_przekaznika` / `styk_stycznika` | 5 / 5 / 15 / 16 / 14 |
+## Krok 1 — eksport czyta `type`
 
-Grupa styków — pięć etykiet, 55 bboxów razem, podział niejasny. Rozstrzygnąć **łącznie**, patrząc na crops, nie na nazwy.
+1. W ścieżce GT v2 (`load_all_training_records()` i to, z czego korzystają `dataset_export` oraz `tiled_export`) klasa symbolu = `type`, nie `tag`.
+2. `tag` zachowany w rekordzie jako oznaczenie (przyda się dla OCR / relacji), ale nie wchodzi do `data.yaml`.
+3. Fallback dla starych rekordów label v1 bez `type`: `tag_to_class(tag)` jak dotąd. Ścieżka v1 zostaje nietknięta.
+4. Normalizacja `type` do ASCII przed użyciem jako nazwy klasy — w GT są niespójne diakrytyki:
+   - `custom_urządzenie` (15) vs `custom_urzadzenie` (2)
+   - `custom_terminale_urządzenia` (16) vs `terminale_urzadzenia` (2)
 
-Wynik → `config/class-aliases.yaml`, nazwy kanoniczne **polskie** (spójnie z GT v2).
+   Dziś to osobne klasy. Po `_ascii()` scalają się same.
 
-Reguła przy wątpliwości: jeśli dwa crops wyglądają dla ciebie tak samo, dla sieci tym bardziej. Scalać.
+## Krok 2 — re-export i pomiar
 
-## Krok 3 — alias w eksporcie
+```powershell
+python -m train.tiled_export --win 1536 --overlap 0.2 --min-visible 0.35 --min-count 5
+python scripts/class_report.py --min-count 5
+python scripts/visualize_yolo_dataset.py --root data/labeled_tiled --limit 20
+```
 
-Mapa aliasów stosowana w `dataset_export` **i** `tiled_export` przez **jedną wspólną funkcję**. Nie duplikować — rozjazd tych dwóch ścieżek był przyczyną 023.
+Oczekiwane po poprawce:
 
-Kontrola: suma bbox po scaleniu bez usuwania = **480**. Scalenie zmienia przypisanie klas, nie tworzy i nie gubi etykiet. Inna liczba = błąd migracji.
+- `zlaczka` rośnie z 10 do rzędu ~100+
+- znikają klasy numeryczne (`1`, `2`, `6`, …)
+- znikają nazwy angielskie (`relay`, `led`, `push_button`, `terminal_block`, `ground`, `emergency_stop`)
+- łączna liczba bbox **rośnie** — nic już nie wypada przez `min-count`
 
-## Krok 4 — przegląd i czyszczenie (Filip)
+Jeśli angielskie nazwy zostały, `type` nie jest używany wszędzie. Jeśli suma bbox spadła, coś wypadło — szukać, nie iść dalej.
 
-Per klasa w `element_review.py`: usunąć to, co nie pasuje do wzorca klasy. Zapisać w `sync/analysis/027-gt-cleanup.md`: przed/po per klasa + krótka definicja wzorca każdej klasy.
+Wynik → `sync/analysis/027-export-type-fix.md` (przed/po per klasa).
 
-Te definicje są ważniejsze niż same liczby — bez nich następne doznaczanie odtworzy ten sam szum.
+## Krok 3 — dopiero teraz decyzja o scaleniach
 
-## Kryterium zamknięcia
+Po re-eksporcie obejrzeć:
 
-1. `class_report.py` bez nazw angielskich
-2. Każda klasa produkcyjna ma spisany wzorzec w `027-gt-cleanup.md`
-3. `apply_reassign --apply` zapisuje do `gt/*.json`; test regresji to potwierdza
-4. `diff_gt_runtime.py` na 6 stronach — **SCORE się zmieni** (GT się zmieniło) → przeliczyć i zapisać nowy baseline, stary 21.50 unieważniony
+```powershell
+python scripts/visualize_class_crops.py --per-class 80
+```
 
-Punkt 4 jest oczekiwany, nie regresją. Ale musi być zapisany świadomie, inaczej kolejne porównania będą fałszywe.
+Do rozstrzygnięcia przez Filipa (wiedza domenowa, nie zgadywać):
+
+- `zlaczka` (136) vs `zlacze` (38) vs `listwa_zlaczek` (4) — trzy typy czy jeden z wariantami?
+- `styki` (3) / `styki_przekaznika` (4) / `styk_nc` (6) — 13 bboxów na trzy klasy; sensowne rozdzielenie czy scalić?
+- `custom_*` (96 razem) — czy `custom_urzadzenie` i `urzadzenie` to to samo
+
+Dopiero ustalone scalenia wpisać do `config/class-aliases.yaml`. Większość wpisów z v1 (EN→PL) stanie się martwa — usunąć te, które nie mają już zastosowania, zamiast zostawiać jako szum.
+
+## [BŁĄD] Poboczny, do naprawy przy okazji
+
+`config/symbol-palette.yaml`:
+
+```yaml
+- id: auxiliary_contactor
+  label_pl: dioda
+```
+
+Stycznik pomocniczy opisany jako dioda. Kto klikał „dioda" w palecie, zapisywał `auxiliary_contactor`. Sprawdzić, czy w GT są tak oznaczone symbole i poprawić.
+
+## Walidacja
+
+```powershell
+pytest backend/tests labeler/tests -q
+python scripts/diff_gt_runtime.py --page p028
+python scripts/eval_val_pages.py
+```
+
+SCORE **się zmieni** — zmienia się przestrzeń klas. To oczekiwane; zapisać nowy baseline, stary 21.50 unieważniony.
+
+Test regresji: symbol z `type="zlaczka"` i `tag="6"` eksportuje się jako klasa `zlaczka`. Bez tego testu błąd wróci.
 
 ## Poza zakresem
 
-- Trening (zamrożony do czasu doznaczania — 026)
+- Trening (zamrożony — 026; wraca do gry po doznaczeniu stron)
 - Zmiana `val-pages.yaml`
 - ContextResolver
