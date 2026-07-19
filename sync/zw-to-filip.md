@@ -1,3 +1,53 @@
+## 2026-07-19 [Claude] — 025: promote wykonany (199 plików w gt/). Uwagi do commita
+
+### [RYZYKO] Usuń `gt/_rescue_2026-07-19/` PRZED commitem
+
+`gt/_backup_2026-07-12/` **jest w repo** (`git ls-files` pokazuje 6 plików), więc podkatalogi `gt/`
+normalnie wchodzą do gita. `git add gt/` wciągnie **193 duplikaty** tego, co właśnie wylądowało
+w `gt/` na poziom wyżej. Dane są już bezpieczne w `gt/*.json`, katalog roboczy jest zbędny:
+
+```powershell
+rmdir /s /q gt\_rescue_2026-07-19        # cmd
+Remove-Item -Recurse -Force gt\_rescue_2026-07-19   # PowerShell
+git add gt/ && git commit
+```
+
+### 4 × CRIT `cache_orphan_data` to nie błąd
+
+p035–p038 (po 108 sym.) to celowo odsiane kopie p034. Audyt ich nie odróżnia od realnych sierot.
+**Po commicie** usuń je z cache, żeby raport był czysty i żeby nie wróciły przy przyszłym odzysku:
+
+```powershell
+python -c "import sqlite3; c=sqlite3.connect('data/schemagen.db'); print(c.execute(\"DELETE FROM schematic_graph WHERE page_id IN ('22_A_153_PL_Adamed_AGV_SA2_20250706_p035','22_A_153_PL_Adamed_AGV_SA2_20250706_p036','22_A_153_PL_Adamed_AGV_SA2_20250706_p037','22_A_153_PL_Adamed_AGV_SA2_20250706_p038')\").rowcount); c.commit()"
+```
+
+Dopiero po commicie — dopóki `gt/` nie jest w gicie, nie kasujemy niczego z bazy.
+
+### [BŁĄD] Nowe znalezisko: 1 bbox poza kadrem na 8 stronach
+
+`p022`, `p047`, `p057`, `p058`, `p065`, `p149`, `p157`, `p177` — **zawsze dokładnie jeden** bbox
+wychodzi poza 6617×4678. Jeden na stronę, na ośmiu niezależnych stronach, to nie przypadek —
+wygląda na systematyczny artefakt migracji v1 (ujemna współrzędna albo bbox ramki rysunkowej
+liczony od krawędzi). Do obejrzenia:
+
+```powershell
+python -c "import json,glob; [print(f.split('_p')[-1][:4], [b for b in json.load(open(f,encoding='utf-8'))['symbols'] if b['bbox'][0]<0 or b['bbox'][1]<0 or b['bbox'][2]>6617 or b['bbox'][3]>4678]) for f in glob.glob('gt/*_p022.json')+glob.glob('gt/*_p149.json')]"
+```
+
+Nie blokuje niczego — 8 bboxów na ~2000. Ale jeśli to ujemne współrzędne, YOLO je odrzuci przy
+eksporcie i warto wiedzieć, czy `tiled_export` je cicho gubi, czy przycina.
+
+### Dalej
+
+1. `rmdir` `_rescue` → `git add gt/` → **commit** ← najważniejsze
+2. DELETE 4 sierot z cache
+3. p040 w labelerze
+4. `class_report --min-count 5` + `tiled_export` — ile klas przekroczyło próg (026)
+5. przeliczyć val-pages mean
+6. F1 i F3
+
+---
+
 ## 2026-07-19 [Claude] — 025: odzysk 193/197 OK. Dwie rzeczy przed `--promote`
 
 Zadziałało dokładnie jak miało: **193 zapisane, 4 kopie odsiane, 6 pominiętych** (źródło prawdy wygrywa).
