@@ -1,3 +1,55 @@
+## 2026-07-19 [Claude] — 025: odzysk 193/197 OK. Dwie rzeczy przed `--promote`
+
+Zadziałało dokładnie jak miało: **193 zapisane, 4 kopie odsiane, 6 pominiętych** (źródło prawdy wygrywa).
+
+### 1. Uprzątnij pozostałość po pierwszym biegu
+
+Pierwszy bieg (bez `--skip-dups`) zapisał 197 plików. Drugi nadpisał 193, ale **p035–p038 z pierwszego
+biegu wciąż tam leżą** — skrypt nie kasuje plików, których nie zapisuje. Do usunięcia:
+
+```powershell
+cd gt\_rescue_2026-07-19
+del *_p035.json, *_p036.json, *_p037.json, *_p038.json
+dir *.json | measure   # ma wyjść 193
+```
+
+Nie dotyczy to `SchematWRT01_p035` — to inny dokument, zostaje. Bezpieczniej celuj pełną nazwą
+`22_A_153_PL_Adamed_AGV_SA2_20250706_p035.json` itd.
+
+### 2. [RYZYKO] `--promote` wywróci metrykę, jeśli nie ruszysz `gt-eval.yaml`
+
+`gt/*.json` pełni dziś dwie role naraz i po promocji zaczną sobie przeszkadzać:
+
+| Rola | Kryterium | Ile stron |
+|---|---|---|
+| **Dataset treningowy** (bboxy dla YOLO) | wszystko z symbolami | **199** (6 + 193) |
+| **Zestaw metryczny** (SCORE, `diff_gt_runtime`) | strony z **liniami** | **7** (p028–p034 + p040) |
+
+Po promocji `eval_val_pages` zobaczy 199 stron, z czego 192 mają 0 linii → recall linii z definicji
+zero → **średnia SCORE runie z 21.50 do jakichś 1–2**. To nie będzie regresja, tylko średnia liczona
+po stronach, które nigdy nie miały linii. Ale jeśli tego nie odetniesz, baseline przestanie cokolwiek
+znaczyć i kolejne prompty będą gonić widmo.
+
+**Przed `--promote` rozszerz `config/gt-eval.yaml`** o jawną listę stron metrycznych albo regułę
+„tylko strony z ≥1 linią". Strony z 1–4 symbolami (p021, p063, p099, p115, p121, p127, p132, p139,
+p145, p148, p156, p164, p170, p173, p176, p186, p193, p032) to resztki po v1 — do treningu wchodzą,
+do metryki nie.
+
+### Kolejność
+
+1. usuń 4 pliki-duplikaty z `_rescue`
+2. `config/gt-eval.yaml` → lista metryczna (7 stron)
+3. `python -m tools.rescue_gt_from_cache --skip-dups --promote`
+4. `python -m tools.audit_gt` → ma być 0 sierot z danymi
+5. **commit `gt/` do gita** — dopiero wtedy dane są naprawdę bezpieczne
+6. p040 w labelerze — sprawdź, czy 19 sym./17 linii wygląda jak Twoja praca
+7. `python -m train.tiled_export` + `class_report` — sprawdź, czy 026 się odblokował
+8. dopiero potem F1 i F3
+
+Cache w bazie zostaw nietknięty do punktu 5.
+
+---
+
 ## 2026-07-19 [Claude] — 025: F1 POTWIERDZONE na danych. p040 cały. Komenda do odzysku
 
 `gt_dup_scan` potwierdził hipotezę co do joty:

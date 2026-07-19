@@ -139,9 +139,34 @@ produkt błędu F1, nie dane.
 
 ---
 
+### F0d — [RYZYKO] promocja 193 stron wywróci metrykę, jeśli nie ruszyć `gt-eval.yaml`
+
+Odzysk wykonany: **193 strony** w `gt/_rescue_2026-07-19/`, 4 kopie odsiane, 6 pominiętych
+(źródło prawdy wygrywa). Zanim to trafi do `gt/`, trzeba rozdzielić dwie role, które dziś pełni
+ten sam katalog:
+
+| Rola | Kryterium | Ile stron |
+|---|---|---|
+| **Dataset treningowy** (bboxy dla YOLO) | wszystko, co ma symbole | **199** (6 + 193) |
+| **Zestaw metryczny** (SCORE, `diff_gt_runtime`) | strony z **liniami** | **7** (p028–p034 + p040) |
+
+`gt/*.json` jest źródłem obu. Po promocji `eval_val_pages` zobaczy 199 stron, z czego 192 mają
+**0 linii** — recall linii z definicji zero, średnia SCORE runie z 21.50 do okolic 1–2.
+To nie będzie regresja, tylko policzenie średniej po stronach, które nigdy nie były oznaczane liniami.
+
+**Dlatego przed `--promote`: rozszerzyć `config/gt-eval.yaml` o jawną listę stron metrycznych**
+(albo regułę „tylko strony z ≥1 linią"). Inaczej baseline przestanie cokolwiek znaczyć i kolejne
+prompty będą gonić widmo.
+
+Strony z 1–4 symbolami (p021, p063, p099, p115, p121, p127, p132, p139, p145, p148, p156, p164,
+p170, p173, p176, p186, p193, p032…) to resztki po v1 — do treningu wchodzą, do metryki nie.
+
+---
+
 ## F1 [BŁĄD, KRYTYCZNY] — wyścig `selectPage` zapisuje graf pod cudzym page_id
 
 **Uwaga:** F1 jest niezależny od F0 i nadal aktualny — ale kolejność naprawy to F0 → F1.
+**Status: potwierdzone empirycznie** — patrz sekcja dowodowa w F0b.
 
 ---
 
