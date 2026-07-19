@@ -2,19 +2,22 @@
 
 Zadziałało dokładnie jak miało: **193 zapisane, 4 kopie odsiane, 6 pominiętych** (źródło prawdy wygrywa).
 
-### 1. Uprzątnij pozostałość po pierwszym biegu
+### 1. ~~Uprzątnij pozostałość po pierwszym biegu~~ — NIEAKTUALNE, mój błąd
 
-Pierwszy bieg (bez `--skip-dups`) zapisał 197 plików. Drugi nadpisał 193, ale **p035–p038 z pierwszego
-biegu wciąż tam leżą** — skrypt nie kasuje plików, których nie zapisuje. Do usunięcia:
+Twierdziłem, że pierwszy bieg zostawił 4 nadmiarowe pliki. **Nieprawda** — pierwszy bieg miał
+`--dry-run`, więc nic nie zapisał. Katalog od początku ma poprawne 193 pliki. Zmyliła mnie linia
+`Zapisane: 197` wypisywana przez skrypt także w trybie dry-run — poprawione, teraz pisze
+`DRY-RUN — nic nie zapisano. Do zapisania: N`.
+
+Weryfikacja (ma wyjść 193):
 
 ```powershell
-cd gt\_rescue_2026-07-19
-del *_p035.json, *_p036.json, *_p037.json, *_p038.json
-dir *.json | measure   # ma wyjść 193
+(dir gt\_rescue_2026-07-19\*.json).Count
 ```
 
-Nie dotyczy to `SchematWRT01_p035` — to inny dokument, zostaje. Bezpieczniej celuj pełną nazwą
-`22_A_153_PL_Adamed_AGV_SA2_20250706_p035.json` itd.
+Ostrzeżenie zostaje jako realne na przyszłość: skrypt nie kasuje plików, których nie zapisuje —
+gdyby kiedyś zapisać katalog bez `--skip-dups`, a potem z nim, nadmiarowe pliki zostałyby.
+Dodałem odpowiedni komunikat na końcu realnego biegu.
 
 ### 2. [RYZYKO] `--promote` wywróci metrykę, jeśli nie ruszysz `gt-eval.yaml`
 

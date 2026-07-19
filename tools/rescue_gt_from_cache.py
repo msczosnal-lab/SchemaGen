@@ -159,7 +159,10 @@ def main() -> int:
         written.append(page_id)
 
     print()
-    print(f"Zapisane: {len(written)} -> {dest}")
+    if args.dry_run:
+        print(f"DRY-RUN — nic nie zapisano. Do zapisania: {len(written)} -> {dest}")
+    else:
+        print(f"Zapisane: {len(written)} -> {dest}")
     if skipped_existing:
         print(f"Pominięte (plik gt/ już istnieje, źródło prawdy wygrywa): {len(skipped_existing)}")
     if skipped_dup:
@@ -168,11 +171,15 @@ def main() -> int:
             print(f"    {s}")
     if skipped_small:
         print(f"Pominięte (poniżej --min-symbols): {len(skipped_small)}")
-    if not args.promote and written:
+    if not args.promote and written and not args.dry_run:
         print()
         print("To jest katalog roboczy — aplikacja go NIE czyta (glob gt/*.json nie schodzi")
         print("do podkatalogów). Przejrzyj zawartość, potem przenieś ręcznie albo puść")
         print("ponownie z --promote.")
+        print()
+        print("[UWAGA] Skrypt nie kasuje plików, których nie zapisuje. Jeśli wcześniejszy")
+        print("bieg (bez --skip-dups) zapisał do tego katalogu więcej stron, nadmiarowe")
+        print("pliki zostaną. Sprawdź liczbę: powinna zgadzać się z 'Zapisane'.")
     return 0
 
 
