@@ -5,19 +5,6 @@
   "image_height": 4693,
   "symbols": [
     {
-      "id": "element_1781549677175",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        3403.62,
-        2054.18,
-        3573.7,
-        2187.0099999999998
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781549670887",
       "type": "terminale_urzadzenia",
       "tag": "terminale urządzenia",

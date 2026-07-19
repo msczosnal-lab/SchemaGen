@@ -161,19 +161,6 @@
       "terminals": []
     },
     {
-      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p074_12",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
-      "listwa": "",
-      "bbox": [
-        4186.7451171875,
-        3313.013427734375,
-        4279.459487915039,
-        3413.2929916381836
-      ],
-      "terminals": []
-    },
-    {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p074_13",
       "type": "styki",
       "tag": "styki",

@@ -31,35 +31,9 @@
       "terminals": []
     },
     {
-      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_2",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
-      "listwa": "",
-      "bbox": [
-        3465.21142578125,
-        2606.61376953125,
-        3516.694023132324,
-        2743.0333557128906
-      ],
-      "terminals": []
-    },
-    {
-      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_3",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
-      "listwa": "",
-      "bbox": [
-        1075.4678955078125,
-        2733.03857421875,
-        1126.3679580688477,
-        2826.2172927856445
-      ],
-      "terminals": []
-    },
-    {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_4",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         1193.1903076171875,
@@ -71,8 +45,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_5",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         1324.843505859375,
@@ -84,8 +58,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_6",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         1459.36669921875,
@@ -97,8 +71,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_7",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         1571.8763427734375,
@@ -110,8 +84,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_8",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         1700.6539306640625,
@@ -123,8 +97,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_9",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         1948.65625,
@@ -136,8 +110,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_10",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         2840.12060546875,
@@ -149,8 +123,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p162_11",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
+      "type": "zlacze",
+      "tag": "zlacze",
       "listwa": "",
       "bbox": [
         3588.851318359375,

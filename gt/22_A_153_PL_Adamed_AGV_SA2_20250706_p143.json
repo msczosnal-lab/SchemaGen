@@ -29,19 +29,6 @@
         3245.135009765625
       ],
       "terminals": []
-    },
-    {
-      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p143_2",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal_przylaczeniowy",
-      "listwa": "",
-      "bbox": [
-        4942.3955078125,
-        2619.579833984375,
-        5000.24089050293,
-        2773.073699951172
-      ],
-      "terminals": []
     }
   ],
   "lines": []

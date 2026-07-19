@@ -299,3 +299,4 @@
 | 2026-07-19 18:16 | Claude | f86b8aca | [Claude] 028: symetria zastosowana (--force), naprawa UI podgladu + guard w apply_symmetry, mostek bez zmian |
 | 2026-07-19 18:16 | Claude | 339d0c83 | [Claude] 028: symetria zastosowana (--force), naprawa UI podgladu + guard w apply_symmetry, mostek bez zmian |
 | 2026-07-19 18:23 | Claude | 166afb50 | [Claude] fix: apply_* wybieraja NAJNOWSZY plik wejsciowy + podsumowanie zmian przed zapisem (staly plik z 16.06 przeslanial swiezy eksport) |
+| 2026-07-19 18:23 | Claude | 9666e45f | [Claude] fix: apply_* wybieraja NAJNOWSZY plik wejsciowy + podsumowanie zmian przed zapisem (staly plik z 16.06 przeslanial swiezy eksport) |

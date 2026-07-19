@@ -188,8 +188,8 @@
     },
     {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_14",
-      "type": "led",
-      "tag": "led",
+      "type": "relay",
+      "tag": "relay",
       "listwa": "",
       "bbox": [
         3889.796630859375,

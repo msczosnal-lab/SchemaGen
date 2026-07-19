@@ -19,8 +19,8 @@
     },
     {
       "id": "element_1781806578770",
-      "type": "push_button",
-      "tag": "przycisk",
+      "type": "styki",
+      "tag": "styki",
       "listwa": "",
       "bbox": [
         2150.446984406124,

@@ -31,45 +31,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781547929330",
-      "type": "mostek",
-      "tag": "mostek",
-      "listwa": "",
-      "bbox": [
-        3901.32,
-        1238.43,
-        4076.8700000000003,
-        1349.47
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547927362",
-      "type": "mostek",
-      "tag": "mostek",
-      "listwa": "",
-      "bbox": [
-        3316.89,
-        1242.87,
-        3441.33,
-        1338.36
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547924586",
-      "type": "mostek",
-      "tag": "mostek",
-      "listwa": "",
-      "bbox": [
-        2805.8,
-        1216.23,
-        2905.8,
-        1313.94
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781547921458",
       "type": "mostek",
       "tag": "mostek",

@@ -902,19 +902,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781546868795",
-      "type": "styki",
-      "tag": "styki",
-      "listwa": "",
-      "bbox": [
-        2634.27,
-        3157.82,
-        2852.81,
-        3245.92
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781546866955",
       "type": "terminal_przylaczeniowy",
       "tag": "terminal przyłączeniowy",
@@ -1695,19 +1682,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781546458075",
-      "type": "styki",
-      "tag": "styki",
-      "listwa": "",
-      "bbox": [
-        4392.88,
-        1190.15,
-        4558.74,
-        1268.3200000000002
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781546454555",
       "type": "polaczenie_przewodow",
       "tag": "połączenie przewodów",
@@ -1847,19 +1821,6 @@
         1290.3,
         2537.48,
         1407.37
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781546384556",
-      "type": "styki",
-      "tag": "styki",
-      "listwa": "",
-      "bbox": [
-        2457.66,
-        1184.63,
-        2634.93,
-        1267.5100000000002
       ],
       "terminals": []
     },
