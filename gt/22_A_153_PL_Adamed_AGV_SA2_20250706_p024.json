@@ -162,8 +162,8 @@
     },
     {
       "id": "element_1781556968606",
-      "type": "terminal_block",
-      "tag": "terminal_block",
+      "type": "listwa_zlaczek",
+      "tag": "listwa_zlaczek",
       "listwa": "",
       "bbox": [
         4404.65,
@@ -240,8 +240,8 @@
     },
     {
       "id": "element_1781556928478",
-      "type": "terminal_block",
-      "tag": "terminal_block",
+      "type": "listwa_zlaczek",
+      "tag": "listwa_zlaczek",
       "listwa": "",
       "bbox": [
         3364.3,
@@ -434,32 +434,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781555401824",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        2090.62,
-        3290.2,
-        2185.08,
-        3398.41
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781555393577",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        2086.43,
-        3091.04,
-        2190.52,
-        3205.84
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781555385609",
       "type": "fotodioda",
       "tag": "fotodioda",
@@ -565,8 +539,8 @@
     },
     {
       "id": "element_1781555290944",
-      "type": "wylacznik_roznicowo_pradowy",
-      "tag": "wyłącznik różnicowo-prądowy",
+      "type": "wylacznik_kombinowany",
+      "tag": "wylacznik_kombinowany",
       "listwa": "",
       "bbox": [
         679.39,

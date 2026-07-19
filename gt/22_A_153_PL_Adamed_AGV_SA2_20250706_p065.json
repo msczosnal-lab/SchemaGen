@@ -1344,58 +1344,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781807837664",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal przyłączeniowy",
-      "listwa": "",
-      "bbox": [
-        420.20041744098313,
-        3476.3171112438768,
-        845.3433708284277,
-        3634.62068250203
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781807834536",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal przyłączeniowy",
-      "listwa": "",
-      "bbox": [
-        1051.3789203182603,
-        3476.419024474907,
-        1491.4207963411043,
-        3627.5058773419255
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781807828648",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal przyłączeniowy",
-      "listwa": "",
-      "bbox": [
-        4906.565286103561,
-        3477.9645406155855,
-        5330.379667761671,
-        3641.987466706291
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781807823240",
-      "type": "terminal_przylaczeniowy",
-      "tag": "terminal przyłączeniowy",
-      "listwa": "",
-      "bbox": [
-        5539.721151526381,
-        3500.7546723779183,
-        5986.9138651912035,
-        3687.114521404831
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781807820696",
       "type": "zlacze",
       "tag": "złącze",

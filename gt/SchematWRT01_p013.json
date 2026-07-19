@@ -1280,8 +1280,8 @@
     },
     {
       "id": "element_1781544775622",
-      "type": "znak_uziemienia",
-      "tag": "Znak uziemienia",
+      "type": "uziemienie",
+      "tag": "uziemienie",
       "listwa": "",
       "bbox": [
         1317.62,

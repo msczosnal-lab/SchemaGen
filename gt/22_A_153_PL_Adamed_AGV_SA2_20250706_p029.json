@@ -1742,19 +1742,6 @@
       ]
     },
     {
-      "id": "sym_14",
-      "type": "strzalka_potencjalu_wyjsciowa",
-      "tag": "SAF6_PLC / 64.6",
-      "listwa": "",
-      "bbox": [
-        6103.0,
-        2387.0,
-        6113.0,
-        2393.0
-      ],
-      "terminals": []
-    },
-    {
       "id": "sym_15",
       "type": "custom_urządzenie",
       "tag": "SAF1",

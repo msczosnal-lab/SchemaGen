@@ -578,8 +578,8 @@
     },
     {
       "id": "element_1781806630313",
-      "type": "oznaczenie_przewodu",
-      "tag": "Oznaczenie przewodu",
+      "type": "oznaczenie_kabla",
+      "tag": "oznaczenie_kabla",
       "listwa": "",
       "bbox": [
         659.6749367907619,

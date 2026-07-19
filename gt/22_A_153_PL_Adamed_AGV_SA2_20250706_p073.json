@@ -187,19 +187,6 @@
       "terminals": []
     },
     {
-      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_14",
-      "type": "led",
-      "tag": "led",
-      "listwa": "",
-      "bbox": [
-        3889.796630859375,
-        3021.64990234375,
-        4049.947769165039,
-        3123.251251220703
-      ],
-      "terminals": []
-    },
-    {
       "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p073_15",
       "type": "styki",
       "tag": "styki",

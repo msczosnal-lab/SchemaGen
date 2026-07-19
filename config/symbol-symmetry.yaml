@@ -28,6 +28,21 @@ symmetry:
     mirror_v: false
     rotations: []
     note: ''
+  custom_oznaczenie_przewodu:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  custom_terminale_urzadzenia:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  custom_urzadzenie:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
   czujnik_optyczny:
     mirror_h: false
     mirror_v: false
@@ -54,9 +69,12 @@ symmetry:
     rotations: []
     note: ''
   fotodioda:
-    mirror_h: false
-    mirror_v: false
-    rotations: []
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
     note: ''
   fuse:
     mirror_h: false
@@ -64,9 +82,12 @@ symmetry:
     rotations: []
     note: ''
   gniazdo_rj_45:
-    mirror_h: false
-    mirror_v: false
-    rotations: []
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
     note: ''
   gniazdo_swiatlowodu:
     mirror_h: false
@@ -74,19 +95,28 @@ symmetry:
     rotations: []
     note: ''
   krancowka_nc:
-    mirror_h: false
-    mirror_v: false
-    rotations: []
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
     note: ''
   lampka:
-    mirror_h: false
-    mirror_v: false
-    rotations: []
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
     note: ''
   lampka_wewnetrzna:
-    mirror_h: false
-    mirror_v: false
-    rotations: []
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
     note: ''
   limit_switch:
     mirror_h: true
@@ -110,11 +140,8 @@ symmetry:
     mirror_h: false
     mirror_v: false
     rotations: []
-    note: 'orientacja jest osobna klasa (mostek_rXX, 8 wariantow D4) — transformacja
-      zmienia klase, nie augmentuje jej. Obroty sa juz obsluzone przez
-      maybe_expand_mostek, ktory przepisuje mostek -> mostek_rXX PRZED eksportem,
-      wiec w treningu klasa `mostek` w ogole nie wystepuje. Decyzja Filipa 2026-07-19:
-      zostawic zakaz — wpis symetrii bylby bezprzedmiotowy albo szkodliwy.'
+    note: orientacja jest osobna klasa (mostek_rXX, 8 wariantow D4) — transformacja
+      zmienia klase, nie augmentuje jej
   motor:
     mirror_h: false
     mirror_v: false
@@ -199,9 +226,8 @@ symmetry:
     - 90
     - 180
     - 270
-    note: '[UWAGA 2026-07-19] Decyzja Filipa nadpisuje udokumentowany zakaz z 012-mostek-orientacja.
-      [RYZYKO] Lustro zamienia ta klase w strzalka_potencjalu_wyjsciowa — jesli po
-      retrainie mAP obu strzalek spadnie, to jest pierwszy podejrzany.'
+    note: kierunek = znaczenie; para wejsciowa/wyjsciowa rozni sie WYLACZNIE zwrotem
+      (012-mostek-orientacja)
   strzalka_potencjalu_wyjsciowa:
     mirror_h: true
     mirror_v: true
@@ -209,8 +235,7 @@ symmetry:
     - 90
     - 180
     - 270
-    note: '[UWAGA 2026-07-19] j.w. — decyzja Filipa nadpisuje zakaz. [RYZYKO] Lustro
-      zamienia ta klase w strzalka_potencjalu_wejsciowa.'
+    note: j.w. — lustrzane odbicie uczy siec bledu
   styk_krancowki:
     mirror_h: false
     mirror_v: false
@@ -218,12 +243,13 @@ symmetry:
     note: ''
   styk_nc:
     mirror_h: true
-    mirror_v: false
+    mirror_v: true
     rotations:
     - 90
     - 180
     - 270
-    note: styk rozwierny — symetria pozioma; pion zmienia odczyt styku
+    note: styk rozwierny — symetria pozioma; pion zmienia odczyt styku. DO POTWIERDZENIA
+      w podgladzie UI
   styk_pomocniczy:
     mirror_h: false
     mirror_v: false
@@ -351,7 +377,7 @@ symmetry:
     - 90
     - 180
     - 270
-    note: okragla zlaczka — pelna symetria
+    note: okragla zlaczka — pelna symetria; DO POTWIERDZENIA w podgladzie UI
   znak_uziemienia:
     mirror_h: false
     mirror_v: false

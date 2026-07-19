@@ -97,8 +97,8 @@
     },
     {
       "id": "element_1781557190806",
-      "type": "terminal_block",
-      "tag": "terminal_block",
+      "type": "listwa_zlaczek",
+      "tag": "listwa_zlaczek",
       "listwa": "",
       "bbox": [
         663.63,
@@ -110,8 +110,8 @@
     },
     {
       "id": "element_1781557185278",
-      "type": "terminal_block",
-      "tag": "terminal_block",
+      "type": "listwa_zlaczek",
+      "tag": "listwa_zlaczek",
       "listwa": "",
       "bbox": [
         1531.26,
@@ -318,8 +318,8 @@
     },
     {
       "id": "element_1781557133421",
-      "type": "terminal_block",
-      "tag": "terminal_block",
+      "type": "listwa_zlaczek",
+      "tag": "listwa_zlaczek",
       "listwa": "",
       "bbox": [
         4054.39,
@@ -331,8 +331,8 @@
     },
     {
       "id": "element_1781557127366",
-      "type": "terminal_block",
-      "tag": "terminal_block",
+      "type": "listwa_zlaczek",
+      "tag": "listwa_zlaczek",
       "listwa": "",
       "bbox": [
         3170.39,

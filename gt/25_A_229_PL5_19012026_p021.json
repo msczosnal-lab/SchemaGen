@@ -226,58 +226,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781554438155",
-      "type": "zlacze",
-      "tag": "złącze",
-      "listwa": "",
-      "bbox": [
-        1242.45,
-        3775.29,
-        1310.06,
-        3865.93
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781554437009",
-      "type": "zlacze",
-      "tag": "złącze",
-      "listwa": "",
-      "bbox": [
-        1127.01,
-        3775.29,
-        1178.1299999999999,
-        3872.5299999999997
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781554435954",
-      "type": "zlacze",
-      "tag": "złącze",
-      "listwa": "",
-      "bbox": [
-        980.23,
-        3771.99,
-        1059.39,
-        3875.8199999999997
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781554424505",
-      "type": "zlacze",
-      "tag": "złącze",
-      "listwa": "",
-      "bbox": [
-        859.85,
-        3771.99,
-        922.52,
-        3880.7599999999998
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781554412977",
       "type": "terminale_urzadzenia",
       "tag": "terminale urządzenia",

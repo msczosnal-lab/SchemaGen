@@ -3339,19 +3339,6 @@
       ]
     },
     {
-      "id": "sym_68",
-      "type": "custom_oznaczenie_przewodu",
-      "tag": "1",
-      "listwa": "",
-      "bbox": [
-        3716.0,
-        3308.0,
-        3723.0,
-        3314.0
-      ],
-      "terminals": []
-    },
-    {
       "id": "sym_69",
       "type": "strzalka_potencjalu_wyjsciowa",
       "tag": "24VDC_KBD",

@@ -694,19 +694,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781548131665",
-      "type": "strzalka_potencjalu_wejsciowa",
-      "tag": "Strzałka potencjału (wejściowa)",
-      "listwa": "",
-      "bbox": [
-        763.89,
-        2358.58,
-        897.31,
-        2414.42
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781548129361",
       "type": "strzalka_potencjalu_wejsciowa",
       "tag": "Strzałka potencjału (wejściowa)",
@@ -716,19 +703,6 @@
         2289.06,
         892.75,
         2348.32
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781548125745",
-      "type": "strzalka_potencjalu_wejsciowa",
-      "tag": "Strzałka potencjału (wejściowa)",
-      "listwa": "",
-      "bbox": [
-        761.61,
-        2227.52,
-        892.75,
-        2283.36
       ],
       "terminals": []
     },

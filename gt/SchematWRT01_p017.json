@@ -83,19 +83,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781547242298",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        3645.2,
-        1524.72,
-        3871.06,
-        1710.13
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781547238466",
       "type": "gniazdo_rj_45",
       "tag": "gniazdo RJ-45",
@@ -118,58 +105,6 @@
         2104.77,
         2383.96,
         2290.18
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547233099",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        2916.35,
-        1510.91,
-        3112.63,
-        1709.76
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547226947",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        2163.48,
-        1508.23,
-        2400.09,
-        1707.08
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547223419",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        1426.75,
-        1513.6,
-        1663.3600000000001,
-        1720.51
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547212658",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        690.02,
-        1518.97,
-        907.81,
-        1701.7
       ],
       "terminals": []
     },
@@ -248,19 +183,6 @@
         783.62,
         1263.36,
         924.94
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547156546",
-      "type": "strzalka_potencjalu_wejsciowa",
-      "tag": "Strzałka potencjału (wejściowa)",
-      "listwa": "",
-      "bbox": [
-        755.04,
-        338.82,
-        907.43,
-        397.87
       ],
       "terminals": []
     },

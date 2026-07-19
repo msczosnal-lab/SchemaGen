@@ -31,19 +31,6 @@
       "terminals": []
     },
     {
-      "id": "element_1781547409650",
-      "type": "strzalka_potencjalu_wejsciowa",
-      "tag": "Strzałka potencjału (wejściowa)",
-      "listwa": "",
-      "bbox": [
-        766.41,
-        335.13,
-        906.65,
-        405.21
-      ],
-      "terminals": []
-    },
-    {
       "id": "element_1781547407114",
       "type": "strzalka_potencjalu_wejsciowa",
       "tag": "Strzałka potencjału (wejściowa)",
@@ -157,84 +144,6 @@
         1433.83,
         5463.21,
         1633.6999999999998
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547361242",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        4385.47,
-        1513.78,
-        4601.02,
-        1695.8799999999999
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547356986",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        3643.97,
-        1513.7,
-        3871.6899999999996,
-        1697.24
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547353139",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        2891.12,
-        1487.93,
-        3186.63,
-        1696.49
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547350483",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        2153.19,
-        1506.29,
-        2416.98,
-        1694.83
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547347146",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        1441.97,
-        1522.97,
-        1655.67,
-        1696.5
-      ],
-      "terminals": []
-    },
-    {
-      "id": "element_1781547342498",
-      "type": "gniazdo_rj_45",
-      "tag": "gniazdo RJ-45",
-      "listwa": "",
-      "bbox": [
-        698.42,
-        1528.84,
-        903.25,
-        1709.74
       ],
       "terminals": []
     },

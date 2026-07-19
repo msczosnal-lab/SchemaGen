@@ -1,0 +1,63 @@
+# Klasy zatwierdzone wzrokowo w scripts/element_review.py ("przejrzana").
+# Tylko one trafiaja do treningu YOLO (build_class_map / is_yolo_exportable).
+#
+# Pusta lista lub brak pliku = BRAMKA NIEAKTYWNA (trenuja sie wszystkie klasy).
+# Celowo NIE jest to fail-safe w strone zakazu — pusty plik wyzerowalby dataset.
+#
+# Generowane przez scripts/apply_reviewed.py z reviewed.json.
+reviewed:
+- 1q4
+- a1
+- blok_rozdzielczy
+- buzzer
+- cewka_zaworow
+- contactor
+- custom_oznaczenie_przewodu
+- custom_terminale_urzadzenia
+- custom_urzadzenie
+- czujnik_optyczny
+- ekranowanie_kabla
+- emergency_stop
+- fotodioda
+- fuse
+- gniazdo_rj_45
+- gniazdo_swiatlowodu
+- ground
+- iq3
+- krancowka_nc
+- ks2_10
+- ks2_12
+- ks2_16
+- ks2_17
+- ks2_18
+- lampka
+- lampka_wewnetrzna
+- led
+- limit_switch
+- mostek
+- oznaczenie_przewodu
+- polaczenie_przewodow
+- przekaznik
+- przekaznik_polaryzowany
+- przycisk
+- przycisk_awaryjny
+- push_button
+- relay
+- rozlacznik_bezpiecznikowy
+- socket
+- strzalka_potencjalu_wejsciowa
+- strzalka_potencjalu_wyjsciowa
+- stycznik_odcinajacy_sekcje_12
+- styk_krancowki
+- styk_nc
+- styk_pomocniczy
+- styki
+- styki_przekaznika
+- terminal_block
+- terminal_sterownika_safety
+- trojfazowy_wylacznik_nadpradowy
+- urzadzenie
+- uziemienie
+- wylacznik_nadpradowy
+- zlacze
+- zlaczka

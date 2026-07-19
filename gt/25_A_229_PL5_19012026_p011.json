@@ -19,8 +19,8 @@
     },
     {
       "id": "element_1781554019403",
-      "type": "styki_nc",
-      "tag": "styki NC",
+      "type": "styk_nc",
+      "tag": "styk_nc",
       "listwa": "",
       "bbox": [
         5056.52,
@@ -32,8 +32,8 @@
     },
     {
       "id": "element_1781554012378",
-      "type": "styki_nc",
-      "tag": "styki NC",
+      "type": "styk_nc",
+      "tag": "styk_nc",
       "listwa": "",
       "bbox": [
         4404.26,
@@ -370,8 +370,8 @@
     },
     {
       "id": "element_1781553906282",
-      "type": "styki_nc",
-      "tag": "styki NC",
+      "type": "styk_nc",
+      "tag": "styk_nc",
       "listwa": "",
       "bbox": [
         2453.82,
@@ -435,8 +435,8 @@
     },
     {
       "id": "element_1781553837682",
-      "type": "styki_nc",
-      "tag": "styki NC",
+      "type": "styk_nc",
+      "tag": "styk_nc",
       "listwa": "",
       "bbox": [
         892.3,
@@ -448,8 +448,8 @@
     },
     {
       "id": "element_1781553830826",
-      "type": "styki_nc",
-      "tag": "styki NC",
+      "type": "styk_nc",
+      "tag": "styk_nc",
       "listwa": "",
       "bbox": [
         485.5,
