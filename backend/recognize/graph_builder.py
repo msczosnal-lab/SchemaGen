@@ -207,6 +207,11 @@ class GraphBuilder:
         return det.detect(image_path)
 
     def _trace(self, image_path: str):
+        from backend.ingest.vector import trace_vector_page
+
+        segments = trace_vector_page(image_path)
+        if segments is not None:
+            return segments
         tracer = self._tracer or LineTracer()
         return tracer.trace(image_path)
 

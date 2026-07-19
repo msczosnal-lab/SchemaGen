@@ -1,11 +1,32 @@
-"""Ingest — PDF/obraz do PNG."""
+"""Ingest — PDF/obraz do PNG + ekstrakcja wektorowa."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
+from backend.ingest.vector import (
+    VectorPage,
+    VectorSegment,
+    VectorWord,
+    extract_vector_page,
+    page_has_vectors,
+    resolve_pdf_for_image,
+    trace_vector_page,
+)
 from backend.paths import RAW, ensure_data_dirs
 from backend.runtime_config import pdf_dpi
+
+__all__ = [
+    "VectorPage",
+    "VectorSegment",
+    "VectorWord",
+    "extract_vector_page",
+    "page_has_vectors",
+    "pdf_to_png",
+    "normalize_image_path",
+    "resolve_pdf_for_image",
+    "trace_vector_page",
+]
 
 
 def pdf_to_png(
