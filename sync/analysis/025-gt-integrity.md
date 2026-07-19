@@ -13,207 +13,216 @@ Plików `gt/*.json`: **6** · CRIT: **197** · WARN: 5 · INFO: 1
 | 22_A_153_PL_Adamed_AGV_SA2_20250706_p033 | 155 | 117 |
 | 22_A_153_PL_Adamed_AGV_SA2_20250706_p034 | 108 | 0 |
 
+## GT istniejący TYLKO w bazie SQLite (brak pliku w `gt/`)
+
+Sierot łącznie: **197** · z danymi: **197** (3650 symboli, 17 linii)
+
+Baza jest w `.gitignore` i już raz padła (`malformed`). To, co tu widać, **nie jest wersjonowane i nie ma kopii w repo.**
+
+| page_id | symbole | linie | updated_at |
+|---|---:|---:|---|
+| SchematWRT01_p015 | 163 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p046 | 141 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p065 | 123 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p035 | 108 | 0 | 2026-07-19T11:11:24.937245+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p036 | 108 | 0 | 2026-07-19T11:11:29.238465+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p037 | 108 | 0 | 2026-07-19T11:11:31.239659+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p038 | 108 | 0 | 2026-07-19T11:11:32.089477+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p066 | 108 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p013 | 102 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p094 | 96 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p027 | 90 | 0 | 2026-07-11T19:12:00.841769+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p039 | 82 | 0 | 2026-07-19T11:11:35.222492+00:00 |
+| SchematWRT01_p023 | 80 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p023 | 78 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p048 | 74 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p025 | 66 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p077 | 66 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p068 | 63 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p005 | 57 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p007 | 55 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p019 | 55 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p056 | 54 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p024 | 43 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p022 | 42 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p022 | 42 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p023 | 42 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p004 | 40 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p008 | 39 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p014 | 38 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p026 | 37 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p011 | 36 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p042 | 33 | 0 | 2026-07-19T11:11:42.364132+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p081 | 33 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p041 | 31 | 0 | 2026-07-19T11:11:48.220542+00:00 |
+| 25_A_229_PL5_19012026_p021 | 28 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p059 | 27 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p060 | 24 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p022 | 24 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p082 | 23 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p083 | 23 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p017 | 21 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p018 | 21 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p040 | 19 | 17 | 2026-07-19T11:11:41.224085+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p098 | 19 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p108 | 19 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p047 | 17 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p058 | 16 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p073 | 16 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p024 | 16 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p069 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p071 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p078 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p084 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p085 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p086 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p087 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p088 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p090 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p091 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p093 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p012 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p034 | 15 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p045 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p057 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p074 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p089 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p092 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p192 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p016 | 14 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p109 | 13 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p070 | 12 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p072 | 12 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p162 | 12 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p166 | 12 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p064 | 11 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p154 | 11 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p050 | 10 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p095 | 10 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p137 | 10 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p157 | 10 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p043 | 9 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p149 | 9 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p015 | 9 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p019 | 9 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p026 | 9 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p075 | 8 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p128 | 8 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p133 | 8 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p134 | 8 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p138 | 8 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p033 | 8 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p049 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p122 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p140 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p183 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p190 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p191 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p006 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p014 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p017 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p021 | 7 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p020 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p051 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p061 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p096 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p101 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p103 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p107 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p136 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p141 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p177 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p016 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p035 | 6 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p055 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p100 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p102 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p105 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p111 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p116 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p118 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p146 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p160 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p171 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p178 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p180 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p182 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p197 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p020 | 5 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p062 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p067 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p104 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p112 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p113 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p117 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p119 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p123 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p124 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p125 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p129 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p130 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p131 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p142 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p152 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p153 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p161 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p195 | 4 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p106 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p114 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p120 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p143 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p147 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p150 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p158 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p165 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p168 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p174 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p175 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p199 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 25_A_229_PL5_19012026_p013 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| SchematWRT01_p052 | 3 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p044 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p079 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p080 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p110 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p126 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p135 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p144 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p151 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p155 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p159 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p163 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p167 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p169 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p172 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p179 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p181 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p185 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p187 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p189 | 2 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p021 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p032 | 1 | 0 | 2026-07-19T11:11:14.572646+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p063 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p099 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p115 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p121 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p127 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p132 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p139 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p145 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p148 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p156 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p164 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p170 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p173 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p176 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p186 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+| 22_A_153_PL_Adamed_AGV_SA2_20250706_p193 | 1 | 0 | 2026-07-11T16:33:51.222736+00:00 |
+
 ## Znaleziska
 
 | Sev | Kod | Strona | Opis |
 |---|---|---|---|
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p020 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p020' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p020.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p021 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p021' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p021.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p022 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p022' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p022.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p023 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p023' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p023.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p024 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p024' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p024.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p025 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p025' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p025.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p026 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p026' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p026.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p027 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p027' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p027.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p032 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p032' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p032.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p035 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p035' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p035.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p036 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p036' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p036.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p037 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p037' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p037.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p038 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p038' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p038.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p039 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p039' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p039.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p040 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p040' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p040.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p041 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p041' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p041.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p042 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p042' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p042.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p043 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p043' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p043.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p044 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p044' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p044.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p045 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p045' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p045.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p046 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p046' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p046.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p047 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p047' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p047.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p048 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p048' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p048.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p049 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p049' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p049.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p050 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p050' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p050.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p051 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p051' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p051.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p055 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p055' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p055.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p056 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p056' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p056.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p057 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p057' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p057.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p058 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p058' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p058.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p059 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p059' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p059.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p060 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p060' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p060.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p061 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p061' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p061.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p062 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p062' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p062.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p063 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p063' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p063.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p064 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p064' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p064.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p065 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p065' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p065.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p066 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p066' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p066.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p067 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p067' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p067.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p068 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p068' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p068.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p069 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p069' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p069.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p070 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p070' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p070.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p071 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p071' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p071.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p072 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p072' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p072.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p073 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p073' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p073.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p074 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p074' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p074.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p075 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p075' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p075.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p077 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p077' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p077.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p078 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p078' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p078.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p079 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p079' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p079.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p080 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p080' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p080.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p081 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p081' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p081.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p082 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p082' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p082.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p083 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p083' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p083.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p084 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p084' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p084.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p085 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p085' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p085.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p086 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p086' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p086.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p087 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p087' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p087.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p088 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p088' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p088.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p089 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p089' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p089.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p090 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p090' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p090.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p091 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p091' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p091.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p092 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p092' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p092.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p093 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p093' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p093.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p094 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p094' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p094.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p095 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p095' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p095.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p096 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p096' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p096.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p098 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p098' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p098.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p099 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p099' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p099.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p100 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p100' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p100.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p101 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p101' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p101.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p102 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p102' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p102.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p103 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p103' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p103.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p104 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p104' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p104.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p105 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p105' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p105.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p106 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p106' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p106.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p107 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p107' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p107.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p108 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p108' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p108.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p109 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p109' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p109.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p110 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p110' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p110.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p111 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p111' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p111.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p112 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p112' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p112.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p113 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p113' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p113.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p114 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p114' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p114.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p115 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p115' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p115.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p116 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p116' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p116.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p117 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p117' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p117.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p118 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p118' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p118.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p119 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p119' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p119.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p120 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p120' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p120.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p121 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p121' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p121.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p122 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p122' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p122.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p123 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p123' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p123.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p124 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p124' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p124.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p125 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p125' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p125.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p126 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p126' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p126.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p127 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p127' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p127.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p128 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p128' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p128.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p129 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p129' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p129.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p130 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p130' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p130.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p131 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p131' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p131.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p132 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p132' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p132.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p133 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p133' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p133.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p134 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p134' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p134.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p135 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p135' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p135.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p136 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p136' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p136.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p137 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p137' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p137.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p138 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p138' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p138.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p139 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p139' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p139.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p140 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p140' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p140.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p141 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p141' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p141.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p142 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p142' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p142.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p143 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p143' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p143.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p144 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p144' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p144.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p145 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p145' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p145.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p146 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p146' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p146.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p147 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p147' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p147.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p148 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p148' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p148.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p149 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p149' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p149.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p150 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p150' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p150.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p151 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p151' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p151.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p152 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p152' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p152.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p153 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p153' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p153.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p154 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p154' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p154.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p155 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p155' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p155.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p156 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p156' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p156.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p157 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p157' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p157.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p158 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p158' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p158.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p159 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p159' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p159.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p160 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p160' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p160.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p161 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p161' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p161.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p162 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p162' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p162.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p163 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p163' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p163.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p164 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p164' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p164.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p165 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p165' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p165.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p166 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p166' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p166.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p167 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p167' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p167.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p168 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p168' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p168.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p169 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p169' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p169.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p170 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p170' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p170.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p171 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p171' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p171.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p172 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p172' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p172.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p173 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p173' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p173.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p174 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p174' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p174.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p175 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p175' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p175.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p176 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p176' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p176.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p177 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p177' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p177.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p178 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p178' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p178.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p179 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p179' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p179.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p180 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p180' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p180.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p181 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p181' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p181.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p182 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p182' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p182.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p183 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p183' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p183.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p185 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p185' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p185.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p186 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p186' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p186.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p187 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p187' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p187.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p189 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p189' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p189.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p190 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p190' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p190.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p191 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p191' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p191.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p192 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p192' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p192.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p193 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p193' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p193.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p195 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p195' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p195.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p197 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p197' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p197.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p199 | Cache SQLite ma stronę '22_A_153_PL_Adamed_AGV_SA2_20250706_p199' bez pliku gt/22_A_153_PL_Adamed_AGV_SA2_20250706_p199.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p004 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p004' bez pliku gt/25_A_229_PL5_19012026_p004.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p005 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p005' bez pliku gt/25_A_229_PL5_19012026_p005.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p006 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p006' bez pliku gt/25_A_229_PL5_19012026_p006.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p007 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p007' bez pliku gt/25_A_229_PL5_19012026_p007.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p008 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p008' bez pliku gt/25_A_229_PL5_19012026_p008.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p011 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p011' bez pliku gt/25_A_229_PL5_19012026_p011.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p012 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p012' bez pliku gt/25_A_229_PL5_19012026_p012.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p013 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p013' bez pliku gt/25_A_229_PL5_19012026_p013.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p014 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p014' bez pliku gt/25_A_229_PL5_19012026_p014.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p015 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p015' bez pliku gt/25_A_229_PL5_19012026_p015.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p016 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p016' bez pliku gt/25_A_229_PL5_19012026_p016.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p017 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p017' bez pliku gt/25_A_229_PL5_19012026_p017.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p019 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p019' bez pliku gt/25_A_229_PL5_19012026_p019.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p020 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p020' bez pliku gt/25_A_229_PL5_19012026_p020.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p021 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p021' bez pliku gt/25_A_229_PL5_19012026_p021.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p022 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p022' bez pliku gt/25_A_229_PL5_19012026_p022.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | 25_A_229_PL5_19012026_p023 | Cache SQLite ma stronę '25_A_229_PL5_19012026_p023' bez pliku gt/25_A_229_PL5_19012026_p023.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p013 | Cache SQLite ma stronę 'SchematWRT01_p013' bez pliku gt/SchematWRT01_p013.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p014 | Cache SQLite ma stronę 'SchematWRT01_p014' bez pliku gt/SchematWRT01_p014.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p015 | Cache SQLite ma stronę 'SchematWRT01_p015' bez pliku gt/SchematWRT01_p015.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p016 | Cache SQLite ma stronę 'SchematWRT01_p016' bez pliku gt/SchematWRT01_p016.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p017 | Cache SQLite ma stronę 'SchematWRT01_p017' bez pliku gt/SchematWRT01_p017.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p018 | Cache SQLite ma stronę 'SchematWRT01_p018' bez pliku gt/SchematWRT01_p018.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p019 | Cache SQLite ma stronę 'SchematWRT01_p019' bez pliku gt/SchematWRT01_p019.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p021 | Cache SQLite ma stronę 'SchematWRT01_p021' bez pliku gt/SchematWRT01_p021.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p022 | Cache SQLite ma stronę 'SchematWRT01_p022' bez pliku gt/SchematWRT01_p022.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p023 | Cache SQLite ma stronę 'SchematWRT01_p023' bez pliku gt/SchematWRT01_p023.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p024 | Cache SQLite ma stronę 'SchematWRT01_p024' bez pliku gt/SchematWRT01_p024.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p026 | Cache SQLite ma stronę 'SchematWRT01_p026' bez pliku gt/SchematWRT01_p026.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p033 | Cache SQLite ma stronę 'SchematWRT01_p033' bez pliku gt/SchematWRT01_p033.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p034 | Cache SQLite ma stronę 'SchematWRT01_p034' bez pliku gt/SchematWRT01_p034.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p035 | Cache SQLite ma stronę 'SchematWRT01_p035' bez pliku gt/SchematWRT01_p035.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
-| CRIT | `cache_orphan` | SchematWRT01_p052 | Cache SQLite ma stronę 'SchematWRT01_p052' bez pliku gt/SchematWRT01_p052.json (rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze) |
 | WARN | `val_page_without_gt` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p025 | Strona z val-pages.yaml nie ma pliku gt/*.json |
 | WARN | `val_page_without_gt` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p035 | Strona z val-pages.yaml nie ma pliku gt/*.json |
 | WARN | `val_page_without_gt` | 22_A_153_PL_Adamed_AGV_SA2_20250706_p040 | Strona z val-pages.yaml nie ma pliku gt/*.json |
