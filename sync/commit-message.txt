@@ -1,1 +1,1 @@
-[Claude] prompt 028: element_review v2 - diagnoza 163 vs 160 + symetrie symboli (config/symbol-symmetry.yaml)
+[Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa

@@ -130,6 +130,59 @@ poniżej ~10% kafli, wariant 1 jest bezwartościowy i trzeba iść w 2.
 Niezależnie od wariantu: `config/symbol-symmetry.yaml` ma wartość samą w sobie jako
 **udokumentowana wiedza domenowa** — dziś nie istnieje nigdzie w repo.
 
+### C1 — silnik duplikacji symboli (rozwinięcie wariantu 2, propozycja Filipa)
+
+**Zanim cokolwiek: augmentacja geometryczna nie tworzy nowej informacji.**
+Dla `ekranowanie_kabla` (5 instancji) osiem transformacji daje 40 obrazów **tych samych pięciu
+egzemplarzy**. Model uczy się ich na pamięć w ośmiu orientacjach — to nie jest to samo, co 40 różnych
+egzemplarzy, a ryzyko przeuczenia rośnie. Dlatego:
+
+**Zakres stosowania: klasy z 5–30 instancjami.** Poniżej 5 — najpierw doznaczyć, nie augmentować.
+Powyżej ~30 — augmentacja daje malejący zwrot przy rosnącym ryzyku artefaktów.
+
+Klasy kwalifikujące się dziś (12): `ekranowanie_kabla`(5), `styki_nc`(5), `polaczenie_przewodow`(6),
+`przycisk_awaryjny`(6), `uziemienie`(9), `wylacznik_nadpradowy`(10), `custom_terminale_urzadzenia`(16),
+`custom_urzadzenie`(17), `terminal_sterownika_safety`(17), `styk_nc`(20), `cewka_zaworow`(21),
+`lampka`(26).
+
+#### Dwa podejścia do „duplikowania", nie jedno
+
+| | **C1a — transformacja in-place** | **C1b — copy-paste w nowe miejsce** |
+|---|---|---|
+| Co robi | obraca/odbija symbol **w jego własnym bboxie**, reszta kafla bez zmian | wycina crop, transformuje, wkleja w wolne miejsce kafla, dopisuje etykietę |
+| Zaleta | brak problemu „gdzie wkleić", tło i sąsiedztwo naturalne | zwielokrotnia liczbę instancji w kaflu |
+| Wada | linie dochodzące przestają pasować do terminali — obraz fizycznie niemożliwy | symbol wisi w powietrzu bez linii; model może nauczyć się „symbol bez podłączeń" |
+| Ryzyko | średnie — detektor uczy się wyglądu, nie kontekstu, ale uczy się też niespójności | wysokie — trzeba wykryć wolne miejsce, inaczej przykryjesz inny symbol |
+
+**Rekomendacja: zacząć od C1a.** Jest prostszy i nie wymaga detekcji wolnego miejsca. Jeśli okaże się
+za słaby, C1b można dołożyć.
+
+#### Wymagania dla C1b (jeśli w ogóle)
+
+* miejsce docelowe musi być **białe** (próg jasności) i nie kolidować z żadnym istniejącym bboxem
+  ani z linią — inaczej niszczysz dane, na których uczysz
+* wklejony symbol powinien dostać **krótkie odcinki linii** dochodzące do terminali, żeby nie uczyć
+  wzorca „symbol bez podłączeń"; pozycje terminali są w GT (`terminals[]` symbolu — względne wobec bbox)
+* zakaz wklejania w dolne `roi_bottom_cut_frac` (tabliczka rysunkowa)
+
+#### Kontrola jakości — obowiązkowa
+
+Silnik ma zapisywać **próbkę wygenerowanych kafli do przeglądu wzrokowego**
+(`data/output/augment_preview/`, ~30 obrazów z narysowanymi bboxami). Augmentacja, której nikt
+nie obejrzał, to najszybsza droga do zatrucia datasetu — a przy 199 stronach nikt tego nie wyłapie
+po fakcie.
+
+#### Miara sukcesu — bez niej nie wdrażać
+
+Nie „czy mAP ogólne wzrosło", tylko **mAP per klasa na tych samych 8 stronach val, przed i po**,
+dla klas objętych augmentacją. Warunki:
+
+* **wdrażamy**, gdy mAP rośnie dla większości klas 5–30 i **nie spada** dla klas dużych
+* **odrzucamy**, gdy mAP klas dużych spada — znaczy, że artefakty psują wspólne cechy
+* val **nigdy nie jest augmentowany** (inaczej mierzysz sam siebie)
+
+Deterministyczny seed w generatorze — inaczej dwa biegi treningu są nieporównywalne.
+
 ---
 
 ## Walidacja
