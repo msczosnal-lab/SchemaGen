@@ -53,6 +53,29 @@ def _palette_raw() -> list[dict]:
 
 
 CLASS_GROUPS = CONFIG / "class-groups.yaml"
+CLASS_ALIASES = CONFIG / "class-aliases.yaml"
+
+
+@lru_cache(maxsize=1)
+def load_class_aliases() -> dict[str, str]:
+    """Znormalizowany alias -> kanoniczna nazwa klasy (config/class-aliases.yaml)."""
+    if not CLASS_ALIASES.exists():
+        return {}
+    data = yaml.safe_load(CLASS_ALIASES.read_text(encoding="utf-8")) or {}
+    raw = data.get("aliases") or {}
+    m: dict[str, str] = {}
+    for alias, canonical in raw.items():
+        if alias and canonical:
+            m[normalize_tag(str(alias))] = str(canonical)
+    return m
+
+
+def apply_class_alias(cls: str | None) -> str | None:
+    """Ostatni krok kanonizacji: alias EN/PL lub duplikat -> nazwa docelowa."""
+    if cls is None:
+        return None
+    amap = load_class_aliases()
+    return amap.get(normalize_tag(cls), cls)
 
 
 @lru_cache(maxsize=1)
@@ -163,7 +186,8 @@ def tag_to_class(
     if not norm:
         return None
     cls = pmap[norm] if norm in pmap else slugify(tag)
-    return gmap.get(cls, cls)
+    cls = gmap.get(cls, cls)
+    return apply_class_alias(cls)
 
 
 def class_distribution(

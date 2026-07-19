@@ -10,8 +10,6 @@ Uzycie:
 from __future__ import annotations
 
 import argparse
-import json
-import sqlite3
 import sys
 from pathlib import Path
 
@@ -26,25 +24,12 @@ from backend.class_map import (
     load_palette_map,
     load_yolo_exclude_classes,
 )
-from backend.models.label import LabelRecord
-from backend.paths import DB_PATH
+from backend.paths import ROOT
+from train.dataset_export import load_all_training_records
 
 
-def _load_records() -> list[LabelRecord]:
-    if not DB_PATH.exists():
-        print(f"[BŁĄD] Brak bazy: {DB_PATH}")
-        return []
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute("SELECT page_id, payload_json FROM annotations").fetchall()
-    conn.close()
-    recs = []
-    for page_id, payload in rows:
-        if page_id.startswith("test"):
-            continue
-        rec = LabelRecord.model_validate(json.loads(payload))
-        if rec.bboxes:
-            recs.append(rec)
-    return recs
+def _load_records():
+    return load_all_training_records()
 
 
 def main() -> int:
@@ -55,6 +40,7 @@ def main() -> int:
 
     recs = _load_records()
     if not recs:
+        print(f"[BŁĄD] Brak danych GT (gt/*.json + SQLite). ROOT={ROOT}")
         return 1
 
     pmap = load_palette_map()

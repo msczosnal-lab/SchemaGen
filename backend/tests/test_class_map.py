@@ -125,6 +125,17 @@ def test_contextual_classes_excluded_from_yolo():
     assert resolve_class_id("złączka", cmap) is not None
 
 
+def test_class_aliases_merge_en_pl():
+    from backend.class_map import apply_class_alias, load_class_aliases
+
+    load_class_aliases.cache_clear()
+    assert apply_class_alias("relay") == "przekaznik"
+    assert apply_class_alias("terminal_block") == "zlaczka"
+    assert apply_class_alias("zlaczka") == "zlaczka"
+    assert tag_to_class("relay") == "przekaznik"
+    assert tag_to_class("przekaznik polaryzowany") == "przekaznik"
+
+
 def test_mostek_maps_to_mostek_not_crossing():
     assert tag_to_class("mostek") == "mostek"
     assert tag_to_class("skrzyżowanie przewodów") == "crossing"

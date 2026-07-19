@@ -19,7 +19,7 @@ import json
 from backend.paths import RAW, ROOT
 from backend.class_map import palette_order, tag_to_class
 from train.mostek_orient import CLASS_NAMES as MOSTEK_CLASSES
-from train.dataset_export import load_labeled_records, _load_page_images
+from train.dataset_export import load_all_training_records, _load_page_images
 from train.mostek_tiles import crop_bbox
 
 try:
@@ -36,7 +36,7 @@ def main() -> None:
     ap.add_argument("--thicken", type=int, default=1, help="ile razy pogrubic linie")
     args = ap.parse_args()
 
-    recs = load_labeled_records()
+    recs = load_all_training_records()
     imgs = _load_page_images(recs, RAW)
 
     items = []

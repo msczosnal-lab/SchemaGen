@@ -1,0 +1,23 @@
+# Mapowanie aliasow -> kanoniczna nazwa klasy (polska, spojnie z GT v2).
+# Stosowane w tag_to_class() — jedna funkcja dla dataset_export i tiled_export.
+# Scalenie zmienia przypisanie klasy, nie liczbe bboxow.
+#
+# Grupa stykow (styki / styki_nc / styk_nc / styki_przekaznika / styk_stycznika)
+# — do rozstrzygniecia przez Filipa po visualize_class_crops.py; wpisy ponizej zakomentowane.
+
+aliases:
+  # EN/PL — potwierdzone duplikaty (026/027)
+  terminal_block: zlaczka
+  relay: przekaznik
+  przekaznik_polaryzowany: przekaznik
+  led: lampka
+  push_button: przycisk
+  ground: uziemienie
+  emergency_stop: przycisk_awaryjny
+
+  # styki — oczekuje decyzji Filipa (visualize_class_crops --per-class 80)
+  # styki: styk
+  # styki_nc: styk_nc
+  # styk_nc: styk_nc
+  # styki_przekaznika: styk_przekaznika
+  # styk_stycznika: styk_stycznika
