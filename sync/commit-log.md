@@ -320,3 +320,4 @@
 | 2026-07-19 20:06 | Claude | fb2b5b6d | [Claude] build_val_split: dopelnianie wg niedoboru per klasa (--min-val) + guard, by strona nie wyzerowala klasy w train |
 | 2026-07-19 20:06 | Claude | a54ff579 | [Claude] build_val_split: dopelnianie wg niedoboru per klasa (--min-val) + guard, by strona nie wyzerowala klasy w train |
 | 2026-07-19 20:12 | Claude | 208da271 | [Claude] 027 Krok2: pomiar na pelnym GT (199 stron) 179->61 klas + BLAD bramka przegladu blokuje terminal_przylaczeniowy(520) |
+| 2026-07-19 20:12 | Claude | fabf4f33 | [Claude] 027 Krok2: pomiar na pelnym GT (199 stron) 179->61 klas + BLAD bramka przegladu blokuje terminal_przylaczeniowy(520) |

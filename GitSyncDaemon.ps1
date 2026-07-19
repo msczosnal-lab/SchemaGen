@@ -220,8 +220,13 @@ do {
             $pullOnlyNoted = $false
         }
 
+        # Push przy KAZDYM ahead>0, nie tylko po wlasnym commicie tego cyklu.
+        # Wczesniej: commit zrobiony recznie albo przez innego agenta zostawal
+        # lokalnie na zawsze — daemon widzial rozbieznosc i swiadomie jej nie ruszal,
+        # a drugi komputer nie dostawal nic. Bramka "tylko nazwane commity" i tak
+        # dziala na etapie commitowania, wiec tu jest zbedna.
         $ahead = [int](& git -C $RepoPath rev-list --count "origin/$Branch..$Branch" 2>$null)
-        if ($ahead -gt 0 -and (-not $PushOnNamedOnly -or $committedThisCycle)) {
+        if ($ahead -gt 0) {
             & git -C $RepoPath fetch origin --quiet 2>&1 | Out-Null
             $behindNow = [int](& git -C $RepoPath rev-list --count "$Branch..origin/$Branch" 2>$null)
             if ($behindNow -gt 0) {
