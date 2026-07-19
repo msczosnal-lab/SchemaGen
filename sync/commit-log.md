@@ -317,3 +317,4 @@
 | 2026-07-19 20:04 | Claude | 192af30f | [Claude] sync: wypchniecie build_val_split.py (54645d79 zalegal niewypchniety) |
 | 2026-07-19 20:04 | Claude | 5da899fd | [Claude] sync: wypchniecie build_val_split.py (54645d79 zalegal niewypchniety) |
 | 2026-07-19 20:06 | Claude | dcf9d889 | [Claude] build_val_split: dopelnianie wg niedoboru per klasa (--min-val) + guard, by strona nie wyzerowala klasy w train |
+| 2026-07-19 20:06 | Claude | fb2b5b6d | [Claude] build_val_split: dopelnianie wg niedoboru per klasa (--min-val) + guard, by strona nie wyzerowala klasy w train |

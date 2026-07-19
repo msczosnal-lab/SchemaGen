@@ -671,6 +671,28 @@ Pełna lista 10 punktów + testy regresji na końcu raportu. Przed startem: `git
 
 ---
 
+## 2026-07-19 [Claude] — 027 Krok2 DONE: wynik na pełnym GT (199 stron) + [BŁĄD] bramka przeglądu
+
+Po Twoim doznaczaniu (GT 6→199 stron) przeliczyłem Krok1 na całości: **179→61 klas**, 3505/3505
+bbox sklasyfikowanych (0 strat). Szczegóły + tabela przed/po → [`sync/analysis/027-export-type-fix.md`](analysis/027-export-type-fix.md).
+
+**[BŁĄD] bramka przeglądu (`config/reviewed-classes.yaml`, dodana dziś w 028) blokuje 556 bbox mimo że przechodzą `--min-count 5`:**
+- `terminal_przylaczeniowy` — **520 bbox**, brak wpisu "przejrzana"
+- `styk_stycznika` — 36 bbox, brak wpisu "przejrzana"
+
+`terminal_przylaczeniowy` to druga po `zlaczka` klasa co do wielkości — bez przeglądu trening ją traci całkowicie. Akcja: `scripts/element_review.py` → `scripts/apply_reviewed.py --apply`.
+
+**Krok 3 (Twoja decyzja, wiedza domenowa)** — patrz analiza wyżej:
+- `zlaczka`(490) vs `zlacze`(199, kontekstowa) vs `listwa_zlaczek` — jeden typ czy warianty?
+- `styki`(157) / `styki_przekaznika`(33) / `styk_nc`(25) / `styk_stycznika`(36, zablokowana) — scalić?
+- `urzadzenie`(624) vs `custom_urzadzenie` — to samo?
+
+**Środowisko:** sandbox bez `data/raw/*.png` i z niesprawnym SQLite na zamontowanym dysku — ominięte przez lokalny `DB_PATH` w `/tmp` (v1 ma 0 wierszy, cała dana w `gt/*.json`). `tiled_export`/`train_symbols` do uruchomienia lokalnie przez Ciebie.
+
+Commit pending: `[Claude] 027 Krok2: pomiar na pelnym GT (199 stron) 179->61 klas + BLAD bramka przegladu blokuje terminal_przylaczeniowy(520)`
+
+---
+
 ## 2026-07-19 [Claude] — 027 Krok1 DONE: eksport klasy YOLO po `type`, nie po `tag`
 
 **Zmiana:** `bbox_class(class_name, tag)` w `backend/class_map.py` — GT v2 (`class_name`=`type`) ma pierwszeństwo nad `tag`; v1 (SQLite, `class_name` zawsze `"element"`) fallback na stary `tag_to_class(tag)` bez zmian. `type` normalizowany przez `slugify` (ascii-fold) — scala niespójne diakrytyki (`custom_urządzenie`/`custom_urzadzenie`).

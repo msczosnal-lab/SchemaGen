@@ -35,7 +35,7 @@
 |--------|--------|-------|
 | **023-runtime-graph-alignment** | ✅ DONE — p028 conn 4/42 → 10/42, śr. 21.24 → 21.50, pytest 329 |
 | **026-retrain-fail-diag** | ✅ ZDIAGNOZOWANE — 480 bbox / 20 klas, train = 1 strona. Tor modelu **zamrożony** na `symbols_tiled_v1-2` | — |
-| **027-gt-cleanup-class-merge** | 🔵 AKTYWNE — przegląd bboxów + scalenie klas EN/PL; blokuje następny trening | Sonnet 5 |
+| **027-gt-cleanup-class-merge** | 🟡 Krok1+2 DONE (Sonnet 5) — eksport po `type`; Krok3 (scalenia) czeka na Filipa | Sonnet 5 |
 | **025-labeler-audit** | 🔵 AKTYWNE — zły page_id / złe bboxy, audyt całości | Opus 4.8 (A/B) → Sonnet 5 (C) |
 | **024-conn-remap-precision** | 🔵 AKTYWNE — remap fail 118 + precyzja 0.05 | Opus 4.8 |
 | **028-element-review-v2** | ✅ DONE — rozbieżność 163/160 = `tag_to_class` vs `bbox_class` (3 bboxy p029, `type=styki`/`tag=SAF1-3`); `symbol-symmetry.yaml`; **1053 kafle, sufit wariantu 1 = 76,7 %**; pytest 523 | Opus 4.8 |
@@ -50,7 +50,7 @@
 | Pole | Wartość |
 |------|---------|
 | **026** | [`prompts/026-retrain-fail-diag.md`](prompts/026-retrain-fail-diag.md) — zamknięte: przyczyną jest 480 bbox i train = p034; `v1-3` nie wchodzi do `registry.json` |
-| **027** | [`prompts/027-gt-cleanup-class-merge.md`](prompts/027-gt-cleanup-class-merge.md) — **[BŁĄD] `element_review`/`apply_reassign` czytają i piszą label v1 (SQLite), omijają `gt/*.json`. Nie uruchamiać `--apply` przed migracją — `rebuild_cache_from_gt()` skasuje pracę.** |
+| **027** | [`prompts/027-gt-cleanup-class-merge.md`](prompts/027-gt-cleanup-class-merge.md) — Krok1+2 DONE, wynik: [`sync/analysis/027-export-type-fix.md`](analysis/027-export-type-fix.md) (179→61 klas na 199 stronach, 0 strat bbox). **[BŁĄD] bramka przeglądu blokuje 556 bbox mimo >=5 inst.: `terminal_przylaczeniowy`(520), `styk_stycznika`(36) — brak wpisu w `config/reviewed-classes.yaml`.** Krok3 (scalenia klas) czeka na Filipa. |
 | **025** | [`prompts/025-labeler-audit.md`](prompts/025-labeler-audit.md) — priorytet: zapis pod złym page_id > błędy wyświetlania |
 | **024** | [`prompts/024-conn-remap-precision.md`](prompts/024-conn-remap-precision.md) — najpierw metryka P/R/F1, potem breakdown, potem kod |
 
