@@ -19,37 +19,39 @@ Ostrzeżenie zostaje jako realne na przyszłość: skrypt nie kasuje plików, kt
 gdyby kiedyś zapisać katalog bez `--skip-dups`, a potem z nim, nadmiarowe pliki zostałyby.
 Dodałem odpowiedni komunikat na końcu realnego biegu.
 
-### 2. [RYZYKO] `--promote` wywróci metrykę, jeśli nie ruszysz `gt-eval.yaml`
+### 2. Ostrzeżenie o metryce — WYCOFUJĘ, sprawdziłem
 
-`gt/*.json` pełni dziś dwie role naraz i po promocji zaczną sobie przeszkadzać:
+Napisałem, że `--promote` wywróci baseline 21.50, bo ewaluatory policzą 199 stron. **Nieprawda.**
+Sprawdziłem, skąd naprawdę brany jest zestaw stron:
 
-| Rola | Kryterium | Ile stron |
-|---|---|---|
-| **Dataset treningowy** (bboxy dla YOLO) | wszystko z symbolami | **199** (6 + 193) |
-| **Zestaw metryczny** (SCORE, `diff_gt_runtime`) | strony z **liniami** | **7** (p028–p034 + p040) |
+| Narzędzie | Skąd strony |
+|---|---|
+| `eval_val_pages.py` | `config/val-pages.yaml` (jawna lista) albo `--page`/`--pages` |
+| `baseline_eval_gt.py` | `PAGES = ["p028","p029","p030","p033"]` na sztywno w kodzie |
+| `diff_gt_runtime.py` | `--page`, wymagane |
 
-Po promocji `eval_val_pages` zobaczy 199 stron, z czego 192 mają 0 linii → recall linii z definicji
-zero → **średnia SCORE runie z 21.50 do jakichś 1–2**. To nie będzie regresja, tylko średnia liczona
-po stronach, które nigdy nie miały linii. Ale jeśli tego nie odetniesz, baseline przestanie cokolwiek
-znaczyć i kolejne prompty będą gonić widmo.
+**Żadne nie iteruje po `gt/*.json`.** 193 pliki nie ruszą baseline. Powinienem był to sprawdzić,
+zanim postawiłem Cię przed „blokadą" — przepraszam za fałszywy alarm.
 
-**Przed `--promote` rozszerz `config/gt-eval.yaml`** o jawną listę stron metrycznych albo regułę
-„tylko strony z ≥1 linią". Strony z 1–4 symbolami (p021, p063, p099, p115, p121, p127, p132, p139,
-p145, p148, p156, p164, p170, p173, p176, p186, p193, p032) to resztki po v1 — do treningu wchodzą,
-do metryki nie.
+Realny, dużo mniejszy skutek: `val-pages.yaml` ma 9 stron, z czego 5 bez GT. Po promocji GT dostaną
+**p025, p040, p045, p050** (p035 odpadł jako kopia), więc `eval_val_pages` bez argumentów zacznie je
+liczyć i **val-pages mean 30.77 się zmieni** — trzy z nich mają 0 linii, więc w dół. Tyle.
+
+**Przy okazji: `config/gt-eval.yaml` nie istnieje i nikt go nie czyta.** Notatka w
+`KOLEJNE-ZADANIE.md` o wykluczeniu p031 opisuje mechanizm, który nigdy nie powstał — p031 z SCORE
+0.00 **nadal siedzi w średniej i zaniża 21.50 o jakieś 3.6 pkt**. To osobny dług, nie blokada.
 
 ### Kolejność
 
-1. usuń 4 pliki-duplikaty z `_rescue`
-2. `config/gt-eval.yaml` → lista metryczna (7 stron)
-3. `python -m tools.rescue_gt_from_cache --skip-dups --promote`
-4. `python -m tools.audit_gt` → ma być 0 sierot z danymi
-5. **commit `gt/` do gita** — dopiero wtedy dane są naprawdę bezpieczne
-6. p040 w labelerze — sprawdź, czy 19 sym./17 linii wygląda jak Twoja praca
-7. `python -m train.tiled_export` + `class_report` — sprawdź, czy 026 się odblokował
-8. dopiero potem F1 i F3
+1. `python -m tools.rescue_gt_from_cache --skip-dups --promote`
+2. `python -m tools.audit_gt` → ma być 0 sierot z danymi
+3. **commit `gt/` do gita** — dopiero wtedy dane są naprawdę bezpieczne
+4. p040 w labelerze — sprawdź, czy 19 sym./17 linii wygląda jak Twoja praca
+5. `python -m train.tiled_export` + `class_report --min-count 5` — czy 026 się odblokował
+6. przeliczyć val-pages mean (baseline GT bez zmian)
+7. dopiero potem F1 i F3
 
-Cache w bazie zostaw nietknięty do punktu 5.
+Cache w bazie zostaw nietknięty do punktu 3.
 
 ---
 
