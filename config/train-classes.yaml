@@ -21,6 +21,13 @@ roles:
     - oznaczenie_kabla
     - oznaczenie_przewodu
     - terminale_urzadzenia
+    # 2026-07-19 (prompt 025, decyzja Filipa): urzadzenie WYPADA z YOLO.
+    # Powod: runtime.yaml `yolo_runtime_exclude_classes` odrzuca te klase dopiero
+    # PO inferencji, wiec model uczyl sie czegos, co i tak jest wyrzucane. Do tego
+    # to obrysy 1500-3500 px przy oknie kafla 1536 (tiled_export) — w wielu kaflach
+    # zajmuja prawie cale okno i ucza siec, ze "tlo = urzadzenie".
+    # Efekt: dataset 3639 -> 3032 bbox, 26 -> 25 klas YOLO.
+    - urzadzenie
 
 # Reguły wierszy dla ContextResolver (backend/geometry/row_layout.py)
 row_rules:

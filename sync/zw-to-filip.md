@@ -1,3 +1,51 @@
+## 2026-07-19 [Claude] — 026 ODMROŻONE. `urzadzenie` poza YOLO. Blokada 027 nieaktualna
+
+### Tor modelu odblokowany
+
+| | 026 (diagnoza) | Po odzysku GT |
+|---|---|---|
+| bbox | 480 | **3639** |
+| klasy ≥5 instancji | 20 | **26** |
+| strony w train | **1** | **~191** (199 − val) |
+
+Przyczyna porażki retrain z 026 potwierdzona: eksport czytał `gt/*.json`, gdzie było 6 stron.
+Reszta leżała w cache. To nie był problem parametrów treningu.
+
+### [BŁĄD] `urzadzenie` szło do treningu — poprawione
+
+607 instancji (17% datasetu) trafiało do YOLO, mimo że `runtime.yaml` odrzuca tę klasę
+**po inferencji**. Model uczył się czegoś, co i tak wyrzucamy. Gorzej: to obrysy 1500–3500 px
+przy oknie kafla 1536, więc w wielu kaflach zajmują niemal całe okno i uczą sieć, że „tło = urzadzenie".
+
+Poprawka (decyzja Filipa): `urzadzenie` → `contextual` w `config/train-classes.yaml`.
+Zmiana wystarczy w configu — `class_distribution` i `resolve_class_id` obie sprawdzają
+`load_yolo_exclude_classes()`, więc kod nietknięty. **Dataset: 3639 → 3032 bbox, 26 → 25 klas.**
+
+### Blokada 027 z `KOLEJNE-ZADANIE.md` jest NIEAKTUALNA
+
+Notatka mówi: *„[BŁĄD] `element_review`/`apply_reassign` czytają i piszą label v1 (SQLite),
+omijają `gt/*.json`. Nie uruchamiać `--apply` przed migracją"*. Sprawdziłem oba:
+
+* `apply_reassign.py` — docstring i kod: zapis przez `save_schematic_graph` → `gt_store.write_gt_json`
+  (atomowo, guard empty-overwrite), plus backup `gt/` i `rebuild_cache_from_gt` na końcu.
+  `load_annotation` jest tylko **fallbackiem**, gdy strona nie ma GT v2.
+* `element_review.py` — czyta `load_all_training_records()`, czyli GT v2.
+
+**027 można uruchamiać.** Warto zaktualizować notatkę w `KOLEJNE-ZADANIE.md`.
+
+[RYZYKO] drobne: `element_review.py` klasyfikuje crops przez `tag_to_class(tag)`, a nie
+`bbox_class(class_name, tag)` z Twojego Kroku 1. Dla GT v2 (gdzie `type` jest źródłem klasy)
+przeglądarka może pokazywać inne klasy niż eksport. Do sprawdzenia przy 027.
+
+### Kandydaci do scalenia widoczni w raporcie
+
+* `limit_switch(4)` + `krancowka_nc(4)` + `styk_krancowki(1)` = **9** → przekroczy próg
+* `styk_nc(20)` vs `styki_nc(5)` — duplikat PL/PL
+* 35 klas <5 instancji, 68 bbox poza treningiem — tam siedzi reszta par EN/PL
+  (`motor`, `fuse`, `socket`, `switch`, `disconnector`, `contactor`, `power_supply`…)
+
+---
+
 ## 2026-07-19 [Claude] — 025 FAZA A+B ZAMKNIĘTA. F0 wykonane, F1 udowodnione
 
 | Metryka | Rano | Teraz |
