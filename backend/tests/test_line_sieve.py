@@ -2,7 +2,12 @@
 
 from backend.models.schema import Component, GraphicLine, Terminal
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.line_sieve import apply_sieve, apply_terminal_gate, recover_terminal_bridges
+from backend.recognize.line_sieve import (
+    apply_sieve,
+    apply_terminal_gate,
+    recover_terminal_bridges,
+    recover_terminal_gated_wires,
+)
 
 # Symbol: bbox [100,100,300,200] (x1,y1,x2,y2)
 COMP = Component(id="sym_0", type="relay", bbox=[100, 100, 300, 200], source="yolo")
@@ -114,6 +119,30 @@ def test_recover_leaves_genuine_other_untouched() -> None:
     demoted = GraphicLine(id="gl", points=[[150, 130], [180, 130]], role="other")
     [out] = recover_terminal_bridges([demoted], [_strip()], bridge_tol=8.0)
     assert out.role == "other"
+
+
+def test_recover_terminal_gated_wires_promotes_other_with_two_ends() -> None:
+    a = Component(
+        id="A", type="zlaczka", bbox=[100, 100, 150, 180], source="yolo",
+        terminals=[Terminal(id="1", x=1.0, y=0.5)],
+    )
+    b = Component(
+        id="B", type="zlaczka", bbox=[300, 100, 350, 180], source="yolo",
+        terminals=[Terminal(id="1", x=0.0, y=0.5)],
+    )
+    demoted = GraphicLine(id="gl", points=[[150, 140], [300, 140]], role="other")
+    [out] = recover_terminal_gated_wires([demoted], [a, b], tol=10)
+    assert out.role == "wire"
+
+
+def test_sieve_keeps_wire_crossing_multiple_boxes() -> None:
+    boxes = [
+        Component(id=f"z{i}", type="zlaczka", bbox=[100 + i * 94, 100, 150 + i * 94, 180], source="yolo")
+        for i in range(4)
+    ]
+    inner = _wire([[80, 140], [500, 140]])
+    [out] = apply_sieve([inner], boxes, [], edge_tol=6.0)
+    assert out.role == "wire"
 
 
 def test_long_bus_along_row_of_small_boxes_stays_wire() -> None:

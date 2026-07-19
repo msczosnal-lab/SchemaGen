@@ -37,7 +37,12 @@ from backend.runtime_config import (
     terminal_tol_pattern_min,
 )
 from backend.recognize.line_classifier import LineClassifier
-from backend.recognize.line_sieve import apply_sieve, apply_terminal_gate, recover_terminal_bridges
+from backend.recognize.line_sieve import (
+    apply_sieve,
+    apply_terminal_gate,
+    recover_terminal_bridges,
+    recover_terminal_gated_wires,
+)
 from backend.recognize.line_tracer import LineTracer
 from backend.recognize.arrow_supplement import refine_arrow_bboxes, supplement_arrow_detections
 from backend.recognize.mostek_terminals import load_bgr
@@ -141,8 +146,12 @@ class GraphBuilder:
         )
 
         # 4c) Sito terminalowe: wire tylko OD-DO (oba konce + probe bbox)
+        probe_tol = max(join_tol * 2.5, join_tol + 12.0)
         graphic_lines = apply_terminal_gate(
-            graphic_lines, components, tol=join_tol, probe_tol=max(join_tol * 2.5, join_tol + 12.0)
+            graphic_lines, components, tol=join_tol, probe_tol=probe_tol
+        )
+        graphic_lines = recover_terminal_gated_wires(
+            graphic_lines, components, tol=join_tol, probe_tol=probe_tol
         )
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
@@ -167,6 +176,10 @@ class GraphBuilder:
                 image_size=size,
             )
         )
+
+        # GT linii = wire-only; inne role (frame/other/dash) juz nie sa kandydatami
+        # na Connection — nie emitujemy ich do graphic_lines (metryka P/R linii).
+        graphic_lines = [ln for ln in graphic_lines if ln.role == "wire"]
 
         return SchemaModel(
             meta=SchemaMeta(

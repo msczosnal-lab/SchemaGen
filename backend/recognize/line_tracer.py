@@ -215,6 +215,25 @@ def auto_bus_line_params(w: int, h: int) -> tuple[int, int, int]:
     return int(min_len), int(hough), int(gap)
 
 
+def _is_page_border(seg: LineSegment, w: int, h: int) -> bool:
+    """Odrzuc linie na krawedzi skanu (pelna szerokosc/wysokosc strony) — szum Hough, nie przewod."""
+    big = max(w, h)
+    if seg.length < 0.90 * big:
+        return False
+    margin_x = 0.015 * w
+    margin_y = 0.015 * h
+    x1, y1, x2, y2 = seg.x1, seg.y1, seg.x2, seg.y2
+    if abs(y1 - y2) <= 4.0:
+        y = (y1 + y2) / 2.0
+        if y <= margin_y or y >= h - margin_y:
+            return abs(x2 - x1) >= 0.90 * w
+    if abs(x1 - x2) <= 4.0:
+        x = (x1 + x2) / 2.0
+        if x <= margin_x or x >= w - margin_x:
+            return abs(y2 - y1) >= 0.90 * h
+    return False
+
+
 def _is_axial(x1: float, y1: float, x2: float, y2: float, tol_deg: float) -> bool:
     """Linia pozioma lub pionowa w granicach tol_deg."""
     ang = math.degrees(math.atan2(y2 - y1, x2 - x1)) % 180.0
@@ -319,6 +338,7 @@ class LineTracer:
                 s for s in merged
                 if _is_axial(s.x1, s.y1, s.x2, s.y2, axis_tol)
             ]
+        merged = [s for s in merged if not _is_page_border(s, w, h)]
         # Po scaleniu probkuj kolor ponownie wzdluz finalnej geometrii — odporne
         # na to, ze czesc surowych segmentow Hougha lezy na krawedzi (tlo).
         for seg in merged:

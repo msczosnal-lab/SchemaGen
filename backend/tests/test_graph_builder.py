@@ -91,8 +91,8 @@ def test_device_stroke_line_makes_no_connection() -> None:
 
     model = gb.build("page.png", source="x")
 
-    assert len(model.graphic_lines) == 1
-    assert model.connections == []  # device_stroke != Connection
+    assert len(model.graphic_lines) == 0  # wire-only emit; device_stroke odfiltrowany
+    assert model.connections == []
 
 
 def test_frame_and_dash_lines_make_no_connection() -> None:
@@ -105,6 +105,7 @@ def test_frame_and_dash_lines_make_no_connection() -> None:
 
     model = gb.build("page.png")
     assert model.connections == []
+    assert model.graphic_lines == []
 
 
 def test_ocr_tag_matched_to_symbol_and_rest_to_annotations() -> None:

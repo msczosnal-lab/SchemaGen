@@ -64,6 +64,8 @@ def apply_sieve(
         if inside is not None:
             if _bridges_two_terminals(ln, inside, bridge_tol):
                 out.append(ln)  # mostek terminal<->terminal — zostaje kandydatem
+            elif _components_crossed_by_wire(ln, components, edge_tol) >= 2:
+                out.append(ln)  # szyna przez rzad symboli — nie grafika wewnetrzna
             else:
                 out.append(ln.model_copy(update={"role": "other"}))
         elif _is_text_artifact(ln, text_bboxes, text_margin):
@@ -238,6 +240,30 @@ def _components_with_terminals_on_path(
                 seen.add(c.id)
                 break
     return len(seen)
+
+
+def recover_terminal_gated_wires(
+    lines: list[GraphicLine],
+    components: list[Component],
+    *,
+    tol: float = 8.0,
+    probe_tol: float | None = None,
+) -> list[GraphicLine]:
+    """Promuj other->wire gdy linia spelnia terminal gate (zdemotowana przez sito, ale prawdziwy przewod)."""
+    probe = probe_tol if probe_tol is not None else max(tol * 2.5, tol + 12.0)
+    wire_cands = [
+        ln for ln in lines if LineClassifier.is_connection_candidate(ln) or ln.role == "other"
+    ]
+    out: list[GraphicLine] = []
+    for ln in lines:
+        if ln.role != "other":
+            out.append(ln)
+            continue
+        if _passes_terminal_gate(ln, components, wire_cands, tol, probe):
+            out.append(ln.model_copy(update={"role": "wire"}))
+        else:
+            out.append(ln)
+    return out
 
 
 def recover_terminal_bridges(

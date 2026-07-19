@@ -8,6 +8,7 @@ from backend.recognize.line_tracer import (
     auto_bus_line_params,
     auto_line_params,
     _is_axial,
+    _is_page_border,
     _merge_collinear,
 )
 
@@ -125,3 +126,10 @@ def test_second_pass_recovers_bus_rail() -> None:
     horiz = [s for s in segments if s.angle_deg <= 6 or s.angle_deg >= 174]
     assert horiz, "brak segmentow poziomych — drugi przebieg nie zadzialal"
     assert max(s.length for s in horiz) >= 0.7 * w
+
+
+def test_page_border_segment_dropped() -> None:
+    seg = LineSegment(0, 0, 5999, 0, "#000000")
+    assert _is_page_border(seg, 6000, 60)
+    inner = LineSegment(100, 30, 5000, 30, "#000000")
+    assert not _is_page_border(inner, 6000, 60)
