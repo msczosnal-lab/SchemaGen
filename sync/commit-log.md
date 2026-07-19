@@ -246,3 +246,4 @@
 | 2026-07-19 13:49 | Claude | 69252082 | [Claude] GitSync watchdog: ponawianie zadania co 5 min, alarm przy zablokowanym mutexie, PID+StartTime |
 | 2026-07-19 13:49 | Claude | d737cc14 | [Claude] GitSync watchdog: ponawianie zadania co 5 min, alarm przy zablokowanym mutexie, PID+StartTime |
 | 2026-07-19 13:50 | Claude | 3ec67a59 | [Claude] GitSync watchdog: ponawianie zadania co 5 min, alarm przy zablokowanym mutexie, PID+StartTime |
+| 2026-07-19 13:55 | Cursor | c6e587a0 | [Cursor] 027: element_review/apply_reassign na GT v2, class-aliases.yaml |
