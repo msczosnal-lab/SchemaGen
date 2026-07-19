@@ -325,3 +325,4 @@
 | 2026-07-19 21:47 | Claude | 62971ed3 | [Claude] GitSync: push przy kazdym ahead>0 (reczne commity nie byly wypychane) |
 | 2026-07-19 21:49 | Claude | 17ab276b | [Claude] GitSync: push przy kazdym ahead>0 (reczne commity nie byly wypychane) |
 | 2026-07-19 22:00 | Claude | 92638815 | [Claude] GitSync: push przy kazdym ahead>0 (reczne commity nie byly wypychane) |
+| 2026-07-19 22:14 | Cursor | 4d11c867 | [Cursor] loop 033 it1: wire-only emit + recover gated + page border filter — sr lines F1 0.42→0.62 |
