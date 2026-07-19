@@ -7,9 +7,72 @@
 
 ## Wniosek jednozdaniowy
 
-**Dane GT są zdrowe. Narzędzie, które je zapisuje — nie.** Znaleziono mechanizm, który przy szybkiej
-zmianie strony **zapisuje graf strony A pod page_id strony B**, i robi to nawet gdy użytkownik niczego
-nie edytował. To dokładnie objaw zgłoszony przez Filipa i jest to cicha korupcja GT, nie błąd wyświetlania.
+**6 plików w `gt/` jest zdrowych — ale to nie jest całe GT.** Uruchomienie audytu na PC Filipa pokazało
+**197 stron w cache SQLite bez pliku w `gt/`**, w tym `p040`. Baza jest w `.gitignore` i już raz padła.
+Drugi wątek: mechanizm, który przy szybkiej zmianie strony zapisuje graf strony A pod page_id strony B.
+
+> **Aktualizacja 2026-07-19, po uruchomieniu A1 na PC Filipa.** Pierwsza wersja tego raportu powstała
+> na klonie ZW, gdzie baza była pusta (po rollbacku hot journala) — stąd wniosek „dane GT są zdrowe".
+> Był prawdziwy dla `gt/`, ale niepełny: nie widziałem 197 wierszy cache. Sekcja F0 poniżej jest nowa
+> i przejmuje priorytet nad F1.
+
+---
+
+## F0 [BŁĄD, KRYTYCZNY] — 197 stron GT istnieje wyłącznie w cache SQLite
+
+**Wynik A1 na PC Filipa:** 197 × `cache_orphan` — wiersze w `schematic_graph`, dla których **nie ma
+pliku `gt/<page_id>.json`**. Trzy dokumenty:
+
+| Dokument | Zakres stron w cache | Plików w `gt/` |
+|---|---|---|
+| `22_A_153_PL_Adamed_AGV_SA2_20250706` | p020–p199 (≈160 stron) | **6** (p028–p034) |
+| `25_A_229_PL5_19012026` | p004–p023 (17 stron) | **0** |
+| `SchematWRT01` | p013–p052 (16 stron) | **0** |
+
+To odwraca niezmiennik z `CLAUDE.md`. Miało być: `gt/` = źródło prawdy, SQLite = cache odbudowywalny.
+Faktycznie: **dla 197 stron SQLite jest jedynym nośnikiem**, a `gt/` ma 3% zawartości. Baza:
+
+* jest w `.gitignore` (`data/schemagen*`) — **zero wersjonowania, zero kopii w repo**,
+* już raz padła na `malformed` (stąd `tools/recover_db.py`),
+* działa w trybie DELETE zamiast WAL (F4) — czyli w tym samym trybie, w którym padła.
+
+**Prawdopodobna przyczyna:** migracja 030 (`tools/export_gt_to_json.py`) eksportuje wszystkie wiersze
+bezwarunkowo, więc albo została puszczona na bazie mającej wtedy tylko 6 wierszy (a reszta wróciła
+później przez `recover_db.py`), albo nie została puszczona ponownie po odzyskaniu bazy.
+`gt/_backup_2026-07-12/` też ma tylko 6 plików — backup powstał już po stracie.
+
+**Czego jeszcze nie wiem:** ile z tych 197 stron to praca ręczna, a ile automatyczne drafty z pętli
+(`tools/auto_graph_loop.py`, `carve_all.py`, `sprint_loop.py`). Rozstrzyga to jedno uruchomienie —
+zaktualizowany `audit_gt.py` rozdziela teraz sieroty **z danymi** (CRIT) od **pustych** (WARN)
+i podaje liczbę symboli, linii oraz `updated_at`.
+
+### To jest odpowiedź na p040
+
+`22_A_153_PL_Adamed_AGV_SA2_20250706_p040` **jest na liście sierot**. Filip pamiętał dobrze — p040
+został oznaczony, zapis poszedł do bazy, do `gt/` nigdy nie trafił. Nie zginął. Leży w pliku,
+który nie jest w gicie.
+
+**Działanie natychmiastowe (przed czymkolwiek innym):**
+
+```powershell
+copy data\schemagen.db data\schemagen.db.bak-025
+python -m tools.audit_gt --md sync\analysis\025-gt-integrity.md
+python -m tools.rescue_gt_from_cache --dry-run
+```
+
+`tools/rescue_gt_from_cache.py` (nowy) domyślnie zrzuca sieroty do `gt/_rescue_<data>/` — podkatalogu,
+którego aplikacja nie czyta — żeby nic nie wjechało do źródła prawdy bez przejrzenia. `--promote`
+przenosi do `gt/` i **nigdy nie nadpisuje istniejących plików**.
+
+**[RYZYKO] Dopóki to nie jest zrobione, nie uruchamiać:** `scripts/apply_reassign.py --apply`
+(już oznaczony jako [BŁĄD] w `KOLEJNE-ZADANIE.md`), `tools/recover_db.py`, ani niczego, co woła
+`rebuild_cache_from_gt()` w wariancie z kasowaniem sierot (punkt F3a Fazy C — **musi poczekać na F0**).
+
+---
+
+## F1 [BŁĄD, KRYTYCZNY] — wyścig `selectPage` zapisuje graf pod cudzym page_id
+
+**Uwaga:** F1 jest niezależny od F0 i nadal aktualny — ale kolejność naprawy to F0 → F1.
 
 ---
 
@@ -158,6 +221,9 @@ diagnozę. Kandydat na 404 albo na jawne `"exists": false` w odpowiedzi.
 
 ## Czego **nie** znaleziono (sprawdzone, czysto)
 
+> Poniższe dotyczy **6 plików obecnych w `gt/`**. Nie mówi nic o 197 stronach z F0 — te nie były
+> jeszcze sprawdzone pod kątem integralności (audyt widzi tylko ich liczniki, nie zawartość).
+
 | Hipoteza z promptu | Wynik |
 |---|---|
 | `gt/_backup_2026-07-12/` wpada w glob `gt/*.json` | **Nie.** `Path.glob("*.json")` nie schodzi do podkatalogów. |
@@ -176,7 +242,12 @@ Strony są po prostu niedokończone. Wykluczenie p031 ze średniej (`config/gt-e
 
 ---
 
-## p040 — trop rozstrzygnięty częściowo
+## p040 — ROZSTRZYGNIĘTE (patrz F0)
+
+**p040 jest w cache SQLite, nie ma go w `gt/`.** Praca nie zginęła — nigdy nie została wyeksportowana
+do źródła prawdy. Poniższa sekcja to zapis rozumowania z klonu ZW (baza pusta), zostawiona dla historii.
+
+### ~~Trop rozstrzygnięty częściowo~~ (nieaktualne)
 
 * `git log --all --diff-filter=A -- 'gt/*p040*'` → **pusto. Plik nigdy nie wszedł do repo.**
 * `data/raw/` na klonie ZW nie zawiera **żadnych PNG** — tylko `IEC60617.pdf`. Klon ZW nie może
@@ -201,6 +272,7 @@ też odpowiedzią na p040 (zapis poszedł pod page_id sąsiedniej strony).
 
 | # | Znalezisko | Ryzyko dla GT | Pewność | Koszt | Priorytet |
 |---|---|---|---|---|---|
+| **F0** | 197 stron GT tylko w niewersjonowanej bazie SQLite (w tym p040) | **Utrata całości pracy przy jednej awarii bazy** | **Wysoka** — zmierzone na PC Filipa | XS (skrypt gotowy) | **P0 — dziś** |
 | **F1** | Wyścig `selectPage` → zapis grafu pod cudzym page_id (+ `force:true` przy braku zmian) | **Cicha korupcja GT** | **Wysoka** — kod czytany wprost, brak jakiegokolwiek guardu | S (~40 linii JS) | **P0** |
 | **F3** | Cache SQLite wygrywa nad `gt/`; sieroty nigdy nie znikają | Serwowanie nieaktualnego GT do labelera i metryki | Wysoka | S | **P0** |
 | **F2** | Niespójny `resolve_page_id` → możliwy drugi GT tej samej strony | Rozszczepienie źródła prawdy | Wysoka | S | **P1** |
@@ -209,7 +281,12 @@ też odpowiedzią na p040 (zapis poszedł pod page_id sąsiedniej strony).
 | **F6** | 200 + pusty graf zamiast 404 | Mylące, nie niszczy | Wysoka | XS | P2 |
 | **F7** | Drobne (`upsert_page`, `/legacy`, auto-draft) | Kosmetyka listy stron | Wysoka | XS | P3 |
 
-Reguła z promptu (cichy zapis > błąd widoku) daje: **F1 i F3 przed wszystkim innym.**
+Reguła z promptu (cichy zapis > błąd widoku) daje: **F0, potem F1 i F3.**
+
+**F0 wywraca kryterium walidacji z promptu.** „`diff_gt_runtime` bez zmiany SCORE" zakładało, że GT
+jest kompletne. Nie jest — baseline 21.50 liczony jest z 6 stron, podczas gdy oznaczonych może być
+znacznie więcej. Po odzyskaniu sierot **baseline wymaga przeliczenia z definicji**, niezależnie od
+tego, czy naprawa labelera cokolwiek ruszy. To nie jest regresja, tylko pierwszy pomiar na pełnych danych.
 
 ---
 

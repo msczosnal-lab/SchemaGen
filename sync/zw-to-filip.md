@@ -1,3 +1,56 @@
+## 2026-07-19 [Claude] — 025 AKTUALIZACJA: 197 stron GT tylko w bazie, p040 się znalazł
+
+**Twój wynik audytu zmienia priorytety.** 197 × CRIT to nie hałas — to strony w cache `schematic_graph`,
+które **nie mają pliku w `gt/`**. Trzy dokumenty:
+
+| Dokument | W cache | W `gt/` |
+|---|---|---|
+| `22_A_153_PL_Adamed_AGV_SA2_20250706` | p020–p199 (~160) | **6** (p028–p034) |
+| `25_A_229_PL5_19012026` | p004–p023 (17) | **0** |
+| `SchematWRT01` | p013–p052 (16) | **0** |
+
+Niezmiennik z `CLAUDE.md` jest odwrócony: miało być `gt/` = źródło prawdy, SQLite = cache odbudowywalny.
+Faktycznie dla 197 stron **SQLite jest jedynym nośnikiem**, a baza jest w `.gitignore`, już raz padła
+(`malformed`) i chodzi w trybie DELETE zamiast WAL (F4). Jedna awaria = koniec.
+
+**`p040` jest na tej liście.** Pamiętałeś dobrze — oznaczyłeś go, zapis poszedł do bazy, do `gt/` nigdy
+nie trafił. Nic nie zginęło. Moje wczorajsze „plik nigdy nie wszedł do repo" było prawdziwe i mylące
+naraz — patrzyłem na klon ZW, gdzie baza jest pusta po rollbacku hot journala, więc tych 197 wierszy
+po prostu nie widziałem.
+
+**Przyczyna:** `tools/export_gt_to_json.py` (migracja 030) eksportuje wszystkie wiersze bezwarunkowo —
+więc albo poszła na bazie mającej wtedy 6 wierszy, a reszta wróciła później przez `recover_db.py`,
+albo nie została powtórzona po odzyskaniu. `gt/_backup_2026-07-12/` też ma 6 plików — backup powstał
+już po stracie.
+
+### Zrób to zanim cokolwiek innego
+
+```powershell
+copy data\schemagen.db data\schemagen.db.bak-025
+python -m tools.audit_gt --md sync\analysis\025-gt-integrity.md
+python -m tools.rescue_gt_from_cache --dry-run
+```
+
+`tools/rescue_gt_from_cache.py` (nowy) domyślnie zrzuca sieroty do `gt/_rescue_<data>/` — podkatalogu,
+którego aplikacja nie czyta — żeby nic nie wjechało do `gt/` bez Twojego przejrzenia. `--promote`
+przenosi do `gt/` i **nigdy nie nadpisuje istniejących plików**.
+
+`audit_gt.py` rozdziela teraz sieroty **z danymi** (CRIT, z liczbą symboli/linii i `updated_at`)
+od **pustych** (WARN). Dopiero to pokaże, ile z tych 197 to Twoja praca ręczna, a ile automatyczne
+drafty z pętli (`auto_graph_loop`, `carve_all`, `sprint_loop`). Wyślij mi wynik.
+
+**[RYZYKO] Do czasu odzyskania nie uruchamiaj:** `scripts/apply_reassign.py --apply`,
+`tools/recover_db.py`, ani punktu F3a Fazy C (kasowanie sierot z cache — **skasowałby to, czego
+jeszcze nie odzyskaliśmy**). F3a idzie po F0, nie przed.
+
+**Konsekwencja dla metryki:** baseline 21.50 liczony jest z 6 stron. Po odzyskaniu GT wymaga
+przeliczenia **z definicji** — to nie będzie regresja, tylko pierwszy pomiar na pełnych danych.
+Kryterium „bez zmiany SCORE" z prompta 025 dotyczy tylko naprawy labelera, nie tego kroku.
+
+**Kolejność:** F0 (dziś) → F1 (wyścig `selectPage`) → F3 → reszta.
+
+---
+
 ## 2026-07-19 [Claude] — 025 Faza A+B DONE: audyt labelera, przyczyna „złej strony" znaleziona
 
 **Raporty:** [`sync/analysis/025-labeler-audit.md`](analysis/025-labeler-audit.md) (główny) · [`sync/analysis/025-gt-integrity.md`](analysis/025-gt-integrity.md) (A1, generowany)

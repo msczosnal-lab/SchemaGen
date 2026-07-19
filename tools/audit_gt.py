@@ -75,7 +75,7 @@ def _load_cache() -> dict[str, dict[str, Any]] | None:
             conn.close()
             return {"__no_table__": {"tables": sorted(names)}}
         rows = conn.execute(
-            "SELECT page_id, payload_json FROM schematic_graph"
+            "SELECT page_id, payload_json, updated_at FROM schematic_graph"
         ).fetchall()
         conn.close()
     except sqlite3.DatabaseError as exc:
@@ -83,9 +83,11 @@ def _load_cache() -> dict[str, dict[str, Any]] | None:
     out: dict[str, dict[str, Any]] = {}
     for r in rows:
         try:
-            out[r["page_id"]] = json.loads(r["payload_json"])
+            payload = json.loads(r["payload_json"])
         except json.JSONDecodeError:
-            out[r["page_id"]] = {"__unparsable__": True}
+            payload = {"__unparsable__": True}
+        payload["__updated_at__"] = r["updated_at"]
+        out[r["page_id"]] = payload
     return out
 
 
@@ -95,6 +97,7 @@ def _counts(payload: dict[str, Any]) -> tuple[int, int]:
 
 def audit() -> dict[str, Any]:
     findings: list[Finding] = []
+    orphans: list[dict[str, Any]] = []
     pages: dict[str, dict[str, Any]] = {}
     sym_owner: dict[str, list[str]] = defaultdict(list)
     sanitize_map: dict[str, list[str]] = defaultdict(list)
@@ -341,14 +344,29 @@ def audit() -> dict[str, Any]:
     else:
         for pid, cpayload in cache.items():
             if pid not in pages:
+                cs, cl = _counts(cpayload)
+                has_data = bool(cs or cl)
+                orphans.append(
+                    {
+                        "page_id": pid,
+                        "symbols": cs,
+                        "lines": cl,
+                        "updated_at": cpayload.get("__updated_at__") or "",
+                    }
+                )
                 _add(
                     findings,
-                    "CRIT",
-                    "cache_orphan",
+                    "CRIT" if has_data else "WARN",
+                    "cache_orphan_data" if has_data else "cache_orphan_empty",
                     pid,
-                    f"Cache SQLite ma stronę {pid!r} bez pliku gt/{pid}.json "
-                    "(rebuild_cache_from_gt jej NIE usunie — zostaje na zawsze)",
-                    cache_counts=list(_counts(cpayload)),
+                    (
+                        f"GT TYLKO W BAZIE: {cs} sym./{cl} linii, brak gt/{pid}.json "
+                        "— dane poza źródłem prawdy i poza gitem"
+                    )
+                    if has_data
+                    else f"Pusty wpis cache bez pliku gt/ ({pid})",
+                    cache_counts=[cs, cl],
+                    updated_at=cpayload.get("__updated_at__") or "",
                 )
                 continue
             fs, fl = _counts(pages[pid])
@@ -387,15 +405,22 @@ def audit() -> dict[str, Any]:
 
     sev_order = {"CRIT": 0, "WARN": 1, "INFO": 2}
     findings.sort(key=lambda f: (sev_order.get(f["severity"], 9), f["code"], f["page_id"]))
+    orphans.sort(key=lambda o: (-o["symbols"], -o["lines"], o["page_id"]))
+    with_data = [o for o in orphans if o["symbols"] or o["lines"]]
     summary = {
         "gt_files": len(files),
         "crit": sum(1 for f in findings if f["severity"] == "CRIT"),
         "warn": sum(1 for f in findings if f["severity"] == "WARN"),
         "info": sum(1 for f in findings if f["severity"] == "INFO"),
+        "orphans_total": len(orphans),
+        "orphans_with_data": len(with_data),
+        "orphan_symbols_total": sum(o["symbols"] for o in with_data),
+        "orphan_lines_total": sum(o["lines"] for o in with_data),
     }
     return {
         "summary": summary,
         "findings": findings,
+        "orphans": orphans,
         "pages": {p: {"symbols": _counts(v)[0], "lines": _counts(v)[1]} for p, v in pages.items()},
     }
 
@@ -415,8 +440,35 @@ def _render_md(report: dict[str, Any]) -> str:
     ]
     for pid, c in sorted(report["pages"].items()):
         out.append(f"| {pid} | {c['symbols']} | {c['lines']} |")
+
+    orphans = report.get("orphans") or []
+    with_data = [o for o in orphans if o["symbols"] or o["lines"]]
+    if orphans:
+        out += [
+            "",
+            "## GT istniejący TYLKO w bazie SQLite (brak pliku w `gt/`)",
+            "",
+            f"Sierot łącznie: **{len(orphans)}** · z danymi: **{len(with_data)}** "
+            f"({s['orphan_symbols_total']} symboli, {s['orphan_lines_total']} linii)",
+            "",
+            "Baza jest w `.gitignore` i już raz padła (`malformed`). To, co tu widać,"
+            " **nie jest wersjonowane i nie ma kopii w repo.**",
+            "",
+            "| page_id | symbole | linie | updated_at |",
+            "|---|---:|---:|---|",
+        ]
+        for o in with_data:
+            out.append(
+                f"| {o['page_id']} | {o['symbols']} | {o['lines']} | {o['updated_at']} |"
+            )
+        empty = len(orphans) - len(with_data)
+        if empty:
+            out += ["", f"Pustych sierot (0 sym./0 linii): {empty} — do skasowania z cache."]
+
     out += ["", "## Znaleziska", "", "| Sev | Kod | Strona | Opis |", "|---|---|---|---|"]
     for f in report["findings"]:
+        if f["code"].startswith("cache_orphan"):
+            continue  # rozpisane w sekcji wyżej
         out.append(
             f"| {f['severity']} | `{f['code']}` | {f['page_id']} | {f['message']} |"
         )
@@ -438,6 +490,12 @@ def main() -> int:
     elif not args.md:
         s = report["summary"]
         print(f"gt/*.json: {s['gt_files']} | CRIT {s['crit']} | WARN {s['warn']} | INFO {s['info']}")
+        if s.get("orphans_with_data"):
+            print(
+                f"!! GT tylko w bazie: {s['orphans_with_data']} stron, "
+                f"{s['orphan_symbols_total']} symboli, {s['orphan_lines_total']} linii "
+                "— poza gitem. Patrz tools/rescue_gt_from_cache.py"
+            )
         for f in report["findings"]:
             print(f"[{f['severity']:4}] {f['code']:24} {f['page_id']:48} {f['message']}")
     return 1 if report["summary"]["crit"] else 0
