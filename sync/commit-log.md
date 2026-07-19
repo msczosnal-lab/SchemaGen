@@ -328,3 +328,4 @@
 | 2026-07-19 22:14 | Cursor | 4d11c867 | [Cursor] loop 033 it1: wire-only emit + recover gated + page border filter — sr lines F1 0.42→0.62 |
 | 2026-07-19 22:14 | Cursor | d75fff52 | [Cursor] loop 033 it1: wire-only emit + recover gated + page border filter — sr lines F1 0.42→0.62 |
 | 2026-07-19 22:15 | Cursor | def659bf | [Cursor] loop 033 it1: wire-only emit + recover gated + page border filter — sr lines F1 0.42→0.62 |
+| 2026-07-19 23:02 | Claude | 410ac068 | [Claude] 034 ekstrakcja wektorowa z PDF (929 sciezek/strone) zamiast Hougha; 033 wstrzymane |
