@@ -70,9 +70,35 @@ przez błąd** — i wpuszczenie jej do `gt/` zepsułoby GT zamiast je naprawić
 bboxów każdej strony i pokazuje grupy stron o **identycznej zawartości**. Skanuje `gt/`, cache SQLite
 i katalogi `gt/_rescue_*` naraz.
 
-```powershell
-python -m tools.gt_dup_scan
+### POTWIERDZONE — F1 udowodnione na danych (2026-07-19)
+
 ```
+--- sygnatura 2c7d6ccd1f9a · 108 symboli · 5 stron
+      [cache] …_p034   108 sym./0 linii   2026-07-19T11:11:22.546049
+      [gt/  ] …_p034   108 sym./0 linii
+      [cache] …_p035   108 sym./0 linii   2026-07-19T11:11:24.937245   (+2.4 s)
+      [cache] …_p036   108 sym./0 linii   2026-07-19T11:11:29.238465   (+4.3 s)
+      [cache] …_p037   108 sym./0 linii   2026-07-19T11:11:31.239659   (+2.0 s)
+      [cache] …_p038   108 sym./0 linii   2026-07-19T11:11:32.089477   (+0.85 s)
+```
+
+**Identyczne bboxy co do dziesiątej części piksela na pięciu różnych stronach schematu.**
+To nie jest zbieg okoliczności — to zawartość p034 zapisana pod czterema kolejnymi page_id
+przy przewijaniu, w odstępach 0.85–4.3 s. F1 przestaje być hipotezą z lektury kodu:
+**jest udokumentowanym zdarzeniem z dzisiaj, 11:11:22–11:11:32.**
+
+Druga grupa (`p079`/`p080`, **2 symbole**, znacznik z migracji wsadowej `16:33:51`) to
+najprawdopodobniej **nie** F1 — przy dwóch bboxach kolizja podpisu jest możliwa przypadkiem
+(np. ta sama ramka rysunkowa), a znacznik czasu wskazuje na migrację, nie na labeler.
+Domyślny próg `--dup-min-symbols 5` ją pomija.
+
+**`p040` nie wystąpił w żadnej grupie.** Jego 19 sym./17 linii to zawartość unikalna — czyli
+**prawdziwa praca Filipa**, nie artefakt. Odzyskiwalna w całości.
+
+**Co zostało utracone:** nic. p035–p038 nie miały wcześniej GT (brak w `gt/`, brak w
+`val-pages` z plikiem), więc kopie nadpisały pustkę. Gdyby wyścig trafił w stronę z danymi,
+strata byłaby niewykrywalna po fakcie — porównanie `gt/` z `gt/_backup_2026-07-12/` pokazuje,
+że 6 głównych stron jest nietkniętych.
 
 ### F0c — to jest też najpewniej przyczyna porażki retrain z prompta 026
 

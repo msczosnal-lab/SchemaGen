@@ -30,6 +30,50 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from backend import gt_store  # noqa: E402
 from backend.paths import DB_PATH, GT  # noqa: E402
+from tools.gt_dup_scan import signature  # noqa: E402
+
+
+def _dup_victims(
+    rows: list[tuple[str, dict[str, Any], str]],
+    existing: set[str],
+    min_symbols: int,
+) -> dict[str, str]:
+    """page_id -> page_id oryginału, dla stron będących kopią innej strony.
+
+    Zachowujemy: stronę obecną w ``gt/`` (źródło prawdy), a gdy takiej nie ma —
+    najstarszy zapis w grupie. Reszta to kopie z wyścigu ``selectPage`` (F1).
+    Grupy poniżej ``min_symbols`` pomijamy — przy 2 bboxach kolizja podpisu
+    może być przypadkiem, a nie kopią.
+    """
+    groups: dict[str, list[tuple[str, str]]] = {}
+    for page_id, payload, updated_at in rows:
+        sig, n_sym, _ = signature(payload)
+        if n_sym < min_symbols:
+            continue
+        groups.setdefault(sig, []).append((page_id, updated_at))
+    # strony już w gt/ też liczą się jako kandydat na oryginał
+    for pid in existing:
+        payload = gt_store.read_gt_json(pid)
+        if not payload:
+            continue
+        sig, n_sym, _ = signature(payload)
+        if n_sym >= min_symbols and sig in groups:
+            groups[sig].append((pid, ""))
+
+    victims: dict[str, str] = {}
+    for sig, items in groups.items():
+        pages = {p for p, _ in items}
+        if len(pages) < 2:
+            continue
+        in_gt = sorted(p for p in pages if p in existing)
+        if in_gt:
+            keep = in_gt[0]
+        else:
+            keep = min(items, key=lambda i: (i[1] or "9999"))[0]
+        for p in sorted(pages):
+            if p != keep:
+                victims[p] = keep
+    return victims
 
 
 def _read_cache() -> list[tuple[str, dict[str, Any], str]]:
@@ -62,11 +106,26 @@ def main() -> int:
         action="store_true",
         help="zapisz prosto do gt/ (nie nadpisuje istniejących plików)",
     )
+    ap.add_argument(
+        "--skip-dups",
+        action="store_true",
+        help="pomiń strony o zawartości identycznej z inną (kopie z wyścigu F1)",
+    )
+    ap.add_argument(
+        "--dup-min-symbols",
+        type=int,
+        default=5,
+        help="próg, poniżej którego identyczny podpis nie liczy się jako kopia (domyślnie 5)",
+    )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
     rows = _read_cache()
     existing = set(gt_store.list_gt_page_ids())
+    victims = (
+        _dup_victims(rows, existing, args.dup_min_symbols) if args.skip_dups else {}
+    )
+    skipped_dup: list[str] = []
 
     dest = GT if args.promote else GT / f"_rescue_{date.today().isoformat()}"
     written: list[str] = []
@@ -78,6 +137,9 @@ def main() -> int:
         n_lin = len(payload.get("lines") or [])
         if page_id in existing:
             skipped_existing.append(page_id)
+            continue
+        if page_id in victims:
+            skipped_dup.append(f"{page_id} (kopia {victims[page_id]})")
             continue
         if n_sym < args.min_symbols and n_lin == 0:
             skipped_small.append(page_id)
@@ -100,6 +162,10 @@ def main() -> int:
     print(f"Zapisane: {len(written)} -> {dest}")
     if skipped_existing:
         print(f"Pominięte (plik gt/ już istnieje, źródło prawdy wygrywa): {len(skipped_existing)}")
+    if skipped_dup:
+        print(f"Pominięte jako kopie z wyścigu F1: {len(skipped_dup)}")
+        for s in skipped_dup:
+            print(f"    {s}")
     if skipped_small:
         print(f"Pominięte (poniżej --min-symbols): {len(skipped_small)}")
     if not args.promote and written:

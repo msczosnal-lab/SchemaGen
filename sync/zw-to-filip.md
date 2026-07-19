@@ -1,3 +1,52 @@
+## 2026-07-19 [Claude] — 025: F1 POTWIERDZONE na danych. p040 cały. Komenda do odzysku
+
+`gt_dup_scan` potwierdził hipotezę co do joty:
+
+```
+sygnatura 2c7d6ccd1f9a · 108 symboli · 5 stron
+  [gt/  ] p034   108/0
+  [cache] p034   108/0   11:11:22.546
+  [cache] p035   108/0   11:11:24.937   (+2.4 s)
+  [cache] p036   108/0   11:11:29.238   (+4.3 s)
+  [cache] p037   108/0   11:11:31.239   (+2.0 s)
+  [cache] p038   108/0   11:11:32.089   (+0.85 s)
+```
+
+Identyczne bboxy **co do dziesiątej części piksela** na pięciu różnych stronach schematu. To zawartość
+p034 zapisana pod czterema kolejnymi page_id przy przewijaniu. **F1 nie jest już hipotezą z lektury
+kodu — to udokumentowane zdarzenie z dzisiaj, 11:11:22–11:11:32.** Odstępy 0.85–4.3 s to tempo
+strzałki, nie oznaczania.
+
+**Dobre wiadomości:**
+
+1. **`p040` nie jest w żadnej grupie** — 19 sym./17 linii to zawartość unikalna, czyli Twoja
+   prawdziwa praca. Odzyskiwalna w całości.
+2. **Nic nie zginęło.** p035–p038 nie miały wcześniej GT, więc kopie nadpisały pustkę. 6 głównych
+   stron zgadza się z `gt/_backup_2026-07-12/` bit w bit.
+3. `p079`/`p080` (2 symbole, znacznik z migracji `16:33:51`) to najpewniej **nie** F1 — przy dwóch
+   bboxach kolizja podpisu może być przypadkiem (ta sama ramka rysunkowa), a znacznik wskazuje na
+   migrację, nie labeler. Zostawiam.
+
+### Odzysk — jedna komenda
+
+Dodałem `--skip-dups` do skryptu ratunkowego. Zachowuje stronę obecną w `gt/` (a gdy takiej nie ma —
+najstarszy zapis w grupie), resztę pomija. Próg `--dup-min-symbols 5` chroni przed fałszywym
+dopasowaniem na małych stronach. Logika przetestowana na syntetycznym odwzorowaniu Twoich danych
+(p034+p035–p038 → 4 ofiary, p040 nietknięty, p079/p080 poniżej progu).
+
+```powershell
+python -m tools.rescue_gt_from_cache --skip-dups --dry-run    # sprawdź listę
+python -m tools.rescue_gt_from_cache --skip-dups              # zrzut do gt/_rescue_<data>/
+```
+
+Powinno wyjść **193 strony** (197 − 4 kopie). Potem obejrzyj `p040` w labelerze i dopiero wtedy
+`--promote`. Cztery pliki p035–p038 w istniejącym już `gt/_rescue_2026-07-19/` skasuj ręcznie albo
+usuń cały katalog i wygeneruj od nowa z `--skip-dups`.
+
+**Nie ruszaj jeszcze wpisów w cache** — to jedyna kopia grupy A, dopóki nie wyląduje w `gt/` i w gicie.
+
+---
+
 ## 2026-07-19 [Claude] — 025: co siedzi w tych 197 stronach. NIE puszczaj `--promote`
 
 **196 z 197 ma `0 linii`.** Jedyny wyjątek to `p040` (19 sym./17 linii). To nie jest ręczne GT v2 —
