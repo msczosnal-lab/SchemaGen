@@ -1,1 +1,1 @@
-﻿[Cursor] 023: conn path emission p028 10/42 + tiled GT sync
+[Claude] prompty 024 conn-precision, 025 labeler-audit, 026 retrain-fail-diag + przekierowanie kolejki

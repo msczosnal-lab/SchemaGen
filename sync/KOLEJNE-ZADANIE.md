@@ -29,13 +29,34 @@
 
 ---
 
-## Aktywne zadanie — Cursor (023-runtime-graph-alignment)
+## Stan (2026-07-19) — 023 DONE, retrain FAIL, trzy nowe tory
+
+| Prompt | Status | Model |
+|--------|--------|-------|
+| **023-runtime-graph-alignment** | ✅ DONE — p028 conn 4/42 → 10/42, śr. 21.24 → 21.50, pytest 329 |
+| **026-retrain-fail-diag** | 🔴 **BLOKUJĄCE** — `symbols_tiled_v1-3` mAP50 = 0.0001 | Opus 4.8 → Sonnet 5 |
+| **025-labeler-audit** | 🔵 AKTYWNE — zły page_id / złe bboxy, audyt całości | Opus 4.8 (A/B) → Sonnet 5 (C) |
+| **024-conn-remap-precision** | 🔵 AKTYWNE — remap fail 118 + precyzja 0.05 | Opus 4.8 |
+
+**Kolejność: 026 → 025 → 024.** 026 i 025 mają prawdopodobnie **wspólną przyczynę** (rozjazd skali GT ↔ obraz). Dopóki nie wiadomo, czy GT jest poprawne, każdy wynik 024 jest niepewny — nie ma sensu optymalizować metryki liczonej względem podejrzanego GT.
+
+| Pole | Wartość |
+|------|---------|
+| **026** | [`prompts/026-retrain-fail-diag.md`](prompts/026-retrain-fail-diag.md) — 30 stron / 2 detekcje; nie trenować przed diagnozą; aktywny model pozostaje `symbols_tiled_v1-2` |
+| **025** | [`prompts/025-labeler-audit.md`](prompts/025-labeler-audit.md) — priorytet: zapis pod złym page_id > błędy wyświetlania |
+| **024** | [`prompts/024-conn-remap-precision.md`](prompts/024-conn-remap-precision.md) — najpierw metryka P/R/F1, potem breakdown, potem kod |
+
+**Wykluczenie ze średniej GT:** `p031` (GT ~505 B, SCORE 0.00) → `config/gt-eval.yaml`. Po zmianie przeliczyć baseline 21.50.
+[UWAGA] `p032` nie istnieje w `gt/`. `p040` jest w `val-pages.yaml`, ale **brak `gt/*p040.json`** — sprawdzić jako pierwszy trop w 025.
+
+---
+
+## ~~Aktywne zadanie — Cursor (023-runtime-graph-alignment)~~ DONE
 
 | Pole | Wartość |
 |------|---------|
 | **Prompt** | [`sync/prompts/023-runtime-graph-alignment.md`](prompts/023-runtime-graph-alignment.md) |
-| **Cel** | net_builder: łańcuch rail + pary segmentów zamiast gwiazdy; baseline p028 w `sync/analysis/023-p028-conn-baseline.md` |
-| **Równolegle** | Retrain YOLO `symbols_tiled_v1-3` (Filip GPU) — `tiled_export` zsynchronizowany z GT v2 |
+| **Wynik** | p028 10/42 (cel ≥15 nie osiągnięty); zysk wyłącznie na p028 |
 
 ---
 
