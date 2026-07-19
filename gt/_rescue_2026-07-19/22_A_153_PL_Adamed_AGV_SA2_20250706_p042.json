@@ -1,0 +1,438 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p042",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "element_1781805766138",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        810.3261159874008,
+        3018.011822436148,
+        854.7458822313015,
+        3113.135109123827
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805764755",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        751.311283691933,
+        3018.011822436148,
+        797.0001861142307,
+        3115.671730102165
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805763259",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        681.5087938800895,
+        3012.3044252348873,
+        736.0816495511671,
+        3115.0375748575807
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805758915",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        621.2248254062243,
+        3015.4752014578103,
+        672.6248406313092,
+        3120.744972058841
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805757227",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        604.7260550870614,
+        3010.4019595011337,
+        881.3977419776418,
+        3120.744972058841
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805748275",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        6259.411239832306,
+        2503.257510028492,
+        6471.239459614512,
+        2627.6720469703837
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805746091",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        5680.082771120498,
+        2501.2271297782686,
+        5880.762137229956,
+        2620.999333252179
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805743586",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        5097.7835583350225,
+        2506.285245318296,
+        5299.6453786218935,
+        2625.2977942247185
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805740971",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        4515.695896399362,
+        2497.0740828959074,
+        4738.672969854316,
+        2621.1509955855818
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805739364",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        3931.2256887068315,
+        2505.5146892013277,
+        4141.533610260936,
+        2613.554449910704
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805733387",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        2849.9409072156777,
+        2567.6955669500785,
+        3110.2343917240432,
+        2685.864055225959
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805730891",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        3047.132940934136,
+        2574.1829751021783,
+        3092.5045593118343,
+        2674.6331658443673
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805729915",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        2987.8008245940687,
+        2572.7878335640926,
+        3029.682318481175,
+        2675.3307366134104
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805728675",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        2922.1864841709357,
+        2573.4854043331356,
+        2965.464027854279,
+        2675.3307366134104
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805727474",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        2859.3642433402765,
+        2574.1829751021783,
+        2911.0180858010403,
+        2675.3307366134104
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805723906",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        3941.31704071752,
+        2511.106443068321,
+        3999.5698011576274,
+        2608.1312125491245
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805721395",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        4073.072336422531,
+        2510.1964869737926,
+        4130.303118609302,
+        2610.285196543464
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805719667",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        4647.424114796917,
+        2508.1538602478813,
+        4716.918636023711,
+        2608.2425698175525
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805718435",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        4528.874637410033,
+        2510.1964869737926,
+        4582.017506583464,
+        2613.3491366323315
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805715795",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        5233.682937688325,
+        2508.5914904546426,
+        5292.037819171026,
+        2618.3193724251037
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805714571",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        5110.83055561948,
+        2513.962785376273,
+        5169.185437102181,
+        2617.5520445791562
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805711523",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        5687.725195640066,
+        2509.3477649799934,
+        5758.211035772594,
+        2610.6824768524707
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805710123",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        5818.804126412839,
+        2509.3477649799934,
+        5871.977654933869,
+        2609.446687683294
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805708155",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        6397.5299717115,
+        2508.1119758108166,
+        6455.649874978673,
+        2614.38984436
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805695794",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        6273.870603057941,
+        2511.8193433183465,
+        6333.227100011649,
+        2620.568790205883
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805692019",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        6147.246100517525,
+        626.5148511583341,
+        6570.623633204509,
+        2625.672211557142
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805689299",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        5565.101993072919,
+        622.9890004345267,
+        6006.120256288529,
+        2615.0946593857198
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805687299",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        4990.014177839764,
+        612.4114482631045,
+        5413.39171052675,
+        2622.1463608333347
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805685243",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        4400.8137781837095,
+        630.0407018821415,
+        4848.888333610768,
+        2622.1463608333347
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805682923",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        3825.725962950554,
+        622.9890004345267,
+        4245.575349531814,
+        2611.5688086619125
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805680123",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        2799.0354461846146,
+        633.566552605949,
+        3681.071972615834,
+        2685.6116738618684
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805675667",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        1782.2486225997466,
+        627.4415236370892,
+        2403.2023372073254,
+        3004.9226667004345
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781805668539",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        497.650625505318,
+        623.5630878409011,
+        1669.7007618271234,
+        3144.546355363208
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

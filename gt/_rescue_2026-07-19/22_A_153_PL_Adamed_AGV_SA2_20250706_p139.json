@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p139",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p139_0",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
+      "listwa": "",
+      "bbox": [
+        4225.8212890625,
+        1947.905517578125,
+        4285.612663269043,
+        2076.5958404541016
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

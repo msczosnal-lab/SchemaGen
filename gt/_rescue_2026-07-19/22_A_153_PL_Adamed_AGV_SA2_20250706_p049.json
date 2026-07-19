@@ -1,0 +1,100 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p049",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "element_1781806510449",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        853.1478953170357,
+        2553.8954167246225,
+        1370.8602081220308,
+        2682.4916376691344
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806509178",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        1309.5127953329995,
+        2567.3531607769546,
+        1363.3788163184904,
+        2667.538588722098
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806507922",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        983.3241126986386,
+        2576.324990145177,
+        1035.6938553234213,
+        2675.0151131956163
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806501803",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        866.6144005634085,
+        2562.8672460928437,
+        927.9618133524397,
+        2676.5104180903195
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806498538",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        778.8566422758106,
+        1888.6280560791406,
+        1897.4724624229925,
+        2683.3352064489577
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806495369",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        1541.8103922188086,
+        517.6786481940435,
+        1798.4028362715273,
+        1639.5402421327685
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806490465",
+      "type": "urzadzenie",
+      "tag": "urządzenie",
+      "listwa": "",
+      "bbox": [
+        133.46777315672864,
+        290.39240318827575,
+        1547.6420386745522,
+        1208.2791618654146
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

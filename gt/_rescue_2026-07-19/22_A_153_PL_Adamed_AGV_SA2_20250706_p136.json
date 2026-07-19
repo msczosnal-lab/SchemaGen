@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p136",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_0",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        2493.641357421875,
+        973.9826049804688,
+        3332.832763671875,
+        1503.0111694335938
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_1",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        0.0,
+        1312.595703125,
+        2897.802001953125,
+        3614.83251953125
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_2",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        320.07379150390625,
+        2122.503662109375,
+        2487.1797485351562,
+        2991.7554931640625
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_3",
+      "type": "urzadzenie",
+      "tag": "urzadzenie",
+      "listwa": "",
+      "bbox": [
+        0.0,
+        2831.531005859375,
+        2815.19970703125,
+        3759.3260498046875
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_4",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal_przylaczeniowy",
+      "listwa": "",
+      "bbox": [
+        5814.06787109375,
+        3520.71240234375,
+        5865.396125793457,
+        3626.742904663086
+      ],
+      "terminals": []
+    },
+    {
+      "id": "auto_22_A_153_PL_Adamed_AGV_SA2_20250706_p136_5",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        815.7217407226562,
+        886.9465942382812,
+        893.5509796142578,
+        1080.9111633300781
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "page_id": "25_A_229_PL5_19012026_p019",
+  "image_width": 6630,
+  "image_height": 4693,
+  "symbols": [
+    {
+      "id": "element_1781554301809",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        1672.66,
+        353.22,
+        2327.17,
+        829.83
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554293730",
+      "type": "przekaznik_polaryzowany",
+      "tag": "przekaźnik polaryzowany",
+      "listwa": "",
+      "bbox": [
+        1892.71,
+        2444.92,
+        2071.25,
+        2536.1800000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554280441",
+      "type": "przekaznik_polaryzowany",
+      "tag": "przekaźnik polaryzowany",
+      "listwa": "",
+      "bbox": [
+        4820.35,
+        2123.76,
+        4993.76,
+        2229.05
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554276442",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        4878.95,
+        1327.18,
+        4946.5599999999995,
+        1481.6100000000001
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554275065",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        5941.33,
+        1327.18,
+        6037.91,
+        1469.54
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554269057",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        1935.27,
+        1209.74,
+        2027.79,
+        1349.33
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554265457",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        1111.27,
+        3285.0,
+        1278.6,
+        3430.98
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554261617",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        1856.39,
+        3295.28,
+        2014.49,
+        3419.23
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554247929",
+      "type": "push_button",
+      "tag": "przycisk",
+      "listwa": "",
+      "bbox": [
+        2513.43,
+        3279.55,
+        2672.89,
+        3425.29
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

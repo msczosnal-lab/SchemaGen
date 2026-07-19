@@ -1,0 +1,100 @@
+{
+  "version": 2,
+  "page_id": "SchematWRT01_p021",
+  "image_width": 6712,
+  "image_height": 4822,
+  "symbols": [
+    {
+      "id": "element_1781547784650",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        3520.94,
+        1214.23,
+        3590.73,
+        1298.66
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547781162",
+      "type": "mostek",
+      "tag": "mostek",
+      "listwa": "",
+      "bbox": [
+        3399.73,
+        1216.07,
+        3480.54,
+        1309.6699999999998
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547774322",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3015.9,
+        724.19,
+        3689.8900000000003,
+        1203.22
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547768226",
+      "type": "terminale_urzadzenia",
+      "tag": "terminale urządzenia",
+      "listwa": "",
+      "bbox": [
+        3093.81,
+        3192.62,
+        3482.36,
+        3324.58
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547764882",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        3383.7,
+        3215.37,
+        3453.52,
+        3315.48
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547761274",
+      "type": "terminal_przylaczeniowy",
+      "tag": "terminal przyłączeniowy",
+      "listwa": "",
+      "bbox": [
+        3125.69,
+        3198.69,
+        3195.51,
+        3313.9700000000003
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781547736338",
+      "type": "przetwornik_temperatura_prad",
+      "tag": "przetwornik - temperatura/prąd",
+      "listwa": "",
+      "bbox": [
+        2836.44,
+        3329.4,
+        3870.41,
+        3654.3
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

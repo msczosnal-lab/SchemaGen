@@ -1,0 +1,139 @@
+{
+  "version": 2,
+  "page_id": "22_A_153_PL_Adamed_AGV_SA2_20250706_p050",
+  "image_width": 6617,
+  "image_height": 4678,
+  "symbols": [
+    {
+      "id": "element_1781806547161",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        5893.585867262587,
+        452.97776712247355,
+        6564.737037123113,
+        936.6087151311524
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806545234",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        5284.172638843237,
+        450.987516307623,
+        5943.374529715148,
+        928.6477118717503
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806543258",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        4599.080643495993,
+        458.94851956702513,
+        5256.290987869803,
+        930.6379626866008
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806539513",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3972.8474346464714,
+        448.85885263210395,
+        4632.883783501088,
+        936.2792381922582
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806537514",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3291.60509868006,
+        448.85885263210395,
+        3959.5936927016,
+        941.5772858613902
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806534538",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        2664.564986895138,
+        455.7001038042109,
+        3321.7753312689474,
+        957.0442840650595
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806532833",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        1983.2569298942894,
+        453.51082790787535,
+        2638.276573120186,
+        935.1515251017038
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806529457",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        1359.5613906882122,
+        458.74020615216716,
+        2014.780188563919,
+        934.410150901444
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806527849",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        674.4693953409686,
+        454.75970452246605,
+        1331.6797397147777,
+        928.4393984568924
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781806522793",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        53.1068879330034,
+        460.7304569670177,
+        710.3172323068128,
+        934.410150901444
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "page_id": "25_A_229_PL5_19012026_p016",
+  "image_width": 6630,
+  "image_height": 4693,
+  "symbols": [
+    {
+      "id": "element_1781554208353",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        4808.15,
+        1876.67,
+        4893.639999999999,
+        2007.92
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554205513",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        2810.97,
+        2473.77,
+        2883.5299999999997,
+        2611.55
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554204177",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        2136.14,
+        2473.77,
+        2217.77,
+        2606.11
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554198729",
+      "type": "styki",
+      "tag": "styki",
+      "listwa": "",
+      "bbox": [
+        2133.08,
+        926.59,
+        2220.0299999999997,
+        1076.41
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554194809",
+      "type": "cewka_zaworow",
+      "tag": "cewka zaworów",
+      "listwa": "",
+      "bbox": [
+        2786.73,
+        1954.03,
+        3052.09,
+        2061.9
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554189073",
+      "type": "cewka_zaworow",
+      "tag": "cewka zaworów",
+      "listwa": "",
+      "bbox": [
+        2106.08,
+        1948.04,
+        2375.94,
+        2067.9
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

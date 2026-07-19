@@ -263,3 +263,4 @@
 | 2026-07-19 14:58 | Claude | 54e170c8 | [Claude] 025: analiza 197 sierot (196 bez linii = bboxy v1), podejrzenie F1 na p034-p038 + tools/gt_dup_scan.py |
 | 2026-07-19 15:18 | Claude | c7c48dcc | [Claude] 025: F1 potwierdzone (p034 skopiowany na p035-p038 w 10 s) - rescue --skip-dups odsiewa kopie |
 | 2026-07-19 15:18 | Claude | bcbae0a7 | [Claude] 025: F1 potwierdzone (p034 skopiowany na p035-p038 w 10 s) - rescue --skip-dups odsiewa kopie |
+| 2026-07-19 15:18 | Claude | e4c458a9 | [Claude] 025: F1 potwierdzone (p034 skopiowany na p035-p038 w 10 s) - rescue --skip-dups odsiewa kopie |

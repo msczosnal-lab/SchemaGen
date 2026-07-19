@@ -1,0 +1,74 @@
+{
+  "version": 2,
+  "page_id": "25_A_229_PL5_19012026_p020",
+  "image_width": 6630,
+  "image_height": 4693,
+  "symbols": [
+    {
+      "id": "element_1781554320049",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        4440.76,
+        352.37,
+        5123.950000000001,
+        854.09
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554318361",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        3488.43,
+        352.37,
+        4202.68,
+        859.26
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554316457",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        2561.98,
+        362.71,
+        3229.65,
+        848.91
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554314865",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        1614.82,
+        367.88,
+        2308.3599999999997,
+        895.46
+      ],
+      "terminals": []
+    },
+    {
+      "id": "element_1781554313129",
+      "type": "terminal_plc",
+      "tag": "terminal PLC",
+      "listwa": "",
+      "bbox": [
+        678.02,
+        367.88,
+        1350.8600000000001,
+        869.6
+      ],
+      "terminals": []
+    }
+  ],
+  "lines": []
+}

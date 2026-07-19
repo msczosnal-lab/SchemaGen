@@ -1,1 +1,7 @@
 [Claude] 025: odzysk 193 stron GT z cache (4 kopie F1 odsiane) + ostrzezenie o rozdzieleniu dataset/metryka
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
