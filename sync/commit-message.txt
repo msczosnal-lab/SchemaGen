@@ -1,4 +1,3 @@
-[Claude] 025: raporty audytu + narzedzia (audit_gt, gt_dup_scan, rescue, prune_cache_orphans)
 ﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
 # [Cursor] opis etapu - agent Cursor (PC Filip)
 # [Claude] opis etapu - agent Claude Cowork (PC ZW)
