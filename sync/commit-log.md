@@ -240,3 +240,4 @@
 | 2026-07-19 13:18 | Claude | 810f967f | [Claude] prompty 024 conn-precision, 025 labeler-audit, 026 retrain-fail-diag + przekierowanie kolejki |
 | 2026-07-19 13:32 | Claude | 1a4a7ade | [Claude] prompty 024 conn-precision, 025 labeler-audit, 026 retrain-fail-diag + przekierowanie kolejki |
 | 2026-07-19 13:31 | Claude | 371afdc0 | [Claude] prompty 024 conn-precision, 025 labeler-audit, 026 retrain-fail-diag + przekierowanie kolejki |
+| 2026-07-19 13:38 | Claude | b1386868 | [Claude] 027 gt-cleanup + scalenie klas EN/PL; element_review/apply_reassign do migracji na GT v2 |
