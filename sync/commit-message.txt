@@ -1,7 +1,1 @@
-﻿[Cursor] 027: element_review/apply_reassign na GT v2, class-aliases.yaml
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
+﻿[Claude] 027 Krok1: eksport klasy po `type` (GT v2) zamiast `tag`, bbox_class + testy regresji, pytest 288

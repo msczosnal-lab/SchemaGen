@@ -1,9 +1,11 @@
-"""Budowa mapy klas YOLO z pola `tag` adnotacji (multi-class).
+"""Budowa mapy klas YOLO (multi-class).
 
-Typ elementu jest oznaczany w labelerze w polu `tag` (haslo z palety lub wolny
-tekst), NIE w `class_name` (ktore zostaje "element"). Ten modul tlumaczy tag ->
-kanoniczna nazwa klasy i buduje mape nazwa->id ze WSZYSTKICH klas obecnych w
-danych. Paleta (config/symbol-palette.yaml) daje kanoniczne id i kolejnosc.
+Prompt 027 v2: klasa treningowa = `type` (GT v2, `bbox_class`/`class_name`),
+`tag` jest oznaczeniem z rysunku i nie wchodzi do YOLO. Fallback: rekordy v1
+(SQLite) nie maja `type` — `class_name` zostaje tam zawsze "element", wiec
+klasa jest wyprowadzana ze starego pola `tag` (haslo z palety lub wolny
+tekst) przez `tag_to_class`. Paleta (config/symbol-palette.yaml) daje
+kanoniczne id i kolejnosc.
 """
 
 from __future__ import annotations
@@ -190,6 +192,32 @@ def tag_to_class(
     return apply_class_alias(cls)
 
 
+def bbox_class(
+    class_name: str,
+    tag: str,
+    palette_map: dict[str, str] | None = None,
+    group_map: dict[str, str] | None = None,
+) -> str | None:
+    """Kanoniczna klasa treningowa bboxa — prompt 027 v2 (eksport po `type`, nie `tag`).
+
+    GT v2 (`gt/*.json`) ma `class_name` = kanoniczny `type` symbolu
+    (`load_graph_v2_records`). GT v1 (SQLite) ma `class_name == "element"`
+    zawsze — dla tych rekordow fallback na `tag_to_class(tag)` jak dotad
+    (`tag` to oznaczenie z rysunku typu "6"/"BN", NIE klasa).
+
+    `type` normalizowany przez `slugify` (ascii-fold), zeby
+    `custom_urządzenie`/`custom_urzadzenie` (niespojne diakrytyki w GT) scalily
+    sie w jedna klase.
+    """
+    gmap = group_map if group_map is not None else load_group_map()
+    norm_type = normalize_tag(class_name)
+    if norm_type and norm_type != "element":
+        cls = slugify(class_name)
+        cls = gmap.get(cls, cls)
+        return apply_class_alias(cls)
+    return tag_to_class(tag, palette_map, gmap)
+
+
 def class_distribution(
     records: Iterable,
     palette_map: dict[str, str] | None = None,
@@ -201,7 +229,7 @@ def class_distribution(
     dist: Counter = Counter()
     for rec in records:
         for b in rec.bboxes:
-            cls = tag_to_class(b.tag, pmap)
+            cls = bbox_class(b.class_name, b.tag, pmap)
             if cls and cls not in exclude:
                 dist[cls] += 1
     return dist
@@ -242,9 +270,13 @@ def resolve_class_id(
     class_map: dict[str, int],
     palette_map: dict[str, str] | None = None,
     other_class: str = "inny",
+    class_name: str = "",
 ) -> int | None:
-    """Id klasy dla bboxa wg jego tagu. None = pomin (bez tagu / klasa odfiltrowana)."""
-    cls = tag_to_class(tag, palette_map)
+    """Id klasy dla bboxa. `class_name` (=`type` w GT v2) ma pierwszenstwo nad
+    `tag` — patrz `bbox_class`. Domyslne `class_name=""` = stare zachowanie
+    (klasa wylacznie z tagu), dla kompatybilnosci wstecznej wywolan bez GT v2.
+    None = pomin (bez tagu/typu / klasa odfiltrowana)."""
+    cls = bbox_class(class_name, tag, palette_map)
     if cls is None or cls in load_yolo_exclude_classes():
         return None
     if cls in class_map:

@@ -27,10 +27,10 @@ from backend.models.label import LabelRecord
 from backend.paths import LABELED, RAW, ROOT, SYMBOL_CLASSES, VAL_PAGES
 from labeler.export import find_raw_image, yolo_label_lines
 from backend.class_map import (
+    bbox_class,
     build_class_map,
     load_palette_map,
     load_yolo_exclude_classes,
-    tag_to_class,
 )
 
 
@@ -319,7 +319,7 @@ def persist_class_map(class_map: dict[str, int]) -> None:
     """Zapisz wygenerowana liste klas do config/symbol-classes.yaml (zrodlo prawdy)."""
     names = [name for name, _ in sorted(class_map.items(), key=lambda kv: kv[1])]
     SYMBOL_CLASSES.write_text(
-        "# AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).\n"
+        "# AUTO-GENEROWANE przez train/dataset_export.py (klasa = `type`, GT v2).\n"
         "# Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.\n"
         + yaml.dump({"classes": names}, allow_unicode=True, sort_keys=False),
         encoding="utf-8",
@@ -352,7 +352,7 @@ def export_dataset(
     dist_all: Counter = Counter()
     for rec in recs:
         for b in rec.bboxes:
-            cls = tag_to_class(b.tag, palette_map)
+            cls = bbox_class(b.class_name, b.tag, palette_map)
             if cls:
                 dist_all[cls] += 1
     contextual_excluded = {c: dist_all[c] for c in exclude if c in dist_all}

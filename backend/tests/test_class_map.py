@@ -1,7 +1,9 @@
-"""Testy budowy mapy klas YOLO z pola `tag`."""
+"""Testy budowy mapy klas YOLO. Prompt 027 v2: klasa = `type`, nie `tag`."""
 
 from backend.class_map import (
+    bbox_class,
     build_class_map,
+    class_distribution,
     class_train_role,
     component_type_from_bbox,
     is_yolo_exportable,
@@ -21,6 +23,16 @@ def _rec(page_id, tags):
         bboxes=[BboxAnnotation(id=f"{page_id}_{i}", class_name="element",
                                x=i, y=i, width=5, height=5, tag=t)
                 for i, t in enumerate(tags)],
+    )
+
+
+def _rec_v2(page_id, types_tags):
+    """Rekord w stylu GT v2: class_name = `type` (kanoniczny), tag = oznaczenie."""
+    return LabelRecord(
+        page_id=page_id, image_path=f"{page_id}.png", image_width=100, image_height=100,
+        bboxes=[BboxAnnotation(id=f"{page_id}_{i}", class_name=t,
+                               x=i, y=i, width=5, height=5, tag=g)
+                for i, (t, g) in enumerate(types_tags)],
     )
 
 
@@ -139,3 +151,54 @@ def test_class_aliases_merge_en_pl():
 def test_mostek_maps_to_mostek_not_crossing():
     assert tag_to_class("mostek") == "mostek"
     assert tag_to_class("skrzyżowanie przewodów") == "crossing"
+
+
+# --- Prompt 027 v2: eksport po `type`, nie po `tag` ---------------------
+
+
+def test_bbox_class_prefers_type_over_tag():
+    # Regresja z prompt 027: type="zlaczka", tag="6" (numer na listwie) ->
+    # klasa MUSI byc "zlaczka", nie "6" (tag numeryczny odcinany min-count).
+    assert bbox_class("zlaczka", "6") == "zlaczka"
+    assert bbox_class("zlaczka", "BN") == "zlaczka"
+
+
+def test_bbox_class_ascii_merges_diacritics():
+    # Niespojne diakrytyki w GT (custom_urządzenie vs custom_urzadzenie) ->
+    # ta sama klasa po slugify/ascii-fold.
+    assert bbox_class("custom_urządzenie", "") == "custom_urzadzenie"
+    assert bbox_class("custom_urzadzenie", "") == "custom_urzadzenie"
+    assert bbox_class("terminale_urządzenia", "") == bbox_class(
+        "terminale_urzadzenia", ""
+    )
+
+
+def test_bbox_class_v1_fallback_to_tag():
+    # GT v1 (SQLite): class_name zawsze "element" -> fallback na tag jak dawniej.
+    assert bbox_class("element", "silnik") == "motor"
+    assert bbox_class("", "silnik") == "motor"
+    assert bbox_class("element", "") is None
+
+
+def test_resolve_class_id_prefers_class_name():
+    cmap = {"zlaczka": 0}
+    # Przed poprawka: tag="6" -> klasa "6" -> spoza class_map -> None.
+    assert resolve_class_id("6", cmap) is None
+    # Po poprawce: class_name (type) z GT v2 wygrywa.
+    assert resolve_class_id("6", cmap, class_name="zlaczka") == 0
+
+
+def test_build_class_map_uses_type_not_fragmented_tag():
+    # 3x zlaczka z roznymi tagami numerycznymi -> jedna klasa "zlaczka", nie
+    # trzy osobne (co dzialo sie przy eksporcie po tagu).
+    rec = _rec_v2("p1", [("zlaczka", "6"), ("zlaczka", "2"), ("zlaczka", "5")])
+    cmap, dist = build_class_map([rec])
+    assert cmap == {"zlaczka": 0}
+    assert dist["zlaczka"] == 3
+
+
+def test_class_distribution_type_over_tag():
+    rec = _rec_v2("p1", [("zlaczka", "6"), ("mostek", "mostek")])
+    dist = class_distribution([rec])
+    assert dist["zlaczka"] == 1
+    assert dist["mostek"] == 1

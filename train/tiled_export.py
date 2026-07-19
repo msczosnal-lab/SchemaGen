@@ -141,7 +141,7 @@ def export_tiled(
             continue
         bxs = []
         for b in rec.bboxes:
-            cid = resolve_class_id(b.tag, class_map, palette)
+            cid = resolve_class_id(b.tag, class_map, palette, class_name=b.class_name)
             if cid is not None:
                 bxs.append((b.x, b.y, b.width, b.height, cid))
         if not bxs:

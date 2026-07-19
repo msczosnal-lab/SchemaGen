@@ -105,8 +105,9 @@ def yolo_label_lines(
 ) -> list[str]:
     """Linie YOLO (`cls cx cy w h`, znormalizowane) dla bboxow rekordu.
 
-    Klasa wyprowadzana z pola `tag` (multi-class). Bboxy bez tagu lub o klasie
-    spoza `class_map` sa POMIJANE (nie ucz na nieprzypisanych).
+    Klasa = `type` (GT v2, `class_name`); fallback na `tag` dla starych
+    rekordow v1 (prompt 027 v2). Bboxy bez klasy lub o klasie spoza
+    `class_map` sa POMIJANE (nie ucz na nieprzypisanych).
     """
     cmap = class_map if class_map is not None else load_class_map()
     pmap = palette_map if palette_map is not None else load_palette_map()
@@ -114,7 +115,7 @@ def yolo_label_lines(
     h = record.image_height or 1
     lines: list[str] = []
     for b in record.bboxes:
-        cls_id = resolve_class_id(b.tag, cmap, pmap)
+        cls_id = resolve_class_id(b.tag, cmap, pmap, class_name=b.class_name)
         if cls_id is None:
             continue
         cx = (b.x + b.width / 2) / w
