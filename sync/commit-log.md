@@ -301,3 +301,4 @@
 | 2026-07-19 18:23 | Claude | 166afb50 | [Claude] fix: apply_* wybieraja NAJNOWSZY plik wejsciowy + podsumowanie zmian przed zapisem (staly plik z 16.06 przeslanial swiezy eksport) |
 | 2026-07-19 18:23 | Claude | 9666e45f | [Claude] fix: apply_* wybieraja NAJNOWSZY plik wejsciowy + podsumowanie zmian przed zapisem (staly plik z 16.06 przeslanial swiezy eksport) |
 | 2026-07-19 18:29 | Claude | 1068742b | [Claude] [BLAD] apply_reassign czytal cache SQLite zamiast gt/*.json - cache nadpisywal zrodlo prawdy; + ostrzezenia o rozjezdzie zrodel i duzej utracie symboli |
+| 2026-07-19 18:29 | Claude | f0510f3d | [Claude] [BLAD] apply_reassign czytal cache SQLite zamiast gt/*.json - cache nadpisywal zrodlo prawdy; + ostrzezenia o rozjezdzie zrodel i duzej utracie symboli |
