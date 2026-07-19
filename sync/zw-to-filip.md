@@ -1,3 +1,73 @@
+## 2026-07-19 [Claude] — 028 uzupełnienie: scalenie `custom_*` + [BŁĄD] val bez 10 klas
+
+### [BŁĄD] `custom_X` / `X` — ta sama rzecz uczona sprzecznie (naprawione)
+
+Wskazałeś `oznaczenie_przewodu` / `custom_oznaczenie_przewodu`. To wzorzec, nie pojedynczy przypadek:
+
+| klasa | inst. | rola | w YOLO |
+|---|---:|---|---|
+| oznaczenie_przewodu | 214 | contextual | nie |
+| custom_oznaczenie_przewodu | 63 | atomic | **tak** |
+| urzadzenie | 607 | contextual | nie |
+| custom_urzadzenie | 17 | atomic | **tak** |
+| terminale_urzadzenia | 71 | contextual | nie |
+| custom_terminale_urzadzenia | 16 | atomic | **tak** |
+
+Ta sama rzecz była jednocześnie klasą treningową i tłem. YOLO traktuje nieoznakowany obszar
+jako tło, więc 607 `urzadzenie` uczyło „to tło" przeciw 17 `custom_urzadzenie` uczącym „to klasa".
+Częściowo cofało to Twoją decyzję z 026.
+
+**Źródło:** `backend/type_picker.py:56` tworzy `custom_<nazwa>`, gdy typ wpisany z ręki zamiast
+wybrany z palety. Wszystkie 96 bboxów z jednej sesji: **p029, p030, p033**.
+
+**Naprawione** aliasami w `class-aliases.yaml` (Twoja decyzja: kierunek contextual).
+Klas YOLO 25 → 22, instancji 2308 → 2212. `relay: przekaznik` był już zrobiony w 027.
+
+### [BŁĄD] 10 z 22 klas ma ZERO instancji w val — miara sukcesu Części C jest niewykonalna
+
+Wskazałeś, że `styk_stycznika` to same podobne styki z p039. Sprawdziłem — to nie duplikaty
+(36 osobnych bboxów, siatka 12×3, rozmiary 95–113 × 34–49 px). Ale wszystkie 36 są z **jednej
+strony**, a to prowadzi do gorszego odkrycia. Nowy `scripts/class_coverage.py`:
+
+| klasa | inst. | stron | w val |
+|---|---:|---:|---:|
+| styk_stycznika | 36 | **1** (p039) | **0** |
+| polaczenie_przewodow | 6 | **1** (p015) | **0** |
+| styki_nc | 5 | **1** (p011) | **0** |
+| uziemienie | 9 | 2 | **0** |
+| cewka_zaworow | 21 | 4 | **0** |
+| ekranowanie_kabla | 5 | 5 | **0** |
+| gniazdo_rj_45 | 35 | 5 | **0** |
+| terminal_sterownika_safety | 17 | 5 | **0** |
+| lampka | 26 | 9 | **0** |
+| przycisk | 49 | 16 | **0** |
+
+**7 z 10 klas, które miała objąć augmentacja, ma zero instancji w val.** YOLO poda dla nich
+0 albo NaN niezależnie od jakości modelu. Mierzalne są 3 klasy, na 3–6 instancjach — przy tej
+próbie jeden bbox przesuwa mAP o kilkanaście punktów, to szum.
+
+**Wniosek: wdrożenie augmentacji przed naprawą `val-pages.yaml` byłoby zmianą w ciemno.**
+Zaktualizowałem §5.3 i §7 dokumentu projektowego — naprawa val jest teraz punktem 1, przed
+decyzją o wariancie 1T. Plus `p035` jest w val bez `gt/*.json` (ten sam wzorzec co p040).
+
+**[RYZYKO] `styk_stycznika` ma 36 instancji, więc po liczniku wygląda zdrowo** i wypada
+z zakresu 5–30, czyli augmentacja by go nie objęła. Ale to jeden kontekst wizualny powielony
+36 razy. Licznik instancji jest tu mylącą miarą — dlatego `class_coverage.py` pokazuje rozkład
+po stronach. Te 3 klasy jednostronne wymagają doznaczenia, nie augmentacji.
+
+### Zmiany
+
+| Plik | Zmiana |
+|---|---|
+| `config/class-aliases.yaml` | 3 aliasy `custom_X` → `X` z uzasadnieniem |
+| `scripts/class_coverage.py` | nowy — pokrycie klas po stronach + audyt val |
+| `backend/tests/test_class_map.py` | test scalenia `custom_`; poprawiony test diakrytyków |
+| `sync/analysis/028-augmentacja-projekt.md` | liczby po scaleniu + §5.3 niewykonalność miary |
+
+**pytest: 524 passed.** Wpływ na Część C mały: sufit 76,7 % → 76,5 %, zakres 5–30 z 12 → 10 klas.
+
+---
+
 ## 2026-07-19 [Claude] — 028 DONE: rozbieżność 163/160 znaleziona, symetria symboli, projekt augmentacji
 
 ### Część A — [BŁĄD] potwierdzony, przyczyna dokładnie ta z hipotezy

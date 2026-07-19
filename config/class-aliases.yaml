@@ -6,6 +6,20 @@
 # — do rozstrzygniecia przez Filipa po visualize_class_crops.py; wpisy ponizej zakomentowane.
 
 aliases:
+  # Artefakt labelera (028): backend/type_picker.py:56 tworzy `custom_<nazwa>`,
+  # gdy typ zostal wpisany z reki zamiast wybrany z palety. To NIE jest osobny
+  # symbol — te same obiekty co klasa bazowa. Wszystkie 96 bboxow pochodzi
+  # z jednej sesji oznaczania: p029, p030, p033.
+  #
+  # [BŁĄD] ktory to naprawia: klasa bazowa jest `contextual` (poza YOLO), a wariant
+  # `custom_` byl `atomic` (w YOLO). Ta sama rzecz byla jednoczesnie klasa i tlem —
+  # 607 nieoznakowanych `urzadzenie` uczylo siec "to tlo" przeciw 17 `custom_urzadzenie`
+  # uczacym "to klasa". Po scaleniu warianty dziedzicza role contextual i wypadaja
+  # z treningu (decyzja Filipa 2026-07-19; spojne z 026, gdzie `urzadzenie` -> contextual).
+  custom_oznaczenie_przewodu: oznaczenie_przewodu
+  custom_urzadzenie: urzadzenie
+  custom_terminale_urzadzenia: terminale_urzadzenia
+
   # EN/PL — potwierdzone duplikaty (026/027)
   terminal_block: zlaczka
   relay: przekaznik

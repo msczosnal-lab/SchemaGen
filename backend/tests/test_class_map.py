@@ -165,12 +165,28 @@ def test_bbox_class_prefers_type_over_tag():
 
 def test_bbox_class_ascii_merges_diacritics():
     # Niespojne diakrytyki w GT (custom_urządzenie vs custom_urzadzenie) ->
-    # ta sama klasa po slugify/ascii-fold.
-    assert bbox_class("custom_urządzenie", "") == "custom_urzadzenie"
-    assert bbox_class("custom_urzadzenie", "") == "custom_urzadzenie"
+    # ta sama klasa po slugify/ascii-fold. Od 028 obie wersje ida dalej przez
+    # alias custom_urzadzenie -> urzadzenie, ale fold ma dzialac tak czy tak.
+    assert bbox_class("custom_urządzenie", "") == bbox_class("custom_urzadzenie", "")
     assert bbox_class("terminale_urządzenia", "") == bbox_class(
         "terminale_urzadzenia", ""
     )
+
+
+def test_bbox_class_custom_prefix_scala_sie_z_klasa_bazowa():
+    """Prompt 028: `custom_X` to artefakt labelera (type_picker), nie osobny symbol.
+
+    Klasa bazowa jest `contextual` (poza YOLO) — wariant `custom_` musi
+    dziedziczyc te role, inaczej ta sama rzecz jest jednoczesnie klasa
+    treningowa i tlem.
+    """
+    for custom, base in (
+        ("custom_urzadzenie", "urzadzenie"),
+        ("custom_oznaczenie_przewodu", "oznaczenie_przewodu"),
+        ("custom_terminale_urzadzenia", "terminale_urzadzenia"),
+    ):
+        assert bbox_class(custom, "") == base
+        assert not is_yolo_exportable(base), f"{base} musi zostac contextual"
 
 
 def test_bbox_class_v1_fallback_to_tag():
