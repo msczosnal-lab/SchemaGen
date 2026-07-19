@@ -5,4 +5,4 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] [BLAD] apply_reassign czytal cache SQLite zamiast gt/*.json - cache nadpisywal zrodlo prawdy; + ostrzezenia o rozjezdzie zrodel i duzej utracie symboli
+[Claude] gt_restore_check.py: audyt i przywracanie stron GT ze strata symboli po nadpisaniu przez cache
