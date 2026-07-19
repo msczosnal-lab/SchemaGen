@@ -1,6 +1,1 @@
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
+[Claude] 025 Faza A+B zamknieta: GT 6->199 stron w gicie, F1 udowodnione, bbox_out_of_frame = klasa urzadzenie (P3)

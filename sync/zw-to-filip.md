@@ -1,3 +1,43 @@
+## 2026-07-19 [Claude] — 025 FAZA A+B ZAMKNIĘTA. F0 wykonane, F1 udowodnione
+
+| Metryka | Rano | Teraz |
+|---|---|---|
+| Plików `gt/*.json` w gicie | **6** | **199** |
+| Stron GT tylko w niewersjonowanej bazie | **197** | **0** |
+| Kopie z wyścigu F1 w danych | 4 | 0 |
+| `p040` | „zaginiony" | odzyskany, 19 sym./17 linii |
+
+Cache = 199 = `gt/`. Audyt i `prune_cache_orphans` zgodne.
+
+### Dwie rzeczy, w których się myliłem — obie naprawione
+
+**1. `audit_gt` zmyślał 4 sieroty.** Czytał bazę przez `immutable=1`, co każe SQLite zignorować
+dziennik i WAL — pokazywał migawkę sprzed checkpointu. Dowód:
+`po DELETE w bazie WAL: mode=ro -> ['a','b'], immutable=1 -> "no such table"`.
+Sięgnąłem po `immutable`, bo na klonie ZW `mode=ro` wywalał się na hot journalu — wygoda kosztem
+poprawności, w narzędziu, którego jedynym zadaniem jest mówić prawdę o stanie danych.
+Poprawione: `mode=ro` domyślnie, `immutable` awaryjnie i z jawnym `db_read_stale`.
+
+**2. `bbox_out_of_frame` to nie artefakt migracji.** Sprawdziłem wszystkie osiem — **każdy to klasa
+`urzadzenie`**, duży bbox kontenerowy przeciągnięty ręcznie poza krawędź (p047 wystaje w dół o 491 px,
+p065 o 7 px w prawo). Ręczna robota, nie migracja. `urzadzenie` siedzi w
+`yolo_runtime_exclude_classes`, więc do treningu nie wchodzi — **P3, nie blokuje niczego**.
+Warunek na przyszłość: gdyby `urzadzenie` weszło do YOLO, eksport musi przycinać bbox do kadru.
+
+### Do zrobienia (kolejność)
+
+1. **p040 w labelerze** — jedyna odzyskana strona z liniami, warto zobaczyć, czy to Twoja robota
+2. `python scripts/class_report.py --min-count 5` → `python -m train.tiled_export …`
+   — **najciekawsze pytanie**: 199 stron zamiast 6, czy 026 się odblokował
+3. przeliczyć val-pages mean (p025, p040, p045, p050 mają teraz GT)
+4. **Faza C** — F1 (wyścig) + F3 (cache przed plikiem, sieroty). Lista 10 punktów w raporcie.
+   F1 ma teraz dowód z timestampami, nie hipotezę z lektury kodu.
+
+Do rozważenia przy okazji: `config/gt-eval.yaml` nie istnieje mimo notatki w `KOLEJNE-ZADANIE.md`,
+więc p031 (SCORE 0.00) nadal zaniża średnią 21.50 o jakieś 3.6 pkt.
+
+---
+
 ## 2026-07-19 [Claude] — 025: promote wykonany (199 plików w gt/). Uwagi do commita
 
 ### [RYZYKO] Usuń `gt/_rescue_2026-07-19/` PRZED commitem

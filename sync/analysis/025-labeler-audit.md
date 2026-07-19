@@ -168,6 +168,51 @@ i zaniża 21.50 o ok. 3.6 pkt.** Warto zamknąć przy okazji, ale nie wstrzymuje
 
 ---
 
+### F0e — stan końcowy F0 (2026-07-19, zamknięte)
+
+| Metryka | Przed | Po |
+|---|---|---|
+| Plików `gt/*.json` (źródło prawdy, w gicie) | **6** | **199** |
+| Stron GT wyłącznie w niewersjonowanej bazie | **197** | **0** |
+| Kopie z wyścigu F1 w danych | 4 | 0 (odsiane) |
+| `p040` | „zaginiony" | odzyskany, 19 sym./17 linii |
+
+Cache SQLite zgodny ze źródłem prawdy (199 = 199), zweryfikowane `tools/prune_cache_orphans.py`.
+
+**[BŁĄD w moim narzędziu — naprawiony]** `audit_gt` przez pewien czas raportował 4 nieistniejące
+sieroty. Przyczyna: czytał bazę przez `immutable=1`, co każe SQLite **zignorować dziennik i WAL** —
+narzędzie pokazywało migawkę sprzed checkpointu. Dowód:
+
+```
+po DELETE w bazie WAL:   mode=ro -> ['a','b']   immutable=1 -> "no such table"
+```
+
+Naprawione: `mode=ro` w pierwszej kolejności, `immutable=1` tylko awaryjnie i z jawnym
+znaleziskiem `db_read_stale`. Wniosek na przyszłość: **narzędzie diagnostyczne, które dla wygody
+omija mechanizmy spójności bazy, produkuje fałszywe alarmy w dokładnie tym obszarze, który ma badać.**
+
+### F0f — `bbox_out_of_frame`: nie jest błędem migracji
+
+Osiem stron z jednym bboxem poza kadrem. Sprawdzone — **wszystkie osiem to klasa `urzadzenie`**,
+duże bboxy kontenerowe (1500–3500 px) przeciągnięte ręcznie poza krawędź:
+
+| Strona | bbox | przekroczenie |
+|---|---|---|
+| p022 | `[-2, 3151, 1647, 4351]` | x1 = −2 |
+| p047 | `[0, 3261, 2717, 5169]` | y2 o 491 |
+| p057 | `[1427, 3356, 4825, 5099]` | y2 o 421 |
+| p058 | `[1394, 3357, 4944, 5150]` | y2 o 472 |
+| p065 | `[4248, 2427, 6624, 4424]` | x2 o 7 |
+| p149 / p157 | `[5099, ~725, 6638, 2048]` | x2 o 21 |
+| p177 | `[370, 2731, 3394, 4892]` | y2 o 214 |
+
+Wcześniej opisałem to jako „systematyczny artefakt migracji v1" — **nietrafnie**. To ręczne
+zaznaczenia obszaru urządzenia z przeciągnięciem poza brzeg. `urzadzenie` jest w
+`yolo_runtime_exclude_classes`, więc do treningu i tak nie wchodzi. **Priorytet: P3.**
+Jedyny warunek: gdyby `urzadzenie` kiedyś weszło do YOLO, eksport musi przycinać bboxy do kadru.
+
+---
+
 ## F1 [BŁĄD, KRYTYCZNY] — wyścig `selectPage` zapisuje graf pod cudzym page_id
 
 **Uwaga:** F1 jest niezależny od F0 i nadal aktualny — ale kolejność naprawy to F0 → F1.
