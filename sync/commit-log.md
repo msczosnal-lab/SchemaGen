@@ -258,3 +258,4 @@
 | 2026-07-19 14:49 | Claude | 570f377a | [Claude] 025: 197 stron GT tylko w cache SQLite (w tym p040) - audit_gt rozdziela sieroty + tools/rescue_gt_from_cache.py |
 | 2026-07-19 14:50 | Claude | bc93d084 | [Claude] 025: 197 stron GT tylko w cache SQLite (w tym p040) - audit_gt rozdziela sieroty + tools/rescue_gt_from_cache.py |
 | 2026-07-19 14:50 | Claude | c38493cd | [Claude] 025: 197 stron GT tylko w cache SQLite (w tym p040) - audit_gt rozdziela sieroty + tools/rescue_gt_from_cache.py |
+| 2026-07-19 14:58 | Claude | 5aa9e222 | [Claude] 025: analiza 197 sierot (196 bez linii = bboxy v1), podejrzenie F1 na p034-p038 + tools/gt_dup_scan.py |
