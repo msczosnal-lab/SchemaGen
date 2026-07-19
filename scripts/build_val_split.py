@@ -80,6 +80,9 @@ def main() -> int:
     ap.add_argument("--frac", type=float, default=0.12,
                     help="docelowy udzial stron val (domyslnie 0.12)")
     ap.add_argument("--min-count", type=int, default=5)
+    ap.add_argument("--min-val", type=int, default=3,
+                    help="minimum instancji kazdej klasy w val (domyslnie 3); "
+                         "ponizej tego mAP per klasa jest szumem")
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--out", type=Path, default=VAL_PAGES)
     args = ap.parse_args()
@@ -108,12 +111,63 @@ def main() -> int:
 
     chosen = greedy_cover(candidates, coverable)
 
-    # dopelnienie do zadanego udzialu — najpierw strony najubozsze, zeby nie
-    # zabierac treningowi duzych stron
-    target = max(len(chosen), round(len(pages) * args.frac))
-    rest = sorted((pid for pid in pages if pid not in chosen and pid not in sole_pages),
-                  key=lambda p: sum(pages[p].values()))
-    chosen += rest[: max(0, target - len(chosen))]
+    # Dopelnienie: nie "najubozszymi stronami", tylko takimi, ktore najlepiej
+    # domykaja NIEDOBOR per klasa. Samo pokrycie daje czesto 1-2 instancje na klase,
+    # a przy takiej probie mAP jest szumem — jedno trafienie to kilkadziesiat punktow.
+    want = {
+        c: max(args.min_val, round(dist[c] * args.frac))
+        for c in class_map if c not in single
+    }
+    target_pages = max(len(chosen), round(len(pages) * args.frac))
+    avail = {p: c for p, c in pages.items() if p not in set(chosen) and p not in sole_pages}
+
+    total = Counter()
+    for cnt in pages.values():
+        total.update(cnt)
+
+    def deficit(sel: set[str]) -> dict[str, int]:
+        have: Counter = Counter()
+        for p in sel:
+            have.update(pages[p])
+        return {c: max(0, want[c] - have[c]) for c in want}
+
+    def would_starve(sel: set[str], pid: str) -> bool:
+        """Czy dolozenie strony zostawi jakas klase z zerem instancji w TRAIN?
+
+        Klasa bez danych treningowych jest gorsza niz klasa bez pomiaru — model
+        nie ma z czego sie jej nauczyc, wiec mierzenie jej traci sens.
+        """
+        have: Counter = Counter()
+        for p in sel | {pid}:
+            have.update(pages[p])
+        return any(total[c] - have[c] <= 0 for c in pages[pid] if c not in single)
+
+    sel = set(chosen)
+    while avail and (len(sel) < target_pages or any(deficit(sel).values())):
+        d = deficit(sel)
+        if not any(d.values()) and len(sel) >= target_pages:
+            break
+        # ile realnego niedoboru domyka stronа, wazone: male klasy licza sie bardziej
+        best, best_score = None, 0.0
+        for pid, cnt in avail.items():
+            if would_starve(sel, pid):
+                continue
+            score = sum(min(d[c], n) / max(1, want[c]) for c, n in cnt.items() if c in d)
+            if score > best_score:
+                best, best_score = pid, score
+        if best is None:
+            if len(sel) >= target_pages:
+                break
+            safe = [p for p in avail if not would_starve(sel, p)]
+            if not safe:
+                break
+            best = min(safe, key=lambda p: sum(pages[p].values()))
+        sel.add(best)
+        del avail[best]
+        if len(sel) >= target_pages and not any(deficit(sel).values()):
+            break
+
+    chosen = sorted(sel)
     chosen_set = set(chosen)
 
     val_cnt: Counter = Counter()
@@ -139,6 +193,8 @@ def main() -> int:
             zero_val.append(c)
         elif t == 0:
             note = "[BŁĄD] brak w train"
+        elif v < args.min_val:
+            note = f"tylko {v} w val — mAP na granicy szumu"
         print(f"{c:<32}{n:>7}{t:>7}{v:>6}  {note}")
 
     if single:
