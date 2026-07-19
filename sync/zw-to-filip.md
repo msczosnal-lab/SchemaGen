@@ -1,3 +1,56 @@
+## 2026-07-19 [Claude] — 025: co siedzi w tych 197 stronach. NIE puszczaj `--promote`
+
+**196 z 197 ma `0 linii`.** Jedyny wyjątek to `p040` (19 sym./17 linii). To nie jest ręczne GT v2 —
+praca w labelerze v2 zawsze rodzi linie. To bboxy. Znaczniki czasu dzielą się na trzy grupy:
+
+| Grupa | `updated_at` | Strony | Co to jest |
+|---|---|---|---|
+| **A** | `2026-07-11T16:33:51.222736` — **ten sam co do mikrosekundy** dla ~180 stron | p020–p199, cały `25_A_229_PL5`, cały `SchematWRT01` | Jedna operacja wsadowa, nie zapisy z labelera. Najpewniej `migrate_label_v1_to_graph.py` albo `recover_db.py` — konwersja adnotacji v1 |
+| **B** | `2026-07-11T19:12` | `p027` (90 sym.) | Osobny zapis, strona referencyjna. Wartościowa |
+| **C** | `2026-07-19T11:11:14`–`11:11:48` | p032, p035–p042 | **Dzisiaj. 9 stron w 34 sekundy** |
+
+### [BŁĄD] Grupa C to prawdopodobnie F1 złapane na gorącym uczynku
+
+p035, p036, p037, p038 mają **dokładnie po 108 symboli**. `gt/…_p034.json` ma **też dokładnie 108
+symboli i 0 linii**. Pięć kolejnych stron schematu nie ma przypadkiem tej samej liczby symboli.
+
+To wygląda na zawartość p034 rozlaną na p035–p038 przy przewijaniu — czyli dokładnie mechanizm F1,
+w oknie 34 sekund, z odstępami 1–5 s (tempo przewijania, nie oznaczania). Jeśli tak, **część grupy C
+nie jest danymi do odzyskania, tylko śmieciem wyprodukowanym przez błąd** — `--promote` wpuściłby go
+do `gt/` i zepsuł GT zamiast je naprawić.
+
+**Rozstrzygnij to jedną komendą** (`tools/gt_dup_scan.py`, nowy, read-only — liczy SHA1 z posortowanych
+bboxów i pokazuje strony o identycznej zawartości; skanuje `gt/`, cache i `gt/_rescue_*` naraz):
+
+```powershell
+python -m tools.gt_dup_scan
+```
+
+Jeśli p034–p038 wyjdą w jednej grupie — mamy empiryczny dowód F1 i listę stron do wyrzucenia.
+**Czy p040 pojawi się w jakiejś grupie, jest osobno ważne** — 11:11:41 wypada w środku tej serii,
+więc może być zarówno prawdziwą pracą, jak i ofiarą. Zanim cokolwiek z nim zrobisz, otwórz go w labelerze.
+
+### To jest też najpewniej przyczyna porażki retrain z 026
+
+`026` zamknąłeś ustaleniem „480 bbox / 20 klas, train = 1 strona". A w cache leżą bboxy z ~190 stron,
+których eksport **nie widzi**: po 023 `tiled_export` czyta `load_all_training_records()` → GT v2 →
+`gt/*.json` → **6 plików**. Wiersze `schematic_graph` nie idą tą ścieżką, a `dataset_export` łączy v1
+z tabeli `annotations`, nie `schematic_graph`.
+
+Czyli migracja 030 nie tylko wyprowadziła GT poza źródło prawdy — **wycięła ~190 stron z datasetu
+treningowego**. „Tor modelu zamrożony na `symbols_tiled_v1-2`" może być odmrażalny od razu po
+odzyskaniu grupy A. Warto to sprawdzić przed kolejnym podejściem do treningu.
+
+### Kolejność
+
+1. `python -m tools.gt_dup_scan` → przyślij wynik
+2. p040 obejrzeć w labelerze (jedyna strona z liniami)
+3. Grupa A → `--promote` **po** odsianiu duplikatów; to materiał treningowy, nie GT v2
+4. Grupa C → do wyrzucenia w części potwierdzonej jako duplikat
+5. Dopiero potem F1 (naprawa wyścigu) i F3
+
+---
+
 ## 2026-07-19 [Claude] — 025 AKTUALIZACJA: 197 stron GT tylko w bazie, p040 się znalazł
 
 **Twój wynik audytu zmienia priorytety.** 197 × CRIT to nie hałas — to strony w cache `schematic_graph`,

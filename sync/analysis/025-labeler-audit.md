@@ -41,10 +41,50 @@ bezwarunkowo, więc albo została puszczona na bazie mającej wtedy tylko 6 wier
 później przez `recover_db.py`), albo nie została puszczona ponownie po odzyskaniu bazy.
 `gt/_backup_2026-07-12/` też ma tylko 6 plików — backup powstał już po stracie.
 
-**Czego jeszcze nie wiem:** ile z tych 197 stron to praca ręczna, a ile automatyczne drafty z pętli
-(`tools/auto_graph_loop.py`, `carve_all.py`, `sprint_loop.py`). Rozstrzyga to jedno uruchomienie —
-zaktualizowany `audit_gt.py` rozdziela teraz sieroty **z danymi** (CRIT) od **pustych** (WARN)
-i podaje liczbę symboli, linii oraz `updated_at`.
+### F0b — co dokładnie siedzi w tych 197 stronach (wynik `rescue --dry-run`)
+
+**196 z 197 stron ma `0 linii`.** Jedyny wyjątek to `p040` (19 sym./17 linii). To rozstrzyga charakter
+danych: **to nie jest ręczne GT v2**, bo ręczna praca w labelerze v2 zawsze rodzi linie. To bboxy.
+
+Znaczniki czasu układają się w trzy rozłączne grupy:
+
+| Grupa | `updated_at` | Strony | Zawartość | Interpretacja |
+|---|---|---|---|---|
+| **A** | `2026-07-11T16:33:51.222736` — **identyczny co do mikrosekundy** dla ~180 stron | p020–p199, cały `25_A_229_PL5`, cały `SchematWRT01` | 1–163 sym., **0 linii** | Jedna operacja wsadowa, nie zapisy z labelera. Najpewniej `migrate_label_v1_to_graph.py` albo `recover_db.py` — konwersja starych adnotacji v1 |
+| **B** | `2026-07-11T19:12:00` | `p027` | 90 sym., 0 linii | Osobny zapis. p027 to strona referencyjna („strzałki 7/8 + terminale — komplet", `KOLEJNE-ZADANIE.md`). **Wartościowa** |
+| **C** | `2026-07-19T11:11:14`–`11:11:48` | p032, p035–p042 | patrz niżej | **Dzisiaj, 9 stron w 34 sekundy** |
+
+### [BŁĄD] Grupa C wygląda na F1 złapane na gorącym uczynku
+
+W grupie C cztery kolejne strony mają **dokładnie po 108 symboli**: p035, p036, p037, p038.
+`gt/…_p034.json` — strona zapisana wcześniej — ma **też dokładnie 108 symboli i 0 linii**.
+
+Pięć kolejnych stron schematu nie ma przypadkiem tej samej liczby symboli. To wygląda na zawartość
+p034 rozlaną na p035–p038 przy przewijaniu stron — czyli **dokładnie mechanizm F1**, w oknie 34 sekund,
+z odstępami 1–5 s między zapisami (tempo przewijania, nie tempo oznaczania).
+
+Jeśli to się potwierdzi, część grupy C **nie jest danymi do odzyskania, tylko śmieciem wyprodukowanym
+przez błąd** — i wpuszczenie jej do `gt/` zepsułoby GT zamiast je naprawić.
+
+**Rozstrzyga to `tools/gt_dup_scan.py`** (nowy, read-only): liczy podpis SHA1 z posortowanej listy
+bboxów każdej strony i pokazuje grupy stron o **identycznej zawartości**. Skanuje `gt/`, cache SQLite
+i katalogi `gt/_rescue_*` naraz.
+
+```powershell
+python -m tools.gt_dup_scan
+```
+
+### F0c — to jest też najpewniej przyczyna porażki retrain z prompta 026
+
+`026-retrain-fail-diag` zamknięto ustaleniem: **„480 bbox / 20 klas, train = 1 strona"**. Tymczasem
+w cache leżą bboxy z ~190 stron, których eksport treningowy **nie widzi**: po 023 `tiled_export`
+czyta `load_all_training_records()` → GT v2 → `gt/*.json` → **6 plików**. Wiersze w `schematic_graph`
+nie są przez tę ścieżkę widziane, a `dataset_export` łączy v1 z tabeli `annotations` (nie `schematic_graph`).
+
+Czyli migracja 030 nie tylko wyprowadziła GT poza źródło prawdy — **wycięła też ~190 stron
+z datasetu treningowego**. „Tor modelu zamrożony na `symbols_tiled_v1-2`" może być odmrażalny
+natychmiast po odzyskaniu grupy A. To jest osobny, duży zysk i warto go zweryfikować przed
+kolejnym podejściem do treningu.
 
 ### To jest odpowiedź na p040
 
@@ -52,17 +92,20 @@ i podaje liczbę symboli, linii oraz `updated_at`.
 został oznaczony, zapis poszedł do bazy, do `gt/` nigdy nie trafił. Nie zginął. Leży w pliku,
 który nie jest w gicie.
 
-**Działanie natychmiastowe (przed czymkolwiek innym):**
+**Działanie natychmiastowe (zrobione 2026-07-19):**
 
 ```powershell
 copy data\schemagen.db data\schemagen.db.bak-025
 python -m tools.audit_gt --md sync\analysis\025-gt-integrity.md
-python -m tools.rescue_gt_from_cache --dry-run
+python -m tools.rescue_gt_from_cache --dry-run    # 197 stron, gt/_rescue_2026-07-19/
 ```
 
-`tools/rescue_gt_from_cache.py` (nowy) domyślnie zrzuca sieroty do `gt/_rescue_<data>/` — podkatalogu,
+`tools/rescue_gt_from_cache.py` domyślnie zrzuca sieroty do `gt/_rescue_<data>/` — podkatalogu,
 którego aplikacja nie czyta — żeby nic nie wjechało do źródła prawdy bez przejrzenia. `--promote`
 przenosi do `gt/` i **nigdy nie nadpisuje istniejących plików**.
+
+**[RYZYKO] Nie puszczać `--promote` na całości** — patrz F0b poniżej. Część grupy C to prawdopodobnie
+produkt błędu F1, nie dane.
 
 **[RYZYKO] Dopóki to nie jest zrobione, nie uruchamiać:** `scripts/apply_reassign.py --apply`
 (już oznaczony jako [BŁĄD] w `KOLEJNE-ZADANIE.md`), `tools/recover_db.py`, ani niczego, co woła

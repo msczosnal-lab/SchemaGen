@@ -1,7 +1,1 @@
-[Claude] 025: 197 stron GT tylko w cache SQLite (w tym p040) - audit_gt rozdziela sieroty + tools/rescue_gt_from_cache.py
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
+[Claude] 025: analiza 197 sierot (196 bez linii = bboxy v1), podejrzenie F1 na p034-p038 + tools/gt_dup_scan.py
