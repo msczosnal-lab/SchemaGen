@@ -291,3 +291,4 @@
 | 2026-07-19 17:21 | Claude | e05a4760 | [Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa |
 | 2026-07-19 17:33 | Claude | 471890cb | [Claude] 028: element_review v2 - bbox_class + jawny raport brakow, symbol-symmetry.yaml + UI, projekt augmentacji |
 | 2026-07-19 17:33 | Claude | 3ccd1d60 | [Claude] 028: element_review v2 - bbox_class + jawny raport brakow, symbol-symmetry.yaml + UI, projekt augmentacji |
+| 2026-07-19 17:33 | Claude | a73d8258 | [Claude] 028: element_review v2 - bbox_class + jawny raport brakow, symbol-symmetry.yaml + UI, projekt augmentacji |
