@@ -1,23 +1,22 @@
-# AUTO-GENEROWANE przez train/dataset_export.py (z pola `tag` adnotacji).
+# AUTO-GENEROWANE przez train/dataset_export.py (klasa = `type`, GT v2).
 # Nie edytuj recznie — zostanie nadpisane przy kolejnym eksporcie.
 classes:
 - zlaczka
 - mostek
+- strzalka_potencjalu_wejsciowa
 - strzalka_potencjalu_wyjsciowa
-- '1'
-- '10'
-- '11'
-- '12'
-- '2'
-- '3'
-- '4'
-- '5'
-- '6'
-- '7'
-- '8'
-- '9'
-- bn
-- bu
-- saf1
-- saf2
-- ye
+- cewka_zaworow
+- ekranowanie_kabla
+- gniazdo_rj_45
+- lampka
+- polaczenie_przewodow
+- przekaznik
+- przycisk
+- przycisk_awaryjny
+- styk_nc
+- styki
+- styki_przekaznika
+- terminal_plc
+- terminal_sterownika_safety
+- uziemienie
+- wylacznik_nadpradowy

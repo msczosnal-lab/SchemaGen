@@ -1,5 +1,5 @@
 {
-  "active": "symbols_tiled_v1-3",
+  "active": "symbols_tiled_v1-4",
   "versions": {
     "symbols_v1": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_v1.onnx",
@@ -41,8 +41,12 @@
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_tiled_v1-2.onnx",
       "metrics": {}
     },
-    "symbols_tiled_v1-3": {
+    "symbols_tiled_v1-4": {
       "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_tiled_v1-3.onnx",
+      "metrics": {}
+    },
+    "symbols_tiled_v1-4": {
+      "onnx_path": "C:\\Users\\Filip\\Desktop\\Cursor\\SchemaGen\\data\\models\\symbols_tiled_v1-4.onnx",
       "metrics": {}
     }
   }

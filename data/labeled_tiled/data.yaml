@@ -1,24 +1,23 @@
 names:
   0: zlaczka
   1: mostek
-  2: strzalka_potencjalu_wyjsciowa
-  3: '1'
-  4: '10'
-  5: '11'
-  6: '12'
-  7: '2'
-  8: '3'
-  9: '4'
-  10: '5'
-  11: '6'
-  12: '7'
-  13: '8'
-  14: '9'
-  15: bn
-  16: bu
-  17: saf1
-  18: saf2
-  19: ye
+  2: strzalka_potencjalu_wejsciowa
+  3: strzalka_potencjalu_wyjsciowa
+  4: cewka_zaworow
+  5: ekranowanie_kabla
+  6: gniazdo_rj_45
+  7: lampka
+  8: polaczenie_przewodow
+  9: przekaznik
+  10: przycisk
+  11: przycisk_awaryjny
+  12: styk_nc
+  13: styki
+  14: styki_przekaznika
+  15: terminal_plc
+  16: terminal_sterownika_safety
+  17: uziemienie
+  18: wylacznik_nadpradowy
 path: C:\Users\Filip\Desktop\Cursor\SchemaGen\data\labeled_tiled
 train: images/train
 val: images/val
