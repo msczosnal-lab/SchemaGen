@@ -19,7 +19,11 @@ przy oknie kafla 1536, więc w wielu kaflach zajmują niemal całe okno i uczą 
 
 Poprawka (decyzja Filipa): `urzadzenie` → `contextual` w `config/train-classes.yaml`.
 Zmiana wystarczy w configu — `class_distribution` i `resolve_class_id` obie sprawdzają
-`load_yolo_exclude_classes()`, więc kod nietknięty. **Dataset: 3639 → 3032 bbox, 26 → 25 klas.**
+`load_yolo_exclude_classes()`, więc kod nietknięty.
+
+**Zweryfikowane po zmianie:** klasy YOLO 26 → **25**, instancji w treningu 2915 → **2308**,
+kontekstowe 656 → **1263**. (W pierwszej wersji tego wpisu napisałem „3639 → 3032 bbox" —
+pomyliłem bbox ogółem z instancjami w treningu.)
 
 ### Blokada 027 z `KOLEJNE-ZADANIE.md` jest NIEAKTUALNA
 
