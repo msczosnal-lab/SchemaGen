@@ -1,3 +1,76 @@
+## 2026-07-19 [Claude] — symetria zastosowana (--force), [BŁĄD] mój w UI naprawiony
+
+### [BŁĄD] mój — podgląd wymagał zgody, zanim go pokazał
+
+W pierwszej wersji panelu symetrii miniatura po transformacji pojawiała się **dopiero po
+zaznaczeniu checkboxa**. Żeby zobaczyć, jak wygląda lustro, trzeba było najpierw na nie zezwolić.
+W konfiguracji fail-safe to jest odwrotnie, niż powinno — zgoda ma być skutkiem obejrzenia,
+nie warunkiem. To najprawdopodobniej dlatego strzałki potencjału i `mostek` wyszły z pełną
+symetrią wbrew własnym notatkom w `symmetry.json`.
+
+Naprawione:
+
+- podglądy **wszystkich 5 transformacji zawsze widoczne**; zaznaczenie zmienia tylko
+  wyróżnienie (ramka + etykieta `DOZWOLONE` / `niedozwolone`),
+- panel klasy z udokumentowanym zakazem: czerwone tło + ostrzeżenie + `confirm()` przy kliknięciu,
+- `apply_symmetry.py`: nowy bezpiecznik — zgoda wbrew JAWNEMU zakazowi z `note`
+  **wstrzymuje zapis**, wymaga `--force`. UI da się ominąć, plik nie.
+
+### Symetria zastosowana Twoją decyzją (`--force`)
+
+12 klas ze zgodą. Strzałki potencjału zapisane wg Twojej decyzji, z adnotacją w `note`,
+żeby przyczyna była do znalezienia, gdyby coś poszło nie tak po retrainie.
+
+**`mostek` — cofnięty do zakazu (Twoja decyzja).** `maybe_expand_mostek` przepisuje
+`mostek` → `mostek_r0…m270` (8 wariantów D4) **przed** eksportem, więc obroty są już
+obsłużone, a w treningu klasa `mostek` w ogóle nie występuje. Wpis symetrii byłby albo
+no-opem, albo źródłem błędnych etykiet. Zostaje `false` z uzasadnieniem w `note`.
+
+**[RYZYKO] strzałki potencjału.** Jeśli po retrainie mAP obu strzałek spadnie, to jest
+pierwszy podejrzany — jest to zapisane w `note`.
+
+Wpływ na Część C: zgodę ma 9 z 22 klas, wariant 1 kwalifikuje **569/1044 kafli = 54,5 %**.
+Ale celowanych (z klasą 5–30 inst.) tylko **33 ze 140**, bo większość klas z tego zakresu
+zgody nie dostała — `lampka`, `cewka_zaworow`, `uziemienie` i `terminal_sterownika_safety`
+zostały na `false` albo prawie.
+
+### Test regresji zmieniony, nie usunięty
+
+`test_strzalki_potencjalu_maja_zakaz_w_repo` kodował poprzednią decyzję i po `--force` padał.
+Zamieniłem na `test_strzalki_potencjalu_maja_swiadoma_decyzje_w_repo`: nie narzuca kierunku,
+ale wymaga, żeby ta para **zawsze miała jawny wpis z uzasadnieniem w `note`**. Milcząca
+decyzja o klasach różniących się wyłącznie zwrotem jest odwracalna tylko przez retrain.
+
+### `reassignments.json` — uruchom u siebie
+
+Nie stosowałem go z tej sesji: plik jest w Twoim `Downloads`, a przepisywanie 242 pozycji
+przez czat groziłoby przekłamaniem w liście `__DELETE__`. `apply_reassign.py` sam szuka
+w `~/Downloads`.
+
+```powershell
+Start-GitSync.cmd Claude          # najpierw pull — Twoje pliki powstały przed scaleniem custom_*
+python scripts/apply_reassign.py            # dry-run
+python scripts/apply_reassign.py --apply
+```
+
+Szacowany wpływ (242 zmiany): instancji treningowych **2212 → 2017**, klas nadal 22.
+
+| klasa | przed | po | zmiana |
+|---|---:|---:|---:|
+| terminal_przylaczeniowy | 534 | 448 | −86 |
+| zlaczka | 536 | 490 | −46 |
+| gniazdo_rj_45 | 35 | 16 | **−54 %** |
+| mostek | 176 | 159 | −17 |
+| styki | 163 | 149 | −14 |
+| blok_rozdzielczy | 4 | 0 | klasa znika |
+
+`p034` traci 89 ze 108 symboli. `gniazdo_rj_45` ma po cięciu 16 instancji i **0 w val** —
+po tym cleanupie tym bardziej wymaga uwzględnienia przy przebudowie `val-pages.yaml`.
+
+**pytest: 528 passed.**
+
+---
+
 ## 2026-07-19 [Claude] — 028 uzupełnienie: scalenie `custom_*` + [BŁĄD] val bez 10 klas
 
 ### [BŁĄD] `custom_X` / `X` — ta sama rzecz uczona sprzecznie (naprawione)

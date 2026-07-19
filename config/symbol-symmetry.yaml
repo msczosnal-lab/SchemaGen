@@ -1,59 +1,364 @@
 # Dozwolone transformacje geometryczne dla augmentacji treningowej.
 # Klucz = kanoniczna klasa symbolu (`type`, ta sama przestrzen nazw co
-# config/symbol-classes.yaml i backend.class_map.bbox_class).
+# config/symbol-classes.yaml).
 #
-# BRAK WPISU = BRAK ZGODY na jakakolwiek transformacje. Orientacja symbolu
-# niesie znaczenie, wiec brak wiedzy nie jest zgoda (fail-safe). Klasy
-# niewymienione ponizej czekaja na przeglad wzrokowy w
-# scripts/element_review.py -> symmetry.json -> scripts/apply_symmetry.py.
+# Brak wpisu = BRAK zgody na jakakolwiek transformacje (bezpieczny domyslny —
+# orientacja symbolu jest znaczaca). rotations: tylko 90/180/270.
 #
-# rotations: wylacznie 90 / 180 / 270. Dowolny kat wymagalby przeliczania
-# bboxa do obrysu prostokatnego — bbox rosnie, symbol w nim nie, etykieta
-# sie rozmywa.
-#
-# Pola: mirror_h (lustro w poziomie), mirror_v (lustro w pionie),
-#       rotations (lista stopni), note (uzasadnienie — pisz je, to jedyna
-#       dokumentacja tej wiedzy domenowej w repo).
-
+# Generowane przez scripts/apply_symmetry.py z symmetry.json
+# (scripts/element_review.py). Mozna edytowac recznie.
 symmetry:
-  # --- ZWERYFIKOWANE: orientacja jest znaczaca, augmentacja zabroniona ---
-
-  strzalka_potencjalu_wejsciowa:
-    mirror_h: false # lustro zamienia w strzalka_potencjalu_wyjsciowa
+  blok_rozdzielczy:
+    mirror_h: false
     mirror_v: false
     rotations: []
-    note: "kierunek = znaczenie; para wejsciowa/wyjsciowa rozni sie WYLACZNIE zwrotem (012-mostek-orientacja)"
-
-  strzalka_potencjalu_wyjsciowa:
-    mirror_h: false # lustro zamienia w strzalka_potencjalu_wejsciowa
+    note: ''
+  buzzer:
+    mirror_h: false
     mirror_v: false
     rotations: []
-    note: "j.w. — lustrzane odbicie uczy siec bledu"
-
+    note: ''
+  cewka_zaworow:
+    mirror_h: true
+    mirror_v: false
+    rotations: []
+    note: ''
+  contactor:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  czujnik_optyczny:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  diode:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  disconnector:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  ekranowanie_kabla:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  enkoder:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  fotodioda:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  fuse:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  gniazdo_rj_45:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  gniazdo_swiatlowodu:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  krancowka_nc:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  lampka:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  lampka_wewnetrzna:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  limit_switch:
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: ''
+  listwa_zlaczek:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  modul_redundantny:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
   mostek:
     mirror_h: false
     mirror_v: false
     rotations: []
-    note: "orientacja jest osobna klasa (mostek_rXX, 8 wariantow D4) — transformacja zmienia klase, nie augmentuje jej"
-
-  # --- SEED do weryfikacji wzrokowej w element_review (Filip potwierdza/koryguje) ---
-
-  zlaczka:
+    note: 'orientacja jest osobna klasa (mostek_rXX, 8 wariantow D4) — transformacja
+      zmienia klase, nie augmentuje jej. Obroty sa juz obsluzone przez
+      maybe_expand_mostek, ktory przepisuje mostek -> mostek_rXX PRZED eksportem,
+      wiec w treningu klasa `mostek` w ogole nie wystepuje. Decyzja Filipa 2026-07-19:
+      zostawic zakaz — wpis symetrii bylby bezprzedmiotowy albo szkodliwy.'
+  motor:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  motor_breaker:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  oznaczenie_kabla:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  oznaczenie_przewodu:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  polaczenie_przewodow:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  power_supply:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  przekaznik:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  przetwornik_prad_przemienny_staly:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  przetwornik_temperatura_prad:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  przycisk:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  przycisk_awaryjny:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  rozlacznik_bezpiecznikowy:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  separator:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  separator_dwukanalowy:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  socket:
+    mirror_h: true
+    mirror_v: false
+    rotations:
+    - 90
+    - 180
+    note: ''
+  strzalka_potencjalu_wejsciowa:
     mirror_h: true
     mirror_v: true
-    rotations: [90, 180, 270]
-    note: "okragla zlaczka — pelna symetria; DO POTWIERDZENIA w podgladzie UI"
-
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: '[UWAGA 2026-07-19] Decyzja Filipa nadpisuje udokumentowany zakaz z 012-mostek-orientacja.
+      [RYZYKO] Lustro zamienia ta klase w strzalka_potencjalu_wyjsciowa — jesli po
+      retrainie mAP obu strzalek spadnie, to jest pierwszy podejrzany.'
+  strzalka_potencjalu_wyjsciowa:
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: '[UWAGA 2026-07-19] j.w. — decyzja Filipa nadpisuje zakaz. [RYZYKO] Lustro
+      zamienia ta klase w strzalka_potencjalu_wejsciowa.'
+  styk_krancowki:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
   styk_nc:
     mirror_h: true
     mirror_v: false
-    rotations: [180]
-    note: "styk rozwierny — symetria pozioma; pion zmienia odczyt styku. DO POTWIERDZENIA w podgladzie UI"
-
-  # Pozostale 20 klas (>=5 instancji) celowo bez wpisu = bez zgody:
-  #   terminal_przylaczeniowy, terminal_plc, styki, przekaznik,
-  #   custom_oznaczenie_przewodu, przycisk, styk_stycznika, gniazdo_rj_45,
-  #   styki_przekaznika, lampka, cewka_zaworow, custom_urzadzenie,
-  #   terminal_sterownika_safety, custom_terminale_urzadzenia,
-  #   wylacznik_nadpradowy, uziemienie, przycisk_awaryjny,
-  #   polaczenie_przewodow, styki_nc, ekranowanie_kabla
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: styk rozwierny — symetria pozioma; pion zmienia odczyt styku
+  styk_pomocniczy:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  styk_stycznika:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  styki:
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    note: ''
+  styki_nc:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  styki_przekaznika:
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: ''
+  surge_protector:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  switch:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  symbol_brak_ex:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  symbol_ex:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  symbol_napiecia:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  symbol_regulacji_napiecia:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  terminal_plc:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  terminal_przylaczeniowy:
+    mirror_h: true
+    mirror_v: false
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: ''
+  terminal_sterownika_safety:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  terminale_urzadzenia:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  trojfazowy_wylacznik_nadpradowy:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  urzadzenie:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  uziemienie:
+    mirror_h: true
+    mirror_v: false
+    rotations: []
+    note: ''
+  wylacznik_kombinowany:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  wylacznik_nadpradowy:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  wylacznik_roznicowo_pradowy:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  zlacze:
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: ''
+  zlaczka:
+    mirror_h: true
+    mirror_v: true
+    rotations:
+    - 90
+    - 180
+    - 270
+    note: okragla zlaczka — pelna symetria
+  znak_uziemienia:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''
+  zwarta_listwa_zlaczek:
+    mirror_h: false
+    mirror_v: false
+    rotations: []
+    note: ''

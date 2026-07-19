@@ -5,4 +5,4 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] 028: scalenie custom_X do klas bazowych + class_coverage.py, [BLAD] 10 klas bez instancji w val
+[Claude] 028: symetria zastosowana (--force), naprawa UI podgladu + guard w apply_symmetry, mostek bez zmian

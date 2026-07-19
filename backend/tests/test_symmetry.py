@@ -178,10 +178,19 @@ def test_repozytoryjny_plik_jest_poprawny():
     assert cfg.specs, "plik nie moze byc pusty — to udokumentowana wiedza domenowa"
 
 
-def test_strzalki_potencjalu_maja_zakaz_w_repo():
-    """Regresja domenowa: lustro zamienia strzalke wejsciowa w wyjsciowa."""
+def test_strzalki_potencjalu_maja_swiadoma_decyzje_w_repo():
+    """Strzalki potencjalu musza miec JAWNY wpis Z UZASADNIENIEM.
+
+    Test celowo nie narzuca kierunku decyzji. Zakaz (lustro zamienia strzalke
+    wejsciowa w wyjsciowa) zostal 2026-07-19 nadpisany decyzja Filipa przez
+    `--force`. Kontraktem, ktorego pilnujemy, jest to, ze dla tej pary NIE MOZE
+    byc decyzji milczacej ani nieuzasadnionej — bo jej skutek jest odwracalny
+    tylko przez retrain.
+    """
     cfg = load_symmetry_file()
     for cls in ("strzalka_potencjalu_wejsciowa", "strzalka_potencjalu_wyjsciowa"):
-        assert cls in cfg, f"{cls} musi miec JAWNY wpis z uzasadnieniem"
-        assert not cfg.get(cls).any_allowed, f"{cls} nie moze byc transformowana"
-        assert cfg.get(cls).note, f"{cls}: brak uzasadnienia w note"
+        assert cls in cfg, f"{cls} musi miec JAWNY wpis"
+        assert cfg.get(cls).note, (
+            f"{cls}: decyzja o symetrii tej klasy musi byc uzasadniona w `note` "
+            "— dotyczy pary roznionej wylacznie zwrotem"
+        )

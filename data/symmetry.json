@@ -1,0 +1,423 @@
+{
+ "blok_rozdzielczy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "buzzer": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "cewka_zaworow": {
+  "mirror_h": true,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "contactor": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "czujnik_optyczny": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "diode": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "disconnector": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "ekranowanie_kabla": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "enkoder": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "fotodioda": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "fuse": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "gniazdo_rj_45": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "gniazdo_swiatlowodu": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "krancowka_nc": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "lampka": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "lampka_wewnetrzna": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "limit_switch": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": ""
+ },
+ "listwa_zlaczek": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "modul_redundantny": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "mostek": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": "obroty juz obsluzone przez mostek_rXX (maybe_expand_mostek) — wpis symetrii bezprzedmiotowy; decyzja Filipa 2026-07-19"
+ },
+ "motor": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "motor_breaker": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "oznaczenie_kabla": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "oznaczenie_przewodu": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "polaczenie_przewodow": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "power_supply": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "przekaznik": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "przetwornik_prad_przemienny_staly": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "przetwornik_temperatura_prad": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "przycisk": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "przycisk_awaryjny": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "rozlacznik_bezpiecznikowy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "separator": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "separator_dwukanalowy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "socket": {
+  "mirror_h": true,
+  "mirror_v": false,
+  "rotations": [
+   90,
+   180
+  ],
+  "note": ""
+ },
+ "strzalka_potencjalu_wejsciowa": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": "[UWAGA 2026-07-19] Decyzja Filipa nadpisuje udokumentowany zakaz z 012-mostek-orientacja. [RYZYKO] Lustro zamienia ta klase w strzalka_potencjalu_wyjsciowa — jesli po retrainie mAP obu strzalek spadnie, to jest pierwszy podejrzany."
+ },
+ "strzalka_potencjalu_wyjsciowa": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": "[UWAGA 2026-07-19] j.w. — decyzja Filipa nadpisuje zakaz. [RYZYKO] Lustro zamienia ta klase w strzalka_potencjalu_wejsciowa."
+ },
+ "styk_krancowki": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "styk_nc": {
+  "mirror_h": true,
+  "mirror_v": false,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": "styk rozwierny — symetria pozioma; pion zmienia odczyt styku"
+ },
+ "styk_pomocniczy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "styk_stycznika": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "styki": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90
+  ],
+  "note": ""
+ },
+ "styki_nc": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "styki_przekaznika": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": ""
+ },
+ "surge_protector": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "switch": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "symbol_brak_ex": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "symbol_ex": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "symbol_napiecia": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "symbol_regulacji_napiecia": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "terminal_plc": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "terminal_przylaczeniowy": {
+  "mirror_h": true,
+  "mirror_v": false,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": ""
+ },
+ "terminal_sterownika_safety": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "terminale_urzadzenia": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "trojfazowy_wylacznik_nadpradowy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "urzadzenie": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "uziemienie": {
+  "mirror_h": true,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "wylacznik_kombinowany": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "wylacznik_nadpradowy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "wylacznik_roznicowo_pradowy": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "zlacze": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": ""
+ },
+ "zlaczka": {
+  "mirror_h": true,
+  "mirror_v": true,
+  "rotations": [
+   90,
+   180,
+   270
+  ],
+  "note": "okragla zlaczka — pelna symetria"
+ },
+ "znak_uziemienia": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ },
+ "zwarta_listwa_zlaczek": {
+  "mirror_h": false,
+  "mirror_v": false,
+  "rotations": [],
+  "note": ""
+ }
+}

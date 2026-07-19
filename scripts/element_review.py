@@ -204,27 +204,40 @@ def main() -> None:
         for c in filt_classes
     )
 
-    # panele symetrii — jeden na klase
+    # panele symetrii — jeden na klase.
+    # Podglady WSZYSTKICH transformacji sa zawsze widoczne. Wczesniejsza wersja
+    # pokazywala podglad dopiero po zaznaczeniu checkboxa — czyli zeby zobaczyc,
+    # jak wyglada lustro, trzeba bylo najpierw wyrazic na nie zgode. W konfiguracji
+    # fail-safe to jest odwrotnie niz trzeba: zgoda ma byc SKUTKIEM obejrzenia.
     sym_panels = []
     for c in filt_classes:
+        denied_in_repo = c in sym_cfg and not sym_cfg.get(c).any_allowed
         boxes = "".join(
             f'<label><input type="checkbox" class="sym" data-c="{c}" data-t="{t}" '
             f'onchange="onsym(this)"> {_TRANSFORM_LABEL[t]}</label> '
             for t in TRANSFORM_KEYS
         )
         previews = "".join(
-            f'<span class="pv" data-c="{c}" data-t="{t}" style="display:none">'
+            f'<span class="pv" data-c="{c}" data-t="{t}">'
             f'<img src="data:image/png;base64,{exemplar.get(c, "")}" '
             f'style="height:{args.thumb}px;transform:{_transform_css(t)};'
-            f'image-rendering:pixelated;background:#fff"><br><i>{_TRANSFORM_LABEL[t]}</i></span>'
+            f'image-rendering:pixelated;background:#fff"><br><i>{_TRANSFORM_LABEL[t]}</i>'
+            f'<br><b class="pvst">niedozwolone</b></span>'
             for t in TRANSFORM_KEYS
         )
         note = sym_init[c]["note"]
+        warn = (
+            '<div class="deny">&#9888; Ta klasa ma w repo UDOKUMENTOWANY ZAKAZ '
+            "transformacji. Zaznaczenie czegokolwiek wymaga potwierdzenia.</div>"
+            if denied_in_repo
+            else ""
+        )
         sym_panels.append(
-            f'<div class="sympanel" data-c="{c}" style="display:none">'
+            f'<div class="sympanel{" denied" if denied_in_repo else ""}" data-c="{c}" '
+            f'data-denied="{"1" if denied_in_repo else "0"}" style="display:none">'
             f'<b>Symetria klasy <code>{c}</code></b> '
             f'<span class="hint">(wlasnosc klasy, nie egzemplarza — '
-            f'brak zaznaczenia = brak zgody na augmentacje)</span><br>{boxes}'
+            f'brak zaznaczenia = brak zgody na augmentacje)</span><br>{warn}{boxes}'
             f'<div class="pvrow"><span class="pv0"><img '
             f'src="data:image/png;base64,{exemplar.get(c, "")}" '
             f'style="height:{args.thumb}px;image-rendering:pixelated;background:#fff">'
@@ -292,7 +305,13 @@ padding:6px;margin:4px 0;border-radius:4px}}
 .pvrow{{margin-top:6px;white-space:nowrap;overflow-x:auto}}
 .pvrow span{{display:inline-block;text-align:center;margin:2px 8px;font:10px monospace;
 color:#555;vertical-align:top}}
-.pvrow .pv0 img{{border:2px solid #159c4a}} .pvrow .pv img{{border:2px solid #2563eb}}
+.pvrow .pv0 img{{border:2px solid #159c4a}}
+.pvrow .pv img{{border:2px dashed #bbb;opacity:.55}}
+.pvrow .pv.on img{{border:2px solid #2563eb;opacity:1}}
+.pvrow .pvst{{color:#999;font-weight:normal}}
+.pvrow .pv.on .pvst{{color:#2563eb;font-weight:bold}}
+.sympanel.denied{{background:#fff6f6;border-color:#e0b4b4}}
+.sympanel .deny{{color:#c0392b;font-size:11px;margin:4px 0;font-weight:bold}}
 </style></head><body>
 <div id="bar">
   <b>Elementy: {len(items)}</b> / {sum(dist_all.values())} w GT &nbsp;
@@ -336,8 +355,11 @@ document.querySelectorAll('.fchk').forEach(cb=>{{
 }});
 // przywroc checkboxy symetrii + podglady
 document.querySelectorAll('.sym').forEach(cb=>{{cb.checked=tkeyOn(cb.dataset.c,cb.dataset.t);}});
+// Podglady sa ZAWSZE widoczne — zaznaczenie zmienia tylko wyroznienie.
 function updPv(c){{document.querySelectorAll(`.pv[data-c="${{CSS.escape(c)}}"]`).forEach(p=>{{
-  p.style.display=tkeyOn(c,p.dataset.t)?'inline-block':'none';}});}}
+  const on=tkeyOn(c,p.dataset.t);
+  p.classList.toggle('on',on);
+  const st=p.querySelector('.pvst'); if(st) st.innerText=on?'DOZWOLONE':'niedozwolone';}});}}
 Object.keys(SYMST).forEach(updPv);
 updRev();
 function state(cell){{
@@ -368,6 +390,15 @@ function rev(cb){{const c=cb.dataset.c;
 function updRev(){{document.getElementById('revcnt').innerText=REV.size;}}
 function onsym(cb){{
   const c=cb.dataset.c, t=cb.dataset.t;
+  // Klasa z udokumentowanym zakazem w repo — zgoda wymaga swiadomego potwierdzenia.
+  const panel=cb.closest('.sympanel');
+  if(cb.checked && panel && panel.dataset.denied==='1'){{
+    if(!confirm(`Klasa "${{c}}" ma w repo udokumentowany ZAKAZ transformacji.\n\n`
+      +`Czy na pewno chcesz zezwolic na "${{t}}"? Bledna zgoda zatruwa dataset `
+      +`— np. odbicie strzalki potencjalu zamienia ja w klase przeciwna.`)){{
+      cb.checked=false; return;
+    }}
+  }}
   if(!SYMST[c]) SYMST[c]={{mirror_h:false,mirror_v:false,rotations:[],note:""}};
   const s=SYMST[c];
   if(t==='mirror_h'||t==='mirror_v') s[t]=cb.checked;

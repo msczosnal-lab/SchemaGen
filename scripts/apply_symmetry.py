@@ -117,6 +117,30 @@ def merge(
     return out, changes
 
 
+def find_denied_conflicts(
+    current: SymmetryConfig,
+    incoming: dict[str, SymmetrySpec],
+) -> list[str]:
+    """Klasy, ktorym symmetry.json nadaje zgode wbrew JAWNEMU zakazowi w repo.
+
+    Zakaz "jawny" = wpis istnieje, nie ma zadnej zgody i ma `note` (uzasadnienie).
+    Brak wpisu to tez brak zgody, ale domyslny — nadanie zgody klasie bez wpisu
+    jest normalna praca przegladu i nie jest konfliktem.
+
+    Powod istnienia tego bezpiecznika: jedno przypadkowe klikniecie na
+    `strzalka_potencjalu_wejsciowa` cicho zatruwa dataset — lustro zamienia ja
+    w klase przeciwna. Konfiguracja fail-safe musi bronic sie takze przed UI.
+    """
+    return [
+        cls
+        for cls, spec in incoming.items()
+        if spec.any_allowed
+        and cls in current
+        and not current.get(cls).any_allowed
+        and current.get(cls).note
+    ]
+
+
 def _fmt(s: SymmetrySpec) -> str:
     parts = []
     if s.mirror_h:
@@ -144,6 +168,11 @@ def main() -> int:
         "--replace",
         action="store_true",
         help="zastap caly plik (domyslnie: scal — klasy spoza symmetry.json zostaja)",
+    )
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="nadpisz JAWNE zakazy z uzasadnieniem (`note`) w symbol-symmetry.yaml",
     )
     args = ap.parse_args()
 
@@ -174,6 +203,20 @@ def main() -> int:
     current = load_symmetry_file(args.out, known_classes=known or None)
     for w in current.warnings:
         print(f"[UWAGA] {args.out.name}: {w}")
+
+    conflicts = find_denied_conflicts(current, incoming)
+    if conflicts:
+        print(f"\n[BŁĄD] {len(conflicts)} klas ma w repo UDOKUMENTOWANY ZAKAZ, "
+              "a symmetry.json nadaje im zgode:")
+        for cls in conflicts:
+            print(f"  {cls}")
+            print(f"      repo:  BRAK ZGODY — {current.get(cls).note}")
+            print(f"      nowy:  {_fmt(incoming[cls])}")
+        if not args.force:
+            print("\nZapis WSTRZYMANY. Albo popraw symmetry.json, albo — jesli zakaz "
+                  "jest bledny — usun/zmien `note` w YAML, albo uzyj --force.")
+            return 1
+        print("\n[UWAGA] --force: zakazy zostaja nadpisane mimo uzasadnien w repo.")
 
     merged, changes = merge(current, incoming, replace=args.replace)
 

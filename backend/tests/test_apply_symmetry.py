@@ -80,6 +80,33 @@ def test_merge_bez_zmian_daje_pusta_liste(aps):
     assert changes == []
 
 
+def test_konflikt_z_jawnym_zakazem_jest_wykrywany(aps):
+    """Regresja: klik w UI nadał zgodę strzałce potencjału (2026-07-19)."""
+    current = SymmetryConfig(specs={
+        "strzalka_potencjalu_wejsciowa": SymmetrySpec(note="kierunek = znaczenie"),
+    })
+    incoming = {"strzalka_potencjalu_wejsciowa": SymmetrySpec(True, True, (90, 180, 270))}
+    assert aps.find_denied_conflicts(current, incoming) == ["strzalka_potencjalu_wejsciowa"]
+
+
+def test_zakaz_bez_uzasadnienia_nie_blokuje(aps):
+    """Wpis bez `note` to nie jest udokumentowana decyzja — nie blokujemy."""
+    current = SymmetryConfig(specs={"x": SymmetrySpec()})
+    assert aps.find_denied_conflicts(current, {"x": SymmetrySpec(True)}) == []
+
+
+def test_klasa_bez_wpisu_nie_jest_konfliktem(aps):
+    """Nadanie zgody klasie bez wpisu to normalna praca przegladu."""
+    current = SymmetryConfig(specs={})
+    assert aps.find_denied_conflicts(current, {"lampka": SymmetrySpec(True)}) == []
+
+
+def test_zgodne_potwierdzenie_zakazu_nie_jest_konfliktem(aps):
+    """symmetry.json potwierdzajacy zakaz (same false) nie moze blokowac zapisu."""
+    current = SymmetryConfig(specs={"x": SymmetrySpec(note="powod")})
+    assert aps.find_denied_conflicts(current, {"x": SymmetrySpec()}) == []
+
+
 def test_write_atomic_nie_zostawia_tmp(tmp_path, aps):
     out = tmp_path / "symbol-symmetry.yaml"
     aps.write_atomic(out, "symmetry: {}\n")
