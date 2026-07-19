@@ -280,3 +280,4 @@
 | 2026-07-19 15:52 | Claude | 248ed95e | [Claude] 025: raporty audytu + narzedzia (audit_gt, gt_dup_scan, rescue, prune_cache_orphans) |
 | 2026-07-19 16:43 | Claude | 4f15f243 | [Claude] 025 Faza A+B zamknieta: GT 6->199 stron w gicie, F1 udowodnione, bbox_out_of_frame = klasa urzadzenie (P3) |
 | 2026-07-19 16:43 | Claude | 33b77f0a | [Claude] 025 Faza A+B zamknieta: GT 6->199 stron w gicie, F1 udowodnione, bbox_out_of_frame = klasa urzadzenie (P3) |
+| 2026-07-19 16:48 | Claude | 4febc706 | [Claude] 026 odmrozone (480->3639 bbox): urzadzenie -> contextual (poza YOLO); blokada 027 nieaktualna |
