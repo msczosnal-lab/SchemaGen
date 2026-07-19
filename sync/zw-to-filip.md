@@ -1,3 +1,63 @@
+## 2026-07-19 [Claude] — 025 Faza A+B DONE: audyt labelera, przyczyna „złej strony" znaleziona
+
+**Raporty:** [`sync/analysis/025-labeler-audit.md`](analysis/025-labeler-audit.md) (główny) · [`sync/analysis/025-gt-integrity.md`](analysis/025-gt-integrity.md) (A1, generowany)
+**Nowy plik:** `tools/audit_gt.py` — audyt read-only (`--json`, `--md`). Kod produkcyjny **nietknięty**.
+
+### Dane GT: zdrowe
+
+6/6 plików: `page_id` == nazwa pliku, 0 duplikatów ID, 0 wiszących referencji linii, 0 bboxów poza kadrem,
+`gt/` **bit w bit zgodne** z `gt/_backup_2026-07-12/`. Zapis atomowy (`tmp` + `os.replace` + `fsync`) — poprawny.
+`gt/_backup_*` **nie** wpada w glob `gt/*.json` (glob nie schodzi do podkatalogów). p031 (SCORE 0.00) i p034
+to strony niedokończone (1 sym./0 linii, 108 sym./0 linii), nie korupcja.
+
+### [BŁĄD] F1 — przyczyna objawu, priorytet 0
+
+`selectPage()` (`graph.js:2282`) jest `async`, **bez guardu re-entrancji**, wołane bez `await` z listy stron
+i ze strzałek. Ustawia `currentPageId` **natychmiast**, a potem czeka na obraz (PNG 6617×4678) i na fetch grafu.
+Drugie naciśnięcie strzałki w tym oknie odpala `flushAutoSave({force:true})` → `buildPayload()` bierze
+`page_id: currentPageId` (**nowa strona**) i `graph.symbols` (**stara zawartość**) → `POST /api/graph/B` z treścią A.
+
+**GT strony B zostaje nadpisany zawartością strony A.** Trzy powody, dla których nic tego nie zatrzymuje:
+
+1. serwerowa walidacja `body.page_id == URL` (`app.py:465`) przechodzi — frontend bierze id z `currentPageId`, nie z wczytanych danych;
+2. guard `skipped_empty_overwrite` nie działa — nadpisujący graf nie jest pusty, tylko cudzy;
+3. `force: true` zapisuje **nawet gdy `dirty === false`** → samo przewijanie stron przepisuje GT.
+
+Do tego `image_width/height` z `bgImage.naturalWidth` — przy stronach różnej wielkości do GT trafi zły rozmiar
+(dziś wszystkie 6617×4678, więc mina jeszcze nie wybuchła).
+
+### Pozostałe (pełna tabela w raporcie)
+
+| # | Rzecz | Priorytet |
+|---|---|---|
+| F3 | `load_schematic_graph` czyta **cache przed plikiem**, a `rebuild_cache_from_gt` **nigdy nie kasuje sierot** → strona usunięta z `gt/` żyje w cache w nieskończoność | P0 |
+| F2 | `resolve_page_id` używany w `/auto-draft`, **nie** w `GET/POST /api/graph/{id}` → skrót `p028` tworzy drugi, równoległy `gt/p028.json` | P1 |
+| F4 | `PRAGMA journal_mode=WAL` **nie zadziałał**: zmierzone `journal_mode=delete`, brak `-wal`, leży hot journal `data/schemagen.db-journal` (4616 B, 12.07). `except sqlite3.DatabaseError: pass` niczego nie łapie, bo SQLite przy nieudanym przełączeniu nie rzuca wyjątku — zwraca stary tryb. To ten sam tryb, w którym baza padła (`malformed`). | P1 |
+| F5/F6 | brak `Cache-Control` na GT; `GET /api/graph/{id}` bez GT zwraca 200 + pusty graf zamiast 404 | P2 |
+
+Obecna baza nie ma nawet tabeli `schematic_graph` (rollback z hot journala) — i to jest **dobra wiadomość**:
+niezmiennik „SQLite = cache odbudowywalny z `gt/`" zadziałał, dane nie zginęły.
+
+### p040
+
+`git log --all --diff-filter=A -- 'gt/*p040*'` → **pusto, plik nigdy nie wszedł do repo.** `gt/` = backup z 12.07,
+więc nic nie zostało skasowane. **Sprawdź u siebie:** `dir gt\*p040*` · `git status --short gt/` · `git stash list`.
+Jeśli plik jest — to brak commita. Jeśli nie ma, a pamiętasz zapis — F1 tłumaczy też p040.
+
+### Czego nie dało się sprawdzić na PC ZW
+
+`data/raw/` na tym klonie zawiera **tylko `IEC60617.pdf`, zero PNG** — nie da się porównać `image_width` w GT
+z faktycznym rozmiarem obrazu ani odpalić labelera. Ten fragment A1 do powtórzenia u Ciebie:
+`python -m tools.audit_gt --md sync/analysis/025-gt-integrity.md`.
+`pytest` też nie poszedł (sandbox bez `fastapi`) — Faza A nie ruszyła kodu produkcyjnego, więc nie ma co regresować.
+
+### Czekam na decyzję przed Fazą C
+
+Rekomendacja: **F1 + F3 teraz** (ok. 40 linii JS + 2 funkcje w `backend/db.py`), reszta w tym samym podejściu.
+Pełna lista 10 punktów + testy regresji na końcu raportu. Przed startem: `git tag gt-pre-025` + kopia `gt/` poza repo.
+
+---
+
 ## 2026-07-19 [Claude] — 027 Krok1 DONE: eksport klasy YOLO po `type`, nie po `tag`
 
 **Zmiana:** `bbox_class(class_name, tag)` w `backend/class_map.py` — GT v2 (`class_name`=`type`) ma pierwszeństwo nad `tag`; v1 (SQLite, `class_name` zawsze `"element"`) fallback na stary `tag_to_class(tag)` bez zmian. `type` normalizowany przez `slugify` (ascii-fold) — scala niespójne diakrytyki (`custom_urządzenie`/`custom_urzadzenie`).
