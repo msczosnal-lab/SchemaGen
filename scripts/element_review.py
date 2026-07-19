@@ -45,11 +45,7 @@ from backend.paths import RAW, ROOT
 from backend.class_map import bbox_class, load_palette_map, palette_order
 from backend.symmetry import TRANSFORM_KEYS, load_symmetry_file
 from train.mostek_orient import CLASS_NAMES as MOSTEK_CLASSES
-from train.dataset_export import (
-    _load_page_images,
-    load_all_training_records,
-    load_graph_v2_records,
-)
+from train.dataset_export import load_all_training_records, load_graph_v2_records
 from train.mostek_tiles import crop_bbox
 
 try:
@@ -79,7 +75,6 @@ def collect_items(recs, imgs, only_class: str = ""):
     dist_all: Counter = Counter()
 
     for rec in recs:
-        page = imgs.get(rec.page_id)
         for b in rec.bboxes:
             cls = bbox_class(b.class_name, b.tag, pmap)
             if not cls:
@@ -93,6 +88,10 @@ def collect_items(recs, imgs, only_class: str = ""):
                 (b.tag or "").strip().lower(),
             ):
                 continue
+            # Obraz strony dopiero TU — przy `--class styki` strony bez tej klasy
+            # nie sa w ogole otwierane. `dist_all` liczy sie niezaleznie od obrazow,
+            # wiec porownanie z class_report zostaje pelne.
+            page = imgs.get(rec.page_id)
             if page is None:
                 skipped.append((cls, rec.page_id, b.id, SKIP_NO_PAGE_IMAGE))
                 continue
@@ -129,6 +128,51 @@ _TRANSFORM_LABEL = {
 }
 
 
+class LazyPageImages:
+    """Wczytuje PNG strony na zadanie i trzyma tylko JEDEN w pamieci.
+
+    `_load_page_images` laduje wszystkie strony naraz. Przy 199 stronach
+    6617x4678 to ~6 GB w grayscale — maszyna sie dlawi albo proces ginie.
+    Crops sa robione strona po stronie, wiec wystarczy biezacy obraz.
+
+    Interfejs `.get(page_id)` zgodny ze slownikiem, zeby `collect_items`
+    dzialalo tak samo w testach (zwykly dict) i w produkcji.
+    """
+
+    def __init__(self, raw_dir, records) -> None:
+        from labeler.export import find_raw_image
+
+        self._find = find_raw_image
+        self._raw = raw_dir
+        self._by_id = {r.page_id: r for r in records}
+        self._cur_id: str | None = None
+        self._cur = None
+        self.missing: set[str] = set()
+
+    def get(self, page_id: str):
+        if page_id == self._cur_id:
+            return self._cur
+        rec = self._by_id.get(page_id)
+        src = self._find(rec, self._raw) if rec is not None else None
+        if src is None:
+            self.missing.add(page_id)
+            self._cur_id, self._cur = page_id, None
+            return None
+        from PIL import Image
+        import numpy as np
+
+        try:
+            img = np.asarray(Image.open(src).convert("L"))
+        except Exception:  # noqa: BLE001 — nieczytelny plik = strona bez podgladu
+            self.missing.add(page_id)
+            img = None
+        self._cur_id, self._cur = page_id, img
+        return img
+
+    def __len__(self) -> int:  # tylko do naglowka
+        return len(self._by_id) - len(self.missing)
+
+
 def _warn_v1_only_pages(v2_recs) -> None:
     """Ostrzez o stronach, gdzie SQLite v1 ma wiecej bboxow niz gt/*.json.
 
@@ -162,6 +206,9 @@ def main() -> None:
     ap.add_argument("--legacy-v1", action="store_true",
                     help="czytaj stary merge v1+v2 (id moga nie istniec w gt/ — "
                          "apply_reassign ich nie zapisze)")
+    ap.add_argument("--sort", choices=("page", "shape", "size"), default="shape",
+                    help="kolejnosc w siatce: shape=wg proporcji bboxa (odstajace "
+                         "laduja razem na koncu), size=wg powierzchni, page=wg strony")
     ap.add_argument("--limit", type=int, default=0, help="max cropow (0=wszystko)")
     ap.add_argument("--thumb", type=int, default=96, help="wysokosc miniatury px")
     ap.add_argument("--thicken", type=int, default=1, help="ile razy pogrubic linie")
@@ -174,7 +221,8 @@ def main() -> None:
     # jako "bbox_id nieznalezionych". Przegladarka MUSI czytac to samo zrodlo,
     # do ktorego zapisuje narzedzie stosujace zmiany.
     recs = load_graph_v2_records() if not args.legacy_v1 else load_all_training_records()
-    imgs = _load_page_images(recs, RAW)
+
+    imgs = LazyPageImages(RAW, recs)
 
     if not args.legacy_v1:
         _warn_v1_only_pages(recs)
@@ -192,7 +240,9 @@ def main() -> None:
     skip_by_reason = Counter(s[3].split(":")[0] for s in skipped)
 
     # --- konsola: rozbieznosc jawnie, per klasa ---
-    print(f"Stron: {len(recs)} | stron z PNG: {len(imgs)} | bbox z klasa: {sum(dist_all.values())}")
+    n_missing = len(imgs.missing) if hasattr(imgs, "missing") else 0
+    print(f"Stron: {len(recs)} | stron bez PNG: {n_missing} "
+          f"| bbox z klasa: {sum(dist_all.values())}")
     if args.cls:
         print(f"Filtr klasy: {args.cls!r}")
     mismatched = [
@@ -252,16 +302,15 @@ def main() -> None:
     # pokazywala podglad dopiero po zaznaczeniu checkboxa — czyli zeby zobaczyc,
     # jak wyglada lustro, trzeba bylo najpierw wyrazic na nie zgode. W konfiguracji
     # fail-safe to jest odwrotnie niz trzeba: zgoda ma byc SKUTKIEM obejrzenia.
+    # Sterowanie symetria = KLIK W PODGLAD, nie checkbox obok. Ogladasz obrocony
+    # rysunek i klikasz go, jesli to nadal ten sam symbol — decyzja zapada na tym
+    # samym obiekcie, ktory ocenia oko.
     sym_panels = []
     for c in filt_classes:
         denied_in_repo = c in sym_cfg and not sym_cfg.get(c).any_allowed
-        boxes = "".join(
-            f'<label><input type="checkbox" class="sym" data-c="{c}" data-t="{t}" '
-            f'onchange="onsym(this)"> {_TRANSFORM_LABEL[t]}</label> '
-            for t in TRANSFORM_KEYS
-        )
         previews = "".join(
-            f'<span class="pv" data-c="{c}" data-t="{t}">'
+            f'<span class="pv" data-c="{c}" data-t="{t}" onclick="onsym(this)" '
+            f'title="klik = przelacz zgode na {_TRANSFORM_LABEL[t]}">'
             f'<img src="data:image/png;base64,{exemplar.get(c, "")}" '
             f'style="height:{args.thumb}px;transform:{_transform_css(t)};'
             f'image-rendering:pixelated;background:#fff"><br><i>{_TRANSFORM_LABEL[t]}</i>'
@@ -269,18 +318,13 @@ def main() -> None:
             for t in TRANSFORM_KEYS
         )
         note = sym_init[c]["note"]
-        warn = (
-            '<div class="deny">&#9888; Ta klasa ma w repo UDOKUMENTOWANY ZAKAZ '
-            "transformacji. Zaznaczenie czegokolwiek wymaga potwierdzenia.</div>"
-            if denied_in_repo
-            else ""
-        )
         sym_panels.append(
             f'<div class="sympanel{" denied" if denied_in_repo else ""}" data-c="{c}" '
             f'data-denied="{"1" if denied_in_repo else "0"}" style="display:none">'
             f'<b>Symetria klasy <code>{c}</code></b> '
-            f'<span class="hint">(wlasnosc klasy, nie egzemplarza — '
-            f'brak zaznaczenia = brak zgody na augmentacje)</span><br>{warn}{boxes}'
+            f'<span class="hint">klikaj podglady, ktore sa nadal tym samym symbolem '
+            f'(wlasnosc klasy, nie egzemplarza — brak zaznaczenia = brak zgody)'
+            f'</span>'
             f'<div class="pvrow"><span class="pv0"><img '
             f'src="data:image/png;base64,{exemplar.get(c, "")}" '
             f'style="height:{args.thumb}px;image-rendering:pixelated;background:#fff">'
@@ -293,7 +337,7 @@ def main() -> None:
     for cls, pid, bid, crop in items:
         cells.append(
             f'<div class="cell" data-cls="{cls}" data-del="0">'
-            f'<img onclick="toggleDel(this)" src="data:image/png;base64,'
+            f'<img onclick="toggleDel(this,event)" src="data:image/png;base64,'
             f'{thumb_b64(crop, args.thumb, args.thicken)}" '
             f'style="height:{args.thumb}px;image-rendering:pixelated;background:#fff"><br>'
             f'<span style="color:#888">{pid[-4:]}</span><br>'
@@ -343,18 +387,20 @@ margin:4px 0;border-radius:4px}}
 .sympanel{{font:12px sans-serif;background:#f4f7ff;border:1px solid #b9c8ee;
 padding:6px;margin:4px 0;border-radius:4px}}
 .sympanel label{{margin-right:10px;cursor:pointer;white-space:nowrap}}
+.hint{{color:#666;font-size:11px}}
 .sympanel .hint{{color:#666;font-size:11px}}
 .sympanel .note{{color:#555;font-size:11px;font-style:italic;margin-top:4px}}
 .pvrow{{margin-top:6px;white-space:nowrap;overflow-x:auto}}
 .pvrow span{{display:inline-block;text-align:center;margin:2px 8px;font:10px monospace;
 color:#555;vertical-align:top}}
 .pvrow .pv0 img{{border:2px solid #159c4a}}
+.pvrow .pv{{cursor:pointer;border-radius:4px;padding:2px}}
+.pvrow .pv:hover{{background:#e8f0fe}}
 .pvrow .pv img{{border:2px dashed #bbb;opacity:.55}}
 .pvrow .pv.on img{{border:2px solid #2563eb;opacity:1}}
 .pvrow .pvst{{color:#999;font-weight:normal}}
 .pvrow .pv.on .pvst{{color:#2563eb;font-weight:bold}}
 .sympanel.denied{{background:#fff6f6;border-color:#e0b4b4}}
-.sympanel .deny{{color:#c0392b;font-size:11px;margin:4px 0;font-weight:bold}}
 </style></head><body>
 <div id="bar">
   <b>Elementy: {len(items)}</b> / {sum(dist_all.values())} w GT &nbsp;
@@ -362,8 +408,10 @@ color:#555;vertical-align:top}}
   &nbsp; przejrzano klas: <span id="revcnt">0</span>/{len(filt_classes)}
   &nbsp;<button onclick="dl()">Pobierz reassignments.json</button>
   &nbsp;<button onclick="dlsym()">Pobierz symmetry.json</button>
+  &nbsp;<button onclick="dlrev()">Pobierz reviewed.json</button>
   &nbsp;<button onclick="rst()">Cofnij zmiany</button><br>
   {diag_html}
+  <span class="hint">klik = usun / shift+klik = zakres</span><br>
   Filtr: <button onclick="flt('')">[wszystkie]</button> {filter_btns}
   {''.join(sym_panels)}
 </div>
@@ -396,8 +444,7 @@ document.querySelectorAll('.cs').forEach(s=>{{
 document.querySelectorAll('.fchk').forEach(cb=>{{
   if(REV.has(cb.dataset.c)){{cb.checked=true; cb.closest('.fbtn').classList.add('done');}}
 }});
-// przywroc checkboxy symetrii + podglady
-document.querySelectorAll('.sym').forEach(cb=>{{cb.checked=tkeyOn(cb.dataset.c,cb.dataset.t);}});
+// przywroc stan podgladow symetrii
 // Podglady sa ZAWSZE widoczne — zaznaczenie zmienia tylko wyroznienie.
 function updPv(c){{document.querySelectorAll(`.pv[data-c="${{CSS.escape(c)}}"]`).forEach(p=>{{
   const on=tkeyOn(c,p.dataset.t);
@@ -421,8 +468,29 @@ function upd(){{
   }});
   document.getElementById('cnt').innerText=n;
 }}
-function toggleDel(img){{const c=img.closest('.cell');
-  c.dataset.del=c.dataset.del==='1'?'0':'1'; upd();}}
+// Shift+klik = zakres od ostatnio klikanego do biezacego (jak w menedzerze plikow).
+// Zakres liczony po WIDOCZNYCH komorkach, wiec przy aktywnym filtrze klasy
+// nie zaznaczy niczego spoza niej.
+let LAST=null;
+function visibleCells(){{
+  return [...document.querySelectorAll('.cell')].filter(c=>c.style.display!=='none');
+}}
+function toggleDel(img,ev){{
+  const cell=img.closest('.cell');
+  const vis=visibleCells();
+  const i=vis.indexOf(cell);
+  if(ev&&ev.shiftKey&&LAST!==null){{
+    const j=vis.indexOf(LAST);
+    if(j!==-1){{
+      const val=LAST.dataset.del;                 // rozciagnij stan zrodla zakresu
+      const [a,b]=i<j?[i,j]:[j,i];
+      for(let k=a;k<=b;k++) vis[k].dataset.del=val;
+      upd(); return;
+    }}
+  }}
+  cell.dataset.del=cell.dataset.del==='1'?'0':'1';
+  LAST=cell; upd();
+}}
 function onsel(s){{s.closest('.cell').dataset.del='0'; upd();}}  // zmiana klasy kasuje usuniecie
 function rst(){{document.querySelectorAll('.cell').forEach(c=>{{
   c.dataset.del='0'; const s=c.querySelector('.cs'); s.value=s.dataset.orig;}}); upd();}}
@@ -431,23 +499,15 @@ function rev(cb){{const c=cb.dataset.c;
   localStorage.setItem(RKEY,JSON.stringify([...REV]));
   cb.closest('.fbtn').classList.toggle('done',cb.checked); updRev();}}
 function updRev(){{document.getElementById('revcnt').innerText=REV.size;}}
-function onsym(cb){{
-  const c=cb.dataset.c, t=cb.dataset.t;
-  // Klasa z udokumentowanym zakazem w repo — zgoda wymaga swiadomego potwierdzenia.
-  const panel=cb.closest('.sympanel');
-  if(cb.checked && panel && panel.dataset.denied==='1'){{
-    if(!confirm(`Klasa "${{c}}" ma w repo udokumentowany ZAKAZ transformacji.\n\n`
-      +`Czy na pewno chcesz zezwolic na "${{t}}"? Bledna zgoda zatruwa dataset `
-      +`— np. odbicie strzalki potencjalu zamienia ja w klase przeciwna.`)){{
-      cb.checked=false; return;
-    }}
-  }}
+// Klik w podglad przelacza zgode na ta transformacje.
+function onsym(el){{
+  const c=el.dataset.c, t=el.dataset.t;
   if(!SYMST[c]) SYMST[c]={{mirror_h:false,mirror_v:false,rotations:[],note:""}};
-  const s=SYMST[c];
-  if(t==='mirror_h'||t==='mirror_v') s[t]=cb.checked;
+  const s=SYMST[c], on=!tkeyOn(c,t);
+  if(t==='mirror_h'||t==='mirror_v') s[t]=on;
   else {{
     const deg=parseInt(t.slice(3)); s.rotations=(s.rotations||[]).filter(r=>r!==deg);
-    if(cb.checked) s.rotations.push(deg);
+    if(on) s.rotations.push(deg);
     s.rotations.sort((a,b)=>a-b);
   }}
   localStorage.setItem(SKEY,JSON.stringify(SYMST)); updPv(c);
@@ -468,6 +528,13 @@ function dl(){{
       old:s.dataset.orig,new_tag:nt}});
   }});
   save(JSON.stringify(out),'reassignments.json');
+}}
+// Klasy oznaczone "przejrzana" = zatwierdzone do treningu. Bez tego eksportu
+// informacja zostawala w localStorage i nie widzial jej ani eksport, ani trening.
+function dlrev(){{
+  const out={{reviewed:[...REV].sort(),
+    all_classes:[...document.querySelectorAll('.fchk')].map(c=>c.dataset.c).sort()}};
+  save(JSON.stringify(out,null,2),'reviewed.json');
 }}
 function dlsym(){{
   const out={{}};

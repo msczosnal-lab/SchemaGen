@@ -5,4 +5,6 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] [BLAD] element_review czytal merge v1+v2 - id element_* nie istnialy w gt/; teraz czyta GT v2 (to samo zrodlo co apply_reassign) + ostrzezenie o bboxach tylko w v1
+[Claude] element_review: leniwe wczytywanie stron (bylo ~6GB RAM przy 199 stronach) - obraz otwierany dopiero gdy potrzebny crop
+
+[Claude] bramka przegladu: reviewed.json -> config/reviewed-classes.yaml -> tylko zatwierdzone klasy do treningu; symetria klikana na podgladzie; shift+klik zakres; bez popupu

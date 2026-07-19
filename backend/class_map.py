@@ -56,6 +56,28 @@ def _palette_raw() -> list[dict]:
 
 CLASS_GROUPS = CONFIG / "class-groups.yaml"
 CLASS_ALIASES = CONFIG / "class-aliases.yaml"
+REVIEWED_CLASSES = CONFIG / "reviewed-classes.yaml"
+
+
+@lru_cache(maxsize=1)
+def load_reviewed_classes() -> frozenset[str]:
+    """Klasy zatwierdzone wzrokowo w element_review ("przejrzana").
+
+    Pusty zbior = bramka NIEAKTYWNA (do treningu ida wszystkie klasy, jak dotad).
+    To celowo NIE jest fail-safe w strone "brak wpisu = brak zgody": pusty plik
+    wyzerowalby caly dataset i trening padlby bez oczywistej przyczyny. Bramka
+    wlacza sie dopiero, gdy ktos faktycznie cos zatwierdzil.
+    """
+    if not REVIEWED_CLASSES.exists():
+        return frozenset()
+    data = yaml.safe_load(REVIEWED_CLASSES.read_text(encoding="utf-8")) or {}
+    return frozenset(str(c) for c in (data.get("reviewed") or []) if c)
+
+
+def is_reviewed(cls: str, reviewed: frozenset[str] | None = None) -> bool:
+    """Czy klasa przeszla przeglad. Brak bramki (pusty zbior) = wszystko przechodzi."""
+    r = reviewed if reviewed is not None else load_reviewed_classes()
+    return True if not r else cls in r
 
 
 @lru_cache(maxsize=1)
@@ -126,6 +148,8 @@ def is_yolo_exportable(
     roles = load_train_roles()
     role = class_train_role(cls, roles)
     if role != "atomic":
+        return False
+    if not is_reviewed(cls):
         return False
     if roles["atomic"]:
         return cls in roles["atomic"]
@@ -252,7 +276,14 @@ def build_class_map(
     records = list(records)
     dist = class_distribution(records, pmap, yolo_only=True)
 
-    kept = {c: n for c, n in dist.items() if n >= min_count}
+    # Bramka przegladu: do treningu ida tylko klasy oznaczone "przejrzana"
+    # w element_review (config/reviewed-classes.yaml). Pusty plik/brak pliku =
+    # bramka nieaktywna, zachowanie jak dotad.
+    reviewed = load_reviewed_classes()
+    kept = {
+        c: n for c, n in dist.items()
+        if n >= min_count and is_reviewed(c, reviewed)
+    }
     rare = {c: n for c, n in dist.items() if n < min_count}
 
     order = [c for c in palette_order() if c in kept]

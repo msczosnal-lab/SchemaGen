@@ -306,3 +306,4 @@
 | 2026-07-19 18:31 | Claude | b73e3aba | [Claude] gt_restore_check.py: audyt i przywracanie stron GT ze strata symboli po nadpisaniu przez cache |
 | 2026-07-19 18:40 | Claude | a7bb033c | [Claude] gt_restore_check --git-rev: audyt gt/ wzgledem rewizji gita (backup bywa juz uszkodzony) |
 | 2026-07-19 18:40 | Claude | 47089440 | [Claude] gt_restore_check --git-rev: audyt gt/ wzgledem rewizji gita (backup bywa juz uszkodzony) |
+| 2026-07-19 18:49 | Claude | abe85b3e | [Claude] [BLAD] element_review czytal merge v1+v2 - id element_* nie istnialy w gt/; teraz czyta GT v2 (to samo zrodlo co apply_reassign) + ostrzezenie o bboxach tylko w v1 |
