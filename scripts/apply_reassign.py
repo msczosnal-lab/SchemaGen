@@ -42,8 +42,20 @@ DELETE = "__DELETE__"
 
 
 def _load_page_graph(page_id: str) -> SchematicGraph | None:
-    """GT v2 z pliku/cache; fallback: konwersja label v1 -> SchematicGraph."""
-    raw = load_schematic_graph(page_id)
+    """GT v2 — ZAWSZE najpierw z `gt/<page_id>.json` (zrodlo prawdy).
+
+    [BŁĄD] 2026-07-19: wczesniej szlo przez `load_schematic_graph`, ktora czyta
+    NAJPIERW cache SQLite, a do `gt/` siega dopiero przy braku wpisu. Nieaktualny
+    cache byl wiec wczytywany, modyfikowany i zapisywany z powrotem do `gt/` —
+    cache nadpisywal zrodlo prawdy. Objaw: "71 bbox_id nieznalezionych" na p034,
+    bo cache mial mniej symboli niz plik GT.
+
+    Niezmiennik z CLAUDE.md: `gt/*.json` to zrodlo prawdy, SQLite to tylko cache.
+    Kierunek odczytu musi byc zgodny z kierunkiem zapisu.
+    """
+    raw = gt_store.read_gt_json(page_id)
+    if raw is None:
+        raw = load_schematic_graph(page_id)  # brak pliku GT -> cache / v1
     if raw:
         return SchematicGraph.model_validate(raw)
     data = load_annotation(page_id)
@@ -149,6 +161,7 @@ def main() -> int:
             missing += len(mapping)
             continue
 
+        n_before = len(graph.symbols)
         del_ids = {i for i, t in mapping.items() if t == DELETE}
         applied = 0
         for sym in graph.symbols:
@@ -168,12 +181,23 @@ def main() -> int:
         flag = f" ({not_found} bbox_id nieznalezionych)" if not_found else ""
         print(f"{page_id}: {applied} retag, {n_del} usun{flag}")
 
+        # [RYZYKO] Duzy odsetek nieznalezionych id = przegladarka pokazywala INNY
+        # zestaw danych niz ten, do ktorego piszemy (v1 SQLite vs gt/*.json).
+        # Bez tego ostrzezenia rozjazd zrodel przechodzi niezauwazony.
+        if not_found and not_found > len(mapping) * 0.3:
+            print(f"  [BŁĄD] {not_found}/{len(mapping)} id nie istnieje w gt/{page_id}.json "
+                  "— element_review pokazywal inne zrodlo niz to, do ktorego zapisujemy. "
+                  "Przegeneruj element_review.html i powtorz eksport dla tej strony.")
+        if n_before and n_del > n_before * 0.5:
+            print(f"  [UWAGA] strona traci {n_del}/{n_before} symboli "
+                  f"({100 * n_del / n_before:.0f}%) — sprawdz, czy to zamierzone")
+
         if args.apply and found:
             res = save_schematic_graph(
                 page_id, graph.model_dump(mode="json", by_alias=True)
             )
             if res["status"] == "skipped_empty_overwrite":
-                print(f"  [UWAGA] skipped_empty_overwrite — graf pusty, zapis pominiety")
+                print("  [UWAGA] skipped_empty_overwrite — graf pusty, zapis pominiety")
                 skipped += 1
 
     if args.apply and total + deleted > skipped:

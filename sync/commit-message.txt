@@ -5,4 +5,4 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] fix: apply_* wybieraja NAJNOWSZY plik wejsciowy + podsumowanie zmian przed zapisem (staly plik z 16.06 przeslanial swiezy eksport)
+[Claude] [BLAD] apply_reassign czytal cache SQLite zamiast gt/*.json - cache nadpisywal zrodlo prawdy; + ostrzezenia o rozjezdzie zrodel i duzej utracie symboli
