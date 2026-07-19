@@ -72,6 +72,9 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--replace", action="store_true",
                     help="zastap liste (domyslnie: scal z obecna)")
+    ap.add_argument("--keep-unknown", action="store_true",
+                    help="zachowaj zatwierdzenia klas nieobecnych w danych "
+                         "(domyslnie odsiewane — to zwykle resztki localStorage)")
     args = ap.parse_args()
 
     candidates = [args.file] if args.file else [
@@ -90,14 +93,25 @@ def main() -> int:
         print("[UWAGA] reviewed.json nie zawiera zadnej zatwierdzonej klasy — "
               "bramka pozostanie nieaktywna.")
 
-    current = set(load_reviewed_classes())
-    merged = incoming if args.replace else (current | incoming)
-
     from train.dataset_export import load_all_training_records
 
     recs = load_all_training_records()
     dist = class_distribution(recs, load_palette_map(), yolo_only=True)
     trainable = {c for c, n in dist.items() if n >= 5}
+
+    # [BŁĄD] 2026-07-19: reviewed.json przynosil klasy widmo (`1q4`, `ks2_10`, `iq3`)
+    # — resztki z localStorage sprzed migracji na `bbox_class`, gdy klasy powstawaly
+    # z tagow. Sa nieszkodliwe dla bramki, ale zasmiecaja config i ukrywaja, ile
+    # klas naprawde zatwierdzono. Odsiewamy je, chyba ze --keep-unknown.
+    ghosts = sorted(c for c in incoming if c not in dist)
+    if ghosts and not args.keep_unknown:
+        print(f"[UWAGA] odsiano {len(ghosts)} klas nieobecnych w danych "
+              "(resztki localStorage / aliasy / klasy kontekstowe):")
+        print("  " + ", ".join(ghosts))
+        incoming = {c for c in incoming if c in dist}
+
+    current = set(load_reviewed_classes())
+    merged = incoming if args.replace else (current | incoming)
 
     added = sorted(merged - current)
     removed = sorted(current - merged) if args.replace else []

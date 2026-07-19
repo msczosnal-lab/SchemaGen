@@ -29,6 +29,10 @@ def _entry_count(path: Path) -> str:
     if isinstance(data, list):
         return str(len(data))
     if isinstance(data, dict):
+        # reviewed.json ma ksztalt {"reviewed": [...], "all_classes": [...]} —
+        # liczba kluczy (2) nie mowi nic o zawartosci
+        if isinstance(data.get("reviewed"), list):
+            return str(len(data["reviewed"]))
         return str(len(data))
     return "?"
 

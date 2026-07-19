@@ -409,6 +409,8 @@ color:#555;vertical-align:top}}
   &nbsp;<button onclick="dl()">Pobierz reassignments.json</button>
   &nbsp;<button onclick="dlsym()">Pobierz symmetry.json</button>
   &nbsp;<button onclick="dlrev()">Pobierz reviewed.json</button>
+  &nbsp;<button onclick="revAll()">Zaznacz wszystkie przejrzane</button>
+  &nbsp;<button onclick="revNone()">Odznacz wszystkie</button>
   &nbsp;<button onclick="rst()">Cofnij zmiany</button><br>
   {diag_html}
   <span class="hint">klik = usun / shift+klik = zakres</span><br>
@@ -423,7 +425,17 @@ const TKEYS={json.dumps(list(TRANSFORM_KEYS))};
 const DEL="__DELETE__";
 const RKEY="schemagen_reviewed:"+location.pathname;
 const SKEY="schemagen_symmetry:"+location.pathname;
+// Zbior klas widocznych TERAZ. Stan "przejrzana" przezywal regeneracje pliku,
+// wiec po zmianie przestrzeni nazw klas (migracja tag -> bbox_class) w localStorage
+// zostawaly klasy widmo typu `1q4`, `ks2_10` i wyciekaly do reviewed.json.
+const LIVE=new Set([...document.querySelectorAll('.fchk')].map(c=>c.dataset.c));
 let REV=new Set(JSON.parse(localStorage.getItem(RKEY)||"[]"));
+const STALE=[...REV].filter(c=>!LIVE.has(c));
+if(STALE.length){{
+  REV=new Set([...REV].filter(c=>LIVE.has(c)));
+  localStorage.setItem(RKEY,JSON.stringify([...REV]));
+  console.warn("usunieto "+STALE.length+" nieaktualnych klas z 'przejrzane': "+STALE.join(", "));
+}}
 // stan symetrii: yaml jako baza, localStorage nadpisuje (praca w toku)
 let SYMST=JSON.parse(JSON.stringify(SYM));
 Object.assign(SYMST, JSON.parse(localStorage.getItem(SKEY)||"{{}}"));
@@ -499,6 +511,16 @@ function rev(cb){{const c=cb.dataset.c;
   localStorage.setItem(RKEY,JSON.stringify([...REV]));
   cb.closest('.fbtn').classList.toggle('done',cb.checked); updRev();}}
 function updRev(){{document.getElementById('revcnt').innerText=REV.size;}}
+function setAllRev(on){{
+  document.querySelectorAll('.fchk').forEach(cb=>{{
+    cb.checked=on;
+    if(on) REV.add(cb.dataset.c); else REV.delete(cb.dataset.c);
+    cb.closest('.fbtn').classList.toggle('done',on);
+  }});
+  localStorage.setItem(RKEY,JSON.stringify([...REV])); updRev();
+}}
+function revAll(){{setAllRev(true);}}
+function revNone(){{setAllRev(false);}}
 // Klik w podglad przelacza zgode na ta transformacje.
 function onsym(el){{
   const c=el.dataset.c, t=el.dataset.t;

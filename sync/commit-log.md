@@ -308,3 +308,4 @@
 | 2026-07-19 18:40 | Claude | 47089440 | [Claude] gt_restore_check --git-rev: audyt gt/ wzgledem rewizji gita (backup bywa juz uszkodzony) |
 | 2026-07-19 18:49 | Claude | abe85b3e | [Claude] [BLAD] element_review czytal merge v1+v2 - id element_* nie istnialy w gt/; teraz czyta GT v2 (to samo zrodlo co apply_reassign) + ostrzezenie o bboxach tylko w v1 |
 | 2026-07-19 18:49 | Claude | d1fe96d3 | [Claude] [BLAD] element_review czytal merge v1+v2 - id element_* nie istnialy w gt/; teraz czyta GT v2 (to samo zrodlo co apply_reassign) + ostrzezenie o bboxach tylko w v1 |
+| 2026-07-19 19:10 | Claude | 557c02ad | [Claude] element_review: leniwe wczytywanie stron (bylo ~6GB RAM przy 199 stronach) - obraz otwierany dopiero gdy potrzebny crop |
