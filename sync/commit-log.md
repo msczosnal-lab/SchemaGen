@@ -255,3 +255,4 @@
 | 2026-07-19 14:35 | Claude | c887fad9 | [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py |
 | 2026-07-19 14:35 | Claude | 9247c469 | [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py |
 | 2026-07-19 14:35 | Claude | 935ca82a | [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py |
+| 2026-07-19 14:49 | Claude | 570f377a | [Claude] 025: 197 stron GT tylko w cache SQLite (w tym p040) - audit_gt rozdziela sieroty + tools/rescue_gt_from_cache.py |
