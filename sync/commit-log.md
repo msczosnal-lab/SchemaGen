@@ -285,3 +285,4 @@
 | 2026-07-19 17:01 | Claude | 8272f1cc | [Claude] Plan 027 + trening: etapy, komendy, kryteria STOP (sync/PLAN-027-TRENING.md) |
 | 2026-07-19 17:13 | Claude | f6c14b4f | [Claude] prompt 028: element_review v2 - diagnoza 163 vs 160 + symetrie symboli (config/symbol-symmetry.yaml) |
 | 2026-07-19 16:48 | Claude | f88d297f | [Claude] 026 odmrozone (480->3639 bbox): urzadzenie -> contextual (poza YOLO); blokada 027 nieaktualna |
+| 2026-07-19 17:16 | Claude | fc28f4f5 | [Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa |
