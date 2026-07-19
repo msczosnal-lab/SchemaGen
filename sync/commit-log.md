@@ -267,3 +267,4 @@
 | 2026-07-19 15:22 | Claude | f69a77d0 | [Claude] 025: odzysk 193 stron GT z cache (4 kopie F1 odsiane) + ostrzezenie o rozdzieleniu dataset/metryka |
 | 2026-07-19 15:22 | Claude | 800b6534 | [Claude] 025: odzysk 193 stron GT z cache (4 kopie F1 odsiane) + ostrzezenie o rozdzieleniu dataset/metryka |
 | 2026-07-19 15:22 | Claude | 8c320a3b | [Claude] 025: odzysk 193 stron GT z cache (4 kopie F1 odsiane) + ostrzezenie o rozdzieleniu dataset/metryka |
+| 2026-07-19 15:25 | Claude | 78662033 | [Claude] 025: rescue_gt_from_cache - poprawny komunikat dry-run (nie mylic z realnym zapisem) |
