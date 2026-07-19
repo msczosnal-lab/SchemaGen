@@ -38,6 +38,12 @@
 | **027-gt-cleanup-class-merge** | 🔵 AKTYWNE — przegląd bboxów + scalenie klas EN/PL; blokuje następny trening | Sonnet 5 |
 | **025-labeler-audit** | 🔵 AKTYWNE — zły page_id / złe bboxy, audyt całości | Opus 4.8 (A/B) → Sonnet 5 (C) |
 | **024-conn-remap-precision** | 🔵 AKTYWNE — remap fail 118 + precyzja 0.05 | Opus 4.8 |
+| **028-element-review-v2** | ✅ DONE — rozbieżność 163/160 = `tag_to_class` vs `bbox_class` (3 bboxy p029, `type=styki`/`tag=SAF1-3`); `symbol-symmetry.yaml`; **1053 kafle, sufit wariantu 1 = 76,7 %**; pytest 523 | Opus 4.8 |
+
+**028 — czeka na Filipa:** przegląd symetrii 12 klas zakresu 5–30 inst. w `element_review.py`
+(11 z nich bez wpisu ⇒ wariant 1T da 2 kafle zamiast 128) + decyzja wariant 1T tak/nie:
+[`sync/analysis/028-augmentacja-projekt.md`](analysis/028-augmentacja-projekt.md).
+[RYZYKO] `data/labeled_tiled/` nieaktualny (12 kafli train, klasy `saf1`/`1`/`10`) — wymaga re-eksportu.
 
 **Kolejność: 025 → 024, równolegle 027 + doznaczanie (Filip).** Hipoteza wspólnej przyczyny (rozjazd skali GT ↔ obraz) **obalona** — eksport zdrowy (`poza [0,1]: 0`, `pustych: 0`). Błąd labelera i porażka treningu to dwie osobne sprawy.
 

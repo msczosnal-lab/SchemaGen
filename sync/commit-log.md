@@ -289,3 +289,4 @@
 | 2026-07-19 17:20 | Claude | a073a563 | [Claude] Plan 027 + trening: etapy, komendy, kryteria STOP (sync/PLAN-027-TRENING.md) |
 | 2026-07-19 17:21 | Claude | 6fbef3eb | [Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa |
 | 2026-07-19 17:21 | Claude | e05a4760 | [Claude] 028: silnik duplikacji symboli (C1a in-place / C1b copy-paste), zakres klas 5-30, miara mAP per klasa |
+| 2026-07-19 17:33 | Claude | 471890cb | [Claude] 028: element_review v2 - bbox_class + jawny raport brakow, symbol-symmetry.yaml + UI, projekt augmentacji |
