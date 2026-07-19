@@ -1,1 +1,7 @@
 [Claude] 034 ekstrakcja wektorowa z PDF (929 sciezek/strone) zamiast Hougha; 033 wstrzymane
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+

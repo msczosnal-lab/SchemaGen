@@ -266,6 +266,99 @@ def recover_terminal_gated_wires(
     return out
 
 
+def merge_collinear_wires(
+    lines: list[GraphicLine],
+    *,
+    gap_tol: float = 12.0,
+    perp_tol: float = 6.0,
+) -> list[GraphicLine]:
+    """Scal kolinearne wire po pipeline — tylko emisja graphic_lines (connections juz zbudowane)."""
+    wires = [ln for ln in lines if LineClassifier.is_connection_candidate(ln)]
+    rest = [ln for ln in lines if not LineClassifier.is_connection_candidate(ln)]
+    if len(wires) < 2:
+        return lines
+
+    remaining = sorted(wires, key=lambda ln: -_line_span(ln))
+    merged: list[GraphicLine] = []
+    used = [False] * len(remaining)
+
+    for i, base in enumerate(remaining):
+        if used[i]:
+            continue
+        ep = _endpoints(base)
+        if ep is None:
+            used[i] = True
+            merged.append(base)
+            continue
+        x0, y0 = ep[0][0], ep[0][1]
+        x1, y1 = ep[1][0], ep[1][1]
+        for j in range(i + 1, len(remaining)):
+            if used[j]:
+                continue
+            other = remaining[j]
+            if not _collinear_mergeable((x0, y0, x1, y1), other, gap_tol, perp_tol):
+                continue
+            x0, y0, x1, y1 = _extend_segment_coords(x0, y0, x1, y1, other)
+            used[j] = True
+        used[i] = True
+        merged.append(base.model_copy(update={"points": [[x0, y0], [x1, y1]]}))
+    return rest + merged
+
+
+def _collinear_mergeable(
+    seg: tuple[float, float, float, float],
+    other: GraphicLine,
+    gap_tol: float,
+    perp_tol: float,
+) -> bool:
+    ep = _endpoints(other)
+    if ep is None:
+        return False
+    pa, qa = ep
+    orient = _orientation(pa, qa)
+    if orient is None:
+        return False
+    x0, y0, x1, y1 = seg
+    if orient == "h":
+        yline = (pa[1] + qa[1]) / 2.0
+        if abs((y0 + y1) / 2.0 - yline) > perp_tol:
+            return False
+        a0, a1 = sorted((x0, x1))
+        b0, b1 = sorted((pa[0], qa[0]))
+    else:
+        xline = (pa[0] + qa[0]) / 2.0
+        if abs((x0 + x1) / 2.0 - xline) > perp_tol:
+            return False
+        a0, a1 = sorted((y0, y1))
+        b0, b1 = sorted((pa[1], qa[1]))
+    if b0 > a1:
+        gap = b0 - a1
+    elif a0 > b1:
+        gap = a0 - b1
+    else:
+        gap = 0.0
+    return gap <= gap_tol
+
+
+def _extend_segment_coords(
+    x0: float, y0: float, x1: float, y1: float, other: GraphicLine
+) -> tuple[float, float, float, float]:
+    ep = _endpoints(other)
+    assert ep is not None
+    pa, qa = ep
+    pts = [(x0, y0), (x1, y1), (pa[0], pa[1]), (qa[0], qa[1])]
+    orient = _orientation(pa, qa)
+    if orient == "h":
+        ys = [p[1] for p in pts]
+        xs = [p[0] for p in pts]
+        y = sum(ys) / len(ys)
+        return min(xs), y, max(xs), y
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    x = sum(xs) / len(xs)
+    return x, min(ys), x, max(ys)
+
+
 def recover_terminal_bridges(
     lines: list[GraphicLine],
     components: list[Component],

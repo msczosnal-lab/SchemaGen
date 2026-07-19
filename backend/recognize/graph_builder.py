@@ -40,6 +40,7 @@ from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import (
     apply_sieve,
     apply_terminal_gate,
+    merge_collinear_wires,
     recover_terminal_bridges,
     recover_terminal_gated_wires,
 )
@@ -177,8 +178,10 @@ class GraphBuilder:
             )
         )
 
-        # GT linii = wire-only; inne role (frame/other/dash) juz nie sa kandydatami
-        # na Connection — nie emitujemy ich do graphic_lines (metryka P/R linii).
+        # GT linii = wire-only; scal kolinearne fragmenty (cat4_split) po connections.
+        graphic_lines = merge_collinear_wires(
+            graphic_lines, gap_tol=join_tol * 2.0, perp_tol=max(6.0, join_tol * 0.5)
+        )
         graphic_lines = [ln for ln in graphic_lines if ln.role == "wire"]
 
         return SchemaModel(

@@ -5,6 +5,7 @@ from backend.recognize.line_classifier import LineClassifier
 from backend.recognize.line_sieve import (
     apply_sieve,
     apply_terminal_gate,
+    merge_collinear_wires,
     recover_terminal_bridges,
     recover_terminal_gated_wires,
 )
@@ -143,6 +144,16 @@ def test_sieve_keeps_wire_crossing_multiple_boxes() -> None:
     inner = _wire([[80, 140], [500, 140]])
     [out] = apply_sieve([inner], boxes, [], edge_tol=6.0)
     assert out.role == "wire"
+
+
+def test_merge_collinear_wires_joins_gap() -> None:
+    a = _wire([[0, 10], [50, 10]])
+    b = _wire([[55, 10], [100, 10]])
+    out = merge_collinear_wires([a, b], gap_tol=10)
+    wires = [ln for ln in out if ln.role == "wire"]
+    assert len(wires) == 1
+    assert wires[0].points[0][0] <= 1
+    assert wires[0].points[-1][0] >= 99
 
 
 def test_long_bus_along_row_of_small_boxes_stays_wire() -> None:
