@@ -1,7 +1,1 @@
-[Claude] 027 gt-cleanup + scalenie klas EN/PL; element_review/apply_reassign do migracji na GT v2
-﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
-# [Cursor] opis etapu - agent Cursor (PC Filip)
-# [Claude] opis etapu - agent Claude Cowork (PC ZW)
-#
-# Po udanym commicie plik jest czyszczony automatycznie.
-
+[Claude] GitSync watchdog: ponawianie zadania co 5 min, alarm przy zablokowanym mutexie, PID+StartTime
