@@ -96,19 +96,33 @@ function Remove-StaleGitLocks {
         }
 }
 
+# Mutex zapisuje PID + czas startu procesu. Windows RECYKLINGUJE PID-y: sam PID
+# zmarlego daemona moze trafic do obcego procesu -> mutex zajety na zawsze, cicho.
+# Para (PID, StartTime) jest unikalna, wiec taki deadlock nie moze wystapic.
+function Get-MutexToken {
+    param([int]$ProcId = $PID)
+    $p = Get-Process -Id $ProcId -ErrorAction SilentlyContinue
+    if (-not $p) { return $null }
+    return "{0}|{1}" -f $ProcId, $p.StartTime.Ticks
+}
+
 function Enter-GitSyncMutex {
     param([string]$MutexPath)
     if (Test-Path $MutexPath) {
         try {
-            $ownerPid = [int]((Get-Content $MutexPath -Raw).Trim())
-            if ($ownerPid -gt 0 -and (Get-Process -Id $ownerPid -ErrorAction SilentlyContinue)) {
-                return $false
+            $raw = (Get-Content $MutexPath -Raw).Trim()
+            $parts = $raw -split '\|'
+            $ownerPid = [int]$parts[0]
+            if ($ownerPid -gt 0) {
+                $live = Get-MutexToken -ProcId $ownerPid
+                # zajety tylko gdy proces zyje I to ten sam proces (zgodny StartTime)
+                if ($live -and ($parts.Count -lt 2 -or $live -eq $raw)) { return $false }
             }
         } catch {}
         Remove-Item $MutexPath -Force -ErrorAction SilentlyContinue
     }
     try {
-        Set-Content -Path $MutexPath -Value $PID -NoNewline -Encoding ASCII
+        Set-Content -Path $MutexPath -Value (Get-MutexToken) -NoNewline -Encoding ASCII
         return $true
     } catch {
         return $false
@@ -119,8 +133,8 @@ function Exit-GitSyncMutex {
     param([string]$MutexPath)
     if (-not (Test-Path $MutexPath)) { return }
     try {
-        $ownerPid = [int]((Get-Content $MutexPath -Raw).Trim())
-        if ($ownerPid -eq $PID) {
+        $raw = (Get-Content $MutexPath -Raw).Trim()
+        if ($raw -eq (Get-MutexToken)) {
             Remove-Item $MutexPath -Force -ErrorAction SilentlyContinue
         }
     } catch {}
@@ -137,12 +151,23 @@ Log "Repo: $RepoPath"
 
 $lastRemote = ""
 $pullOnlyNoted = $false
+$blockedSince = $null
 
 do {
     if (-not (Enter-GitSyncMutex -MutexPath $mutexFile)) {
+        # NIE milcz. Zablokowany mutex = daemon nie synchronizuje, choc okno stoi otwarte.
+        if (-not $blockedSince) { $blockedSince = Get-Date }
+        $blockedFor = [int]((Get-Date) - $blockedSince).TotalSeconds
+        if ($blockedFor -ge 60) {
+            $owner = try { (Get-Content $mutexFile -Raw).Trim() } catch { "?" }
+            Log "[BLAD] mutex zajety od ${blockedFor}s (PID $owner) - SYNC NIE DZIALA. Jesli ten PID to nie daemon: usun sync\.gitsync-mutex"
+            Show-Toast "SchemaGen: SYNC STOI" "Mutex zablokowany od ${blockedFor}s"
+            $blockedSince = Get-Date   # kolejny alert za 60 s, nie co cykl
+        }
         if (-not $Once) { Start-Sleep -Seconds $IntervalSec }
         continue
     }
+    $blockedSince = $null
     try {
         Remove-StaleGitLocks -RepoPath $RepoPath
 

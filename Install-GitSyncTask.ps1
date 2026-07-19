@@ -29,8 +29,19 @@ $inner  = "powershell -NoProfile -ExecutionPolicy Bypass -NoExit -File `"$daemon
 $cmdArg = "/c start `"SchemaGen GitSync - $MachineTag`" $inner"
 
 $action    = New-ScheduledTaskAction -Execute "cmd.exe" -Argument $cmdArg
-$trigger   = New-ScheduledTaskTrigger -AtLogOn
-$settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew
+
+# Watchdog: trigger przy logowaniu + PONAWIANIE co 5 min bez konca.
+# MultipleInstances=IgnoreNew gwarantuje, ze gdy daemon zyje, ponowienie nic nie robi.
+# Gdy padl (zamkniete okno, crash) - wstaje sam w ciagu 5 min, bez restartu PC.
+$trigger = New-ScheduledTaskTrigger -AtLogOn
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At (Get-Date) `
+    -RepetitionInterval (New-TimeSpan -Minutes 5) `
+    -RepetitionDuration ([TimeSpan]::MaxValue)).Repetition
+
+$settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+    -StartWhenAvailable -MultipleInstances IgnoreNew `
+    -RestartCount 99 -RestartInterval (New-TimeSpan -Minutes 1) `
+    -ExecutionTimeLimit ([TimeSpan]::Zero)
 $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
 
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
