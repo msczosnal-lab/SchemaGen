@@ -1,14 +1,19 @@
-# Staly zestaw stron walidacyjnych — NIGDY nie trafiaja do train.
-# page_id = stem pliku PNG (bez rozszerzenia).
-# Uzupelnij po oznaczeniu nowych projektow; Adamed AGV SA2 p025–p050.
-
+# Strony walidacyjne — dobor stratyfikowany (scripts/build_val_split.py).
+# Kazda klasa >= min-count ma tu reprezentacje, inaczej jej mAP jest
+# nieoznaczalne. Val NIGDY nie jest augmentowany.
 val_pages:
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p028
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p029
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p030
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p033
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p025
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p035
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p040
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p045
-  - 22_A_153_PL_Adamed_AGV_SA2_20250706_p050
+- 22_A_153_PL_Adamed_AGV_SA2_20250706_p026
+- 22_A_153_PL_Adamed_AGV_SA2_20250706_p028
+- 22_A_153_PL_Adamed_AGV_SA2_20250706_p048
+- 22_A_153_PL_Adamed_AGV_SA2_20250706_p064
+- 22_A_153_PL_Adamed_AGV_SA2_20250706_p084
+- 25_A_229_PL5_19012026_p007
+- 25_A_229_PL5_19012026_p011
+- 25_A_229_PL5_19012026_p014
+- 25_A_229_PL5_19012026_p016
+- 25_A_229_PL5_19012026_p019
+- 25_A_229_PL5_19012026_p021
+- SchematWRT01_p013
+- SchematWRT01_p018
+- SchematWRT01_p022
+- SchematWRT01_p023
