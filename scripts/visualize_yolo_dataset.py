@@ -7,6 +7,7 @@ nie siedza na symbolach -> etykiety treningowe sa zle (np. zla normalizacja).
 Uzycie:
     python scripts/visualize_yolo_dataset.py
     python scripts/visualize_yolo_dataset.py --split train --limit 20
+    python scripts/visualize_yolo_dataset.py --root data/labeled_tiled --limit 20
 """
 
 from __future__ import annotations
@@ -26,8 +27,8 @@ PALETTE = [(46, 204, 113), (231, 76, 60), (52, 152, 219), (241, 196, 15),
            (155, 89, 182), (26, 188, 156), (230, 126, 34), (149, 165, 166)]
 
 
-def _names() -> dict[int, str]:
-    yml = LABELED / "data.yaml"
+def _names(root: Path) -> dict[int, str]:
+    yml = root / "data.yaml"
     if not yml.exists():
         return {}
     data = yaml.safe_load(yml.read_text(encoding="utf-8")) or {}
@@ -46,12 +47,23 @@ def main() -> int:
     ap.add_argument("--split", choices=["train", "val", "both"], default="both")
     ap.add_argument("--limit", type=int, default=40)
     ap.add_argument("--out", type=Path, default=OUT_DIR)
+    ap.add_argument(
+        "--root",
+        type=Path,
+        default=LABELED,
+        help="Katalog datasetu (data.yaml + images/ + labels/). "
+             "Domyslnie data/labeled; dla tiled: data/labeled_tiled",
+    )
     args = ap.parse_args()
+    root: Path = args.root
 
-    names = _names()
+    names = _names(root)
     if not names:
-        print(f"[BŁĄD] Brak {LABELED/'data.yaml'}. Najpierw: python -m train.dataset_export")
+        print(f"[BŁĄD] Brak {root/'data.yaml'}. Najpierw: python -m train.dataset_export")
         return 1
+    print(f"Dataset: {root}")
+    if args.out == OUT_DIR:
+        args.out = OUT_DIR / root.name
     print(f"Klasy z data.yaml: {len(names)}")
 
     splits = ["train", "val"] if args.split == "both" else [args.split]
@@ -64,10 +76,15 @@ def main() -> int:
     pages = []
     shown = 0
     for split in splits:
-        img_dir = LABELED / "images" / split
-        lbl_dir = LABELED / "labels" / split
+        img_dir = root / "images" / split
+        lbl_dir = root / "labels" / split
         if not img_dir.exists():
-            continue
+            # dataset bez podkatalogow split (plaskie images/ + labels/)
+            flat_img, flat_lbl = root / "images", root / "labels"
+            if split == splits[0] and flat_img.exists():
+                img_dir, lbl_dir = flat_img, flat_lbl
+            else:
+                continue
         for img_path in sorted(img_dir.glob("*")):
             if img_path.suffix.lower() not in (".png", ".jpg", ".jpeg"):
                 continue

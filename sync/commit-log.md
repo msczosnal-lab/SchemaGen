@@ -237,3 +237,4 @@
 | 2026-07-14 21:39 | Cursor | 020894e0 | [Cursor] loop 032 STOP: loop_armed false (plateau) |
 | 2026-07-19 13:16 | Cursor | 212fdf40 | [Cursor] 023: conn path emission p028 10/42 + tiled GT sync |
 | 2026-07-15 21:15 | Cursor | c4f14eb3 | [Cursor] 023: conn path emission p028 10/42 + tiled GT sync |
+| 2026-07-19 13:18 | Claude | 810f967f | [Claude] prompty 024 conn-precision, 025 labeler-audit, 026 retrain-fail-diag + przekierowanie kolejki |

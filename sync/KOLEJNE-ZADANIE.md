@@ -34,15 +34,17 @@
 | Prompt | Status | Model |
 |--------|--------|-------|
 | **023-runtime-graph-alignment** | ✅ DONE — p028 conn 4/42 → 10/42, śr. 21.24 → 21.50, pytest 329 |
-| **026-retrain-fail-diag** | 🔴 **BLOKUJĄCE** — `symbols_tiled_v1-3` mAP50 = 0.0001 | Opus 4.8 → Sonnet 5 |
+| **026-retrain-fail-diag** | ✅ ZDIAGNOZOWANE — 480 bbox / 20 klas, train = 1 strona. Tor modelu **zamrożony** na `symbols_tiled_v1-2` | — |
+| **027-class-merge** | 🔵 AKTYWNE — scalenie duplikatów klas EN/PL, blokuje następny trening | Sonnet 5 |
 | **025-labeler-audit** | 🔵 AKTYWNE — zły page_id / złe bboxy, audyt całości | Opus 4.8 (A/B) → Sonnet 5 (C) |
 | **024-conn-remap-precision** | 🔵 AKTYWNE — remap fail 118 + precyzja 0.05 | Opus 4.8 |
 
-**Kolejność: 026 → 025 → 024.** 026 i 025 mają prawdopodobnie **wspólną przyczynę** (rozjazd skali GT ↔ obraz). Dopóki nie wiadomo, czy GT jest poprawne, każdy wynik 024 jest niepewny — nie ma sensu optymalizować metryki liczonej względem podejrzanego GT.
+**Kolejność: 025 → 024, równolegle 027 + doznaczanie (Filip).** Hipoteza wspólnej przyczyny (rozjazd skali GT ↔ obraz) **obalona** — eksport zdrowy (`poza [0,1]: 0`, `pustych: 0`). Błąd labelera i porażka treningu to dwie osobne sprawy.
 
 | Pole | Wartość |
 |------|---------|
-| **026** | [`prompts/026-retrain-fail-diag.md`](prompts/026-retrain-fail-diag.md) — 30 stron / 2 detekcje; nie trenować przed diagnozą; aktywny model pozostaje `symbols_tiled_v1-2` |
+| **026** | [`prompts/026-retrain-fail-diag.md`](prompts/026-retrain-fail-diag.md) — zamknięte: przyczyną jest 480 bbox i train = p034; `v1-3` nie wchodzi do `registry.json` |
+| **027** | scalenie klas — zakres w 026, sekcja „Duplikaty klas EN/PL"; kontrola: suma bbox po migracji nadal 480 |
 | **025** | [`prompts/025-labeler-audit.md`](prompts/025-labeler-audit.md) — priorytet: zapis pod złym page_id > błędy wyświetlania |
 | **024** | [`prompts/024-conn-remap-precision.md`](prompts/024-conn-remap-precision.md) — najpierw metryka P/R/F1, potem breakdown, potem kod |
 

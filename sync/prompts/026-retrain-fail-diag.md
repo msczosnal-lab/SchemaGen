@@ -15,7 +15,78 @@ Ultralytics 8.4.67 ... CPU (Intel Core i7-9700KF)
 
 mAP 0.0001 po 150 epokach to **nie** niedouczenie i nie zła klasa modelu. To etykiety, które nie pokrywają się z obrazem. Sieć nie ma czego dopasować.
 
-## Hipoteza główna — rozjazd skali GT ↔ obraz
+## USTALONE 2026-07-19 — przyczyna główna: pusty zbiór treningowy
+
+Rozkład klas w `data/labeled_tiled/labels/`:
+
+```
+relay 114 · led 56 · ekranowanie_kabla 44 · push_button 32 · strzalka_wej 28
+emergency_stop 26 · strzalka_wyj 22 · ground 19 · gniazdo_rj_45 17 · cewka_zaworow 16
+styki_przekaznika 16 · polaczenie_przewodow 15 · styk_nc 15 · styk_stycznika 14
+zlaczka 10 · terminal_block 10 · przekaznik_polaryzowany 9 · mostek 7 · styki 5 · styki_nc 5
+```
+
+**Razem 480 bbox na 20 klas.** Klasy ogonowe: 5–10 przykładów. mAP ≈ 0 przy `yolov8n`, 1536 px, 150 epok to w tych warunkach wynik **oczekiwany**, nie usterka.
+
+Przyczyna strukturalna — `config/val-pages.yaml` zawiera p028, p029, p030, p033 (+ p025/p035/p040/p045/p050 nieoznaczone). Z 6 stron GT:
+
+| Strona | Split | GT |
+|---|---|---|
+| p028, p029, p030, p033 | **val** | pełne |
+| p031 | train | pusta (~505 B) |
+| p034 | train | 31 KB |
+
+**Efektywny zbiór treningowy = jedna strona (p034).** Cały bogaty GT siedzi po stronie walidacyjnej.
+
+Potwierdzenie pośrednie: `zlaczka` ma 10 przykładów, choć to najliczniejszy element na schematach — i jest jedyną klasą, którą model cokolwiek wykrył (2 detekcje na 30 stronach).
+
+### DECYZJA Filipa 2026-07-19
+
+**Opcja 1 — zamrozić tor modelu.** Aktywny pozostaje `symbols_tiled_v1-2`, conf 0.18. Nie trenować do czasu ~15–20 oznaczonych stron. `config/val-pages.yaml` **bez zmian** — baseline val 30.77 zachowany, porównania pozostają ważne.
+
+`symbols_tiled_v1-3` nie wchodzi do `registry.json`. Wagi zostają w `data/runs/` jako artefakt nieudanego cyklu.
+
+Zadanie Filipa: doznaczanie stron (priorytet: strony z `contactor` i `custom_urzadzenie` po stronie **train**, nie val).
+
+Przed następnym treningiem wymagane: scalenie duplikatów klas (niżej) + `class_report.py --min-count 5` pokazujący ≥100 przykładów na klasę produkcyjną.
+
+### Opcja odrzucona — przesunięcie splitu
+
+Zostawić 2 strony val, resztę do train. Odrzucone: unieważnia baseline val 30.77, a **samo przesunięcie nie tworzy danych** — 480 bbox rozdzielone inaczej to nadal 480. Doznaczanie jest i tak konieczne, więc split zmieniamy dopiero razem z nowym materiałem.
+
+Docelowo: 20 klas × ~100 przykładów ≈ 2 000 bbox. Dziś 480, czyli ~25 %.
+
+### [BŁĄD] Duplikaty klas EN/PL — potwierdzone przez Filipa
+
+W jednym `data.yaml` współistnieją nazwy angielskie (`relay`, `led`, `push_button`, `terminal_block`, `ground`, `emergency_stop`) i polskie (`zlaczka`, `mostek`, `styki_przekaznika`, `cewka_zaworow`) — **opisują częściowo te same elementy**. Pozostałość po mieszance GT v2 z label v1 / atlasem symboli.
+
+Skutek: model uczy się sprzecznych celów na tym samym kształcie, a i tak niskie liczności są dodatkowo rozdzielone między dwie etykiety (`zlaczka` 10 + `terminal_block` 10 zamiast 20).
+
+**Zadanie: scalenie przestrzeni klas — blokuje następny trening.**
+
+1. `python scripts/visualize_class_crops.py` — przejrzeć crops per klasa, ustalić faktyczne pary duplikatów. Nie zgadywać po nazwie: `styki` / `styki_nc` / `styk_nc` / `styki_przekaznika` / `styk_stycznika` to pięć etykiet o niejasnym podziale i wymagają rozstrzygnięcia razem.
+2. Mapa scaleń w `config/class-aliases.yaml`; kanoniczna nazwa **polska** — spójnie z GT v2 i resztą configów.
+3. Alias stosowany w `dataset_export` **i** `tiled_export` przez wspólną funkcję. Nie duplikować logiki — to dokładnie ten rozjazd, który 023 musiał naprawiać.
+4. Migracja istniejącego GT: skrypt idempotentny z `--dry-run`, zapis atomowy przez `gt_store` (niezmienniki `CLAUDE.md`).
+5. Testy: GT z aliasem eksportuje się do jednego class_id; `class_report` po scaleniu bez nazw angielskich.
+
+Kontrola po scaleniu: **suma bbox musi zostać 480** — scalenie zmienia przypisanie klas, nie tworzy i nie gubi etykiet. Inna liczba = błąd migracji.
+
+Ponadto z listy retrain **brakuje w ogóle**: `contactor`, `custom_urzadzenie`, `urzadzenie`. Zgodne z ustaleniem, że pierwsze dwa są tylko na stronach val.
+
+---
+
+## Hipoteza poboczna — rozjazd skali GT ↔ obraz: OBALONA
+
+```
+plikow: 54 | pustych: 0 | bbox: 480 | poza [0,1]: 0
+```
+
+Wszystkie współrzędne w zakresie, żaden plik etykiet nie jest pusty. **`tiled_export` po przejściu na GT v2 (023) działa poprawnie** — nie ma rozjazdu skali ani zepsutej normalizacji. Poniższe kroki 1–3 zachowane jako procedura na przyszłość, ale w tym cyklu **nie są potrzebne**.
+
+Konsekwencja dla 025: rozjazd skali **nie jest** wspólną przyczyną błędu labelera i porażki treningu. To dwie osobne sprawy — objaw „złe bboxy w labelerze" wymaga własnej diagnozy, hipoteza skali odpada.
+
+Otwarte z it5 loop 032: `zlaczka GT x=5558 vs RT x=442, IoU=0` — skoro eksport jest zdrowy, ten rozjazd dotyczy ścieżki **runtime**, nie GT. Przenieść do 024 jako osobny wątek.
 
 Poszlaki, wszystkie zbieżne:
 
