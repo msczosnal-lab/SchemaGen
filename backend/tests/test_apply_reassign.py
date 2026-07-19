@@ -52,12 +52,10 @@ def test_load_and_save_gt_v2(tmp_path, monkeypatch):
     gt_dir.mkdir(exist_ok=True)
     import backend.paths as paths_mod
     import backend.db as db_mod
-    import backend.gt_store as gs_mod
 
     monkeypatch.setattr(paths_mod, "DB_PATH", db_path)
     monkeypatch.setattr(paths_mod, "GT", gt_dir)
     monkeypatch.setattr(db_mod, "DB_PATH", db_path)
-    monkeypatch.setattr(gs_mod, "GT", gt_dir)
     db_mod.init_db()
 
     page_id = "p_test"
