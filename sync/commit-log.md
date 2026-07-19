@@ -277,3 +277,4 @@
 | 2026-07-19 15:35 | Claude | bf866abf | [Claude] 025: GT odzyskane - 199 stron w gt/ (bylo 6); 4 kopie F1 odsiane; nowe: 1 bbox poza kadrem na 8 stronach |
 | 2026-07-19 15:52 | Claude | 14b5edf6 | [Claude] 025: raporty audytu + narzedzia (audit_gt, gt_dup_scan, rescue, prune_cache_orphans) |
 | 2026-07-19 15:52 | Claude | 92f58346 | [Claude] 025: raporty audytu + narzedzia (audit_gt, gt_dup_scan, rescue, prune_cache_orphans) |
+| 2026-07-19 15:52 | Claude | 248ed95e | [Claude] 025: raporty audytu + narzedzia (audit_gt, gt_dup_scan, rescue, prune_cache_orphans) |
