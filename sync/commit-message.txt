@@ -1,1 +1,7 @@
 [Claude] 025 Faza A+B: audyt labelera - wyscig selectPage zapisuje GT pod cudzym page_id + tools/audit_gt.py
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
