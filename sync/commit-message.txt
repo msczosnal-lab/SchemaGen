@@ -1,2 +1,8 @@
 [Claude] sync: wypchniecie build_val_split.py (54645d79 zalegal niewypchniety)
 [Filip] 028: przeglad GT - 163 zmiany (139 usuniec, 24 retagi), symetria 17 klas, bramka przegladu 19 klas
+﻿# Jedna linia wiadomosci commita (bez tego daemon uzyje auto[MachineTag]):
+# [Cursor] opis etapu - agent Cursor (PC Filip)
+# [Claude] opis etapu - agent Claude Cowork (PC ZW)
+#
+# Po udanym commicie plik jest czyszczony automatycznie.
+
