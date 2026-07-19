@@ -5,4 +5,6 @@
 # Po udanym commicie plik jest czyszczony automatycznie.
 
 
-[Claude] apply_reviewed odsiewa klasy widmo z localStorage; element_review czysci nieaktualne przejrzane + zaznacz/odznacz wszystkie; _pick_input liczy wpisy reviewed.json
+[Claude] class_report rozdziela wykluczenia: prog min-count vs bramka przegladu (bylo mylace - 534 instancji pod naglowkiem "<5 instancji")
+
+[Claude] build_val_split.py: stratyfikowany dobor stron val (zachlanne pokrycie klas); strony bedace jedynym zrodlem klasy zostaja w train

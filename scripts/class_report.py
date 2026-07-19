@@ -22,6 +22,7 @@ from backend.class_map import (
     build_class_map,
     class_distribution,
     load_palette_map,
+    load_reviewed_classes,
     load_yolo_exclude_classes,
 )
 from backend.paths import ROOT
@@ -63,13 +64,33 @@ def main() -> int:
     for name, idx in sorted(class_map.items(), key=lambda kv: kv[1]):
         print(f"{idx:>3}  {name:<32} {dist.get(name, 0):>9}")
 
-    excluded = sorted((c, n) for c, n in dist.items() if c not in class_map)
-    if excluded:
-        lost = sum(n for _, n in excluded)
-        print(f"\n[INFO] WYKLUCZONE (<{args.min_count} instancji): {len(excluded)} klas, "
+    # Dwa ROZNE powody wykluczenia — mieszanie ich ukrywa, ze duza klasa
+    # wypadla przez brak przegladu, a nie przez prog licznosci.
+    reviewed = load_reviewed_classes()
+    rare = sorted((c, n) for c, n in dist.items()
+                  if c not in class_map and n < args.min_count)
+    gated = sorted((c, n) for c, n in dist.items()
+                   if c not in class_map and n >= args.min_count)
+
+    if rare:
+        lost = sum(n for _, n in rare)
+        print(f"\n[INFO] WYKLUCZONE (<{args.min_count} instancji): {len(rare)} klas, "
               f"{lost} bbox nie trafi do treningu:")
-        print("  " + ", ".join(f"{c}({n})" for c, n in excluded[:30])
-              + ("..." if len(excluded) > 30 else ""))
+        print("  " + ", ".join(f"{c}({n})" for c, n in rare[:30])
+              + ("..." if len(rare) > 30 else ""))
+
+    if gated:
+        lost = sum(n for _, n in gated)
+        print(f"\n[BŁĄD] WYKLUCZONE MIMO >={args.min_count} INSTANCJI: {len(gated)} klas, "
+              f"{lost} bbox. Powod: brak oznaczenia 'przejrzana' w "
+              "config/reviewed-classes.yaml (bramka przegladu):")
+        for c, n in sorted(gated, key=lambda kv: -kv[1]):
+            print(f"    {c:<32} {n:>6}")
+        print("  Aby wlaczyc: oznacz klase w scripts/element_review.py -> "
+              "scripts/apply_reviewed.py --apply")
+    elif reviewed:
+        print(f"\n[INFO] Bramka przegladu AKTYWNA ({len(reviewed)} klas zatwierdzonych) "
+              "— zadna klasa >= progu nie jest przez nia blokowana.")
     print(f"\n[INFO] Klas do treningu: {len(class_map)} | "
           f"instancji w treningu: {sum(dist.get(n, 0) for n in class_map)}")
     return 0
