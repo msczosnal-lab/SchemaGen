@@ -50,7 +50,7 @@
 | Pole | Wartość |
 |------|---------|
 | **026** | [`prompts/026-retrain-fail-diag.md`](prompts/026-retrain-fail-diag.md) — zamknięte: przyczyną jest 480 bbox i train = p034; `v1-3` nie wchodzi do `registry.json` |
-| **027** | [`prompts/027-gt-cleanup-class-merge.md`](prompts/027-gt-cleanup-class-merge.md) — Krok1+2 DONE, wynik: [`sync/analysis/027-export-type-fix.md`](analysis/027-export-type-fix.md) (179→61 klas na 199 stronach, 0 strat bbox). **[BŁĄD] bramka przeglądu blokuje 556 bbox mimo >=5 inst.: `terminal_przylaczeniowy`(520), `styk_stycznika`(36) — brak wpisu w `config/reviewed-classes.yaml`.** Krok3 (scalenia klas) czeka na Filipa. |
+| **027** | [`prompts/027-gt-cleanup-class-merge.md`](prompts/027-gt-cleanup-class-merge.md) — Krok1+2 DONE, wynik: [`sync/analysis/027-export-type-fix.md`](analysis/027-export-type-fix.md) (179→61 klas na 199 stronach, 0 strat bbox). Bramka przeglądu poprawnie blokuje 556 bbox mimo >=5 inst. (`terminal_przylaczeniowy` 520, `styk_stycznika` 36) — **zamierzone**, Filip potwierdził (2026-07-19): to jest część Kroku 3 (przegląd przed treningiem), nie bug. Krok3 (przegląd + scalenia klas) czeka na Filipa. |
 | **025** | [`prompts/025-labeler-audit.md`](prompts/025-labeler-audit.md) — priorytet: zapis pod złym page_id > błędy wyświetlania |
 | **024** | [`prompts/024-conn-remap-precision.md`](prompts/024-conn-remap-precision.md) — najpierw metryka P/R/F1, potem breakdown, potem kod |
 
