@@ -249,3 +249,4 @@
 | 2026-07-19 13:55 | Cursor | c6e587a0 | [Cursor] 027: element_review/apply_reassign na GT v2, class-aliases.yaml |
 | 2026-07-19 13:55 | Cursor | 66ffbf4b | [Cursor] 027: element_review/apply_reassign na GT v2, class-aliases.yaml |
 | 2026-07-19 13:55 | Cursor | a531673c | [Cursor] 027: element_review/apply_reassign na GT v2, class-aliases.yaml |
+| 2026-07-19 14:24 | Claude | 534b24b1 | [Claude] 027 Krok1: eksport klasy po `type` (GT v2) zamiast `tag`, bbox_class + testy regresji, pytest 288 |

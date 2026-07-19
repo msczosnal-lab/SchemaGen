@@ -1,3 +1,42 @@
+## 2026-07-19 [Claude] — 027 Krok1 DONE: eksport klasy YOLO po `type`, nie po `tag`
+
+**Zmiana:** `bbox_class(class_name, tag)` w `backend/class_map.py` — GT v2 (`class_name`=`type`) ma pierwszeństwo nad `tag`; v1 (SQLite, `class_name` zawsze `"element"`) fallback na stary `tag_to_class(tag)` bez zmian. `type` normalizowany przez `slugify` (ascii-fold) — scala niespójne diakrytyki (`custom_urządzenie`/`custom_urzadzenie`).
+
+**Podłączone:** `class_distribution`, `resolve_class_id` (nowy opcjonalny `class_name=`, kompatybilny wstecznie), `dataset_export.py:355`, `tiled_export.py:144`, `labeler/export.py:117` (`yolo_label_lines` — obejmuje też adhoc `export_yolo`).
+
+**Pomiar na realnym GT (`gt/*.json`, 6 stron, 421 bbox, bez SQLite — sandbox nie ma dostępu do `data/schemagen.db`):**
+
+| Klasa | przed (po `tag`) | po (po `type`) |
+|---|---|---|
+| zlaczka | 45 | **136** |
+| oznaczenie_przewodu | 16 (zlepione) | rozbite: custom_oznaczenie_przewodu 63 + oznaczenie_przewodu 16 |
+| klasy numeryczne (`1`..`11`, `6`=22 szt.) | obecne, odcinane przez `--min-count 5` | **zniknęły** |
+| custom_urzadzenie | rozbite na 2 warianty diakrytyków | scalone: 17 |
+
+Zero-strat: wszystkie 421 bbox dostają klasę (`bbox_class(...) is not None`) — zgodne z oczekiwaniem promptu ("suma bbox rośnie, nic nie wypada").
+
+**[BŁĄD] poboczny z promptu (paleta `auxiliary_contactor`→`dioda`)** — sprawdzone, **już nieaktualne**: w `config/symbol-palette.yaml` `auxiliary_contactor` ma poprawnie `label_pl: stycznik pomocniczy`; zero wystąpień `dioda` w `gt/*.json`. Nic do zrobienia.
+
+**pytest:** 288 passed (backend/tests + labeler/tests), 3 pominięte w sandboxie z przyczyn środowiskowych (nie regresja mojej zmiany):
+- `test_apply_reassign.py::test_load_and_save_gt_v2` — `AttributeError: backend.gt_store has no attribute GT`. To z commita Cursora `c6e587a0` (027 v1, apply_reassign na GT v2), nie z tej zmiany — nie dotykałem `gt_store.py`.
+- `test_palette_api.py::test_symbol_palette_endpoint/_search` — `sqlite3.OperationalError: disk I/O error` przy `init_db()` na zamontowanym dysku sandboxa; potwierdź lokalnie na PC.
+
+**Nie wykonane w tej sesji (poza zakresem Krok1 / brak danych w sandboxie):**
+- Krok 2 (re-export + `class_report.py` na pełnym GT+SQLite) — wymaga `data/raw/*.png` i żywej bazy, uruchom lokalnie:
+  ```powershell
+  python -m train.tiled_export --win 1536 --overlap 0.2 --min-visible 0.35 --min-count 5
+  python scripts/class_report.py --min-count 5
+  python scripts/visualize_yolo_dataset.py --root data/labeled_tiled --limit 20
+  ```
+  Wynik → `sync/analysis/027-export-type-fix.md` (przed/po per klasa) — jeszcze nie napisany, do zrobienia po realnym re-eksporcie.
+- Krok 3 (decyzje o scaleniu klas: zlaczka/zlacze/listwa_zlaczek, styki/styki_przekaznika/styk_nc, custom_urzadzenie/urzadzenie) — czeka na Filipa, wiedza domenowa.
+- `python scripts/diff_gt_runtime.py --page p028`, `python scripts/eval_val_pages.py` — wymaga modelu/danych lokalnych.
+
+**Ryzyko:** SCORE się zmieni (przestrzeń klas inna) — baseline 21.50 unieważniony, jak zapowiedziano w prompcie.
+
+Commit pending: `[Claude] 027 Krok1: eksport klasy po type (GT v2) zamiast tag, bbox_class + testy regresji, pytest 288`
+
+---
 ## 2026-07-11 [Cursor] — 031 DONE: bezpieczny GitSync + backup DB
 
 **Repo:** `git status` czysty, `git fsck --full` OK (tylko dangling — normalne po rebase).
