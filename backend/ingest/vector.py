@@ -448,6 +448,12 @@ def _corner_angle_deg(
     return min(d, 180.0 - d)
 
 
+def _endpoints_close(
+    a: tuple[float, float], b: tuple[float, float], tol: float
+) -> bool:
+    return math.hypot(a[0] - b[0], a[1] - b[1]) <= tol
+
+
 def merge_l_corners(
     lines: list,
     *,
@@ -455,19 +461,13 @@ def merge_l_corners(
     corner_angle_tol_deg: float = 12.0,
     min_corner_angle_deg: float = 45.0,
 ) -> list:
-    """Sklej ortogonalne odcinki w polilinie L (wspolny wierzcholek)."""
-    cur = lines
-    for _ in range(8):
-        nxt = _merge_l_corners_once(
-            cur,
-            gap_tol=gap_tol,
-            corner_angle_tol_deg=corner_angle_tol_deg,
-            min_corner_angle_deg=min_corner_angle_deg,
-        )
-        if len(nxt) == len(cur):
-            return nxt
-        cur = nxt
-    return cur
+    """Sklej ortogonalne odcinki 2-punktowe w polilinie L (jedna passa)."""
+    return _merge_l_corners_once(
+        lines,
+        gap_tol=gap_tol,
+        corner_angle_tol_deg=corner_angle_tol_deg,
+        min_corner_angle_deg=min_corner_angle_deg,
+    )
 
 
 def _merge_l_corners_once(
@@ -479,7 +479,16 @@ def _merge_l_corners_once(
 ) -> list:
     from backend.recognize.line_classifier import LineClassifier
 
-    wires = [ln for ln in lines if LineClassifier.is_connection_candidate(ln)]
+    wires = [
+        ln
+        for ln in lines
+        if LineClassifier.is_connection_candidate(ln) and len(ln.points) == 2
+    ]
+    locked = [
+        ln
+        for ln in lines
+        if LineClassifier.is_connection_candidate(ln) and len(ln.points) != 2
+    ]
     others = [ln for ln in lines if not LineClassifier.is_connection_candidate(ln)]
     if len(wires) < 2:
         return lines
@@ -508,6 +517,8 @@ def _merge_l_corners_once(
             for j, c_corner, c_out in buckets.get(snap_key(corner), []):
                 if j == i or j in used:
                     continue
+                if not _endpoints_close(corner, c_corner, gap_tol):
+                    continue
                 ang = _corner_angle_deg(tip, corner, c_out)
                 if ang < min_corner_angle_deg or ang > 180.0 - min_corner_angle_deg:
                     continue
@@ -527,7 +538,7 @@ def _merge_l_corners_once(
             used.add(i)
             merged.append(base)
 
-    return merged + others
+    return locked + merged + others
 
 
 def _polyline_crosses_components(line, components, tol: float) -> int:
@@ -569,7 +580,7 @@ def filter_vector_through_wires(lines: list, components, *, tol: float) -> list:
         on_path = _components_with_terminals_on_path(ln, components, tol)
         is_l = len(ln.points) >= 3
         if (
-            on_path >= 2
+            (on_path >= 2 and crosses >= 1)
             or crosses >= 2
             or (is_l and crosses >= 1 and on_path >= 1)
         ):

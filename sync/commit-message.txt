@@ -1,1 +1,1 @@
-﻿[Cursor] 034: wektor p028 F1=0.875 — L-merge + filtr przez tor (cross≥2 | L+1sym)
+﻿[Cursor] 034: merge_l_corners jedna passa 2-pkt — p028 P=0.85 R=0.94 F1=0.89
