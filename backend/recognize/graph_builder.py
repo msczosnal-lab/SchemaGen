@@ -109,7 +109,11 @@ class GraphBuilder:
 
         # 3) Trace + classify -> graphic_lines
         _p(3, "trasowanie i klasyfikacja linii")
-        segments = self._trace(image_path)
+        vector_segments = self._trace_vector(image_path, components, size)
+        if vector_segments is not None:
+            segments = vector_segments
+        else:
+            segments = self._trace(image_path)
         graphic_lines = self._classify(segments, size)
 
         # 3b) Sito: obramowki bbox -> frame, artefakty tekstu -> other (poza wire/bus)
@@ -146,14 +150,28 @@ class GraphBuilder:
             graphic_lines, components, bridge_tol=join_tol
         )
 
-        # 4c) Sito terminalowe: wire tylko OD-DO (oba konce + probe bbox)
+        # 4c) Wektor: bez terminal_gate (przewod przechodzi), raster: sito OD-DO
         probe_tol = max(join_tol * 2.5, join_tol + 12.0)
-        graphic_lines = apply_terminal_gate(
-            graphic_lines, components, tol=join_tol, probe_tol=probe_tol
-        )
-        graphic_lines = recover_terminal_gated_wires(
-            graphic_lines, components, tol=join_tol, probe_tol=probe_tol
-        )
+        if vector_segments is not None:
+            from backend.ingest.vector import (
+                filter_vector_through_wires,
+                merge_l_corners,
+            )
+
+            corner_tol = min(16.0, max(8.0, join_tol * 0.15))
+            graphic_lines = merge_l_corners(
+                graphic_lines, gap_tol=corner_tol
+            )
+            graphic_lines = filter_vector_through_wires(
+                graphic_lines, components, tol=join_tol
+            )
+        else:
+            graphic_lines = apply_terminal_gate(
+                graphic_lines, components, tol=join_tol, probe_tol=probe_tol
+            )
+            graphic_lines = recover_terminal_gated_wires(
+                graphic_lines, components, tol=join_tol, probe_tol=probe_tol
+            )
 
         # 5) Nets: scal segmenty wire/bus w sieci -> Connection (Warstwa 1)
         _p(5, "budowa sieci / connections")
@@ -179,9 +197,11 @@ class GraphBuilder:
         )
 
         # GT linii = wire-only; scal kolinearne fragmenty (cat4_split) po connections.
-        graphic_lines = merge_collinear_wires(
-            graphic_lines, gap_tol=join_tol * 2.0, perp_tol=max(6.0, join_tol * 0.5)
-        )
+        # Wektor: polilinie L — merge_collinear spłaszcza je do przekątnych.
+        if vector_segments is None:
+            graphic_lines = merge_collinear_wires(
+                graphic_lines, gap_tol=join_tol * 2.0, perp_tol=max(6.0, join_tol * 0.5)
+            )
         graphic_lines = [ln for ln in graphic_lines if ln.role == "wire"]
 
         return SchemaModel(
@@ -205,6 +225,26 @@ class GraphBuilder:
         if yolo_tiled() and hasattr(det, "detect_tiled"):
             return det.detect_tiled(image_path, win=yolo_tile_win(), overlap=yolo_tile_overlap())
         return det.detect(image_path)
+
+    def _trace_vector(
+        self,
+        image_path: str,
+        components,
+        size: tuple[int, int] | None,
+    ):
+        from backend.ingest.vector import (
+            drop_inside_symbol_segments,
+            trace_vector_page,
+        )
+
+        segments = trace_vector_page(image_path)
+        if segments is None:
+            return None
+        if components and size:
+            segments = drop_inside_symbol_segments(
+                segments, components, bridge_tol=_join_tol(size)
+            )
+        return segments
 
     def _trace(self, image_path: str):
         from backend.ingest.vector import trace_vector_page

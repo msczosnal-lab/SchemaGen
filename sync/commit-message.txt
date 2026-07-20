@@ -1,1 +1,1 @@
-﻿[Cursor] 034: ekstrakcja wektorowa PDF (vector.py) + wpięcie w GraphBuilder zamiast Hougha
+﻿[Cursor] 034: wektor — przewód przez tor, sklejanie L, bez merge_collinear na polilinii

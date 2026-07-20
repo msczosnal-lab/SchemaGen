@@ -11,12 +11,16 @@ from backend.ingest.vector import (
     VectorSegment,
     _rgb01_to_hex,
     _wire_color_allowed,
+    drop_t_stubs_at_mostek,
     extract_vector_page,
     filter_scheme_segments,
+    filter_vector_through_wires,
+    merge_l_corners,
     merge_vector_segments,
     resolve_pdf_for_image,
     vector_segments_to_line_segments,
 )
+from backend.models.schema import Component, GraphicLine
 from backend.paths import RAW, ROOT
 from backend.recognize.line_tracer import LineSegment
 
@@ -90,3 +94,32 @@ def test_vector_segments_to_line_segments() -> None:
     assert len(out) == 1
     assert isinstance(out[0], LineSegment)
     assert out[0].detected_color == "#112233"
+
+
+def test_merge_l_corners_joins_orthogonal() -> None:
+    h = GraphicLine(id="h", points=[[0, 0], [100, 0]], role="wire")
+    v = GraphicLine(id="v", points=[[100, 0], [100, 80]], role="wire")
+    out = merge_l_corners([h, v], gap_tol=5.0)
+    wires = [ln for ln in out if ln.role == "wire"]
+    assert len(wires) == 1
+    assert len(wires[0].points) == 3
+
+
+def test_filter_vector_through_wires_keeps_bus() -> None:
+    bus = GraphicLine(id="bus", points=[[0, 100], [500, 100]], role="wire")
+    sym_a = Component(id="a", type="zlaczka", bbox=[50, 80, 150, 120])
+    sym_b = Component(id="b", type="zlaczka", bbox=[300, 80, 400, 120])
+    out = filter_vector_through_wires([bus], [sym_a, sym_b], tol=20.0)
+    assert len(out) == 1 and out[0].role == "wire"
+
+
+def test_drop_t_stub_at_mostek() -> None:
+    bus = GraphicLine(id="bus", points=[[0, 50], [200, 50]], role="wire")
+    stub = GraphicLine(id="stub", points=[[100, 50], [100, 70]], role="wire")
+    mostek = Component(
+        id="m1",
+        type="mostek",
+        bbox=[90, 45, 110, 75],
+    )
+    out = drop_t_stubs_at_mostek([bus, stub], [mostek], tol=10.0)
+    assert len([ln for ln in out if ln.role == "wire"]) == 1
