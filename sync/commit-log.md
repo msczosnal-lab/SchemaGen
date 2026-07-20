@@ -331,3 +331,4 @@
 | 2026-07-19 23:02 | Claude | 410ac068 | [Claude] 034 ekstrakcja wektorowa z PDF (929 sciezek/strone) zamiast Hougha; 033 wstrzymane |
 | 2026-07-19 23:03 | Claude | 7be9b49f | [Claude] 034 ekstrakcja wektorowa z PDF (929 sciezek/strone) zamiast Hougha; 033 wstrzymane |
 | 2026-07-19 23:19 | Cursor | 60cd8b1a | [Cursor] 034: ekstrakcja wektorowa PDF (vector.py) + wpięcie w GraphBuilder zamiast Hougha |
+| 2026-07-20 19:44 | Cursor | ec46b626 | [Cursor] 034: wektor — przewód przez tor, sklejanie L, bez merge_collinear na polilinii |

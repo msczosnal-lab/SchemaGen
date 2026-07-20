@@ -105,12 +105,21 @@ def test_merge_l_corners_joins_orthogonal() -> None:
     assert len(wires[0].points) == 3
 
 
-def test_filter_vector_through_wires_keeps_bus() -> None:
-    bus = GraphicLine(id="bus", points=[[0, 100], [500, 100]], role="wire")
-    sym_a = Component(id="a", type="zlaczka", bbox=[50, 80, 150, 120])
-    sym_b = Component(id="b", type="zlaczka", bbox=[300, 80, 400, 120])
-    out = filter_vector_through_wires([bus], [sym_a, sym_b], tol=20.0)
+def test_filter_vector_through_wires_keeps_l_with_one_symbol() -> None:
+    elbow = GraphicLine(
+        id="elbow",
+        points=[[0, 0], [100, 0], [100, 80]],
+        role="wire",
+    )
+    sym = Component(id="a", type="zlaczka", bbox=[80, -20, 120, 40])
+    out = filter_vector_through_wires([elbow], [sym], tol=20.0)
     assert len(out) == 1 and out[0].role == "wire"
+
+
+def test_filter_vector_through_wires_demotes_orphan_stub() -> None:
+    stub = GraphicLine(id="stub", points=[[0, 0], [50, 0]], role="wire")
+    out = filter_vector_through_wires([stub], [], tol=8.0)
+    assert out[0].role == "other"
 
 
 def test_drop_t_stub_at_mostek() -> None:

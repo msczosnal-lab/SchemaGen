@@ -567,7 +567,12 @@ def filter_vector_through_wires(lines: list, components, *, tol: float) -> list:
             continue
         crosses = _polyline_crosses_components(ln, components, tol)
         on_path = _components_with_terminals_on_path(ln, components, tol)
-        if on_path >= 2 or crosses >= 2:
+        is_l = len(ln.points) >= 3
+        if (
+            on_path >= 2
+            or crosses >= 2
+            or (is_l and crosses >= 1 and on_path >= 1)
+        ):
             out.append(ln)
         else:
             out.append(ln.model_copy(update={"role": "other"}))
